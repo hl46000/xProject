@@ -1,0 +1,7 @@
+*.o
+*.d
+*.class
+**/.svn/
+**/bin/
+**/gen/
+**/obj/
