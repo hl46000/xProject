@@ -10,7 +10,7 @@ import android.touch.macro.G;
 import android.touch.macro.util.Log;
 
 /**
- * adb shell �� ����� �ܸ��⿡ ���������� ��ɾ ������ �� �ְ� �ϱ� ���� CLASS
+ * adb shell 을 실행 시켜 단말기와 데이터를 주고 받을 수 있는 CLASS
  * 
  * @author MY
  *
