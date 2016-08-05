@@ -2,18 +2,13 @@ package android.touch.macro.v2.adb;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import android.touch.macro.G;
-import android.touch.macro.adb.DeviceInfo;
 import android.touch.macro.util.Util;
 import android.touch.macro.v2.TouchMacroV2;
-import android.touch.macro.v2.UtilV2;
-import javafx.scene.image.Image;
 
 public class AdbV2 {
 	public static boolean debugLog = false;

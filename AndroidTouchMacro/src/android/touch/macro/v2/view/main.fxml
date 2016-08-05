@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.canvas.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
    <top>
       <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" spacing="5.0" BorderPane.alignment="CENTER">
          <children>
@@ -21,14 +22,20 @@
                   <Insets bottom="5.0" />
                </padding>
             </AnchorPane>
-            <Button fx:id="ID_BUTTON_REFRESH_DEVICE_INFO" mnemonicParsing="false" onAction="#eventHandleAction" text="장비 리스트 갱신" />
+            <Button fx:id="ID_BUTTON_REFRESH_DEVICE_INFO" mnemonicParsing="false" onAction="#eventHandleAction" text="장비 리스트 갱신">
+               <tooltip>
+                  <Tooltip text="ADB로 연결된 디바이스 정보를 갱신합니다." />
+               </tooltip></Button>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
                   <TableView fx:id="tvDeviceInfo" editable="true" layoutX="12.0" layoutY="14.0" prefHeight="141.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <columns>
                         <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" sortable="false">
                            <graphic>
-                              <CheckBox fx:id="ID_CHECKBOX_SELECT_ALL_DEVICE" mnemonicParsing="false" onAction="#eventHandleAction" />
+                              <CheckBox fx:id="ID_CHECKBOX_SELECT_ALL_DEVICE" mnemonicParsing="false" onAction="#eventHandleAction">
+                                 <tooltip>
+                                    <Tooltip text="디바이스를 모두 선택하거나 모두 해제합니다." />
+                                 </tooltip></CheckBox>
                            </graphic>
                         </TableColumn>
                         <TableColumn editable="false" prefWidth="144.0" sortable="false" text="모델명" />
@@ -51,37 +58,51 @@
           <Tab text="Screen position">
                <content>
                   <BorderPane prefHeight="200.0" prefWidth="200.0">
-                     <bottom>
-                        <HBox alignment="CENTER_RIGHT" prefHeight="25.0" spacing="5.0">
+                     <center>
+                        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                            <children>
-                              <HBox alignment="CENTER_LEFT" prefHeight="25.0" HBox.hgrow="ALWAYS">
+                              <HBox alignment="CENTER_RIGHT" prefHeight="25.0">
                                  <children>
                                     <Label text="이미지 크기 : " />
-                                    <Label fx:id="lbCaptureImageSize" text="X:1280, Y:1024">
+                                    <Label fx:id="lbCaptureImageSize" text="W:-1, H:-1">
                                        <padding>
                                           <Insets right="30.0" />
                                        </padding>
                                     </Label>
                                     <Label text="좌표 위치 :" />
-                                    <Label fx:id="lbClickPosition" text="X:256, Y:128" />
+                                    <Label fx:id="lbClickPosition" text="X:-1, Y:-1">
+                                       <padding>
+                                          <Insets right="10.0" />
+                                       </padding>
+                                    </Label>
                                  </children>
+                                 <padding>
+                                    <Insets bottom="1.0" />
+                                 </padding>
                               </HBox>
-                              <Button mnemonicParsing="false" text="저장하기" />
-                              <Button mnemonicParsing="false" text="불러오기" />
-                              <Button fx:id="ID_BUTTON_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#eventHandleAction" text="화면 캡쳐" />
+                              <Canvas fx:id="cvDisplay" height="330.0" onMouseClicked="#eventHandleMouse" width="640.0" />
                            </children>
+                        </VBox>
+                     </center>
+                     <bottom>
+                        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <Button mnemonicParsing="false" text="현재 이미지 저장하기" />
+                              <Button mnemonicParsing="false" text="저장된 이미지 불러오기" />
+                              <Button fx:id="ID_BUTTON_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#eventHandleAction" text="화면 캡쳐">
+                                 <tooltip>
+                                    <Tooltip text="선택된 디바이스의 현재 화면을 불러옵니다." />
+                                 </tooltip>
+                              </Button>
+                           </children>
+                           <opaqueInsets>
+                              <Insets bottom="5.0" />
+                           </opaqueInsets>
                            <padding>
-                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                              <Insets bottom="5.0" top="5.0" />
                            </padding>
                         </HBox>
                      </bottom>
-                     <center>
-                        <ImageView fx:id="ivDisplay" fitHeight="330.0" fitWidth="620.0" onMouseClicked="#eventHandleMouse" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
-                           <viewport>
-                              <Rectangle2D height="330.0" width="620.0" />
-                           </viewport>
-                        </ImageView>
-                     </center>
                   </BorderPane>
                </content>
                <contextMenu>

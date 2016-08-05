@@ -1,14 +1,12 @@
 package android.touch.macro.v2.view;
 
-import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-
-import com.sun.javafx.css.Size;
 
 import android.touch.macro.v2.PropertyV2;
 import android.touch.macro.v2.TouchMacroV2;
@@ -22,6 +20,8 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
@@ -33,9 +33,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
@@ -48,7 +48,7 @@ public class mainController {
 	private TableView<AdbDevice> tvDeviceInfo;
 	
 	@FXML
-	private ImageView ivDisplay;
+	private Canvas cvDisplay;
 	
 	@FXML
 	private Label lbCaptureImageSize;
@@ -61,18 +61,42 @@ public class mainController {
 	
 	int	display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
 	int display_screen_height 		= -1;		// 이미지를 표시할 영역의 높이
-	BufferedImage captured_image	= null;
-		
+	double display_ratio			= 1.0f;		// 이미지를 화면에 표시할때 확대/축소 비율
+	int display_angle				= 0;		// 화면의 획전 각도
+	boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
+	Point ptArrayImageDevicePoint	= new Point();
+	BufferedImage 	captured_image	= null;
+	Image 		  	display_image	= null;
+	Image 			img_arrow 		= null;
+	
 	@FXML
     public void initialize() {
-        if( !initializeAdbPath()) return;
+		if( !initializeAdbPath()) return;
         if( !initializeDeviceInfo()) return;
      
-        display_screen_width 	= (int)ivDisplay.getFitWidth();
-        display_screen_height 	= (int)ivDisplay.getFitHeight();
+        display_screen_width 	= (int)cvDisplay.getWidth();
+        display_screen_height 	= (int)cvDisplay.getHeight();
         
         System.out.println( String.format( "display_screen_width = %d, display_screen_height = %d", display_screen_width, display_screen_height ));
-    }
+        
+        InputStream is = getClass().getClassLoader().getResourceAsStream("arrow.png" );
+		img_arrow = new Image(is);
+		try {
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// 이미지가 로딩되기 전까지 이미지 영역을 표시해 줌
+		GraphicsContext gc = cvDisplay.getGraphicsContext2D();
+		gc.setLineWidth(3);
+		gc.setFill(Color.GREEN);
+		gc.setStroke(Color.BLUEVIOLET);
+        
+        gc.strokeRect( 0, 0, display_screen_width, display_screen_height);
+        gc.strokeLine( 0, 0, display_screen_width, display_screen_height);
+        gc.strokeLine( 0, display_screen_height, display_screen_width, 0);
+	}
 	
 	/**
 	 * 디바이스 정보를 초기화 시켜주는 함수
@@ -119,6 +143,8 @@ public class mainController {
 	 * Capture image rotate -90
 	 */
 	private void handler_menu_rotate_n90() {
+		display_angle = display_angle == 0 ? 360 - 90 : display_angle - 90;
+		
 		BufferedImage bi = UtilV2.rotate( captured_image, -90 );
 		displayCaptureImage( bi );		
 	}
@@ -127,6 +153,8 @@ public class mainController {
 	 * Capture image rotate +90
 	 */
 	private void handler_menu_rotate_p90() {
+		display_angle = display_angle == 270 ? 0 : display_angle + 90;
+		
 		BufferedImage bi = UtilV2.rotate( captured_image, 90 );
 		displayCaptureImage( bi );
 	}
@@ -140,10 +168,10 @@ public class mainController {
 	private void eventHandleMouse(MouseEvent e) {
 		Object obj = e.getSource();
 		
-		if( obj instanceof ImageView ) {
-			ImageView iv = ( ImageView ) obj;
-			switch( iv.getId()) {
-			case "ivDisplay" : handler_screen_position_mouse(e); break;
+		if( obj instanceof Canvas ) {
+			Canvas cv = ( Canvas ) obj;
+			switch( cv.getId()) {
+			case "cvDisplay" : handler_screen_position_mouse(e); break;
 			}
 		}
     }
@@ -155,15 +183,110 @@ public class mainController {
 	 * @param e
 	 */
 	private void handler_screen_position_mouse(MouseEvent e) {
+		if( captured_image == null ) {
+			return;
+		}
+		
+		Point screenPoint = new Point( (int) e.getX(), (int) e.getY() );  
+		Point devicePoint = screenPointToDevicePoint( screenPoint );
+		
+		lbClickPosition.setText( String.format( "X:%d, Y:%d", devicePoint.x, devicePoint.y ));
+		
 		if( 1 == e.getClickCount()) {
-			lbClickPosition.setText( String.format( "X:%d, Y:%d", (int)e.getX(), (int)e.getY()));
-			
+						
 			cmDisplayRotate.hide();
 			if( e.getButton() == MouseButton.SECONDARY ) {
 				// Context ment 을 보여 줍시다.
-				cmDisplayRotate.show( ivDisplay, e.getScreenX(), e.getScreenY());
+				cmDisplayRotate.show( cvDisplay, e.getScreenX(), e.getScreenY());
+				
+			} else {
+				drawArrawImage = true;
+				
+				ptArrayImageDevicePoint = devicePoint;
+				//System.out.printf( "화면좌표:%s, 디바이스좌표:%s\n", screenPoint.toString(), devicePoint.toString());
+				
+				displayCaptureImage( captured_image );
 			}
 		}
+	}
+
+	/**
+	 * 앱의 Screen 에서 클릭한 좌표를 단말기의 Screen 좌표로 변경 시켜 반환 합니다. 
+	 * 
+	 * @param screenPoint
+	 * @return
+	 */
+	private Point screenPointToDevicePoint(Point screenPoint) {
+		Point pt = getRatioedPoint( screenPoint );
+		return getAngledPoint( pt, captured_image.getWidth(), captured_image.getHeight(), display_angle );
+	}
+
+	/**
+	 * 단말기의 Screen 좌표값을 화면의 Screen 좌표값으로 변환하여 반환합니다. 
+	 * 
+	 * @param devicePoint
+	 * @return
+	 */
+	private Point devicePointToScreenPoint(Point devicePoint) {
+		Point pt = getUnratioedPoint( devicePoint );
+		return getUnangledPoint( pt, (int)display_image.getWidth(), (int)display_image.getHeight(), display_angle );
+	}
+	
+	
+
+	/**
+	 * 디바이스 좌표를 입력받아 화면 좌표값의 비율료 조정된 값을 반환합니다. 
+	 * 
+	 * @param pt
+	 * @return
+	 */
+	private Point getUnratioedPoint(Point pt) {
+		return new Point((int)(pt.x*display_ratio), (int)(pt.y*display_ratio));		
+	}
+
+	/**
+	 * 이미지의 angle 이 적용된 좌표로 변환하여 반환 합니다. 
+	 * 
+	 * @param pt
+	 * @return
+	 */
+	protected Point getAngledPoint( Point pt, int width, int height, int angle) {
+		Point ret = new Point( pt );
+		
+		if( angle == 90 ) {		
+			ret.x = pt.y; ret.y = width - pt.x;
+		} else if( angle == 180 ) {
+			ret.x = width - pt.x; ret.y = height - pt.y;
+		} else if( angle == 270 ) {
+			ret.x = height - pt.y; ret.y = pt.x;
+		}
+		
+		return ret;
+	}
+	
+	private Point getUnangledPoint(Point pt, int width, int height, int angle) {
+		Point ret = new Point( pt );
+		
+		if( angle == 90 ) {		
+			ret.y = pt.x; ret.x = width - pt.y; 
+		} else if( angle == 180 ) {
+			ret.x = width - pt.x; ret.y = height - pt.y;
+		} else if( angle == 270 ) {
+			ret.x = pt.y; ret.y = height - pt.x;
+		}
+		
+		return ret;
+	}
+
+	/**
+	 * 입력된 좌표값을 화면좌표값을 화면에 적용된 확대/축소값을 적용하여 원래의 X,Y 값을 반환 합니다. <br>즉, 화면좌표을 입력 받아 디바이스의 좌표로 변경시켜반환합니다. 
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private Point getRatioedPoint(Point pt) {
+		return new Point((int)(pt.x/display_ratio), (int)(pt.y/display_ratio));
 	}
 
 	/**
@@ -177,23 +300,39 @@ public class mainController {
 		}
 		
 		BufferedImage bufferedImage = AdbV2.screenCapture(device);
-		displayCaptureImage( bufferedImage );
+		lbCaptureImageSize.setText( String.format( "W:%d, H:%d", bufferedImage.getWidth(), bufferedImage.getHeight()));
+		
+		BufferedImage bi = UtilV2.rotate( bufferedImage, display_angle );
+		displayCaptureImage( bi );
 	}
 	
 	
+	/**
+	 * 입력된 bufferedImage 을 화면에 표시할 영역에 맞게 확대/축소 하여 표시해 준다. 
+	 * 
+	 * @param bufferedImage
+	 */
 	private void displayCaptureImage(BufferedImage bufferedImage) {
 		try {
-			Image image = loadResizedImage( bufferedImage );
-			if( image != null ) {
-				ivDisplay.setImage(image);
-				lbCaptureImageSize.setText( String.format( "X:%d, Y:%d", (int)image.getWidth(), (int)image.getHeight()));
+			BufferedImage resizedBufferedImage = loadResizedImage( bufferedImage );
+			if( resizedBufferedImage != null ) {
+				display_image = SwingFXUtils.toFXImage( resizedBufferedImage, null);
+				
+				GraphicsContext gc = cvDisplay.getGraphicsContext2D();
+				gc.clearRect(0, 0, cvDisplay.getWidth(), cvDisplay.getHeight());
+				gc.drawImage( display_image, 0, 0 );
+				
+				if( drawArrawImage ) {
+					Point displayPoint = devicePointToScreenPoint( ptArrayImageDevicePoint );
+					//System.out.printf( "디바이스좌표:%s, 화면좌표:%s\n", ptArrayImageDevicePoint.toString(), displayPoint.toString());
+					gc.drawImage( img_arrow, displayPoint.x - 13, displayPoint.y );
+				}
 				
 				captured_image = bufferedImage;
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	/**
@@ -203,14 +342,13 @@ public class mainController {
 	 * @return
 	 * @throws FileNotFoundException 
 	 */
-	private Image loadResizedImage(BufferedImage bufferedImage) throws FileNotFoundException {
+	private BufferedImage loadResizedImage(BufferedImage bufferedImage) throws FileNotFoundException {
 		double x_ratio = display_screen_width / (double)bufferedImage.getWidth();
 		double y_ratio = display_screen_height / (double)bufferedImage.getHeight();
-		double ratio = Math.min( x_ratio, y_ratio ); 
+		display_ratio = Math.min( x_ratio, y_ratio ); 
 		
-		bufferedImage = UtilV2.resizeImage( bufferedImage, (int)( bufferedImage.getWidth()*ratio), (int)(bufferedImage.getHeight()*ratio));
-		Image image = SwingFXUtils.toFXImage( bufferedImage, null);
-		return image;
+		bufferedImage = UtilV2.resizeImage( bufferedImage, (int)( bufferedImage.getWidth()*display_ratio), (int)(bufferedImage.getHeight()*display_ratio));
+		return bufferedImage;
 	}
 	//Image image = SwingFXUtils.toFXImage(capture, null);
 	
