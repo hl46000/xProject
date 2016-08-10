@@ -66,7 +66,9 @@ public class PropertyV2 {
 	 * @return
 	 */
 	public boolean setValue( String key, String value ) {
-		if( properties == null ) return false;
+		if( properties == null ) {
+			properties = new Properties();
+		}
 		properties.setProperty(key, value);
 		return true;
 	}

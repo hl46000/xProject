@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+
 import android.touch.macro.v2.PropertyV2;
 import android.touch.macro.v2.TouchMacroV2;
 import android.touch.macro.v2.UtilV2;
@@ -66,6 +68,7 @@ public class mainController {
 	boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
 	Point ptArrayImageDevicePoint	= new Point();
 	BufferedImage 	captured_image	= null;
+	int	captured_image_orientation 	= 0;
 	Image 		  	display_image	= null;
 	Image 			img_arrow 		= null;
 	
@@ -126,6 +129,8 @@ public class mainController {
 			switch( btn.getId() ) {
 			case "ID_BUTTON_REFRESH_DEVICE_INFO" : handler_refreshDeviceInfo(); break;
 			case "ID_BUTTON_CAPTURE_SCREEN" 	 : handler_captureScreen(); break;
+			case "ID_BTN_SAVE_SCREEN_POSITION"	 : handler_saveScreenPosition(); break;
+			case "ID_BTN_LOAD_SCREEN_POSITION"	 : handler_loadScreenPosition(); break;
 			}
 			
 		} else if( obj instanceof MenuItem ) {
@@ -139,14 +144,17 @@ public class mainController {
 	}
 	
 	
+	
+
+	
+
 	/**
 	 * Capture image rotate -90
 	 */
 	private void handler_menu_rotate_n90() {
 		display_angle = display_angle == 0 ? 360 - 90 : display_angle - 90;
 		
-		BufferedImage bi = UtilV2.rotate( captured_image, -90 );
-		displayCaptureImage( bi );		
+		displayCaptureImage( captured_image );		
 	}
 
 	/**
@@ -155,8 +163,7 @@ public class mainController {
 	private void handler_menu_rotate_p90() {
 		display_angle = display_angle == 270 ? 0 : display_angle + 90;
 		
-		BufferedImage bi = UtilV2.rotate( captured_image, 90 );
-		displayCaptureImage( bi );
+		displayCaptureImage( captured_image );
 	}
 
 	/**
@@ -190,7 +197,7 @@ public class mainController {
 		Point screenPoint = new Point( (int) e.getX(), (int) e.getY() );  
 		Point devicePoint = screenPointToDevicePoint( screenPoint );
 		
-		lbClickPosition.setText( String.format( "X:%d, Y:%d", devicePoint.x, devicePoint.y ));
+		lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
 		
 		if( 1 == e.getClickCount()) {
 						
@@ -206,6 +213,13 @@ public class mainController {
 				//System.out.printf( "화면좌표:%s, 디바이스좌표:%s\n", screenPoint.toString(), devicePoint.toString());
 				
 				displayCaptureImage( captured_image );
+				
+				// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+				AdbDevice device = getSelectedDeviceInfo();
+				if( device != null ) {
+					
+					AdbV2.touchScreen( ptArrayImageDevicePoint.x, ptArrayImageDevicePoint.y, device);
+				}
 			}
 		}
 	}
@@ -254,11 +268,11 @@ public class mainController {
 		Point ret = new Point( pt );
 		
 		if( angle == 90 ) {		
-			ret.x = pt.y; ret.y = width - pt.x;
+			ret.x = pt.y; ret.y = height - pt.x;
 		} else if( angle == 180 ) {
 			ret.x = width - pt.x; ret.y = height - pt.y;
 		} else if( angle == 270 ) {
-			ret.x = height - pt.y; ret.y = pt.x;
+			ret.x = width - pt.y; ret.y = pt.x;
 		}
 		
 		return ret;
@@ -300,10 +314,17 @@ public class mainController {
 		}
 		
 		BufferedImage bufferedImage = AdbV2.screenCapture(device);
-		lbCaptureImageSize.setText( String.format( "W:%d, H:%d", bufferedImage.getWidth(), bufferedImage.getHeight()));
 		
-		BufferedImage bi = UtilV2.rotate( bufferedImage, display_angle );
-		displayCaptureImage( bi );
+		captured_image_orientation = AdbV2.getDeviceOrientation(device);
+		System.out.println("ORIENTATION : " + captured_image_orientation );
+		
+		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d( %s ) ", bufferedImage.getWidth(), bufferedImage.getHeight(), getOrientationText(captured_image_orientation)));
+						
+		bufferedImage = UtilV2.rotate( bufferedImage, captured_image_orientation*90 );
+		captured_image = bufferedImage;
+		
+		display_angle = 0;
+		displayCaptureImage( captured_image );
 	}
 	
 	
@@ -314,7 +335,8 @@ public class mainController {
 	 */
 	private void displayCaptureImage(BufferedImage bufferedImage) {
 		try {
-			BufferedImage resizedBufferedImage = loadResizedImage( bufferedImage );
+			BufferedImage rotatedBufferedImage = UtilV2.rotate( bufferedImage, display_angle );
+			BufferedImage resizedBufferedImage = loadResizedImage( rotatedBufferedImage );
 			if( resizedBufferedImage != null ) {
 				display_image = SwingFXUtils.toFXImage( resizedBufferedImage, null);
 				
@@ -324,11 +346,8 @@ public class mainController {
 				
 				if( drawArrawImage ) {
 					Point displayPoint = devicePointToScreenPoint( ptArrayImageDevicePoint );
-					//System.out.printf( "디바이스좌표:%s, 화면좌표:%s\n", ptArrayImageDevicePoint.toString(), displayPoint.toString());
 					gc.drawImage( img_arrow, displayPoint.x - 13, displayPoint.y );
 				}
-				
-				captured_image = bufferedImage;
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -370,7 +389,9 @@ public class mainController {
 	ChangeListener<AdbDevice> DeviceInfoSelectChangeListener = new ChangeListener<AdbDevice>() {
 		@Override
 		public void changed(ObservableValue<? extends AdbDevice> observableValue, AdbDevice old_value, AdbDevice new_value ) {
-			new_value.print();
+			if( new_value != null ) {
+				new_value.print();
+			}
 		}
 	};
 	
@@ -450,6 +471,8 @@ public class mainController {
 		fileChooser.setInitialFileName( adb_file.getName());
 		
 		File result = fileChooser.showOpenDialog( TouchMacroV2.instance.getPrimaryStage());
+		if( result == null ) return;
+		
 		if( result.exists()) {
 			String name = result.getName().toLowerCase(); 
 			if( name.compareTo("adb.exe") == 0 || name.startsWith("adb")) { 
@@ -464,5 +487,83 @@ public class mainController {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 현재 작업중인 이미지와 좌표 정보를 저장합니다. 
+	 */
+	private void handler_saveScreenPosition() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("이미지와 좌표를 저장할 파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("Position", "*.pos") );
+		File result = fileChooser.showSaveDialog(TouchMacroV2.instance.getPrimaryStage());
+		if( result == null ) return;
+		
+		try {
+			ImageIO.write( captured_image, "PNG", new File( result.getParentFile(), result.getName().replaceAll( ".pos", ".png") ));
+			
+			PropertyV2 prop = new PropertyV2();
+			prop.setValue( "POSITION_X", String.valueOf( ptArrayImageDevicePoint.x ));
+			prop.setValue( "POSITION_Y", String.valueOf( ptArrayImageDevicePoint.y ));
+			prop.setValue( "SCREEN_WIDTH", String.valueOf( captured_image.getWidth() ));
+			prop.setValue( "SCREEN_HIGHT", String.valueOf( captured_image.getHeight() ));
+			prop.setValue( "SCREEN_ORIENTATION", String.valueOf( captured_image_orientation ));
+			prop.setValue( "DISPLAY_ANGLE", String.valueOf( display_angle ));
+			
+			prop.save( result.getAbsolutePath(), "");
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 저장했던 이미지와 좌표 정보를 불러 옵니다. 
+	 */
+	private void handler_loadScreenPosition() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("저장한 이미지와 좌표 파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("Position", "*.pos") );
+		File result = fileChooser.showOpenDialog(TouchMacroV2.instance.getPrimaryStage());
+		
+		if( result == null ) return;
+		if( !result.exists()) return;
+		
+		try {
+			BufferedImage bufferedImage = ImageIO.read( new File( result.getParentFile(), result.getName().replaceAll( ".pos", ".png") ) );
+			
+			lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d", bufferedImage.getWidth(), bufferedImage.getHeight()));
+			
+			PropertyV2 prop = new PropertyV2();
+			prop.load( result.getAbsolutePath() );
+			
+			ptArrayImageDevicePoint.x 	= Integer.valueOf( prop.getValue( "POSITION_X"));
+			ptArrayImageDevicePoint.y 	= Integer.valueOf( prop.getValue( "POSITION_Y"));
+			display_angle			  	= Integer.valueOf( prop.getValue( "DISPLAY_ANGLE"));
+			captured_image_orientation	= Integer.valueOf( prop.getValue( "SCREEN_ORIENTATION"));
+			lbClickPosition.setText( String.format( "X:%4d, Y:%4d", ptArrayImageDevicePoint.x, ptArrayImageDevicePoint.y ));
+			
+			drawArrawImage = true;
+			displayCaptureImage( bufferedImage );
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * @param orientation
+	 * @return
+	 */
+	private String getOrientationText( int orientation ) {
+		String text = "PORTRAIT";
+		switch (orientation) {
+	    case 0 : text = "PORTRAIT"; 	break;
+	    case 1 : text = "LANDSCAPE"; break;
+	    case 2 : text = "REVERSE_PORTRAIT"; break;
+	    case 3 : text = "REVERSE_LANDSCAPE"; break;
+	    default: text = "PORTRAIT"; break;
+	    }
+		return text;
 	}
 }

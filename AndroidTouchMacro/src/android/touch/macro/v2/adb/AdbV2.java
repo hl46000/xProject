@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -127,5 +129,98 @@ public class AdbV2 {
 		}
 		
 		return ret;
+	}
+	
+	/**
+	 * device 의 x, y 좌표를 클릭 합니다. 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param device
+	 */
+	public static void touchScreen( int x, int y, AdbDevice device ) {
+		Command( String.format( "shell input tap %d %d", x, y ), device );
+	}
+	
+	/**
+	 * 현재 단말기 화면의 회전 방향을 반환합니다. 
+	 * 
+	 * @param device
+	 * @return
+	 */
+	public static int getDeviceOrientation( AdbDevice device ) {
+		// STEP 1
+		ArrayList<String> result = new ArrayList<String>(); 
+		ArrayList<String> lines = Command( "shell dumpsys display", device );
+		for( String line : lines ) {
+			if( line.contains("orientation")) result.add( line );
+		}
+		
+		for( String line : result ) {
+			Map<String,String> itemData = new HashMap<String,String>();
+			
+			String items [] = line.trim().split(",");
+			for( String item : items ) {
+				String value [] = item.trim().split("=");
+				if( value.length > 1 ) {
+					itemData.put( value[0].trim().toLowerCase(), value[1].trim().toLowerCase());
+				}
+			}
+			
+			if( itemData.size() == 0 ) continue;
+			
+			String value = itemData.get("devicewidth");
+			if( value != null ) {
+				try {
+					int width = Integer.valueOf( value );
+					if( width > 0 ) {
+						value = itemData.get("orientation");
+						if( value != null ) {
+							return Integer.valueOf( value );
+						}
+					}
+				} catch( Exception e ) {
+					continue;
+				}
+			}
+		}
+		
+		// STEP 2
+		result.clear(); 
+		lines = Command( "shell dumpsys SurfaceFlinger", device );
+		for( String line : lines ) {
+			if( line.contains("orientation")) result.add( line );
+		}
+		
+		for( String line : result ) {
+			Map<String,String> itemData = new HashMap<String,String>();
+			
+			String items [] = line.trim().split(",");
+			for( String item : items ) {
+				String value [] = item.trim().split("=");
+				if( value.length > 1 ) {
+					itemData.put( value[0].trim().toLowerCase(), value[1].trim().toLowerCase());
+				}
+			}
+			
+			if( itemData.size() == 0 ) continue;
+			
+			String value = itemData.get("candraw");
+			if( value != null ) {
+				try {
+					int width = Integer.valueOf( value );
+					if( width > 0 ) {
+						value = itemData.get("orientation");
+						if( value != null ) {
+							return Integer.valueOf( value );
+						}
+					}
+				} catch( Exception e ) {
+					continue;
+				}
+			}
+		}
+		
+		return -1;
 	}
 }

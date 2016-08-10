@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.image.*?>
@@ -68,12 +69,18 @@
                                        <padding>
                                           <Insets right="30.0" />
                                        </padding>
+                                       <font>
+                                          <Font name="Arial" size="12.0" />
+                                       </font>
                                     </Label>
                                     <Label text="좌표 위치 :" />
                                     <Label fx:id="lbClickPosition" text="X:-1, Y:-1">
                                        <padding>
                                           <Insets right="10.0" />
                                        </padding>
+                                       <font>
+                                          <Font name="Arial" size="12.0" />
+                                       </font>
                                     </Label>
                                  </children>
                                  <padding>
@@ -87,8 +94,8 @@
                      <bottom>
                         <HBox alignment="CENTER" prefHeight="25.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
-                              <Button mnemonicParsing="false" text="현재 이미지 저장하기" />
-                              <Button mnemonicParsing="false" text="저장된 이미지 불러오기" />
+                              <Button fx:id="ID_BTN_SAVE_SCREEN_POSITION" mnemonicParsing="false" onAction="#eventHandleAction" text="현재 이미지 저장하기" />
+                              <Button fx:id="ID_BTN_LOAD_SCREEN_POSITION" mnemonicParsing="false" onAction="#eventHandleAction" text="저장된 이미지 불러오기" />
                               <Button fx:id="ID_BUTTON_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#eventHandleAction" text="화면 캡쳐">
                                  <tooltip>
                                     <Tooltip text="선택된 디바이스의 현재 화면을 불러옵니다." />
