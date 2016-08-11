@@ -318,9 +318,9 @@ public class mainController {
 		captured_image_orientation = AdbV2.getDeviceOrientation(device);
 		System.out.println("ORIENTATION : " + captured_image_orientation );
 		
-		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d( %s ) ", bufferedImage.getWidth(), bufferedImage.getHeight(), getOrientationText(captured_image_orientation)));
+		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d( %s ) ", bufferedImage.getWidth(), bufferedImage.getHeight(), AdbDevice.getOrientationText(captured_image_orientation)));
 						
-		bufferedImage = UtilV2.rotate( bufferedImage, captured_image_orientation*90 );
+		bufferedImage = UtilV2.rotate( bufferedImage, 360-captured_image_orientation*90 );
 		captured_image = bufferedImage;
 		
 		display_angle = 0;
@@ -403,7 +403,9 @@ public class mainController {
 		AdbV2.debugLog = true;
 		ArrayList<AdbDevice> devices = AdbV2.getDevices();
 		
-		TableColumn<AdbDevice, Boolean> tcCheckBox	= (TableColumn<AdbDevice, Boolean>) tvDeviceInfo.getColumns().get(0);
+		int column_index = 0;
+		
+		TableColumn<AdbDevice, Boolean> tcCheckBox	= (TableColumn<AdbDevice, Boolean>) tvDeviceInfo.getColumns().get(column_index++);
 		tcCheckBox.setCellValueFactory( new PropertyValueFactory<AdbDevice, Boolean>("selected"));
 		tcCheckBox.setCellFactory( new Callback<TableColumn<AdbDevice, Boolean>, TableCell<AdbDevice, Boolean>>() {
             public TableCell<AdbDevice, Boolean> call(TableColumn<AdbDevice, Boolean> p) {
@@ -411,16 +413,25 @@ public class mainController {
             }
         });
 		
-		TableColumn<AdbDevice, String> tcModelName 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(1);
+		
+		TableColumn<AdbDevice, String> tcModelName 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcModelName.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("model"));
 		
-		TableColumn<AdbDevice, String> tcSerial 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(2);
+		TableColumn<AdbDevice, String> tcSerial 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcSerial.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("serialNumber"));
 		
-		TableColumn<AdbDevice, String> tcOsVersion 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(3);
+		TableColumn<AdbDevice, String> tcOsVersion 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcOsVersion.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("os_ver"));
 		
-		TableColumn<AdbDevice, String> tcStatus		= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(4);
+		/*
+		TableColumn<AdbDevice, String> tcOrientation 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
+		tcOrientation.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("orientation"));
+		
+		TableColumn<AdbDevice, String> tcDisplayOn 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
+		tcDisplayOn.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("displayOn"));
+		*/
+		
+		TableColumn<AdbDevice, String> tcStatus		= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcStatus.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("status"));
 		
 		ObservableList<AdbDevice> deviceInfoData = FXCollections.observableArrayList( devices );		
@@ -493,9 +504,20 @@ public class mainController {
 	 * 현재 작업중인 이미지와 좌표 정보를 저장합니다. 
 	 */
 	private void handler_saveScreenPosition() {
+		final String LAST_SAVE_FILE_PATH_KEY = "LAST_SAVE_FILE_PATH";
+		
+		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
+		String last_save_path = app_prop.getValue(LAST_SAVE_FILE_PATH_KEY);
+		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("이미지와 좌표를 저장할 파일을 선택하여 주세요.");
 		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("Position", "*.pos") );
+		if( last_save_path != null ) {
+			File file_last_save_path = new File( last_save_path );
+			if( file_last_save_path.exists()) {
+				fileChooser.setInitialDirectory( file_last_save_path );
+			}
+		}
 		File result = fileChooser.showSaveDialog(TouchMacroV2.instance.getPrimaryStage());
 		if( result == null ) return;
 		
@@ -511,6 +533,9 @@ public class mainController {
 			prop.setValue( "DISPLAY_ANGLE", String.valueOf( display_angle ));
 			
 			prop.save( result.getAbsolutePath(), "");
+		
+			app_prop.setValue(LAST_SAVE_FILE_PATH_KEY, result.getParentFile().getAbsolutePath());
+			app_prop.save("TouchMacro v2.0");
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -521,9 +546,21 @@ public class mainController {
 	 * 저장했던 이미지와 좌표 정보를 불러 옵니다. 
 	 */
 	private void handler_loadScreenPosition() {
+		final String LAST_LOAD_FILE_PATH_KEY = "LAST_LOAD_FILE_PATH";
+		
+		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
+		String last_load_path = app_prop.getValue(LAST_LOAD_FILE_PATH_KEY);
+		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("저장한 이미지와 좌표 파일을 선택하여 주세요.");
 		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("Position", "*.pos") );
+		if( last_load_path != null ) {
+			File file_last_load_path = new File( last_load_path );
+			if( file_last_load_path.exists()) {
+				fileChooser.setInitialDirectory(file_last_load_path);
+			}
+		}
+		
 		File result = fileChooser.showOpenDialog(TouchMacroV2.instance.getPrimaryStage());
 		
 		if( result == null ) return;
@@ -546,24 +583,10 @@ public class mainController {
 			drawArrawImage = true;
 			displayCaptureImage( bufferedImage );
 			
+			app_prop.setValue( LAST_LOAD_FILE_PATH_KEY, result.getParentFile().getAbsolutePath());
+			app_prop.save("TouchMacro v2.0");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * @param orientation
-	 * @return
-	 */
-	private String getOrientationText( int orientation ) {
-		String text = "PORTRAIT";
-		switch (orientation) {
-	    case 0 : text = "PORTRAIT"; 	break;
-	    case 1 : text = "LANDSCAPE"; break;
-	    case 2 : text = "REVERSE_PORTRAIT"; break;
-	    case 3 : text = "REVERSE_LANDSCAPE"; break;
-	    default: text = "PORTRAIT"; break;
-	    }
-		return text;
 	}
 }

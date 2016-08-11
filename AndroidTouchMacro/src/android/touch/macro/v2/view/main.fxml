@@ -87,7 +87,7 @@
                                     <Insets bottom="1.0" />
                                  </padding>
                               </HBox>
-                              <Canvas fx:id="cvDisplay" height="330.0" onMouseClicked="#eventHandleMouse" width="640.0" />
+                              <Canvas fx:id="cvDisplay" height="330.0" onMouseClicked="#eventHandleMouse" onMouseMoved="#eventHandleMouse" width="640.0" />
                            </children>
                         </VBox>
                      </center>

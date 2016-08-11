@@ -9,6 +9,8 @@ public class AdbDevice {
 	private String model;
 	private String os_ver;
 	private String status;
+	private int orientation;		// 단말기의 방향
+	private int displayOn;			// 화면 켜짐( 0:커짐, 1:켜짐 )
 	
 	public AdbDevice( String serial, String _model, String _os_ver ) {
 		serialNumber 	= serial;
@@ -31,12 +33,36 @@ public class AdbDevice {
 	public String getStatus() { return status; }
 	public void setStatus( String status ) { this.status = status; }
 	
+	public int getOrientation() { return orientation; }
+	public void setOrientation( int orientation ) { this.orientation = orientation; }
+	
+	public int getDisplayOn() { return displayOn; }
+	public void setDisplayOn( int displayOn ) { this.displayOn = displayOn; }
+	
 	public void print() {
 		System.out.println( "[AdbDevice] ================================" );
 		System.out.println( "[AdbDevice] serialNumber : " + serialNumber );
 		System.out.println( "[AdbDevice] model : " + model );
 		System.out.println( "[AdbDevice] os_ver : Android " + os_ver );
 		System.out.println( "[AdbDevice] status : " + status );
+		System.out.println( "[AdbDevice] orientation : " + getOrientationText( orientation ));
+		System.out.println( "[AdbDevice] displayOn : " + displayOn );
 		System.out.println( "[AdbDevice] ================================" );
+	}
+	
+	/**
+	 * @param orientation
+	 * @return
+	 */
+	public static String getOrientationText( int orientation ) {
+		String text = "PORTRAIT";
+		switch (orientation) {
+	    case 0 : text = "PORTRAIT"; 	break;
+	    case 1 : text = "LANDSCAPE"; break;
+	    case 2 : text = "REVERSE_PORTRAIT"; break;
+	    case 3 : text = "REVERSE_LANDSCAPE"; break;
+	    default: text = "PORTRAIT"; break;
+	    }
+		return text;
 	}
 }
