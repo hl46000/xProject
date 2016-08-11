@@ -172,6 +172,11 @@ public class AdbV2 {
 				String value = itemData.get("candraw");
 				if( value != null ) {
 					device.setDisplayOn( Integer.valueOf( value ));
+				} else {
+					value = itemData.get("isdisplayon");
+					if( value != null ) {
+						device.setDisplayOn( Integer.valueOf( value ));
+					}
 				}
 			} catch( Exception e ) {}
 				
