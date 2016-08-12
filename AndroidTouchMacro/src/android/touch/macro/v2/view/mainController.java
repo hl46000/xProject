@@ -37,7 +37,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
@@ -91,6 +90,7 @@ public class mainController {
 		}
 		
 		// 이미지가 로딩되기 전까지 이미지 영역을 표시해 줌
+		/*
 		GraphicsContext gc = cvDisplay.getGraphicsContext2D();
 		gc.setLineWidth(3);
 		gc.setFill(Color.GREEN);
@@ -99,6 +99,7 @@ public class mainController {
         gc.strokeRect( 0, 0, display_screen_width, display_screen_height);
         gc.strokeLine( 0, 0, display_screen_width, display_screen_height);
         gc.strokeLine( 0, display_screen_height, display_screen_width, 0);
+        */
 	}
 	
 	/**
