@@ -27,6 +27,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 
 public class mainController {
@@ -35,6 +36,9 @@ public class mainController {
 	
 	@FXML
 	private Canvas cvDisplay;
+	
+	@FXML
+	private AnchorPane cvDisplayAnchorPane;
 	
 	@FXML
 	private Label lbCaptureImageSize;
@@ -76,6 +80,16 @@ public class mainController {
         gc.strokeLine( 0, 0, display_screen_width, display_screen_height);
         gc.strokeLine( 0, display_screen_height, display_screen_width, 0);
         */
+		
+		cvDisplayAnchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> {
+			cvDisplay.setWidth(newValue.doubleValue());
+           // drawClicked();
+        });
+
+		cvDisplayAnchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> {
+			cvDisplay.setHeight(newValue.doubleValue());
+            //drawClicked();
+        });
 	}
 		
 	@FXML

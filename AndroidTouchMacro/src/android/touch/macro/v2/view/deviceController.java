@@ -143,7 +143,11 @@ public class deviceController {
 		for( AdbDevice deviceInfo : deviceInfoData ) {
 			deviceInfo.setSelected( b );
 		}
-		tvDeviceInfo.refresh();
+		try {
+			//tvDeviceInfo.refresh();
+		} catch( Exception e ) {
+			
+		}
 	}
 
 	private void onClick_changeAdbPath() {

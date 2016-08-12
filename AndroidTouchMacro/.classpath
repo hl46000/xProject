@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="C:/Program Files/Java/jdk1.8.0_91/jre/lib/ext/jfxrt.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="resources"/>
@@ -8,5 +7,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/commons-io-2.4.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="libs/jsr80-1.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jfxrt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

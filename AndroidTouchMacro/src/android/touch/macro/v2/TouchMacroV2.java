@@ -73,13 +73,15 @@ public class TouchMacroV2 extends javafx.application.Application {
 		
 		primaryStage.setTitle( "Android Touch Macro v2.0" );
 		
+		BorderPane root = new BorderPane();
 		Parent deviceView = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/device.fxml"));
-
-		BorderPane root = (BorderPane) FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
+		Parent main = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
+		
 		root.setTop( deviceView );		
+		root.setCenter( main );
 				
-		//primaryStage.setScene( new Scene( root, 740, 620 ));
-		primaryStage.setScene( new Scene( root ));
+		Scene scene = new Scene( root );
+		primaryStage.setScene( scene );
 		primaryStage.setResizable(false);
 		primaryStage.show();
 	}

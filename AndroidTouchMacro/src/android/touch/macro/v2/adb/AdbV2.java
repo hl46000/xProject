@@ -84,6 +84,7 @@ public class AdbV2 {
 			line = line.trim();
 			
 			if( line.length() < 5 ) continue;
+			if( line.startsWith("*")) continue;
 			if( line.startsWith("List")) continue;
 			
 			String [] tokens = line.split( " " );
