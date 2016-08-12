@@ -1,6 +1,7 @@
 package android.touch.macro.v2;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 public class UtilV2 {
@@ -44,8 +45,7 @@ public class UtilV2 {
 	 * @param angle The angle in degrees
 	 * @return The rotated image
 	 */
-	public static BufferedImage rotate(BufferedImage img, double angle)
-	{
+	public static BufferedImage rotate(BufferedImage img, double angle)	{
 		if( angle == 0.0 ) return img;
 		
 		double sin = Math.abs(Math.sin(Math.toRadians(angle)));
@@ -68,5 +68,75 @@ public class UtilV2 {
 	    //img = null;
 	    
 	    return bimg;
+	}
+	
+	/**
+	 * 입력된 좌표값을 화면좌표값을 화면에 적용된 확대/축소값을 적용하여 원래의 X,Y 값을 반환 합니다. <br>즉, 화면좌표을 입력 받아 디바이스의 좌표로 변경시켜반환합니다.
+	 * 
+	 * @param pt
+	 * @param ratio
+	 * @return
+	 */
+	public static Point getRatioedPoint(Point pt, double ratio) {
+		return new Point((int)(pt.x/ratio), (int)(pt.y/ratio));
+	}
+	
+	
+	/**
+	 * 디바이스 좌표를 입력받아 화면 좌표값의 비율료 조정된 값을 반환합니다. 
+	 * 
+	 * @param pt
+	 * @param ratio
+	 * @return
+	 */
+	public static Point getUnratioedPoint(Point pt, double ratio) {
+		return new Point((int)(pt.x*ratio), (int)(pt.y*ratio));
+	}
+	
+	
+	/**
+	 * 이미지의 angle 이 적용된 좌표로 변환하여 반환 합니다. 
+	 * 
+	 * @param pt
+	 * @param width
+	 * @param height
+	 * @param angle
+	 * @return
+	 */
+	public static Point getAngledPoint( Point pt, int width, int height, int angle) {
+		Point ret = new Point( pt );
+		
+		if( angle == 90 ) {		
+			ret.x = pt.y; ret.y = height - pt.x;
+		} else if( angle == 180 ) {
+			ret.x = width - pt.x; ret.y = height - pt.y;
+		} else if( angle == 270 ) {
+			ret.x = width - pt.y; ret.y = pt.x;
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * 이미지의 angle 이 적용된 좌표로 변환하여 반환 합니다.
+	 * 
+	 * @param pt
+	 * @param width
+	 * @param height
+	 * @param angle
+	 * @return
+	 */
+	public static Point getUnangledPoint(Point pt, int width, int height, int angle) {
+		Point ret = new Point( pt );
+		
+		if( angle == 90 ) {		
+			ret.y = pt.x; ret.x = width - pt.y; 
+		} else if( angle == 180 ) {
+			ret.x = width - pt.x; ret.y = height - pt.y;
+		} else if( angle == 270 ) {
+			ret.x = pt.y; ret.y = height - pt.x;
+		}
+		
+		return ret;
 	}
 }

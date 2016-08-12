@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.deviceController">
+   <children>
+      <VBox alignment="TOP_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="376.0" prefWidth="600.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <BorderPane prefHeight="50.0" prefWidth="590.0">
+               <left>
+                  <Label prefHeight="15.0" text="ADB Path : " BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets left="5.0" />
+                     </BorderPane.margin></Label>
+               </left>
+               <center>
+                  <TextField fx:id="txAdbPath" editable="false" prefHeight="23.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets left="5.0" />
+                     </BorderPane.margin></TextField>
+               </center>
+               <right>
+                  <Button fx:id="ID_BTN_CHANGE_ADB_PATH" mnemonicParsing="false" onAction="#event_handle_action" prefHeight="23.0" prefWidth="43.0" text="..." textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets left="5.0" />
+                     </BorderPane.margin>
+                  </Button>
+               </right>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </BorderPane>
+            <Button fx:id="ID_BUTTON_REFRESH_DEVICE_INFO" mnemonicParsing="false" onAction="#event_handle_action" text="장비 리스트 갱신">
+               <tooltip>
+                  <Tooltip text="ADB로 연결된 디바이스 정보를 갱신합니다." />
+               </tooltip>
+               <VBox.margin>
+                  <Insets right="5.0" top="5.0" />
+               </VBox.margin>
+            </Button>
+            <TableView fx:id="tvDeviceInfo" editable="true" prefWidth="600.0">
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+               <columns>
+                  <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" sortable="false">
+                     <graphic>
+                        <CheckBox fx:id="ID_CHECKBOX_SELECT_ALL_DEVICE" mnemonicParsing="false" onAction="#event_handle_action">
+                           <tooltip>
+                              <Tooltip text="디바이스를 모두 선택하거나 모두 해제합니다." />
+                           </tooltip>
+                        </CheckBox>
+                     </graphic>
+                  </TableColumn>
+                  <TableColumn editable="false" prefWidth="250.0" sortable="false" text="모델명" />
+                  <TableColumn editable="false" prefWidth="200.0" sortable="false" text="시리얼번호" />
+                  <TableColumn editable="false" maxWidth="137.0" minWidth="110.0" prefWidth="105.0" sortable="false" text="Android 버전" />
+                  <TableColumn editable="false" maxWidth="110.0" minWidth="110.0" prefWidth="107.0" sortable="false" text="연결상태" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

@@ -54,6 +54,7 @@ public class AdbDevice {
 	 * @param orientation
 	 * @return
 	 */
+	public String getOrientationText() { return getOrientationText(orientation); } 
 	public static String getOrientationText( int orientation ) {
 		String text = "PORTRAIT";
 		switch (orientation) {

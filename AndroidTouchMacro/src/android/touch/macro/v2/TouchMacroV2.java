@@ -6,6 +6,7 @@ import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class TouchMacroV2 extends javafx.application.Application {
@@ -17,11 +18,18 @@ public class TouchMacroV2 extends javafx.application.Application {
 	public static TouchMacroV2 instance = null;
 	
 	private Stage primaryStage;
+	private DataManager dataManager = null;
+	
+	public TouchMacroV2() {
+		dataManager = new DataManager();
+	}
+	
 	public void setPrimaryStage( Stage primaryStage ) {
 		this.primaryStage = primaryStage;
 	}
 
 	public Stage getPrimaryStage() { return primaryStage; }
+	public DataManager getDataManager() { return dataManager; }
 	
 	/**
 	 * Application 에서 사용하는 설정값 정보 파일을 불러 옵니다.
@@ -61,11 +69,15 @@ public class TouchMacroV2 extends javafx.application.Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {		
-		instance.setPrimaryStage(primaryStage);
+		setPrimaryStage(primaryStage);
 		
 		primaryStage.setTitle( "Android Touch Macro v2.0" );
-		Parent root = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
 		
+		Parent deviceView = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/device.fxml"));
+
+		BorderPane root = (BorderPane) FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
+		root.setTop( deviceView );		
+				
 		//primaryStage.setScene( new Scene( root, 740, 620 ));
 		primaryStage.setScene( new Scene( root ));
 		primaryStage.setResizable(false);
