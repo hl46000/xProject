@@ -79,7 +79,7 @@ public class TouchMacroV2 extends javafx.application.Application {
 		
 		root.setTop( deviceView );		
 		root.setCenter( main );
-				
+								
 		Scene scene = new Scene( root );
 		primaryStage.setScene( scene );
 		primaryStage.setResizable(false);

@@ -10,78 +10,10 @@
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 
-
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
    <children>
-      <TabPane prefHeight="420.0" prefWidth="738.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <TabPane fx:id="tpMainTabPane" prefHeight="420.0" prefWidth="738.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <tabs>
-            <Tab text="Screen position">
-               <content>
-                  <BorderPane>
-                     <bottom>
-                        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <Button fx:id="ID_BTN_SAVE_SCREEN_POSITION" mnemonicParsing="false" onAction="#event_handle_action" text="좌표 &amp; 이미지 저장하기" />
-                              <Button fx:id="ID_BTN_LOAD_SCREEN_POSITION" mnemonicParsing="false" onAction="#event_handle_action" text="좌표 &amp; 이미지 불러오기" />
-                              <Button fx:id="ID_BUTTON_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="화면 캡쳐">
-                                 <tooltip>
-                                    <Tooltip text="선택된 디바이스의 현재 화면을 불러옵니다." />
-                                 </tooltip>
-                              </Button>
-                           </children>
-                           <opaqueInsets>
-                              <Insets bottom="5.0" />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets bottom="5.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                     </bottom>
-                     <top>
-                        <HBox alignment="CENTER_RIGHT" prefHeight="30.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <Label text="이미지 크기 : " />
-                              <Label fx:id="lbCaptureImageSize" text="W:-1, H:-1">
-                                 <font>
-                                    <Font name="Arial" size="12.0" />
-                                 </font>
-                                 <padding>
-                                    <Insets right="30.0" />
-                                 </padding>
-                              </Label>
-                              <Label text="좌표 위치 :" />
-                              <Label fx:id="lbClickPosition" text="X:-1, Y:-1">
-                                 <font>
-                                    <Font name="Arial" size="12.0" />
-                                 </font>
-                                 <padding>
-                                    <Insets right="10.0" />
-                                 </padding>
-                              </Label>
-                           </children>
-                           <padding>
-                              <Insets bottom="1.0" />
-                           </padding>
-                        </HBox>
-                     </top>
-                     <center>
-                        <AnchorPane fx:id="cvDisplayAnchorPane" BorderPane.alignment="CENTER">
-                           <children>
-                              <Canvas fx:id="cvDisplay" height="325.0" onMouseClicked="#event_handle_mouse" onMouseMoved="#event_handle_mouse" width="740.0" />
-                           </children>
-                        </AnchorPane>
-                     </center>
-                  </BorderPane>
-               </content>
-               <contextMenu>
-                  <ContextMenu fx:id="cmDisplayRotate">
-                     <items>
-                        <MenuItem fx:id="ID_MENU_ROTATE_P90" mnemonicParsing="false" onAction="#event_handle_action" text="+90 회전" />
-                        <MenuItem fx:id="ID_MENU_ROTATE_N90" mnemonicParsing="false" onAction="#event_handle_action" text="-90 회전" />
-                     </items>
-                  </ContextMenu>
-               </contextMenu>
-            </Tab>
             <Tab text="Scriptting">
                <content>
                   <BorderPane>

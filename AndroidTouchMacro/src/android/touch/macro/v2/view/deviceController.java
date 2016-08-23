@@ -168,6 +168,7 @@ public class deviceController {
 			String name = result.getName().toLowerCase(); 
 			if( name.compareTo("adb.exe") == 0 || name.startsWith("adb")) { 
 				
+				AdbV2.setAdbPath( result.getAbsolutePath() );
 				prop.setValue( "ADB_PATH", result.getAbsolutePath() );
 				try {
 					prop.save("TouchMacro v2");
