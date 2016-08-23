@@ -2,6 +2,7 @@ package android.touch.macro.v2;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import android.touch.macro.v2.adb.AdbDevice;
 import android.touch.macro.v2.view.deviceController;
@@ -47,5 +48,13 @@ public class DataManager {
 	 */
 	public void addMainTabPane( Parent parent, String Title ) {
 		mainController.addMainTabPane(parent, Title);		
+	}
+	
+	
+	/**
+	 * @return
+	 */
+	public List<AdbDevice> getCheckedDeviceInfo() {
+		return device_controller.getCheckedDeviceInfo();
 	}
 }

@@ -92,7 +92,7 @@ public class AdbV2 {
 			AdbDevice device = new AdbDevice( tokens[0], null, null );
 			device.setModel( getPropCommand( "ro.product.model", device ));
 			device.setOs_ver( getPropCommand( "ro.build.version.release", device ));
-			device.setStatus( tokens[1].compareToIgnoreCase("device") == 0 ? "connected" : tokens[1] );
+			device.setStatus( tokens[1].compareToIgnoreCase("device") == 0 ? "Connected" : tokens[1] );
 			getDeviceOrientation( device );
 			
 			ret.add( device );
@@ -172,11 +172,11 @@ public class AdbV2 {
 			try {
 				String value = itemData.get("candraw");
 				if( value != null ) {
-					device.setDisplayOn( Integer.valueOf( value ));
+					device.setDisplayOn( Integer.valueOf( value ) == 0 ? "OFF" : "ON");
 				} else {
 					value = itemData.get("isdisplayon");
 					if( value != null ) {
-						device.setDisplayOn( Integer.valueOf( value ));
+						device.setDisplayOn( Integer.valueOf( value ) == 0 ? "OFF" : "ON");
 					}
 				}
 			} catch( Exception e ) {}
@@ -190,5 +190,5 @@ public class AdbV2 {
 		}
 				
 		return device.getOrientation();
-	}	
+	}	 
 }

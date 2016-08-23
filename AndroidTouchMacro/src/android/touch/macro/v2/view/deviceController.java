@@ -3,6 +3,7 @@ package android.touch.macro.v2.view;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
@@ -17,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Control;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -91,8 +93,10 @@ public class deviceController {
 		tcCheckBox.setCellValueFactory( new PropertyValueFactory<AdbDevice, Boolean>("selected"));
 		tcCheckBox.setCellFactory( new Callback<TableColumn<AdbDevice, Boolean>, TableCell<AdbDevice, Boolean>>() {
             public TableCell<AdbDevice, Boolean> call(TableColumn<AdbDevice, Boolean> p) {
-                return new CheckBoxTableCell<AdbDevice, Boolean>();
+                System.out.println("call");
+            	return new CheckBoxTableCell<AdbDevice, Boolean>();
             }
+            
         });
 		
 		
@@ -108,11 +112,10 @@ public class deviceController {
 		/*
 		TableColumn<AdbDevice, String> tcOrientation 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcOrientation.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("orientation"));
-		
+		*/
 		TableColumn<AdbDevice, String> tcDisplayOn 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcDisplayOn.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("displayOn"));
-		*/
-		
+				
 		TableColumn<AdbDevice, String> tcStatus		= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcStatus.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("status"));
 		
@@ -138,6 +141,11 @@ public class deviceController {
 			switch( btn.getId() ) {
 			case "ID_BUTTON_REFRESH_DEVICE_INFO" 	: onClick_refreshDeviceInfo(); break;
 			case "ID_BTN_CHANGE_ADB_PATH"			: onClick_changeAdbPath(); break;
+			}
+		} else if( obj instanceof MenuItem ) {
+			MenuItem mi = ( MenuItem ) obj;
+			
+			switch( mi.getId() ) {
 			case "ID_MENU_APK_INSTALL"				: onClickMenu_ApkInstall(); break;
 			case "ID_MENU_APK_UNINSTALL"			: onClickMenu_ApkUninstall(); break;
 			case "ID_MENU_APK_UPDATE"				: onClickMenu_ApkUpdate(); break;
@@ -157,6 +165,12 @@ public class deviceController {
 	}
 
 	private void onClickMenu_ApkInstall() {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			System.err.println("체크된 단말기가 없습니다. ");
+			return;
+		}
+		
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
 		File apk_path = new File( prop.getValue("APK_PATH"));
 		
@@ -177,6 +191,13 @@ public class deviceController {
 				prop.setValue( "APK_PATH", result.getAbsolutePath() );
 				try {
 					prop.save("TouchMacro v2");
+					
+					String cmd = String.format( "install \"%s\"", result.getAbsoluteFile());
+					
+					
+					for( AdbDevice device : devices ) {
+						AdbV2.Command( cmd, device);
+					}					
 					
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -215,11 +236,12 @@ public class deviceController {
 			AdbDevice device = tvDeviceInfo.getSelectionModel().getSelectedItem();
 			if( device != null ) {
 				device.setSelected( !device.getSelected() );
-				
+				/*
 				try {
 					tvDeviceInfo.refresh();
 				} catch( Exception ex ) {
 				}
+				*/
 			}
 		}
 	}
@@ -232,11 +254,12 @@ public class deviceController {
 		for( AdbDevice deviceInfo : deviceInfoData ) {
 			deviceInfo.setSelected( b );
 		}
+		/*
 		try {
 			tvDeviceInfo.refresh();
 		} catch( Exception e ) {
-			
 		}
+		*/
 	}
 
 	private void onClick_changeAdbPath() {
@@ -277,5 +300,19 @@ public class deviceController {
 	 */
 	public AdbDevice getSelectedDeviceItem() {
 		return tvDeviceInfo.getSelectionModel().getSelectedItem();		
+	}
+
+	/**
+	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 
+	 * @return
+	 */
+	public List<AdbDevice> getCheckedDeviceInfo() {
+		List<AdbDevice> ret = new ArrayList<AdbDevice>();
+		
+		ObservableList<AdbDevice> deviceInfoData = tvDeviceInfo.getItems();
+		for( AdbDevice deviceInfo : deviceInfoData ) {
+			if( deviceInfo.getSelected()) ret.add( deviceInfo );
+		}
+		return ret;
 	}
 }

@@ -10,7 +10,7 @@ public class AdbDevice {
 	private String os_ver;
 	private String status;
 	private int orientation;		// 단말기의 방향
-	private int displayOn;			// 화면 켜짐( 0:커짐, 1:켜짐 )
+	private String displayOn;			// 화면 켜짐( ON:커짐, OFF:켜짐 )
 	
 	public AdbDevice( String serial, String _model, String _os_ver ) {
 		serialNumber 	= serial;
@@ -36,8 +36,8 @@ public class AdbDevice {
 	public int getOrientation() { return orientation; }
 	public void setOrientation( int orientation ) { this.orientation = orientation; }
 	
-	public int getDisplayOn() { return displayOn; }
-	public void setDisplayOn( int displayOn ) { this.displayOn = displayOn; }
+	public String getDisplayOn() { return displayOn; }
+	public void setDisplayOn( String displayOn ) { this.displayOn = displayOn; }
 	
 	public void print() {
 		System.out.println( "[AdbDevice] ================================" );
@@ -46,7 +46,7 @@ public class AdbDevice {
 		System.out.println( "[AdbDevice] os_ver : Android " + os_ver );
 		System.out.println( "[AdbDevice] status : " + status );
 		System.out.println( "[AdbDevice] orientation : " + getOrientationText( orientation ));
-		System.out.println( "[AdbDevice] displayOn : " + displayOn );
+		System.out.println( "[AdbDevice] display : " + displayOn );
 		System.out.println( "[AdbDevice] ================================" );
 	}
 	
