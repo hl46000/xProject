@@ -15,11 +15,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
@@ -29,6 +33,9 @@ public class deviceController {
 	
 	@FXML
 	private TableView<AdbDevice> tvDeviceInfo;
+	
+	@FXML
+	private ContextMenu cmDeviceMenu;
 	
 	DataManager dataManager = null;
 	
@@ -131,10 +138,92 @@ public class deviceController {
 			switch( btn.getId() ) {
 			case "ID_BUTTON_REFRESH_DEVICE_INFO" 	: onClick_refreshDeviceInfo(); break;
 			case "ID_BTN_CHANGE_ADB_PATH"			: onClick_changeAdbPath(); break;
+			case "ID_MENU_APK_INSTALL"				: onClickMenu_ApkInstall(); break;
+			case "ID_MENU_APK_UNINSTALL"			: onClickMenu_ApkUninstall(); break;
+			case "ID_MENU_APK_UPDATE"				: onClickMenu_ApkUpdate(); break;
 			}
 		}
 	}
 	
+	
+	private void onClickMenu_ApkUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void onClickMenu_ApkUninstall() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void onClickMenu_ApkInstall() {
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		File apk_path = new File( prop.getValue("APK_PATH"));
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("APK 파일을 선택해 주세요");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("APK", "*.apk") );
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("ALL Files", "*.*") );
+		if( apk_path.exists()) {
+			fileChooser.setInitialDirectory( apk_path );
+		}
+				
+		File result = fileChooser.showOpenDialog( TouchMacroV2.instance.getPrimaryStage());
+		if( result == null ) return;
+		
+		if( result.exists()) {
+			String name = result.getName().toLowerCase(); 
+			if( name.endsWith(".apk")) { 
+				prop.setValue( "APK_PATH", result.getAbsolutePath() );
+				try {
+					prop.save("TouchMacro v2");
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}
+
+	/** 
+	 * 마우스 이벤트를 전달받을 함수
+	 * 
+	 * @param e
+	 */
+	@FXML
+	private void event_handle_mouse(MouseEvent e) {
+		Control ctrl = ( Control ) e.getSource();
+		
+		switch( ctrl.getId()) {
+		case "tvDeviceInfo" 		: mouse_handler_table_view(e, ctrl); break;
+		}		
+    }
+	
+	/**
+	 * @param e
+	 * @param ctrl 
+	 */
+	private void mouse_handler_table_view(MouseEvent e, Control ctrl) {
+		if( e.getButton() == MouseButton.SECONDARY ) {
+			tvDeviceInfo.getSelectionModel().clearSelection();
+			
+			cmDeviceMenu.hide();
+			cmDeviceMenu.show( tvDeviceInfo, e.getScreenX(), e.getScreenY());
+			
+		} else {
+			AdbDevice device = tvDeviceInfo.getSelectionModel().getSelectedItem();
+			if( device != null ) {
+				device.setSelected( !device.getSelected() );
+				
+				try {
+					tvDeviceInfo.refresh();
+				} catch( Exception ex ) {
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param b
 	 */
@@ -144,7 +233,7 @@ public class deviceController {
 			deviceInfo.setSelected( b );
 		}
 		try {
-			//tvDeviceInfo.refresh();
+			tvDeviceInfo.refresh();
 		} catch( Exception e ) {
 			
 		}
