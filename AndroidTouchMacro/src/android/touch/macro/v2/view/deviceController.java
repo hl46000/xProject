@@ -93,7 +93,6 @@ public class deviceController {
 		tcCheckBox.setCellValueFactory( new PropertyValueFactory<AdbDevice, Boolean>("selected"));
 		tcCheckBox.setCellFactory( new Callback<TableColumn<AdbDevice, Boolean>, TableCell<AdbDevice, Boolean>>() {
             public TableCell<AdbDevice, Boolean> call(TableColumn<AdbDevice, Boolean> p) {
-                System.out.println("call");
             	return new CheckBoxTableCell<AdbDevice, Boolean>();
             }
             
@@ -102,12 +101,15 @@ public class deviceController {
 		
 		TableColumn<AdbDevice, String> tcModelName 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcModelName.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("model"));
-		
+		tcModelName.setStyle("-fx-alignment: CENTER;");
+				
 		TableColumn<AdbDevice, String> tcSerial 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcSerial.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("serialNumber"));
+		tcSerial.setStyle("-fx-alignment: CENTER;");
 		
 		TableColumn<AdbDevice, String> tcOsVersion 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcOsVersion.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("os_ver"));
+		tcOsVersion.setStyle("-fx-alignment: CENTER;");
 		
 		/*
 		TableColumn<AdbDevice, String> tcOrientation 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
@@ -115,9 +117,11 @@ public class deviceController {
 		*/
 		TableColumn<AdbDevice, String> tcDisplayOn 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcDisplayOn.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("displayOn"));
-				
+		tcDisplayOn.setStyle("-fx-alignment: CENTER;");
+		
 		TableColumn<AdbDevice, String> tcStatus		= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcStatus.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("status"));
+		tcStatus.setStyle("-fx-alignment: CENTER;");
 		
 		ObservableList<AdbDevice> deviceInfoData = FXCollections.observableArrayList( devices );		
 		tvDeviceInfo.setItems( deviceInfoData );
@@ -149,11 +153,57 @@ public class deviceController {
 			case "ID_MENU_APK_INSTALL"				: onClickMenu_ApkInstall(); break;
 			case "ID_MENU_APK_UNINSTALL"			: onClickMenu_ApkUninstall(); break;
 			case "ID_MENU_APK_UPDATE"				: onClickMenu_ApkUpdate(); break;
+			case "ID_MENU_DISPLAY_ON"				: onClickMenu_DisplayOn(); break;
+			case "ID_MENU_DISPLAY_OFF"				: onClickMenu_DisplayOff(); break;
 			}
 		}
 	}
 	
 	
+	/**
+	 * 선택된 Device들의 화면을 OFF 시킴니다.
+	 */
+	private void onClickMenu_DisplayOff() {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			return;
+		}
+		
+		for( AdbDevice device : devices ) {
+			if( device.getDisplayOn().compareToIgnoreCase("OFF") != 0 ) {
+				AdbV2.Command( "shell input keyevent KEYCODE_POWER", device );
+				device.setDisplayOn( "OFF" );
+			}
+		}
+		
+		try {
+			tvDeviceInfo.refresh();
+		} catch( Exception ex ) {
+		}	
+	}
+
+	/**
+	 * 선택된 Device들의 화면을 ON 시킴니다.
+	 */
+	private void onClickMenu_DisplayOn() {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			return;
+		}
+		
+		for( AdbDevice device : devices ) {
+			if( device.getDisplayOn().compareToIgnoreCase("ON") != 0 ) {
+				AdbV2.Command( "shell input keyevent KEYCODE_POWER", device );
+				device.setDisplayOn( "ON" );
+			}
+		}
+		
+		try {
+			tvDeviceInfo.refresh();
+		} catch( Exception ex ) {
+		}	
+	}
+
 	private void onClickMenu_ApkUpdate() {
 		// TODO Auto-generated method stub
 		
@@ -172,13 +222,15 @@ public class deviceController {
 		}
 		
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
-		File apk_path = new File( prop.getValue("APK_PATH"));
+		String pre_apk_path = prop.getValue("APK_PATH");
+		File apk_path = new File( pre_apk_path == null ? "" : pre_apk_path );
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("APK 파일을 선택해 주세요");
 		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("APK", "*.apk") );
 		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("ALL Files", "*.*") );
 		if( apk_path.exists()) {
+			if( apk_path.isFile() ) apk_path = apk_path.getParentFile();
 			fileChooser.setInitialDirectory( apk_path );
 		}
 				
@@ -188,15 +240,16 @@ public class deviceController {
 		if( result.exists()) {
 			String name = result.getName().toLowerCase(); 
 			if( name.endsWith(".apk")) { 
-				prop.setValue( "APK_PATH", result.getAbsolutePath() );
+				prop.setValue( "APK_PATH", result.getParentFile().getAbsolutePath() );
 				try {
 					prop.save("TouchMacro v2");
 					
 					String cmd = String.format( "install \"%s\"", result.getAbsoluteFile());
-					
-					
+										
 					for( AdbDevice device : devices ) {
-						AdbV2.Command( cmd, device);
+						for( String log : AdbV2.Command( cmd, device )) {
+							System.out.println( log );
+						}
 					}					
 					
 				} catch (IOException e) {
@@ -236,12 +289,11 @@ public class deviceController {
 			AdbDevice device = tvDeviceInfo.getSelectionModel().getSelectedItem();
 			if( device != null ) {
 				device.setSelected( !device.getSelected() );
-				/*
+				
 				try {
 					tvDeviceInfo.refresh();
 				} catch( Exception ex ) {
-				}
-				*/
+				}				
 			}
 		}
 	}
@@ -254,12 +306,11 @@ public class deviceController {
 		for( AdbDevice deviceInfo : deviceInfoData ) {
 			deviceInfo.setSelected( b );
 		}
-		/*
+		
 		try {
 			tvDeviceInfo.refresh();
 		} catch( Exception e ) {
-		}
-		*/
+		}		
 	}
 
 	private void onClick_changeAdbPath() {

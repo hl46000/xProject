@@ -5,12 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import android.touch.macro.util.Util;
+import android.touch.macro.v2.CallbackMessage;
 import android.touch.macro.v2.TouchMacroV2;
+import android.touch.macro.v2.UtilV2;
 
 public class AdbV2 {
 	public static boolean debugLog = false;
@@ -33,12 +35,13 @@ public class AdbV2 {
 	 * @param cmd
 	 * @return
 	 */
-	public static ArrayList<String> Command( String cmd ) {
+	public static void Command( String cmd, CallbackMessage callback ) {
 		String prog = String.format( "%s %s", path, cmd );
 		if( debugLog ) {
 			System.out.println( "[AdbV2] Execute : " + prog );
 		}
-		return Util.getRuntimeExecResult( prog );
+		
+		UtilV2.getRuntimeExecResult( prog, callback );
 	}
 	
 	/**
@@ -46,7 +49,35 @@ public class AdbV2 {
 	 * @param device
 	 * @return
 	 */
-	public static ArrayList<String> Command( String cmd, AdbDevice device ) {
+	public static void Command( String cmd, AdbDevice device, CallbackMessage callback ) {
+		String prog = null;
+		if( device == null ) {
+			prog = String.format( "%s", cmd );
+		} else {
+			prog = String.format( "-s %s %s", device.getSerialNumber(), cmd );
+		}
+		Command( prog, callback );
+	}
+	
+	/**
+	 * @param cmd
+	 * @return
+	 */
+	public static List<String> Command( String cmd ) {
+		String prog = String.format( "%s %s", path, cmd );
+		if( debugLog ) {
+			System.out.println( "[AdbV2] Execute : " + prog );
+		}
+		
+		return UtilV2.getRuntimeExecResult( prog, null );
+	}
+	
+	/**
+	 * @param cmd
+	 * @param device
+	 * @return
+	 */
+	public static List<String> Command( String cmd, AdbDevice device ) {
 		String prog = null;
 		if( device == null ) {
 			prog = String.format( "%s", cmd );
@@ -56,7 +87,6 @@ public class AdbV2 {
 		return Command( prog );
 	}
 	
-	
 	/**
 	 * @param key
 	 * @param device
@@ -64,7 +94,7 @@ public class AdbV2 {
 	 */
 	public static String getPropCommand( String key, AdbDevice device ) {
 		String prog = String.format( "shell getprop %s", key );
-		ArrayList<String> result = Command( prog, device );
+		List<String> result = Command( prog, device );
 		
 		if( result.size() > 0 ) return result.get(0).trim();
 		return null;
@@ -78,7 +108,7 @@ public class AdbV2 {
 	public static ArrayList<AdbDevice> getDevices() {
 		ArrayList<AdbDevice> ret = new ArrayList<AdbDevice>();
 		
-		ArrayList<String> result = Command("devices");
+		List<String> result = Command("devices");
 		for( String line : result ) {
 			line = line.replace("\r", "").replace( "\n", "").replace("\t"," ");
 			line = line.trim();
@@ -152,7 +182,7 @@ public class AdbV2 {
 	 */
 	public static int getDeviceOrientation( AdbDevice device ) {
 		ArrayList<String> result = new ArrayList<String>(); 
-		ArrayList<String> lines = Command( "shell dumpsys SurfaceFlinger", device );
+		List<String> lines = Command( "shell dumpsys SurfaceFlinger", device );
 		for( String line : lines ) {
 			if( line.contains("orientation")) result.add( line );
 		}

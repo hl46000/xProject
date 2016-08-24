@@ -3,6 +3,13 @@ package android.touch.macro.v2;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import android.touch.macro.G;
 
 public class UtilV2 {
 	
@@ -135,6 +142,69 @@ public class UtilV2 {
 			ret.x = width - pt.x; ret.y = height - pt.y;
 		} else if( angle == 270 ) {
 			ret.x = pt.y; ret.y = height - pt.x;
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * @param prog
+	 * @return
+	 */
+	@SuppressWarnings("resource")
+	public synchronized static List<String> getRuntimeExecResult( String prog, CallbackMessage callback ) {
+		InputStream input = null;
+		InputStream error = null;
+		Process process = null;
+		
+		List<String> ret = new ArrayList<String>();
+		try {
+			process = Runtime.getRuntime().exec( prog );
+			
+			G.tempAdbProcess.add( process );
+			
+			input = process.getInputStream();
+			error = process.getErrorStream();
+		
+			String line;
+			Scanner input_scaner = new Scanner(input).useDelimiter("\\n");
+			while( input_scaner.hasNext() ) {
+				line = input_scaner.next();
+			
+				ret.add( line );
+				if( callback != null ) {
+					callback.callbackMessage(line);
+				}
+			}
+			
+			Scanner error_scaner = new Scanner(error).useDelimiter("\\n");
+			while( error_scaner.hasNext() ) {
+				line = input_scaner.next();
+
+				ret.add( line );
+				if( callback != null ) {
+					callback.callbackMessage(line);
+				}
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			
+		} finally {
+			if( input != null ) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if( error != null ) {
+				try {
+					error.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		return ret;
