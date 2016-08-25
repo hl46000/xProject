@@ -43,7 +43,7 @@ public class CheckBoxTableCell<S, T> extends TableCell<S, T> implements EventHan
             }
             
             checkBox.setSelected((Boolean)item );
-        }
+        }        
     }
 
 	@Override

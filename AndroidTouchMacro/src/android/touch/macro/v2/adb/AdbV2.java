@@ -16,7 +16,17 @@ import android.touch.macro.v2.UtilV2;
 
 public class AdbV2 {
 	public static boolean debugLog = false;
-	private static String path = null;
+	private static String adb_path = null;
+	private static String aapt_path = null;
+		
+	public static boolean setAaptPath( String _path ) {
+		if( !new File( _path ).exists()) {
+			System.err.println( String.format( "[Error]\tAAPT_PATH : '%s' not exist", _path ));
+			return false;
+		}
+		aapt_path = _path;		
+		return true;		
+	}
 	
 	/**
 	 * @param _path
@@ -27,7 +37,7 @@ public class AdbV2 {
 			System.err.println( String.format( "[Error]\tADB_PATH : '%s' not exist", _path ));
 			return false;
 		}
-		path = _path;		
+		adb_path = _path;		
 		return true;
 	}
 	
@@ -36,7 +46,7 @@ public class AdbV2 {
 	 * @return
 	 */
 	public static void Command( String cmd, CallbackMessage callback ) {
-		String prog = String.format( "%s %s", path, cmd );
+		String prog = String.format( "%s %s", adb_path, cmd );
 		if( debugLog ) {
 			System.out.println( "[AdbV2] Execute : " + prog );
 		}
@@ -64,7 +74,7 @@ public class AdbV2 {
 	 * @return
 	 */
 	public static List<String> Command( String cmd ) {
-		String prog = String.format( "%s %s", path, cmd );
+		String prog = String.format( "%s %s", adb_path, cmd );
 		if( debugLog ) {
 			System.out.println( "[AdbV2] Execute : " + prog );
 		}
@@ -220,5 +230,30 @@ public class AdbV2 {
 		}
 				
 		return device.getOrientation();
+	}
+
+	/**
+	 * APK 파일에서 package name 을 추출하여 반환하여 줍니다. 
+	 * 
+	 * @param apk_file
+	 * @return
+	 */
+	public static String getPackageNameFromApk(File apk_file) {
+		String prog = String.format( "%s dump badging %s", aapt_path, apk_file.getAbsolutePath() );
+		if( debugLog ) {
+			System.out.println( "[AdbV2] Execute : " + prog );
+		}
+		
+		String findString = "package: name='";
+		for( String line : UtilV2.getRuntimeExecResult( prog, null )) {
+			if( line.startsWith( findString )) {
+				String strTemp = line.substring( findString.length());
+				String token[] = strTemp.split("' ");
+				if( token.length > 0 ) return token[0];
+				break;
+			}
+		}
+		
+		return null;
 	}	 
 }

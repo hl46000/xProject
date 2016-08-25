@@ -16,7 +16,7 @@
          <children>
             <BorderPane prefHeight="50.0" prefWidth="590.0">
                <left>
-                  <Label prefHeight="15.0" text="ADB Path : " BorderPane.alignment="CENTER">
+                  <Label prefHeight="15.0" text="Android SDK Path : " BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets left="5.0" />
                      </BorderPane.margin></Label>
@@ -28,7 +28,7 @@
                      </BorderPane.margin></TextField>
                </center>
                <right>
-                  <Button fx:id="ID_BTN_CHANGE_ADB_PATH" mnemonicParsing="false" onAction="#event_handle_action" prefHeight="23.0" prefWidth="43.0" text="..." textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER">
+                  <Button fx:id="ID_BTN_CHANGE_SDK_PATH" mnemonicParsing="false" onAction="#event_handle_action" prefHeight="23.0" prefWidth="43.0" text="..." textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets left="5.0" />
                      </BorderPane.margin>
@@ -73,7 +73,7 @@
                         <MenuItem fx:id="ID_MENU_APK_UNINSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Uninstall" />
                         <MenuItem fx:id="ID_MENU_APK_UPDATE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Update" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="APK Extraction" />
+                        <MenuItem disable="true" mnemonicParsing="false" text="APK Extraction" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="ID_MENU_DISPLAY_ON" mnemonicParsing="false" onAction="#event_handle_action" text="Display ON" />
                         <MenuItem fx:id="ID_MENU_DISPLAY_OFF" mnemonicParsing="false" onAction="#event_handle_action" text="Display OFF" />

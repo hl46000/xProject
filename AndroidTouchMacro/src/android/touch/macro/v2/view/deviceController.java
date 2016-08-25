@@ -8,12 +8,14 @@ import java.util.List;
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
 import android.touch.macro.v2.TouchMacroV2;
+import android.touch.macro.v2.UtilV2;
 import android.touch.macro.v2.adb.AdbDevice;
 import android.touch.macro.v2.adb.AdbV2;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
@@ -26,6 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
@@ -45,7 +48,7 @@ public class deviceController {
     public void initialize() {
 		dataManager = TouchMacroV2.instance.getDataManager();
 		
-		if( !initializeAdbPath()) return;
+		if( !initializeAndroidSDKPath()) return;
         if( !initializeDeviceInfo()) return;
         
         dataManager.setDeviceController( this );
@@ -54,15 +57,27 @@ public class deviceController {
 	/**
 	 * 
 	 */
-	private boolean initializeAdbPath() {
+	private boolean initializeAndroidSDKPath() {
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
-		File adb_file = new File( prop.getValue("ADB_PATH"));
-		
-		txAdbPath.setText( adb_file.getAbsolutePath() );
-		
-		if( !AdbV2.setAdbPath( adb_file.getAbsolutePath() )) {
-			System.err.println( String.format( "\t'%s' 파일을 확인 후 다시 시도해 주세요.", prop.getPropertyFilePath()));
+		try {
+			File sdk_path 	= new File( prop.getValue("SDK_PATH"));
+			File adb_path 	= new File( prop.getValue("ADB_PATH"));
+			File aapt_path 	= new File( prop.getValue("AAPT_PATH"));
 			
+			txAdbPath.setText( sdk_path.getAbsolutePath() );
+			
+			if( !AdbV2.setAdbPath( adb_path.getAbsolutePath() )) {
+				System.err.println( String.format( "\t'%s' 파일을 확인 후 다시 시도해 주세요.", prop.getPropertyFilePath()));
+				return false;
+			}
+			
+			if( !AdbV2.setAaptPath( aapt_path.getAbsolutePath() )) {
+				System.err.println( String.format( "\t'%s' 파일을 확인 후 다시 시도해 주세요.", prop.getPropertyFilePath()));
+				return false;
+			}
+			
+		} catch( Exception e ) {
+			txAdbPath.setText( "ANDROID SDK 경로를 설정하여 주십시요." );
 			return false;
 		}
 		
@@ -144,7 +159,7 @@ public class deviceController {
 			
 			switch( btn.getId() ) {
 			case "ID_BUTTON_REFRESH_DEVICE_INFO" 	: onClick_refreshDeviceInfo(); break;
-			case "ID_BTN_CHANGE_ADB_PATH"			: onClick_changeAdbPath(); break;
+			case "ID_BTN_CHANGE_SDK_PATH"			: onClick_changeSdkPath(); break;
 			}
 		} else if( obj instanceof MenuItem ) {
 			MenuItem mi = ( MenuItem ) obj;
@@ -205,28 +220,55 @@ public class deviceController {
 	}
 
 	private void onClickMenu_ApkUpdate() {
-		// TODO Auto-generated method stub
+		ApkFileCommand( "Update 할 APK 파일을 선택해 주세요", "install -r \"%s\"" );
 		
 	}
 
 	private void onClickMenu_ApkUninstall() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void onClickMenu_ApkInstall() {
 		List<AdbDevice> devices = getCheckedDeviceInfo();
 		if( devices.size() < 1 ) {
-			System.err.println("체크된 단말기가 없습니다. ");
+			UtilV2.alertWindow( "Information", "체크된 단말기가 없습니다.", AlertType.WARNING );
 			return;
 		}
-		
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 삭제할 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return;
+		if( !apk_file.exists()) return;
+		
+		String package_name = AdbV2.getPackageNameFromApk( apk_file );
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			String cmd = String.format( "uninstall \"%s\"", package_name );
+								
+			for( AdbDevice device : devices ) {
+				for( String log : AdbV2.Command( cmd, device )) {
+					System.out.println( log );
+				}
+			}					
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 파일 Dialog 을 띄워서 APK 파일의 경로를 입력 받습니다. 
+	 * 
+	 * @param title 파일 Dialog 에 보여질 Title 문구
+	 * @return
+	 */
+	private File APKFileChooser( String title ) {
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
 		String pre_apk_path = prop.getValue("APK_PATH");
 		File apk_path = new File( pre_apk_path == null ? "" : pre_apk_path );
 		
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("APK 파일을 선택해 주세요");
+		fileChooser.setTitle( title );
 		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("APK", "*.apk") );
 		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("ALL Files", "*.*") );
 		if( apk_path.exists()) {
@@ -234,30 +276,41 @@ public class deviceController {
 			fileChooser.setInitialDirectory( apk_path );
 		}
 				
-		File result = fileChooser.showOpenDialog( TouchMacroV2.instance.getPrimaryStage());
+		return fileChooser.showOpenDialog( TouchMacroV2.instance.getPrimaryStage());
+	}
+
+	private void ApkFileCommand( String title, String cmd_format ) {
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", "체크된 단말기가 없습니다.", AlertType.WARNING );
+			return;
+		}
+		
+		File result = APKFileChooser( title );
 		if( result == null ) return;
 		
 		if( result.exists()) {
-			String name = result.getName().toLowerCase(); 
-			if( name.endsWith(".apk")) { 
-				prop.setValue( "APK_PATH", result.getParentFile().getAbsolutePath() );
-				try {
-					prop.save("TouchMacro v2");
-					
-					String cmd = String.format( "install \"%s\"", result.getAbsoluteFile());
-										
-					for( AdbDevice device : devices ) {
-						for( String log : AdbV2.Command( cmd, device )) {
-							System.out.println( log );
-						}
-					}					
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			prop.setValue( "APK_PATH", result.getParentFile().getAbsolutePath() );
+			try {
+				prop.save("TouchMacro v2");
+				
+				String cmd = String.format( cmd_format, result.getAbsoluteFile());
+				for( AdbDevice device : devices ) {
+					for( String log : AdbV2.Command( cmd, device )) {
+						System.out.println( log );
+					}
+				}					
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+			
 		}
-		
+	}
+	
+	private void onClickMenu_ApkInstall() {
+		ApkFileCommand( "설치할 APK 파일을 선택해 주세요", "install \"%s\"" );
 	}
 
 	/** 
@@ -284,17 +337,6 @@ public class deviceController {
 			
 			cmDeviceMenu.hide();
 			cmDeviceMenu.show( tvDeviceInfo, e.getScreenX(), e.getScreenY());
-			
-		} else {
-			AdbDevice device = tvDeviceInfo.getSelectionModel().getSelectedItem();
-			if( device != null ) {
-				device.setSelected( !device.getSelected() );
-				
-				try {
-					tvDeviceInfo.refresh();
-				} catch( Exception ex ) {
-				}				
-			}
 		}
 	}
 
@@ -313,33 +355,59 @@ public class deviceController {
 		}		
 	}
 
-	private void onClick_changeAdbPath() {
+	private void onClick_changeSdkPath() {
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
-		File adb_file = new File( prop.getValue("ADB_PATH"));
-		
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("ADB 파일을 선택해 주세요");
-		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("ADB", "adb.exe") );
-		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("ALL Files", "*.*") );
-		fileChooser.setInitialDirectory( adb_file.getParentFile() );
-		fileChooser.setInitialFileName( adb_file.getName());
-		
-		File result = fileChooser.showOpenDialog( TouchMacroV2.instance.getPrimaryStage());
+		String sdk_path = prop.getValue("SDK_PATH");
+				
+		DirectoryChooser dirChooser = new DirectoryChooser();
+		dirChooser.setTitle("Android SDK 폴더를 선택해 주세요");
+		if( sdk_path != null ) {
+			dirChooser.setInitialDirectory( new File( sdk_path ));
+		}
+				
+		File result = dirChooser.showDialog( TouchMacroV2.instance.getPrimaryStage());
 		if( result == null ) return;
 		
 		if( result.exists()) {
-			String name = result.getName().toLowerCase(); 
-			if( name.compareTo("adb.exe") == 0 || name.startsWith("adb")) { 
-				
-				AdbV2.setAdbPath( result.getAbsolutePath() );
-				prop.setValue( "ADB_PATH", result.getAbsolutePath() );
-				try {
-					prop.save("TouchMacro v2");
-					txAdbPath.setText( result.getAbsolutePath() );
-					
-				} catch (IOException e) {
-					e.printStackTrace();
+			
+			// adb.exe 파일 찾기
+			File platform_tools = new File( result, "platform-tools" );
+			if( !platform_tools.exists() ) {
+				UtilV2.alertWindow( "Information", String.format( "platform-tools 폴더를 찾을 수 없습니다.\n('%s' 폴더를 확인해 주세요.)", result.getAbsolutePath()),  AlertType.WARNING );
+				return ;
+			}
+			
+			File adb = new File( platform_tools, "adb.exe" );
+			if( !adb.exists() ) {
+				UtilV2.alertWindow( "Information", String.format( "adb.exe 파일을 찾을 수 없습니다.\n('%s')", adb.getAbsolutePath()),  AlertType.WARNING );
+				return ;
+			}
+			
+			AdbV2.setAdbPath( adb.getAbsolutePath() );
+			prop.setValue( "ADB_PATH", adb.getAbsolutePath() );
+			
+			// aapt.exe 파일 찾기
+			File build_tools = new File( result, "build-tools" );
+			if( !build_tools.exists()) {
+				UtilV2.alertWindow( "Information", String.format( "build-tools 폴더를 찾을 수 없습니다.\n('%s' 폴더를 확인해 주세요)", result.getAbsolutePath()),  AlertType.WARNING );
+				return ;
+			}
+			
+			for( File subDir : build_tools.listFiles()) {
+				File aapt = new File( subDir, "aapt.exe" );
+				if( aapt.exists()) {
+					AdbV2.setAaptPath( aapt.getAbsolutePath() );
+					prop.setValue( "AAPT_PATH", aapt.getAbsolutePath() );
 				}
+			}
+			
+			prop.setValue( "SDK_PATH", result.getAbsolutePath() );
+			try {
+				prop.save("TouchMacro v2");
+				txAdbPath.setText( result.getAbsolutePath() );
+				
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}
