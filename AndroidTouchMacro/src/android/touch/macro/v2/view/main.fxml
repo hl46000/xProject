@@ -10,83 +10,74 @@
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
-   <children>
-      <TabPane fx:id="tpMainTabPane" prefHeight="420.0" prefWidth="738.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <tabs>
-            <Tab text="Scriptting">
-               <content>
-                  <BorderPane>
-                     <bottom>
-                        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <Button fx:id="ID_BTN_SCRIPT_LOAD" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 불러오기" />
-                              <Button fx:id="ID_BTN_SCRIPT_SAVE" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 저장하기" />
-                              <Button fx:id="ID_BTN_SCRIPT_NEW" mnemonicParsing="false" onAction="#event_handle_action" text="새로운 스크립트 생성하기" />
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                     </bottom>
-                     <center>
-                        <Canvas fx:id="cvScriptDisplay" height="320.0" onMouseClicked="#event_handle_mouse" width="577.0" BorderPane.alignment="TOP_LEFT" />
-                     </center>
-                     <right>
-                        <VBox alignment="CENTER" prefHeight="322.0" prefWidth="161.0" spacing="10.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                                 <children>
-                                    <Button fx:id="ID_BTN_SCRIPT_PLAY" mnemonicParsing="false" onAction="#event_handle_action" text="Play" />
-                                 </children>
-                              </VBox>
-                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
-                                 <children>
-                                    <HBox alignment="CENTER" prefHeight="28.0" prefWidth="161.0" spacing="2.0">
-                                       <children>
-                                          <Label text="지연시간" />
-                                          <TextField prefHeight="23.0" prefWidth="62.0" />
-                                          <Label text="ms" />
-                                       </children>
-                                       <VBox.margin>
-                                          <Insets bottom="5.0" />
-                                       </VBox.margin>
-                                    </HBox>
-                                    <Button fx:id="ID_BTN_DELAY_TIME" mnemonicParsing="false" onAction="#event_handle_action" prefHeight="23.0" prefWidth="106.0" text="지연시간적용" />
-                                 </children>
-                              </VBox>
-                              <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                                 <children>
-                                    <Button fx:id="ID_BTN_SCRIPT_NEXT_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="다음화면" />
-                                    <Label text="0/0" />
-                                    <Button fx:id="ID_BTN_SCRIPT_PREV_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="이전화면" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </VBox>
-                     </right>
-                     <top>
-                        <BorderPane prefHeight="30.0" prefWidth="543.0" BorderPane.alignment="CENTER">
-                           <left>
-                              <Label text="스크립트명 : " BorderPane.alignment="CENTER" />
-                           </left>
-                           <BorderPane.margin>
-                              <Insets bottom="1.0" left="10.0" right="5.0" top="5.0" />
-                           </BorderPane.margin>
-                        </BorderPane>
-                     </top>
-                  </BorderPane>
-               </content>
-               <contextMenu>
-                  <ContextMenu>
-                     <items>
-                        <MenuItem mnemonicParsing="false" text="현재 화면 삭제" />
-                        <MenuItem mnemonicParsing="false" text="저장된 좌표&amp;화면 불러오기" />
-                     </items>
-                  </ContextMenu>
-               </contextMenu>
-            </Tab>
-         </tabs>
-      </TabPane>
-   </children>
-</AnchorPane>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
+   <top>
+      <HBox alignment="CENTER_RIGHT" prefHeight="30.0" spacing="5.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="이미지 크기 : " />
+            <Label fx:id="lbCaptureImageSize" text="W: -1, H: -1">
+               <padding>
+                  <Insets right="30.0" />
+               </padding>
+            </Label>
+            <Label text="좌표위치 : " />
+            <Label fx:id="lbClickPosition" text="X: -1, Y: -1">
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </top>
+   <bottom>
+      <HBox alignment="CENTER" prefHeight="30.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="ID_BTN_SAVE_SCREEN_POSITION" mnemonicParsing="false" onAction="#event_handle_action" text="좌표 &amp; 이미지 저장하기" />
+            <Button fx:id="ID_BTN_LOAD_SCREEN_POSITION" mnemonicParsing="false" onAction="#event_handle_action" text="좌표 &amp; 이미지 불러오기" />
+            <Button fx:id="ID_BUTTON_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="화면 캡쳐" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </bottom>
+   <center>
+      <Canvas fx:id="cvDisplay" height="325.0" onMouseClicked="#event_handle_mouse" onMouseMoved="#event_handle_mouse" width="603.0" BorderPane.alignment="CENTER" />
+   </center>
+   <right>
+      <VBox maxWidth="150.0" minWidth="150.0" prefHeight="200.0" prefWidth="150.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <Button fx:id="ID_BTN_SCRIPT_PLAY" mnemonicParsing="false" onAction="#event_handle_action" text="Play" />
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="28.0" prefWidth="161.0" spacing="2.0">
+                     <children>
+                        <Label text="지연시간" />
+                        <TextField prefHeight="23.0" prefWidth="62.0" />
+                        <Label text="ms" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <Button fx:id="ID_BTN_DELAY_TIME" mnemonicParsing="false" onAction="#event_handle_action" prefHeight="23.0" prefWidth="106.0" text="지연시간적용" />
+               </children>
+            </VBox>
+            <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <Button fx:id="ID_BTN_SCRIPT_NEXT_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="다음화면" />
+                  <Label text="0/0" />
+                  <Button fx:id="ID_BTN_SCRIPT_PREV_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="이전화면" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </right>
+</BorderPane>

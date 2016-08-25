@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -70,17 +72,16 @@ public class TouchMacroV2 extends javafx.application.Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {		
 		setPrimaryStage(primaryStage);
-		
-		primaryStage.setTitle( "Android Touch Macro v2.0" );
-		
-		BorderPane root = new BorderPane();
+				
 		Parent deviceView = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/device.fxml"));
 		Parent main = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
 		
-		root.setTop( deviceView );		
-		root.setCenter( main );
+		SplitPane sp = new SplitPane();
+		sp.setOrientation(Orientation.VERTICAL);
+		sp.getItems().addAll( deviceView, main );
 								
-		Scene scene = new Scene( root );
+		Scene scene = new Scene( sp );
+		primaryStage.setTitle( "Android Touch Macro v2.0" );
 		primaryStage.setScene( scene );
 		primaryStage.setResizable(false);
 		primaryStage.show();

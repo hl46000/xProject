@@ -181,7 +181,7 @@ public class UtilV2 {
 			
 			Scanner error_scaner = new Scanner(error).useDelimiter("\\n");
 			while( error_scaner.hasNext() ) {
-				line = input_scaner.next();
+				line = error_scaner.next();
 
 				ret.add( line );
 				if( callback != null ) {
