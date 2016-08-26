@@ -10,47 +10,14 @@
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
-   <top>
-      <HBox alignment="CENTER_RIGHT" prefHeight="30.0" spacing="5.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label text="이미지 크기 : " />
-            <Label fx:id="lbCaptureImageSize" text="W: -1, H: -1">
-               <padding>
-                  <Insets right="30.0" />
-               </padding>
-            </Label>
-            <Label text="좌표위치 : " />
-            <Label fx:id="lbClickPosition" text="X: -1, Y: -1">
-               <padding>
-                  <Insets right="10.0" />
-               </padding>
-            </Label>
-         </children>
-         <padding>
-            <Insets bottom="5.0" top="5.0" />
-         </padding>
-      </HBox>
-   </top>
-   <bottom>
-      <HBox alignment="CENTER" prefHeight="30.0" spacing="10.0" BorderPane.alignment="CENTER">
-         <children>
-            <Button fx:id="ID_BTN_SAVE_SCREEN_POSITION" mnemonicParsing="false" onAction="#event_handle_action" text="좌표 &amp; 이미지 저장하기" />
-            <Button fx:id="ID_BTN_LOAD_SCREEN_POSITION" mnemonicParsing="false" onAction="#event_handle_action" text="좌표 &amp; 이미지 불러오기" />
-            <Button fx:id="ID_BUTTON_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="화면 캡쳐" />
-         </children>
-         <padding>
-            <Insets bottom="5.0" top="5.0" />
-         </padding>
-      </HBox>
-   </bottom>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="463.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
    <center>
       <Canvas fx:id="cvDisplay" height="325.0" onMouseClicked="#event_handle_mouse" onMouseMoved="#event_handle_mouse" width="603.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
       <VBox maxWidth="150.0" minWidth="150.0" prefHeight="200.0" prefWidth="150.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+            <VBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="100.0" spacing="10.0">
                <children>
                   <Button fx:id="ID_BTN_SCRIPT_PLAY" mnemonicParsing="false" onAction="#event_handle_action" text="Play" />
                </children>
@@ -77,7 +44,65 @@
                   <Button fx:id="ID_BTN_SCRIPT_PREV_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="이전화면" />
                </children>
             </VBox>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
+               <children>
+                  <Button fx:id="ID_BTN_SAVE_IMAGE" mnemonicParsing="false" onAction="#event_handle_action" text="이미지 저장하기" />
+                  <Button fx:id="ID_BTN_LOAD_IMAGE" mnemonicParsing="false" onAction="#event_handle_action" text="이미지 불러오기" />
+                  <Button fx:id="ID_BTN_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="화면 캡쳐" />
+               </children>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </VBox>
          </children>
       </VBox>
    </right>
+   <bottom>
+      <VBox prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="30.0" spacing="5.0">
+               <children>
+                  <Label text="이미지 크기 : " />
+                  <Label fx:id="lbCaptureImageSize" text="W: -1, H: -1">
+                     <padding>
+                        <Insets right="30.0" />
+                     </padding>
+                  </Label>
+                  <Label text="좌표위치 : " />
+                  <Label fx:id="lbClickPosition" text="X: -1, Y: -1">
+                     <padding>
+                        <Insets right="10.0" />
+                     </padding>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="30.0" top="5.0" />
+               </padding>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="30.0" spacing="10.0">
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <Button fx:id="ID_BTN_SAVE_SCRIPT" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 저장하기" />
+                  <Button fx:id="ID_BTN_LOAD_SCRIPT" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 불러오기" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </bottom>
+   <top>
+      <HBox prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="스크립트명 :" />
+            <Label fx:id="lbScriptSubject" text="서머너즈워 (화산무한 자동 )" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </top>
 </BorderPane>

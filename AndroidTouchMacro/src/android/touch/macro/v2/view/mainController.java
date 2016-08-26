@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -35,10 +36,13 @@ public class mainController {
 	private Canvas cvDisplay;
 	
 	@FXML
-	private Label lbCaptureImageSize;
+	private Label lbCaptureImageSize;					// 이미지 크기 표시 label
 	
 	@FXML
-	private Label lbClickPosition;
+	private Label lbClickPosition;						// 클릭 좌표 표시 lable
+	
+	@FXML
+	private Label lbScriptSubject;						// script 제목 표시 label
 	
 	public int display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
 	public int display_screen_height 		= -1;		// 이미지를 표시할 영역의 높이
@@ -99,9 +103,9 @@ public class mainController {
 			Button btn = ( Button ) obj;
 			
 			switch( btn.getId() ) {
-			case "ID_BUTTON_CAPTURE_SCREEN" 	 	: onClick_captureScreen(); break;
-			case "ID_BTN_SAVE_SCREEN_POSITION"	 	: onClick_saveScreenPosition(); break;
-			case "ID_BTN_LOAD_SCREEN_POSITION"	 	: onClick_loadScreenPosition(); break;
+			case "ID_BTN_CAPTURE_SCREEN" : onClick_captureScreen(); break;
+			case "ID_BTN_SAVE_IMAGE"	 	: onClick_saveCurrentImage(); break;
+			case "ID_BTN_LOAD_IMAGE"	 	: onClick_loadCurrentImage(); break;
 			}
 			
 		} else if( obj instanceof MenuItem ) {
@@ -115,10 +119,6 @@ public class mainController {
 	}
 	
 	
-	
-
-	
-
 	/**
 	 * Capture image rotate -90
 	 */
@@ -227,7 +227,7 @@ public class mainController {
 	private void onClick_captureScreen() {
 		AdbDevice device = dataManager.getSelectedDeviceInfo();
 		if( device == null ) {
-			System.err.println("디바이스를 선택 후 시도해 주세요");
+			UtilV2.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.WARNING );
 			return;
 		}
 		
@@ -289,18 +289,19 @@ public class mainController {
 	}
 	//Image image = SwingFXUtils.toFXImage(capture, null);
 	
+	
 	/**
 	 * 현재 작업중인 이미지와 좌표 정보를 저장합니다. 
 	 */
-	private void onClick_saveScreenPosition() {
+	private void onClick_saveCurrentImage() {
 		final String LAST_SAVE_FILE_PATH_KEY = "LAST_SAVE_FILE_PATH";
 		
 		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
 		String last_save_path = app_prop.getValue(LAST_SAVE_FILE_PATH_KEY);
 		
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("이미지와 좌표를 저장할 파일을 선택하여 주세요.");
-		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("Position", "*.pos") );
+		fileChooser.setTitle("이미지를 저장할 파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("PNG", "*.png") );
 		if( last_save_path != null ) {
 			File file_last_save_path = new File( last_save_path );
 			if( file_last_save_path.exists()) {
@@ -311,22 +312,8 @@ public class mainController {
 		if( result == null ) return;
 		
 		try {
-			ImageIO.write( captured_image, "PNG", new File( result.getParentFile(), result.getName().replaceAll( ".pos", ".png") ));
+			ImageIO.write( captured_image, "PNG", result );
 			
-			PropertyV2 prop = new PropertyV2();
-			prop.setValue( "POSITION_X", String.valueOf( ptArrayImageDevicePoint.x ));
-			prop.setValue( "POSITION_Y", String.valueOf( ptArrayImageDevicePoint.y ));
-			prop.setValue( "SCREEN_WIDTH", String.valueOf( captured_image.getWidth() ));
-			prop.setValue( "SCREEN_HIGHT", String.valueOf( captured_image.getHeight() ));
-			
-			AdbDevice device = dataManager.getSelectedDeviceInfo();
-			if( device != null ) {
-				prop.setValue( "SCREEN_ORIENTATION", String.valueOf( device.getOrientation() ));
-			}
-			prop.setValue( "DISPLAY_ANGLE", String.valueOf( display_angle ));
-			
-			prop.save( result.getAbsolutePath(), "");
-		
 			app_prop.setValue(LAST_SAVE_FILE_PATH_KEY, result.getParentFile().getAbsolutePath());
 			app_prop.save("TouchMacro v2.0");
 			
@@ -338,15 +325,15 @@ public class mainController {
 	/**
 	 * 저장했던 이미지와 좌표 정보를 불러 옵니다. 
 	 */
-	private void onClick_loadScreenPosition() {
+	private void onClick_loadCurrentImage() {
 		final String LAST_LOAD_FILE_PATH_KEY = "LAST_LOAD_FILE_PATH";
 		
 		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
 		String last_load_path = app_prop.getValue(LAST_LOAD_FILE_PATH_KEY);
 		
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("저장한 이미지와 좌표 파일을 선택하여 주세요.");
-		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("Position", "*.pos") );
+		fileChooser.setTitle("이미지 파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("PNG", "*.png") );
 		if( last_load_path != null ) {
 			File file_last_load_path = new File( last_load_path );
 			if( file_last_load_path.exists()) {
@@ -363,25 +350,11 @@ public class mainController {
 			BufferedImage bufferedImage = ImageIO.read( new File( result.getParentFile(), result.getName().replaceAll( ".pos", ".png") ) );
 			
 			lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d", bufferedImage.getWidth(), bufferedImage.getHeight()));
+			lbClickPosition.setText( String.format( "X:%4d, Y:%4d", 0, 0 ));
 			
-			PropertyV2 prop = new PropertyV2();
-			prop.load( result.getAbsolutePath() );
-			
-			ptArrayImageDevicePoint.x 	= Integer.valueOf( prop.getValue( "POSITION_X"));
-			ptArrayImageDevicePoint.y 	= Integer.valueOf( prop.getValue( "POSITION_Y"));
-			display_angle			  	= Integer.valueOf( prop.getValue( "DISPLAY_ANGLE"));
-			
-			AdbDevice device = dataManager.getSelectedDeviceInfo();
-			if( device != null ) {
-				device.setOrientation( Integer.valueOf( prop.getValue( "SCREEN_ORIENTATION")));
-			}
-			lbClickPosition.setText( String.format( "X:%4d, Y:%4d", ptArrayImageDevicePoint.x, ptArrayImageDevicePoint.y ));
-			
-			drawArrawImage = true;
+			drawArrawImage = false;
 			displayCaptureImage( bufferedImage );
-			
-			app_prop.setValue( LAST_LOAD_FILE_PATH_KEY, result.getParentFile().getAbsolutePath());
-			app_prop.save("TouchMacro v2.0");
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
