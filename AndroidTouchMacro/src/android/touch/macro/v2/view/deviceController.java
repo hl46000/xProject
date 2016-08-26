@@ -19,9 +19,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Control;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -42,6 +44,18 @@ public class deviceController {
 	
 	@FXML
 	private ContextMenu cmDeviceMenu;
+	
+	@FXML
+	private CheckMenuItem ckMenuItem_apkCmdUninstall;
+	
+	@FXML
+	private CheckMenuItem ckMenuItem_apkCmdExcute;
+	
+	@FXML
+	private RadioMenuItem roMenuItem_apkCmdInstall;
+	
+	@FXML
+	private RadioMenuItem roMenuItem_apkCmdUpdate;
 	
 	DataManager dataManager = null;
 	
@@ -172,11 +186,17 @@ public class deviceController {
 			case "ID_MENU_APK_EXCUTE"				: onClickMenu_ApkExcute(); break;
 			case "ID_MENU_DISPLAY_ON"				: onClickMenu_DisplayOn(); break;
 			case "ID_MENU_DISPLAY_OFF"				: onClickMenu_DisplayOff(); break;
+			case "ID_BTN_APK_COMMAND_ACTION"		: onClickMenu_ApkCommandAction(); break;
 			}
 		}
 	}
 	
 	
+	private void onClickMenu_ApkCommandAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	private void onClickMenu_ApkExcute() {
 		List<AdbDevice> devices = getCheckedDeviceInfo();
 		if( devices.size() < 1 ) {

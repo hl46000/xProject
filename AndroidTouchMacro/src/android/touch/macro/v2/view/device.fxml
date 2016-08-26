@@ -69,6 +69,21 @@
                <contextMenu>
                   <ContextMenu fx:id="cmDeviceMenu">
                     <items>
+                        <Menu mnemonicParsing="false" text="APK Command">
+                          <items>
+                              <CheckMenuItem fx:id="ckMenuItem_apkCmdUninstall" mnemonicParsing="false" onAction="#event_handle_action" text="Uninstall" />
+                              <RadioMenuItem fx:id="roMenuItem_apkCmdInstall" mnemonicParsing="false" text="Install">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="tgApkInstallUpdate" />
+                                 </toggleGroup>
+                              </RadioMenuItem>
+                              <RadioMenuItem fx:id="roMenuItem_apkCmdUpdate" mnemonicParsing="false" text="Update" toggleGroup="$tgApkInstallUpdate" />
+                              <CheckMenuItem fx:id="ckMenuItem_apkCmdExcute" mnemonicParsing="false" onAction="#event_handle_action" text="Excute" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="ID_BTN_APK_COMMAND_ACTION" mnemonicParsing="false" onAction="#event_handle_action" text="Action" />
+                          </items>
+                        </Menu>
+                        <SeparatorMenuItem mnemonicParsing="false" />
                       <MenuItem fx:id="ID_MENU_APK_INSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Install" />
                         <MenuItem fx:id="ID_MENU_APK_UNINSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Uninstall" />
                         <MenuItem fx:id="ID_MENU_APK_UPDATE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Update" />
