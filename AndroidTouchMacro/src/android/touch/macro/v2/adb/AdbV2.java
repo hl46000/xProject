@@ -238,22 +238,27 @@ public class AdbV2 {
 	 * @param apk_file
 	 * @return
 	 */
-	public static String getPackageNameFromApk(File apk_file) {
+	public static Map<String,String> getInformationFromApk(File apk_file, List<String> keys ) {
+		Map<String,String> ret = new HashMap<String, String>();
+		
 		String prog = String.format( "%s dump badging %s", aapt_path, apk_file.getAbsolutePath() );
 		if( debugLog ) {
 			System.out.println( "[AdbV2] Execute : " + prog );
 		}
 		
-		String findString = "package: name='";
 		for( String line : UtilV2.getRuntimeExecResult( prog, null )) {
-			if( line.startsWith( findString )) {
-				String strTemp = line.substring( findString.length());
-				String token[] = strTemp.split("' ");
-				if( token.length > 0 ) return token[0];
-				break;
+			for( String key : keys ) {
+				String findString = key + ": name='";
+				if( line.startsWith( findString )) {
+					String strTemp = line.substring( findString.length());
+					String token[] = strTemp.split("' ");
+					if( token.length > 0 ) {
+						ret.put(key, token[0]);						
+					}
+				}
 			}
 		}
 		
-		return null;
+		return ret;
 	}	 
 }

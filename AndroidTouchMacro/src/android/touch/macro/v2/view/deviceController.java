@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
@@ -108,9 +109,8 @@ public class deviceController {
 		tcCheckBox.setCellValueFactory( new PropertyValueFactory<AdbDevice, Boolean>("selected"));
 		tcCheckBox.setCellFactory( new Callback<TableColumn<AdbDevice, Boolean>, TableCell<AdbDevice, Boolean>>() {
             public TableCell<AdbDevice, Boolean> call(TableColumn<AdbDevice, Boolean> p) {
-            	return new CheckBoxTableCell<AdbDevice, Boolean>();
+            	return new CheckBoxTableCell<AdbDevice, Boolean>();            
             }
-            
         });
 		
 		
@@ -168,6 +168,8 @@ public class deviceController {
 			case "ID_MENU_APK_INSTALL"				: onClickMenu_ApkInstall(); break;
 			case "ID_MENU_APK_UNINSTALL"			: onClickMenu_ApkUninstall(); break;
 			case "ID_MENU_APK_UPDATE"				: onClickMenu_ApkUpdate(); break;
+			case "ID_MENU_APK_REINSTALL"			: onClickMenu_ApkReinstall(); break;
+			case "ID_MENU_APK_EXCUTE"				: onClickMenu_ApkExcute(); break;
 			case "ID_MENU_DISPLAY_ON"				: onClickMenu_DisplayOn(); break;
 			case "ID_MENU_DISPLAY_OFF"				: onClickMenu_DisplayOff(); break;
 			}
@@ -175,6 +177,84 @@ public class deviceController {
 	}
 	
 	
+	private void onClickMenu_ApkExcute() {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", "체크된 단말기가 없습니다.", AlertType.WARNING );
+		}
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 실행 할 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		keys.add( "launchable-activity" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		String launch_activity = result.get("launchable-activity");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			String cmd = String.format( "shell am start -n '%s/%s'", package_name, launch_activity );
+			for( AdbDevice device : devices ) {
+				for( String log : AdbV2.Command( cmd, device )) {
+					System.out.println( log );
+				}				
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
+
+	private void onClickMenu_ApkReinstall() {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", "체크된 단말기가 없습니다.", AlertType.WARNING );
+		}
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 삭제할 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			String cmd1 = String.format( "uninstall \"%s\"", package_name );
+			String cmd2 = String.format( "install \"%s\"", apk_file.getAbsolutePath() );
+								
+			for( AdbDevice device : devices ) {
+				for( String log : AdbV2.Command( cmd1, device )) {
+					System.out.println( log );
+				}
+				
+				for( String log : AdbV2.Command( cmd2, device )) {
+					System.out.println( log );
+				}				
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
+
 	/**
 	 * 선택된 Device들의 화면을 OFF 시킴니다.
 	 */
@@ -237,7 +317,12 @@ public class deviceController {
 		if( apk_file == null ) 	return;
 		if( !apk_file.exists()) return;
 		
-		String package_name = AdbV2.getPackageNameFromApk( apk_file );
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		String package_name = result.get("package");
+		
 		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
 		try {
 			prop.save("TouchMacro v2");

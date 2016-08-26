@@ -1,5 +1,6 @@
 package android.touch.macro.v2.view;
 
+import android.touch.macro.v2.adb.AdbDevice;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -48,11 +49,9 @@ public class CheckBoxTableCell<S, T> extends TableCell<S, T> implements EventHan
 
 	@Override
 	public void handle(ActionEvent arg0) {
-		//this.getTableView().get
-		System.out.println( getIndex());
-		ov = getTableColumn().getCellObservableValue(getIndex());
-		
-		System.out.println( ov.toString());
-		checkBox.selectedProperty().bindBidirectional(new SimpleBooleanProperty(!checkBox.isSelected()));
+		AdbDevice device = ( AdbDevice ) getTableColumn().getTableView().getItems().get(getIndex());
+		if( device != null ) {
+			device.setSelected( !device.getSelected());
+		}
 	}
 }
