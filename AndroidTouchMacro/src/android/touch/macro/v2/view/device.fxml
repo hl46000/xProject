@@ -38,14 +38,40 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </BorderPane>
-            <Button fx:id="ID_BUTTON_REFRESH_DEVICE_INFO" mnemonicParsing="false" onAction="#event_handle_action" text="장비 리스트 갱신">
-               <tooltip>
-                  <Tooltip text="ADB로 연결된 디바이스 정보를 갱신합니다." />
-               </tooltip>
-               <VBox.margin>
-                  <Insets right="5.0" top="5.0" />
-               </VBox.margin>
-            </Button>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="ID_BTN_ALL_DEVICE_COMMAND" mnemonicParsing="false" onMouseClicked="#event_handle_mouse" text="ALL Device 명령어">
+                     <contextMenu>
+                        <ContextMenu fx:id="cmApkCommand">
+                           <items>
+                              <Menu mnemonicParsing="false" text="APK Commands">
+                                <items>
+                                    <CheckMenuItem fx:id="ckMenuItem_apkCmdUninstall" mnemonicParsing="false" onAction="#event_handle_action" selected="true" text="Uninstall" />
+                                    <RadioMenuItem fx:id="roMenuItem_apkCmdInstall" mnemonicParsing="false" selected="true" text="Install">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="tgApkInstallUpdate" />
+                                       </toggleGroup>
+                                    </RadioMenuItem>
+                                    <RadioMenuItem fx:id="roMenuItem_apkCmdUpdate" mnemonicParsing="false" text="Update" toggleGroup="$tgApkInstallUpdate" />
+                                    <CheckMenuItem fx:id="ckMenuItem_apkCmdExcute" mnemonicParsing="false" onAction="#event_handle_action" selected="true" text="Excute" />
+                                    <SeparatorMenuItem mnemonicParsing="false" />
+                                    <MenuItem fx:id="ID_BTN_ALL_DEVICE_COMMAND_ACTION" mnemonicParsing="false" onAction="#event_handle_action" text="Action" />
+                                </items>
+                              </Menu>
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="ID_MENU_ALL_DEVICE_DISPLAY_ON" mnemonicParsing="false" onAction="#event_handle_action" text="Display ON" />
+                              <MenuItem fx:id="ID_MENU_ALL_DEVICE_DISPLAY_OFF" mnemonicParsing="false" onAction="#event_handle_action" text="Display OFF" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </Button>
+                  <Button fx:id="ID_BUTTON_REFRESH_DEVICE_INFO" mnemonicParsing="false" onAction="#event_handle_action" text="장비 리스트 갱신">
+                     <tooltip>
+                        <Tooltip text="ADB로 연결된 디바이스 정보를 갱신합니다." />
+                     </tooltip>
+                  </Button>
+               </children>
+            </HBox>
             <TableView fx:id="tvDeviceInfo" onMouseClicked="#event_handle_mouse" prefWidth="700.0">
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -67,11 +93,13 @@
                   <TableColumn editable="false" maxWidth="110.0" minWidth="110.0" prefWidth="107.0" sortable="false" text="연결상태" />
                </columns>
                <contextMenu>
-                  <ContextMenu fx:id="cmDeviceMenu">
+                  <ContextMenu fx:id="cmDeviceMenu" autoFix="false" autoHide="false" consumeAutoHidingEvents="false" hideOnEscape="false">
                     <items>
                       <MenuItem fx:id="ID_MENU_APK_INSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Install" />
                         <MenuItem fx:id="ID_MENU_APK_UNINSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Uninstall" />
                         <MenuItem fx:id="ID_MENU_APK_UPDATE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Update" />
+                        <MenuItem fx:id="ID_MENU_APK_REINSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Reinstall" />
+                        <MenuItem fx:id="ID_MENU_APK_EXCUTE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Excute" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem disable="true" mnemonicParsing="false" text="APK Extraction" />
                         <SeparatorMenuItem mnemonicParsing="false" />

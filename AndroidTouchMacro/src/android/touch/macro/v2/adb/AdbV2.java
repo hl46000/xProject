@@ -69,6 +69,25 @@ public class AdbV2 {
 		Command( prog, callback );
 	}
 	
+	
+	/**
+	 * @param cmd
+	 * @param device
+	 * @return
+	 */
+	public static void Command( List<String> cmds, AdbDevice device, CallbackMessage callback ) {
+		String prog = null;
+		
+		for( String cmd : cmds ) {
+			if( device == null ) {
+				prog = String.format( "%s", cmd );
+			} else {
+				prog = String.format( "-s %s %s", device.getSerialNumber(), cmd );
+			}
+			Command( prog, callback );
+		}
+	}
+	
 	/**
 	 * @param cmd
 	 * @return
@@ -129,12 +148,17 @@ public class AdbV2 {
 			
 			String [] tokens = line.split( " " );
 			
-			AdbDevice device = new AdbDevice( tokens[0], null, null );
-			device.setModel( getPropCommand( "ro.product.model", device ));
-			device.setOs_ver( getPropCommand( "ro.build.version.release", device ));
-			device.setStatus( tokens[1].compareToIgnoreCase("device") == 0 ? "Connected" : tokens[1] );
-			getDeviceOrientation( device );
-			
+			AdbDevice device = new AdbDevice( tokens[0], "X", "X" );
+			if( tokens[1].compareToIgnoreCase("device") == 0 ) {
+				device.setModel( getPropCommand( "ro.product.model", device ));
+				device.setOs_ver( getPropCommand( "ro.build.version.release", device ));
+				device.setStatus( "Connected" );
+				getDeviceOrientation( device );
+				
+			} else {
+				device.setStatus( tokens[1] );
+			}
+						
 			ret.add( device );
 			if( debugLog ) {
 				device.print();
@@ -238,22 +262,27 @@ public class AdbV2 {
 	 * @param apk_file
 	 * @return
 	 */
-	public static String getPackageNameFromApk(File apk_file) {
+	public static Map<String,String> getInformationFromApk(File apk_file, List<String> keys ) {
+		Map<String,String> ret = new HashMap<String, String>();
+		
 		String prog = String.format( "%s dump badging %s", aapt_path, apk_file.getAbsolutePath() );
 		if( debugLog ) {
 			System.out.println( "[AdbV2] Execute : " + prog );
 		}
 		
-		String findString = "package: name='";
 		for( String line : UtilV2.getRuntimeExecResult( prog, null )) {
-			if( line.startsWith( findString )) {
-				String strTemp = line.substring( findString.length());
-				String token[] = strTemp.split("' ");
-				if( token.length > 0 ) return token[0];
-				break;
+			for( String key : keys ) {
+				String findString = key + ": name='";
+				if( line.startsWith( findString )) {
+					String strTemp = line.substring( findString.length());
+					String token[] = strTemp.split("' ");
+					if( token.length > 0 ) {
+						ret.put(key, token[0]);						
+					}
+				}
 			}
 		}
 		
-		return null;
+		return ret;
 	}	 
 }

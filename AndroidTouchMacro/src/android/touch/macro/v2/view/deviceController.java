@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
@@ -18,9 +19,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Control;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -42,6 +45,21 @@ public class deviceController {
 	@FXML
 	private ContextMenu cmDeviceMenu;
 	
+	@FXML
+	private ContextMenu cmApkCommand;
+	
+	@FXML
+	private CheckMenuItem ckMenuItem_apkCmdUninstall;
+	
+	@FXML
+	private CheckMenuItem ckMenuItem_apkCmdExcute;
+	
+	@FXML
+	private RadioMenuItem roMenuItem_apkCmdInstall;
+	
+	@FXML
+	private RadioMenuItem roMenuItem_apkCmdUpdate;
+	
 	DataManager dataManager = null;
 	
 	@FXML
@@ -50,6 +68,9 @@ public class deviceController {
 		
 		if( !initializeAndroidSDKPath()) return;
         if( !initializeDeviceInfo()) return;
+        
+        roMenuItem_apkCmdUpdate.disableProperty().bind( ckMenuItem_apkCmdUninstall.selectedProperty() );
+        ckMenuItem_apkCmdUninstall.disableProperty().bind( roMenuItem_apkCmdUpdate.selectedProperty() );
         
         dataManager.setDeviceController( this );
 	}
@@ -108,9 +129,8 @@ public class deviceController {
 		tcCheckBox.setCellValueFactory( new PropertyValueFactory<AdbDevice, Boolean>("selected"));
 		tcCheckBox.setCellFactory( new Callback<TableColumn<AdbDevice, Boolean>, TableCell<AdbDevice, Boolean>>() {
             public TableCell<AdbDevice, Boolean> call(TableColumn<AdbDevice, Boolean> p) {
-            	return new CheckBoxTableCell<AdbDevice, Boolean>();
+            	return new CheckBoxTableCell<AdbDevice, Boolean>();            
             }
-            
         });
 		
 		
@@ -161,26 +181,31 @@ public class deviceController {
 			case "ID_BUTTON_REFRESH_DEVICE_INFO" 	: onClick_refreshDeviceInfo(); break;
 			case "ID_BTN_CHANGE_SDK_PATH"			: onClick_changeSdkPath(); break;
 			}
+			
 		} else if( obj instanceof MenuItem ) {
 			MenuItem mi = ( MenuItem ) obj;
 			
 			switch( mi.getId() ) {
-			case "ID_MENU_APK_INSTALL"				: onClickMenu_ApkInstall(); break;
-			case "ID_MENU_APK_UNINSTALL"			: onClickMenu_ApkUninstall(); break;
-			case "ID_MENU_APK_UPDATE"				: onClickMenu_ApkUpdate(); break;
-			case "ID_MENU_DISPLAY_ON"				: onClickMenu_DisplayOn(); break;
-			case "ID_MENU_DISPLAY_OFF"				: onClickMenu_DisplayOff(); break;
+			case "ID_MENU_APK_INSTALL"					: onClickMenu_ApkInstall(); break;
+			case "ID_MENU_APK_UNINSTALL"				: onClickMenu_ApkUninstall(); break;
+			case "ID_MENU_APK_UPDATE"					: onClickMenu_ApkUpdate(); break;
+			case "ID_MENU_APK_REINSTALL"				: onClickMenu_ApkReinstall(); break;
+			case "ID_MENU_APK_EXCUTE"					: onClickMenu_ApkExcute(); break;
+			case "ID_MENU_DISPLAY_ON"					: onClickMenu_DisplayOn(); break;
+			case "ID_MENU_DISPLAY_OFF"					: onClickMenu_DisplayOff(); break;
+			
+			case "ID_MENU_ALL_DEVICE_DISPLAY_ON"		: onClickMenu_AllDeviceDisplayOn(); break;
+			case "ID_MENU_ALL_DEVICE_DISPLAY_OFF"		: onClickMenu_AllDeviceDisplayOff(); break;
+			case "ID_BTN_ALL_DEVICE_COMMAND_ACTION"		: onClickMenu_AllDeviceCommandAction(); break;
 			}
 		}
+		
 	}
-	
-	
-	/**
-	 * 선택된 Device들의 화면을 OFF 시킴니다.
-	 */
-	private void onClickMenu_DisplayOff() {
+		
+	private void onClickMenu_AllDeviceDisplayOff() {
 		List<AdbDevice> devices = getCheckedDeviceInfo();
 		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
 			return;
 		}
 		
@@ -195,14 +220,13 @@ public class deviceController {
 			tvDeviceInfo.refresh();
 		} catch( Exception ex ) {
 		}	
+		
 	}
 
-	/**
-	 * 선택된 Device들의 화면을 ON 시킴니다.
-	 */
-	private void onClickMenu_DisplayOn() {
+	private void onClickMenu_AllDeviceDisplayOn() {
 		List<AdbDevice> devices = getCheckedDeviceInfo();
 		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
 			return;
 		}
 		
@@ -217,6 +241,177 @@ public class deviceController {
 			tvDeviceInfo.refresh();
 		} catch( Exception ex ) {
 		}	
+		
+	}
+
+	/**
+	 * @param e
+	 * @param ctrl
+	 */
+	private void onClick_AllDeviceCommand(MouseEvent e, Control ctrl) {
+		cmApkCommand.show( ctrl, e.getScreenX(), e.getScreenY() );		
+	}
+	
+
+	private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
+	/**
+	 * 
+	 */
+	private void onClickMenu_AllDeviceCommandAction() {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
+			return;
+		}		
+		
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		keys.add( "launchable-activity" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		String launch_activity = result.get("launchable-activity");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			List<String> cmds = new ArrayList<String>();
+			if( !ckMenuItem_apkCmdUninstall.isDisable() && ckMenuItem_apkCmdUninstall.isSelected()) {				
+				cmds.add( String.format( "uninstall \"%s\"", package_name ));
+			}
+			
+			if( !roMenuItem_apkCmdInstall.isDisable() && roMenuItem_apkCmdInstall.isSelected()) {
+				cmds.add( String.format( "install \"%s\"", apk_file.getAbsolutePath() ));
+			} else if( !roMenuItem_apkCmdUpdate.isDisable() && roMenuItem_apkCmdUpdate.isSelected()) {
+				cmds.add( String.format( "install -r \"%s\"", apk_file.getAbsolutePath() ));
+			}
+			
+			if( !ckMenuItem_apkCmdExcute.isDisable() && ckMenuItem_apkCmdExcute.isSelected()) {
+				cmds.add( String.format( "shell am start -n '%s/%s'", package_name, launch_activity ));
+			}
+			
+			for( String cmd : cmds ) {
+				for( AdbDevice device : devices ) {
+					for( String log : AdbV2.Command( cmd, device )) {
+						System.out.println( log );
+					}				
+				}
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void onClickMenu_ApkExcute() {
+		AdbDevice device = getSelectedDeviceItem();
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 실행 할 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		keys.add( "launchable-activity" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		String launch_activity = result.get("launchable-activity");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			String cmd = String.format( "shell am start -n '%s/%s'", package_name, launch_activity );
+			for( String log : AdbV2.Command( cmd, device )) {
+				System.out.println( log );
+			}				
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
+
+	private void onClickMenu_ApkReinstall() {
+		AdbDevice device = this.getSelectedDeviceItem();
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 삭제할 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			String cmd1 = String.format( "uninstall \"%s\"", package_name );
+			String cmd2 = String.format( "install \"%s\"", apk_file.getAbsolutePath() );
+								
+			for( String log : AdbV2.Command( cmd1, device )) {
+				System.out.println( log );
+			}
+			
+			for( String log : AdbV2.Command( cmd2, device )) {
+				System.out.println( log );
+			}				
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
+
+	/**
+	 * 선택된 Device들의 화면을 OFF 시킴니다.
+	 */
+	private void onClickMenu_DisplayOff() {
+		AdbDevice device = this.getSelectedDeviceItem();
+		
+		if( device.getDisplayOn().compareToIgnoreCase("OFF") != 0 ) {
+			AdbV2.Command( "shell input keyevent KEYCODE_POWER", device );
+			device.setDisplayOn( "OFF" );
+		}
+		
+		try {
+			tvDeviceInfo.refresh();
+		} catch( Exception ex ) {
+		}	
+	}
+
+	/**
+	 * 선택된 Device들의 화면을 ON 시킴니다.
+	 */
+	private void onClickMenu_DisplayOn() {
+		AdbDevice device = this.getSelectedDeviceItem();
+		
+		if( device.getDisplayOn().compareToIgnoreCase("ON") != 0 ) {
+			AdbV2.Command( "shell input keyevent KEYCODE_POWER", device );
+			device.setDisplayOn( "ON" );
+		}
+		
+		try {
+			tvDeviceInfo.refresh();
+		} catch( Exception ex ) {
+		}	
 	}
 
 	private void onClickMenu_ApkUpdate() {
@@ -225,11 +420,7 @@ public class deviceController {
 	}
 
 	private void onClickMenu_ApkUninstall() {
-		List<AdbDevice> devices = getCheckedDeviceInfo();
-		if( devices.size() < 1 ) {
-			UtilV2.alertWindow( "Information", "체크된 단말기가 없습니다.", AlertType.WARNING );
-			return;
-		}
+		AdbDevice device = this.getSelectedDeviceItem();
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
 		
 		File apk_file = APKFileChooser("단말기에서 삭제할 APK 파일을 선택해 주세요");
@@ -237,19 +428,21 @@ public class deviceController {
 		if( apk_file == null ) 	return;
 		if( !apk_file.exists()) return;
 		
-		String package_name = AdbV2.getPackageNameFromApk( apk_file );
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		String package_name = result.get("package");
+		
 		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
 		try {
 			prop.save("TouchMacro v2");
 			
 			String cmd = String.format( "uninstall \"%s\"", package_name );
-								
-			for( AdbDevice device : devices ) {
-				for( String log : AdbV2.Command( cmd, device )) {
-					System.out.println( log );
-				}
-			}					
-			
+			for( String log : AdbV2.Command( cmd, device )) {
+				System.out.println( log );
+			}
+							
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -282,12 +475,7 @@ public class deviceController {
 	private void ApkFileCommand( String title, String cmd_format ) {
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
 		
-		List<AdbDevice> devices = getCheckedDeviceInfo();
-		if( devices.size() < 1 ) {
-			UtilV2.alertWindow( "Information", "체크된 단말기가 없습니다.", AlertType.WARNING );
-			return;
-		}
-		
+		AdbDevice device = this.getSelectedDeviceItem();
 		File result = APKFileChooser( title );
 		if( result == null ) return;
 		
@@ -297,11 +485,9 @@ public class deviceController {
 				prop.save("TouchMacro v2");
 				
 				String cmd = String.format( cmd_format, result.getAbsoluteFile());
-				for( AdbDevice device : devices ) {
-					for( String log : AdbV2.Command( cmd, device )) {
-						System.out.println( log );
-					}
-				}					
+				for( String log : AdbV2.Command( cmd, device )) {
+					System.out.println( log );
+				}									
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -323,7 +509,8 @@ public class deviceController {
 		Control ctrl = ( Control ) e.getSource();
 		
 		switch( ctrl.getId()) {
-		case "tvDeviceInfo" 		: mouse_handler_table_view(e, ctrl); break;
+		case "tvDeviceInfo" 				: mouse_handler_table_view(e, ctrl); break;
+		case "ID_BTN_ALL_DEVICE_COMMAND"	: onClick_AllDeviceCommand( e, ctrl ); break;
 		}		
     }
 	
@@ -332,11 +519,13 @@ public class deviceController {
 	 * @param ctrl 
 	 */
 	private void mouse_handler_table_view(MouseEvent e, Control ctrl) {
-		if( e.getButton() == MouseButton.SECONDARY ) {
-			tvDeviceInfo.getSelectionModel().clearSelection();
-			
+		AdbDevice device = getSelectedDeviceItem();
+		if( e.getButton() == MouseButton.SECONDARY &&  device != null ) {
 			cmDeviceMenu.hide();
 			cmDeviceMenu.show( tvDeviceInfo, e.getScreenX(), e.getScreenY());
+			
+		} else {
+			cmDeviceMenu.hide();
 		}
 	}
 
