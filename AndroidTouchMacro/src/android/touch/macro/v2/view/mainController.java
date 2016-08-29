@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -29,6 +31,7 @@ import android.touch.macro.v2.TouchMacroV2;
 import android.touch.macro.v2.UtilV2;
 import android.touch.macro.v2.adb.AdbDevice;
 import android.touch.macro.v2.adb.AdbV2;
+import android.touch.macro.v2.adb.DeviceClickData;
 
 public class mainController {
 	
@@ -44,22 +47,37 @@ public class mainController {
 	@FXML
 	private Label lbScriptSubject;						// script 제목 표시 label
 	
-	public int display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
-	public int display_screen_height 		= -1;		// 이미지를 표시할 영역의 높이
+	@FXML
+	private Label lbScreenPageInfo;						// 화면 Page 정보 표시 Lable
 	
-	public double display_ratio			= 1.0f;		// 이미지를 화면에 표시할때 확대/축소 비율
-	public int display_angle				= 0;		// 화면의 획전 각도
+	@FXML
+	private Button btnAddScreenDataPrev;
+	@FXML
+	private Button btnAddScreenDataNext;
+	@FXML
+	private Button btnMovePrevScreenData;
+	@FXML
+	private Button btnMoveNextScreenData;
 	
-	public boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
+	private int display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
+	private int display_screen_height 		= -1;		// 이미지를 표시할 영역의 높이
 	
-	public Point ptArrayImageDevicePoint	= new Point();
+	private double display_ratio			= 1.0f;		// 이미지를 화면에 표시할때 확대/축소 비율
+	private int display_angle				= 0;		// 화면의 획전 각도
 	
-	public BufferedImage 	captured_image	= null;
+	private boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
 	
-	public Image 		  	display_image	= null;
-	public Image 			img_arrow 		= null;
+	private Point ptArrayImageDevicePoint	= new Point();
 	
-	DataManager dataManager = null;
+	private BufferedImage 	captured_image	= null;
+	private File			captured_image_file = null;
+	
+	private Image 		  	display_image	= null;
+	private Image 			img_arrow 		= null;
+	
+	private DataManager dataManager = null;
+	private List<DeviceClickData> macroDatas = new ArrayList<DeviceClickData>(); 
+	private int nCurrentMacroIdx = 0; 
 	
 	@FXML
     public void initialize() {
@@ -103,9 +121,13 @@ public class mainController {
 			Button btn = ( Button ) obj;
 			
 			switch( btn.getId() ) {
-			case "ID_BTN_CAPTURE_SCREEN" : onClick_captureScreen(); break;
-			case "ID_BTN_SAVE_IMAGE"	 	: onClick_saveCurrentImage(); break;
-			case "ID_BTN_LOAD_IMAGE"	 	: onClick_loadCurrentImage(); break;
+			case "ID_BTN_CAPTURE_SCREEN" 		: onClick_captureScreen(); break;
+			case "ID_BTN_SAVE_IMAGE"	 		: onClick_saveCurrentImage(); break;
+			case "ID_BTN_LOAD_IMAGE"	 		: onClick_loadCurrentImage(); break;
+			case "btnAddScreenDataPrev"			: onClick_addScreenPrev(); break;
+			case "btnAddScreenDataNext"			: onClick_addScreenNext(); break;
+			case "btnMoveNextScreenData"		: onClick_scriptNextScreen(btn); break;
+			case "btnMovePrevScreenData"		: onClick_scriptPrevScreen(btn); break;
 			}
 			
 		} else if( obj instanceof MenuItem ) {
@@ -119,6 +141,100 @@ public class mainController {
 	}
 	
 	
+	private void onClick_scriptPrevScreen(Button btn) {
+		btnMoveNextScreenData.setDisable( false );
+		if( nCurrentMacroIdx < 1 ) {
+			btnMovePrevScreenData.setDisable( true );
+			return;
+		}
+		
+		nCurrentMacroIdx--;
+		DeviceClickData data = macroDatas.get( nCurrentMacroIdx );
+		
+		display_angle = data.angle;
+		ptArrayImageDevicePoint = data.point;
+		captured_image_file = data.image;
+		
+		BufferedImage bufferedImage;
+		try {
+			bufferedImage = ImageIO.read( captured_image_file );
+			//bufferedImage = UtilV2.rotate( bufferedImage, 360-display_angle );
+			captured_image = bufferedImage;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		displayCaptureImage( captured_image );
+		updateCaptureImageSizeInfo();
+		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentMacroIdx + 1, macroDatas.size()));
+	}
+
+	private void onClick_scriptNextScreen(Button btn) {
+		btnMovePrevScreenData.setDisable( false );
+		if( nCurrentMacroIdx + 1 >= macroDatas.size()) {
+			btnMoveNextScreenData.setDisable( true );
+			return;
+		}
+		nCurrentMacroIdx++;
+		DeviceClickData data = macroDatas.get( nCurrentMacroIdx );
+		
+		display_angle = data.angle;
+		ptArrayImageDevicePoint = data.point;
+		captured_image_file = data.image;
+		
+		BufferedImage bufferedImage;
+		try {
+			bufferedImage = ImageIO.read( captured_image_file );
+			//bufferedImage = UtilV2.rotate( bufferedImage, 360-display_angle );
+			captured_image = bufferedImage;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		displayCaptureImage( captured_image );
+		
+		updateCaptureImageSizeInfo();
+		updateScreenPageInfo();
+	}
+
+	private void updateScreenPageInfo() {
+		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentMacroIdx + 1, macroDatas.size()));
+	}
+
+	/**
+	 * 현재 표시되는 화면 인덱스 다음에 화면 데이터를 추가 합니다.  
+	 */
+	private void onClick_addScreenNext() {
+		DeviceClickData data = new DeviceClickData();
+		data.angle 	= this.display_angle;
+		data.point	= ptArrayImageDevicePoint;
+		data.image	= captured_image_file;
+		if( macroDatas.isEmpty()) {
+			macroDatas.add( data );
+			nCurrentMacroIdx = 0;
+		} else {
+			macroDatas.add( nCurrentMacroIdx++, data );
+		}
+		
+		updateScreenPageInfo();
+	}
+
+	/**
+	 * 현재 표시되는 화면 인덱스 이전에 화면 데이터를 추가 합니다.
+	 */
+	private void onClick_addScreenPrev() {
+		DeviceClickData data = new DeviceClickData();
+		data.angle 	= this.display_angle;
+		data.point	= ptArrayImageDevicePoint;
+		data.image	= captured_image_file;
+		if( nCurrentMacroIdx == 0 ) {
+			macroDatas.add( 0, data );
+			nCurrentMacroIdx = 0;
+		} else {
+			macroDatas.add( --nCurrentMacroIdx, data );
+		}
+		
+		updateScreenPageInfo();
+	}
+
 	/**
 	 * Capture image rotate -90
 	 */
@@ -164,8 +280,8 @@ public class mainController {
 			return;
 		}
 		
-		Point screenPoint = new Point( (int) e.getX(), (int) e.getY() );  
-		Point devicePoint = screenPointToDevicePoint( screenPoint );
+		ptArrayImageDevicePoint = new Point( (int) e.getX(), (int) e.getY() );  
+		Point devicePoint = screenPointToDevicePoint( ptArrayImageDevicePoint );
 		
 		lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
 		
@@ -179,7 +295,6 @@ public class mainController {
 			} else {
 				drawArrawImage = true;
 				
-				ptArrayImageDevicePoint = devicePoint;
 				//System.out.printf( "화면좌표:%s, 디바이스좌표:%s\n", screenPoint.toString(), devicePoint.toString());
 				
 				displayCaptureImage( captured_image );
@@ -188,7 +303,7 @@ public class mainController {
 				AdbDevice device = dataManager.getSelectedDeviceInfo();
 				if( device != null ) {
 					
-					AdbV2.touchScreen( ptArrayImageDevicePoint.x, ptArrayImageDevicePoint.y, device);
+					AdbV2.touchScreen( devicePoint.x, devicePoint.y, device);
 				}
 			}
 		}
@@ -201,25 +316,11 @@ public class mainController {
 	 * @return
 	 */
 	private Point screenPointToDevicePoint(Point screenPoint) {
-		//Point pt = UtilV2.getRatioedPoint( screenPoint, dataManager.display_ratio );
-		Point pt = screenPoint;
-		return UtilV2.getAngledPoint( pt, captured_image.getWidth(), captured_image.getHeight(), display_angle );
+		Point pt = UtilV2.getRatioedPoint( screenPoint, display_ratio );
+		//Point pt = screenPoint;
+		//return UtilV2.getAngledPoint( pt, captured_image.getWidth(), captured_image.getHeight(), display_angle );
+		return pt;
 	}
-
-	/**
-	 * 단말기의 Screen 좌표값을 화면의 Screen 좌표값으로 변환하여 반환합니다. 
-	 * 
-	 * @param devicePoint
-	 * @return
-	 */
-	private Point devicePointToScreenPoint(Point devicePoint) {
-		Point pt = UtilV2.getUnratioedPoint( devicePoint, display_ratio );
-		return UtilV2.getUnangledPoint( pt, (int)display_image.getWidth(), (int)display_image.getHeight(), display_angle );
-	}
-		
-	
-
-	
 
 	/**
 	 * 디바이스 화면 캡쳐 
@@ -231,7 +332,13 @@ public class mainController {
 			return;
 		}
 		
-		BufferedImage bufferedImage = AdbV2.screenCapture(device);
+		if( captured_image_file == null ) {
+			String path = TouchMacroV2.instance.getCurrentPath();
+			captured_image_file = new File( path, "screencap.png" );
+		}
+		captured_image_file.delete();
+		
+		BufferedImage bufferedImage = AdbV2.screenCapture(device, captured_image_file);
 		
 		AdbV2.getDeviceOrientation(device);
 		System.out.println("ORIENTATION : " + device.getOrientation() );
@@ -239,10 +346,14 @@ public class mainController {
 		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d( %s ) ", bufferedImage.getWidth(), bufferedImage.getHeight(), device.getOrientationText()));
 		
 		display_angle = device.getOrientation()*90;
-		bufferedImage = UtilV2.rotate( bufferedImage, 360-device.getOrientation()*90 );
+		bufferedImage = UtilV2.rotate( bufferedImage, 360-display_angle );
 		captured_image = bufferedImage;
 		
+		updateCaptureImageSizeInfo();
 		displayCaptureImage( captured_image );
+		
+		btnAddScreenDataPrev.setDisable( true );
+		btnAddScreenDataNext.setDisable( true );
 	}
 	
 	
@@ -263,8 +374,7 @@ public class mainController {
 				gc.drawImage( display_image, 0, 0 );
 				
 				if( drawArrawImage ) {
-					Point displayPoint = devicePointToScreenPoint( ptArrayImageDevicePoint );
-					gc.drawImage( img_arrow, displayPoint.x - 13, displayPoint.y );
+					gc.drawImage( img_arrow, ptArrayImageDevicePoint.x - 13, ptArrayImageDevicePoint.y );
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -294,7 +404,7 @@ public class mainController {
 	 * 현재 작업중인 이미지와 좌표 정보를 저장합니다. 
 	 */
 	private void onClick_saveCurrentImage() {
-		final String LAST_SAVE_FILE_PATH_KEY = "LAST_SAVE_FILE_PATH";
+		final String LAST_SAVE_FILE_PATH_KEY = "LAST_FILE_PATH";
 		
 		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
 		String last_save_path = app_prop.getValue(LAST_SAVE_FILE_PATH_KEY);
@@ -312,9 +422,19 @@ public class mainController {
 		if( result == null ) return;
 		
 		try {
+			result.delete();
 			ImageIO.write( captured_image, "PNG", result );
+									
+			PropertyV2 info = new PropertyV2();
+			info.setValue( "ANGLE", String.valueOf( display_angle ));
 			
-			app_prop.setValue(LAST_SAVE_FILE_PATH_KEY, result.getParentFile().getAbsolutePath());
+			String info_path = result.getAbsolutePath().replace(".png", ".inf");
+			info.save( info_path, "");
+			
+			String last_load_path = result.getParentFile().getAbsolutePath();
+			System.out.println( "LAST_FILE_PATH (save): " + last_load_path );
+			
+			app_prop.setValue(LAST_SAVE_FILE_PATH_KEY, last_load_path );
 			app_prop.save("TouchMacro v2.0");
 			
 		} catch (IOException e) {
@@ -326,10 +446,11 @@ public class mainController {
 	 * 저장했던 이미지와 좌표 정보를 불러 옵니다. 
 	 */
 	private void onClick_loadCurrentImage() {
-		final String LAST_LOAD_FILE_PATH_KEY = "LAST_LOAD_FILE_PATH";
+		final String LAST_LOAD_FILE_PATH_KEY = "LAST_FILE_PATH";
 		
 		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
 		String last_load_path = app_prop.getValue(LAST_LOAD_FILE_PATH_KEY);
+		System.out.println( "LAST_FILE_PATH (load): " + last_load_path );
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("이미지 파일을 선택하여 주세요.");
@@ -347,16 +468,38 @@ public class mainController {
 		if( !result.exists()) return;
 		
 		try {
-			BufferedImage bufferedImage = ImageIO.read( new File( result.getParentFile(), result.getName().replaceAll( ".pos", ".png") ) );
+			captured_image_file = result;
+			captured_image = ImageIO.read( result );
 			
-			lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d", bufferedImage.getWidth(), bufferedImage.getHeight()));
-			lbClickPosition.setText( String.format( "X:%4d, Y:%4d", 0, 0 ));
-			
-			drawArrawImage = false;
-			displayCaptureImage( bufferedImage );
-
-		} catch (IOException e) {
+		} catch( IOException e ) {
 			e.printStackTrace();
+			return;
 		}
+		
+		updateCaptureImageSizeInfo();		
+		lbClickPosition.setText( String.format( "X:%4d, Y:%4d", 0, 0 ));
+		
+		String info_path = result.getAbsolutePath().replace(".png", ".inf");
+		
+		try {
+			PropertyV2 info = new PropertyV2();
+			info.load(info_path);
+			String strAngle = info.getValue( "ANGLE" );
+			if( strAngle != null ) {
+				display_angle = Integer.valueOf( strAngle );
+			}
+		} catch( IOException e ) {
+			e.printStackTrace();			
+		}
+			
+		drawArrawImage = false;
+		displayCaptureImage( captured_image );
+		
+		btnAddScreenDataPrev.setDisable( false );
+		btnAddScreenDataNext.setDisable( false );
+	}
+	
+	private void updateCaptureImageSizeInfo() {
+		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d", captured_image.getWidth(), captured_image.getHeight()));
 	}
 }

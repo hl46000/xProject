@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import android.touch.macro.v2.CallbackMessage;
-import android.touch.macro.v2.TouchMacroV2;
 import android.touch.macro.v2.UtilV2;
 
 public class AdbV2 {
@@ -174,21 +173,15 @@ public class AdbV2 {
 	 * @param deviceInfo 여러대의 단말이 연결되어 있다면, 하나의 단말을 선택할때 사용된다. 해당값은 getDevices() method 로 없을 수 있다. 연뎔괸 단말기가 하나 일때는 null 값을 넣으면 된다.
 	 * @return 현재 단말기 화면의 Image 파일의 경로, 실패 및 오류 발생 시 null 리턴
 	 */
-	public static BufferedImage screenCapture( AdbDevice device ) {
-		File localTmpFile 	= null;
+	public static BufferedImage screenCapture( AdbDevice device, File capture_file ) {
 		BufferedImage ret 	= null;
 		
-		String path = TouchMacroV2.instance.getCurrentPath();
-		
-		localTmpFile = new File( path, "screencap.png" );
-		localTmpFile.delete();
-		
 		Command( "shell screencap -p /sdcard/screencap.png", device );
-		Command( "pull /sdcard/screencap.png " + localTmpFile.getAbsolutePath(), device );
+		Command( "pull /sdcard/screencap.png " + capture_file.getAbsolutePath(), device );
 		
-		if( localTmpFile.exists() ) {
+		if( capture_file.exists() ) {
 			try {
-				ret = ImageIO.read( localTmpFile );
+				ret = ImageIO.read( capture_file );
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

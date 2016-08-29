@@ -62,6 +62,8 @@ public class deviceController {
 	
 	DataManager dataManager = null;
 	
+	CheckBox selectAllDeviceCheckBox = null;
+	
 	@FXML
     public void initialize() {
 		dataManager = TouchMacroV2.instance.getDataManager();
@@ -123,6 +125,10 @@ public class deviceController {
 		AdbV2.debugLog = true;
 		ArrayList<AdbDevice> devices = AdbV2.getDevices();
 		
+		if( selectAllDeviceCheckBox != null ) {
+			selectAllDeviceCheckBox.setSelected( false );
+		}
+		
 		int column_index = 0;
 		
 		TableColumn<AdbDevice, Boolean> tcCheckBox	= (TableColumn<AdbDevice, Boolean>) tvDeviceInfo.getColumns().get(column_index++);
@@ -171,7 +177,9 @@ public class deviceController {
 			CheckBox cb = (CheckBox) obj;
 			
 			switch( cb.getId() ) {
-			case "ID_CHECKBOX_SELECT_ALL_DEVICE" 	: onClickCheckBox_selectAllDevice( cb.isSelected() ); break;
+			case "ID_CHECKBOX_SELECT_ALL_DEVICE" 	: 
+				selectAllDeviceCheckBox = cb;
+				onClickCheckBox_selectAllDevice( cb.isSelected() ); break;
 			}
 			
 		} else if( obj instanceof Button) {

@@ -10,7 +10,6 @@
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="463.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
    <center>
       <Canvas fx:id="cvDisplay" height="325.0" onMouseClicked="#event_handle_mouse" onMouseMoved="#event_handle_mouse" width="603.0" BorderPane.alignment="CENTER" />
@@ -28,7 +27,7 @@
                   <HBox alignment="CENTER" prefHeight="28.0" prefWidth="161.0" spacing="2.0">
                      <children>
                         <Label text="지연시간" />
-                        <TextField prefHeight="23.0" prefWidth="62.0" />
+                        <TextField alignment="CENTER" prefHeight="23.0" prefWidth="62.0" text="1000" />
                         <Label text="ms" />
                      </children>
                      <VBox.margin>
@@ -40,9 +39,23 @@
             </VBox>
             <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                <children>
-                  <Button fx:id="ID_BTN_SCRIPT_NEXT_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="다음화면" />
-                  <Label text="0/0" />
-                  <Button fx:id="ID_BTN_SCRIPT_PREV_SCREEN" mnemonicParsing="false" onAction="#event_handle_action" text="이전화면" />
+                  <Button fx:id="btnMoveNextScreenData" mnemonicParsing="false" onAction="#event_handle_action" text="다음화면" />
+                  <Label fx:id="lbScreenPageInfo" text="0/0" />
+                  <Button fx:id="btnMovePrevScreenData" mnemonicParsing="false" onAction="#event_handle_action" text="이전화면" />
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                     <children>
+                        <Button fx:id="btnAddScreenDataPrev" disable="true" mnemonicParsing="false" onAction="#event_handle_action" text="추가(앞)">
+                           <tooltip>
+                              <Tooltip text="'화면캡쳐'로는 추가할 수 없습니다. " />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="btnAddScreenDataNext" disable="true" mnemonicParsing="false" onAction="#event_handle_action" text="추가(뒤)">
+                           <tooltip>
+                              <Tooltip text="'이미지 불러오기'로 추가할 수 있습니다. " />
+                           </tooltip>
+                        </Button>
+                     </children>
+                  </HBox>
                </children>
             </VBox>
             <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
