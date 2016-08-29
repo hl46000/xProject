@@ -5,12 +5,12 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 public class AdbDevice {
 	private BooleanProperty selected = new SimpleBooleanProperty(false);
-	private String serialNumber;
-	private String model;
-	private String os_ver;
+	private String serialNumber = "X";
+	private String model = "X";
+	private String os_ver = "X";
 	private String status;
 	private int orientation;		// 단말기의 방향
-	private String displayOn;			// 화면 켜짐( ON:커짐, OFF:켜짐 )
+	private String displayOn = "X";			// 화면 켜짐( ON:커짐, OFF:켜짐 )
 	
 	public AdbDevice( String serial, String _model, String _os_ver ) {
 		serialNumber 	= serial;
