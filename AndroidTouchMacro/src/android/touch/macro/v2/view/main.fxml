@@ -27,7 +27,7 @@
                   <HBox alignment="CENTER" prefHeight="28.0" prefWidth="161.0" spacing="2.0">
                      <children>
                         <Label text="지연시간" />
-                        <TextField alignment="CENTER" prefHeight="23.0" prefWidth="62.0" text="1000" />
+                        <TextField fx:id="tfDelayTime" alignment="CENTER" prefHeight="23.0" prefWidth="62.0" text="1000" />
                         <Label text="ms" />
                      </children>
                      <VBox.margin>

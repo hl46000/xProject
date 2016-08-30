@@ -18,6 +18,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -31,25 +32,20 @@ import android.touch.macro.v2.TouchMacroV2;
 import android.touch.macro.v2.UtilV2;
 import android.touch.macro.v2.adb.AdbDevice;
 import android.touch.macro.v2.adb.AdbV2;
-import android.touch.macro.v2.adb.DeviceClickData;
+import android.touch.macro.v2.adb.ScreenData;
 
 public class mainController {
 	
 	@FXML
 	private Canvas cvDisplay;
-	
 	@FXML
 	private Label lbCaptureImageSize;					// 이미지 크기 표시 label
-	
 	@FXML
 	private Label lbClickPosition;						// 클릭 좌표 표시 lable
-	
 	@FXML
 	private Label lbScriptSubject;						// script 제목 표시 label
-	
 	@FXML
 	private Label lbScreenPageInfo;						// 화면 Page 정보 표시 Lable
-	
 	@FXML
 	private Button btnAddScreenDataPrev;				// 현재 화면 이전에 화면 추가 버튼
 	@FXML
@@ -62,6 +58,8 @@ public class mainController {
 	private Button btnMoveNextScreenData;				// 다음 화면으로 이동 버튼 '>'
 	@FXML
 	private Button btnScriptControl;					// script 재생 제어 버튼
+	@FXML
+	private TextField tfDelayTime;						// Delay time textField
 	
 	private int display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
 	private int display_screen_height 		= -1;		// 이미지를 표시할 영역의 높이
@@ -80,8 +78,8 @@ public class mainController {
 	private Image 			img_arrow 		= null;
 	
 	private DataManager dataManager = null;
-	private List<DeviceClickData> screenDatas = new ArrayList<DeviceClickData>(); 
-	private int nCurrentMacroIdx = 0; 
+	private List<ScreenData> screenDatas = new ArrayList<ScreenData>(); 
+	private int nCurrentScreenIdx = 0; 
 	
 	@FXML
     public void initialize() {
@@ -134,43 +132,164 @@ public class mainController {
 			case "btnMoveNextScreenData"		: onClick_moveScreen(true); break;
 			case "btnMovePrevScreenData"		: onClick_moveScreen(false); break;
 			case "btnScriptControl"				: break;
+			case "ID_BTN_SAVE_SCRIPT"			: onClick_saveScreenDatas(); break;
+			case "ID_BTN_LOAD_SCRIPT"			: onClick_loadScreenDatas(); break;
 			}
 			
 		} else if( obj instanceof MenuItem ) {
 			MenuItem mi = ( MenuItem ) obj;
 			
-			switch( mi.getId() ) {
-			case "ID_MENU_ROTATE_P90" : onClickMenu_rotate_p90(); break;
-			case "ID_MENU_ROTATE_N90" : onClickMenu_rotate_n90(); break;
+			switch( mi.getId() ) {			
 			}
 		}
 	}
 	
 	
+	private void onClick_loadScreenDatas() {
+		final String LAST_SAVE_SCRIPT_PATH_KEY = "LAST_SCRIPT_PATH";
+		
+		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
+		String last_script_path = app_prop.getValue(LAST_SAVE_SCRIPT_PATH_KEY);
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("불러올 스크립트파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("SCRIPT", "*.script") );
+		if( last_script_path != null ) {
+			File file_last_script_path = new File( last_script_path );
+			if( file_last_script_path.exists()) {
+				fileChooser.setInitialDirectory( file_last_script_path );
+			}
+		}
+		File result = fileChooser.showOpenDialog( TouchMacroV2.instance.getPrimaryStage());
+		if( result == null ) return;
+		
+		int count = 0;
+		PropertyV2 scriptInfo = new PropertyV2();
+		try {
+			scriptInfo.load( result.getAbsolutePath() );
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
+		
+		screenDatas.clear();
+		
+		count = Integer.valueOf( scriptInfo.getValue( "COUNT" ));
+		String name = scriptInfo.getValue( "NAME" );
+		for( int i = 0; i < count; i++ ) {
+			ScreenData sData = new ScreenData();
+			sData.image 	= new File(scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
+			sData.angle 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_ANGLE", i ) ));
+			sData.point.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X", i ) ));
+			sData.point.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y", i ) ));
+			sData.delayTime = Integer.valueOf( scriptInfo.getValue( String.format( "%03d_DELAYTIME", i ) ));
+		
+			screenDatas.add(sData);
+		}
+		
+		lbScriptSubject.setText( name );
+		
+		nCurrentScreenIdx = 0;
+		displayScreenDataImage();
+		
+		last_script_path = result.getParentFile().getAbsolutePath();
+		System.out.println( "LAST_SCRIPT_PATH (save): " + last_script_path );
+		
+		app_prop.setValue( LAST_SAVE_SCRIPT_PATH_KEY, last_script_path );
+		try {
+			app_prop.save("TouchMacro v2.0");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void onClick_saveScreenDatas() {
+		final String LAST_SAVE_SCRIPT_PATH_KEY = "LAST_SCRIPT_PATH";
+		
+		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
+		String last_script_path = app_prop.getValue(LAST_SAVE_SCRIPT_PATH_KEY);
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("저장할 스크립트파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("SCRIPT", "*.script") );
+		if( last_script_path != null ) {
+			File file_last_script_path = new File( last_script_path );
+			if( file_last_script_path.exists()) {
+				fileChooser.setInitialDirectory( file_last_script_path );
+			}
+		}
+		File result = fileChooser.showSaveDialog(TouchMacroV2.instance.getPrimaryStage());
+		if( result == null ) return;
+
+		int index = 0;
+		PropertyV2 scriptInfo = new PropertyV2();
+		scriptInfo.setValue( "COUNT", String.valueOf( screenDatas.size()));
+		scriptInfo.setValue( "NAME", result.getName() );
+		for( ScreenData sData : screenDatas ) {
+			scriptInfo.setValue( String.format( "%03d_IMAGE", index ), sData.image.getAbsolutePath());
+			scriptInfo.setValue( String.format( "%03d_ANGLE", index ), String.valueOf( sData.angle ));
+			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( sData.point.x ));
+			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( sData.point.y ));
+			scriptInfo.setValue( String.format( "%03d_DELAYTIME", index ), String.valueOf( sData.delayTime ));
+			index++;
+		}
+		try {
+			scriptInfo.save( result.getAbsolutePath(), result.getName() );
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
+		
+		last_script_path = result.getParentFile().getAbsolutePath();
+		System.out.println( "LAST_SCRIPT_PATH (save): " + last_script_path );
+		
+		app_prop.setValue( LAST_SAVE_SCRIPT_PATH_KEY, last_script_path );
+		try {
+			app_prop.save("TouchMacro v2.0");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void onClick_moveScreen(boolean b) {
 		if( b ) {
 			btnMovePrevScreenData.setDisable( false );
-			if( nCurrentMacroIdx + 1 >= screenDatas.size()) {
+			if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
 				btnMoveNextScreenData.setDisable( true );
 				return;
 			}
-			nCurrentMacroIdx++;
+			nCurrentScreenIdx++;
+			if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
+				btnMoveNextScreenData.setDisable( true );
+			}
 		} else {
 			btnMoveNextScreenData.setDisable( false );
-			if( nCurrentMacroIdx < 1 ) {
+			if( nCurrentScreenIdx < 1 ) {
 				btnMovePrevScreenData.setDisable( true );
 				return;
 			}
 			
-			nCurrentMacroIdx--;
+			nCurrentScreenIdx--;
+			if( nCurrentScreenIdx == 0 ) {
+				btnMovePrevScreenData.setDisable( true );
+			}
 		}
 		
-		
-		DeviceClickData data = screenDatas.get( nCurrentMacroIdx );
+		displayScreenDataImage();
+	}
+
+	/**
+	 * 
+	 */
+	private void displayScreenDataImage() {
+		ScreenData data = screenDatas.get( nCurrentScreenIdx );
+		System.out.println( "nCurrentScreenIdx : " + nCurrentScreenIdx );
+		data.print();
 		
 		display_angle = data.angle;
 		ptArrayImageDevicePoint = data.point;
 		captured_image_file = data.image;
+		tfDelayTime.setText( String.valueOf( data.delayTime ) );
 		
 		BufferedImage bufferedImage;
 		try {
@@ -183,101 +302,79 @@ public class mainController {
 		
 		updateCaptureImageSizeInfo();
 		updateScreenPageInfo();
+		
 	}
 
 	/**
 	 * 현재 화면을 script 데이터에서 삭제 합니다. 
 	 */
 	private void onClick_delCurrentScreen() {
-		screenDatas.remove( nCurrentMacroIdx );
+		screenDatas.remove( nCurrentScreenIdx );
 		if( screenDatas.isEmpty()) {
 			btnMovePrevScreenData.setDisable( true );
 			btnMoveNextScreenData.setDisable( true );
 			btnScriptControl.setDisable( true );
 			
 			return;
-		} else if( nCurrentMacroIdx >= screenDatas.size() - 1 ) {
-			nCurrentMacroIdx = screenDatas.size() - 1;
+		} else if( nCurrentScreenIdx >= screenDatas.size() - 1 ) {
+			nCurrentScreenIdx = screenDatas.size() - 1;
 		}
 		
-		DeviceClickData data = screenDatas.get( nCurrentMacroIdx );
-		
-		display_angle = data.angle;
-		ptArrayImageDevicePoint = data.point;
-		captured_image_file = data.image;
-		
-		BufferedImage bufferedImage;
-		try {
-			bufferedImage = ImageIO.read( captured_image_file );
-			captured_image = bufferedImage;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		displayCaptureImage( captured_image );
-		
-		updateCaptureImageSizeInfo();
-		updateScreenPageInfo();
+		displayScreenDataImage();
 	}
 
 	/**
-	 * 
+	 * Screen의 Page 정보를 갱신하여 표시 합니다. 
 	 */
 	private void updateScreenPageInfo() {
-		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentMacroIdx + 1, screenDatas.size()));
+		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentScreenIdx + 1, screenDatas.size()));
 	}
 
 	/**
 	 * 현재 표시되는 화면 인덱스 다음에 화면 데이터를 추가 합니다.  
 	 */
 	private void onClick_addScreenNext() {
-		DeviceClickData data = new DeviceClickData();
-		data.angle 	= this.display_angle;
-		data.point	= ptArrayImageDevicePoint;
-		data.image	= captured_image_file;
+		ScreenData data = getCurrentScreenData();
+		
 		if( screenDatas.isEmpty()) {
 			screenDatas.add( data );
-			nCurrentMacroIdx = 0;
+			nCurrentScreenIdx = 0;
 		} else {
-			screenDatas.add( nCurrentMacroIdx++, data );
+			screenDatas.add( ++nCurrentScreenIdx, data );
 		}
 		
 		updateScreenPageInfo();
+	}
+
+	/**
+	 * 현재 화면의 정보를 취합하여 DeviceClickData 객체를 생성하여 전달하여 준다. 
+	 * 
+	 * @return
+	 */
+	private ScreenData getCurrentScreenData() {
+		ScreenData data = new ScreenData();
+		data.angle 	= this.display_angle;
+		data.point	= ptArrayImageDevicePoint;
+		data.image	= captured_image_file;
+		data.delayTime = Integer.valueOf( tfDelayTime.getText());
+		data.print();
+		return data;
 	}
 
 	/**
 	 * 현재 표시되는 화면 인덱스 이전에 화면 데이터를 추가 합니다.
 	 */
 	private void onClick_addScreenPrev() {
-		DeviceClickData data = new DeviceClickData();
-		data.angle 	= this.display_angle;
-		data.point	= ptArrayImageDevicePoint;
-		data.image	= captured_image_file;
-		if( nCurrentMacroIdx == 0 ) {
+		ScreenData data = getCurrentScreenData();
+		
+		if( nCurrentScreenIdx == 0 ) {
 			screenDatas.add( 0, data );
-			nCurrentMacroIdx = 0;
+			nCurrentScreenIdx = 0;
 		} else {
-			screenDatas.add( --nCurrentMacroIdx, data );
+			screenDatas.add( --nCurrentScreenIdx, data );
 		}
 		
 		updateScreenPageInfo();
-	}
-
-	/**
-	 * Capture image rotate -90
-	 */
-	private void onClickMenu_rotate_n90() {
-		display_angle = display_angle == 0 ? 360 - 90 : display_angle - 90;
-		
-		displayCaptureImage( captured_image );		
-	}
-
-	/**
-	 * Capture image rotate +90
-	 */
-	private void onClickMenu_rotate_p90() {
-		display_angle = display_angle == 270 ? 0 : display_angle + 90;
-		
-		displayCaptureImage( captured_image );
 	}
 
 	/**
@@ -423,9 +520,7 @@ public class mainController {
 		bufferedImage = UtilV2.resizeImage( bufferedImage, (int)( bufferedImage.getWidth()*display_ratio), (int)(bufferedImage.getHeight()*display_ratio));
 		return bufferedImage;
 	}
-	//Image image = SwingFXUtils.toFXImage(capture, null);
-	
-	
+		
 	/**
 	 * 현재 작업중인 이미지와 좌표 정보를 저장합니다. 
 	 */
@@ -525,6 +620,9 @@ public class mainController {
 		btnAddScreenDataNext.setDisable( false );
 	}
 	
+	/**
+	 * 표시되고 있는 이미지의 크기 정보를 갱신합니다. 
+	 */
 	private void updateCaptureImageSizeInfo() {
 		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d", captured_image.getWidth(), captured_image.getHeight()));
 	}
