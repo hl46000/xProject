@@ -51,13 +51,17 @@ public class mainController {
 	private Label lbScreenPageInfo;						// 화면 Page 정보 표시 Lable
 	
 	@FXML
-	private Button btnAddScreenDataPrev;
+	private Button btnAddScreenDataPrev;				// 현재 화면 이전에 화면 추가 버튼
 	@FXML
-	private Button btnAddScreenDataNext;
+	private Button btnAddScreenDataNext;				// 현재 화면 다음에 화면 추가 버늩
 	@FXML
-	private Button btnMovePrevScreenData;
+	private Button btnDelScreenData;					// 현재 화면을 삭제하는 버튼
 	@FXML
-	private Button btnMoveNextScreenData;
+	private Button btnMovePrevScreenData;				// 이전 화면으로 이동 버튼 '<'
+	@FXML
+	private Button btnMoveNextScreenData;				// 다음 화면으로 이동 버튼 '>'
+	@FXML
+	private Button btnScriptControl;					// script 재생 제어 버튼
 	
 	private int display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
 	private int display_screen_height 		= -1;		// 이미지를 표시할 영역의 높이
@@ -76,7 +80,7 @@ public class mainController {
 	private Image 			img_arrow 		= null;
 	
 	private DataManager dataManager = null;
-	private List<DeviceClickData> macroDatas = new ArrayList<DeviceClickData>(); 
+	private List<DeviceClickData> screenDatas = new ArrayList<DeviceClickData>(); 
 	private int nCurrentMacroIdx = 0; 
 	
 	@FXML
@@ -126,8 +130,10 @@ public class mainController {
 			case "ID_BTN_LOAD_IMAGE"	 		: onClick_loadCurrentImage(); break;
 			case "btnAddScreenDataPrev"			: onClick_addScreenPrev(); break;
 			case "btnAddScreenDataNext"			: onClick_addScreenNext(); break;
-			case "btnMoveNextScreenData"		: onClick_scriptNextScreen(btn); break;
-			case "btnMovePrevScreenData"		: onClick_scriptPrevScreen(btn); break;
+			case "btnDelScreenData"				: onClick_delCurrentScreen(); break;
+			case "btnMoveNextScreenData"		: onClick_moveScreen(true); break;
+			case "btnMovePrevScreenData"		: onClick_moveScreen(false); break;
+			case "btnScriptControl"				: break;
 			}
 			
 		} else if( obj instanceof MenuItem ) {
@@ -141,15 +147,26 @@ public class mainController {
 	}
 	
 	
-	private void onClick_scriptPrevScreen(Button btn) {
-		btnMoveNextScreenData.setDisable( false );
-		if( nCurrentMacroIdx < 1 ) {
-			btnMovePrevScreenData.setDisable( true );
-			return;
+	private void onClick_moveScreen(boolean b) {
+		if( b ) {
+			btnMovePrevScreenData.setDisable( false );
+			if( nCurrentMacroIdx + 1 >= screenDatas.size()) {
+				btnMoveNextScreenData.setDisable( true );
+				return;
+			}
+			nCurrentMacroIdx++;
+		} else {
+			btnMoveNextScreenData.setDisable( false );
+			if( nCurrentMacroIdx < 1 ) {
+				btnMovePrevScreenData.setDisable( true );
+				return;
+			}
+			
+			nCurrentMacroIdx--;
 		}
 		
-		nCurrentMacroIdx--;
-		DeviceClickData data = macroDatas.get( nCurrentMacroIdx );
+		
+		DeviceClickData data = screenDatas.get( nCurrentMacroIdx );
 		
 		display_angle = data.angle;
 		ptArrayImageDevicePoint = data.point;
@@ -158,33 +175,6 @@ public class mainController {
 		BufferedImage bufferedImage;
 		try {
 			bufferedImage = ImageIO.read( captured_image_file );
-			//bufferedImage = UtilV2.rotate( bufferedImage, 360-display_angle );
-			captured_image = bufferedImage;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		displayCaptureImage( captured_image );
-		updateCaptureImageSizeInfo();
-		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentMacroIdx + 1, macroDatas.size()));
-	}
-
-	private void onClick_scriptNextScreen(Button btn) {
-		btnMovePrevScreenData.setDisable( false );
-		if( nCurrentMacroIdx + 1 >= macroDatas.size()) {
-			btnMoveNextScreenData.setDisable( true );
-			return;
-		}
-		nCurrentMacroIdx++;
-		DeviceClickData data = macroDatas.get( nCurrentMacroIdx );
-		
-		display_angle = data.angle;
-		ptArrayImageDevicePoint = data.point;
-		captured_image_file = data.image;
-		
-		BufferedImage bufferedImage;
-		try {
-			bufferedImage = ImageIO.read( captured_image_file );
-			//bufferedImage = UtilV2.rotate( bufferedImage, 360-display_angle );
 			captured_image = bufferedImage;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -195,8 +185,45 @@ public class mainController {
 		updateScreenPageInfo();
 	}
 
+	/**
+	 * 현재 화면을 script 데이터에서 삭제 합니다. 
+	 */
+	private void onClick_delCurrentScreen() {
+		screenDatas.remove( nCurrentMacroIdx );
+		if( screenDatas.isEmpty()) {
+			btnMovePrevScreenData.setDisable( true );
+			btnMoveNextScreenData.setDisable( true );
+			btnScriptControl.setDisable( true );
+			
+			return;
+		} else if( nCurrentMacroIdx >= screenDatas.size() - 1 ) {
+			nCurrentMacroIdx = screenDatas.size() - 1;
+		}
+		
+		DeviceClickData data = screenDatas.get( nCurrentMacroIdx );
+		
+		display_angle = data.angle;
+		ptArrayImageDevicePoint = data.point;
+		captured_image_file = data.image;
+		
+		BufferedImage bufferedImage;
+		try {
+			bufferedImage = ImageIO.read( captured_image_file );
+			captured_image = bufferedImage;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		displayCaptureImage( captured_image );
+		
+		updateCaptureImageSizeInfo();
+		updateScreenPageInfo();
+	}
+
+	/**
+	 * 
+	 */
 	private void updateScreenPageInfo() {
-		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentMacroIdx + 1, macroDatas.size()));
+		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentMacroIdx + 1, screenDatas.size()));
 	}
 
 	/**
@@ -207,11 +234,11 @@ public class mainController {
 		data.angle 	= this.display_angle;
 		data.point	= ptArrayImageDevicePoint;
 		data.image	= captured_image_file;
-		if( macroDatas.isEmpty()) {
-			macroDatas.add( data );
+		if( screenDatas.isEmpty()) {
+			screenDatas.add( data );
 			nCurrentMacroIdx = 0;
 		} else {
-			macroDatas.add( nCurrentMacroIdx++, data );
+			screenDatas.add( nCurrentMacroIdx++, data );
 		}
 		
 		updateScreenPageInfo();
@@ -226,10 +253,10 @@ public class mainController {
 		data.point	= ptArrayImageDevicePoint;
 		data.image	= captured_image_file;
 		if( nCurrentMacroIdx == 0 ) {
-			macroDatas.add( 0, data );
+			screenDatas.add( 0, data );
 			nCurrentMacroIdx = 0;
 		} else {
-			macroDatas.add( --nCurrentMacroIdx, data );
+			screenDatas.add( --nCurrentMacroIdx, data );
 		}
 		
 		updateScreenPageInfo();
@@ -345,8 +372,7 @@ public class mainController {
 		
 		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d( %s ) ", bufferedImage.getWidth(), bufferedImage.getHeight(), device.getOrientationText()));
 		
-		display_angle = device.getOrientation()*90;
-		bufferedImage = UtilV2.rotate( bufferedImage, 360-display_angle );
+		display_angle = 360-device.getOrientation()*90;
 		captured_image = bufferedImage;
 		
 		updateCaptureImageSizeInfo();
