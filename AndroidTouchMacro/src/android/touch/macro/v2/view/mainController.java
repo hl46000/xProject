@@ -11,11 +11,13 @@ import java.util.List;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
@@ -80,6 +82,8 @@ public class mainController {
 	private DataManager dataManager = null;
 	private List<ScreenData> screenDatas = new ArrayList<ScreenData>(); 
 	private int nCurrentScreenIdx = 0; 
+
+	private ContextMenu		cmRotate = new ContextMenu();
 	
 	@FXML
     public void initialize() {
@@ -100,6 +104,16 @@ public class mainController {
 			e.printStackTrace();
 		}
 		
+		MenuItem mRotateP90 = new MenuItem("+90도 회전");
+		mRotateP90.setId("ID_MENU_ROTATE_P90");
+		mRotateP90.setOnAction( ActionEventHandler );
+		MenuItem mRotateN90 = new MenuItem("-90도 회전");
+		mRotateN90.setId("ID_MENU_ROTATE_N90");
+		mRotateN90.setOnAction( ActionEventHandler );
+		cmRotate.getItems().add( mRotateP90 );
+		cmRotate.getItems().add( mRotateN90 );
+		
+		
 		// 이미지가 로딩되기 전까지 이미지 영역을 표시해 줌
 		/*
 		GraphicsContext gc = cvDisplay.getGraphicsContext2D();
@@ -115,6 +129,13 @@ public class mainController {
 		dataManager.setMainController( this );
 	}
 		
+	final EventHandler<ActionEvent> ActionEventHandler = new EventHandler<ActionEvent>(){
+		@Override
+		public void handle(ActionEvent arg0) {
+			event_handle_action( arg0 );
+		}
+	};
+	
 	@FXML
 	private void event_handle_action( ActionEvent e) {
 		Object obj = e.getSource();
@@ -132,20 +153,26 @@ public class mainController {
 			case "btnMoveNextScreenData"		: onClick_moveScreen(true); break;
 			case "btnMovePrevScreenData"		: onClick_moveScreen(false); break;
 			case "btnScriptControl"				: break;
-			case "ID_BTN_SAVE_SCRIPT"			: onClick_saveScreenDatas(); break;
-			case "ID_BTN_LOAD_SCRIPT"			: onClick_loadScreenDatas(); break;
+			case "ID_BTN_SAVE_SCRIPT"			: onClick_saveScriptDatas(); break;
+			case "ID_BTN_LOAD_SCRIPT"			: onClick_loadScriptDatas(); break;
+			case "ID_BTN_MODIFY_SCREEN_DATA"	: onClick_modCurrentScreen(); break;
 			}
 			
 		} else if( obj instanceof MenuItem ) {
 			MenuItem mi = ( MenuItem ) obj;
 			
 			switch( mi.getId() ) {			
+            case "ID_MENU_ROTATE_P90" : onClickMenu_rotate_p90(); break;
+            case "ID_MENU_ROTATE_N90" : onClickMenu_rotate_n90(); break;
 			}
 		}
 	}
 	
 	
-	private void onClick_loadScreenDatas() {
+	
+
+
+	private void onClick_loadScriptDatas() {
 		final String LAST_SAVE_SCRIPT_PATH_KEY = "LAST_SCRIPT_PATH";
 		
 		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
@@ -189,6 +216,7 @@ public class mainController {
 		
 		lbScriptSubject.setText( name );
 		
+		drawArrawImage = true;
 		nCurrentScreenIdx = 0;
 		displayScreenDataImage();
 		
@@ -203,7 +231,7 @@ public class mainController {
 		}
 	}
 
-	private void onClick_saveScreenDatas() {
+	private void onClick_saveScriptDatas() {
 		final String LAST_SAVE_SCRIPT_PATH_KEY = "LAST_SCRIPT_PATH";
 		
 		PropertyV2 app_prop = TouchMacroV2.instance.load_app_property();
@@ -324,6 +352,20 @@ public class mainController {
 	}
 
 	/**
+	 * 현재 화면의 Script 데이터를 수정 합니다. 
+	 */
+	private void onClick_modCurrentScreen() {
+		ScreenData data = screenDatas.get( nCurrentScreenIdx );
+		data.angle 	= this.display_angle;
+		data.point	= ptArrayImageDevicePoint;
+		data.image	= captured_image_file;
+		data.delayTime = Integer.valueOf( tfDelayTime.getText());
+		data.print();
+		
+		displayScreenDataImage();
+	}
+	
+	/**
 	 * Screen의 Page 정보를 갱신하여 표시 합니다. 
 	 */
 	private void updateScreenPageInfo() {
@@ -377,6 +419,23 @@ public class mainController {
 		updateScreenPageInfo();
 	}
 
+    /**
+     * 
+     */
+    private void onClickMenu_rotate_n90() {
+        display_angle = display_angle == 0 ? 360 - 90 : display_angle - 90;
+        displayCaptureImage( captured_image );
+    }
+
+    /**
+     * 
+     */
+    private void onClickMenu_rotate_p90() {
+        display_angle = display_angle == 270 ? 0 : display_angle + 90;
+        displayCaptureImage( captured_image );
+    }
+
+	
 	/**
 	 * 마우스 이벤트를 전달받을 함수
 	 * 
@@ -404,8 +463,8 @@ public class mainController {
 			return;
 		}
 		
-		ptArrayImageDevicePoint = new Point( (int) e.getX(), (int) e.getY() );  
-		Point devicePoint = screenPointToDevicePoint( ptArrayImageDevicePoint );
+		Point screenPoint = new Point( (int) e.getX(), (int) e.getY() );  
+		Point devicePoint = screenPointToDevicePoint( screenPoint );
 		
 		lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
 		
@@ -414,9 +473,11 @@ public class mainController {
 			//cmDisplayRotate.hide();
 			if( e.getButton() == MouseButton.SECONDARY ) {
 				// Context ment 을 보여 줍시다.
-				//cmDisplayRotate.show( cvDisplay, e.getScreenX(), e.getScreenY());
+				cmRotate.show( cvDisplay, e.getScreenX(), e.getScreenY());
 				
 			} else {
+				ptArrayImageDevicePoint = screenPoint;
+				
 				drawArrawImage = true;
 				
 				//System.out.printf( "화면좌표:%s, 디바이스좌표:%s\n", screenPoint.toString(), devicePoint.toString());
@@ -465,11 +526,8 @@ public class mainController {
 		BufferedImage bufferedImage = AdbV2.screenCapture(device, captured_image_file);
 		
 		AdbV2.getDeviceOrientation(device);
-		System.out.println("ORIENTATION : " + device.getOrientation() );
 		
-		lbCaptureImageSize.setText( String.format( "W:%4d, H:%4d( %s ) ", bufferedImage.getWidth(), bufferedImage.getHeight(), device.getOrientationText()));
-		
-		display_angle = 360-device.getOrientation()*90;
+		display_angle = 0;
 		captured_image = bufferedImage;
 		
 		updateCaptureImageSizeInfo();
