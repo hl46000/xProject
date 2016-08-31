@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -69,9 +70,9 @@ public class mainController {
 	private double display_ratio			= 1.0f;		// 이미지를 화면에 표시할때 확대/축소 비율
 	private int display_angle				= 0;		// 화면의 획전 각도
 	
-	private boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
+	//private boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
 	
-	private Point ptArrayImageDevicePoint	= new Point();
+	private Point ptArrayImageDevicePoint	= new Point(0,0);
 	
 	private BufferedImage 	captured_image	= null;
 	private File			captured_image_file = null;
@@ -153,7 +154,7 @@ public class mainController {
 			case "btnMoveNextScreenData"		: onClick_moveScreen(true); break;
 			case "btnMovePrevScreenData"		: onClick_moveScreen(false); break;
 			case "ID_BTN_MOVE_FIRST_SCREEN_DATA": onClick_moveFirstScreen(); break;
-			case "btnScriptControl"				: break;
+			case "btnScriptControl"				: onClick_playScriptDatas(); break;
 			case "ID_BTN_SCREEN_STEP"			: onClick_stepScreenData(); break;
 			case "ID_BTN_SAVE_SCRIPT"			: onClick_saveScriptDatas(); break;
 			case "ID_BTN_LOAD_SCRIPT"			: onClick_loadScriptDatas(); break;
@@ -171,7 +172,94 @@ public class mainController {
 	}
 	
 	
+	private boolean script_play_flag = false;
+	Runnable scriptPlayRunnable = new Runnable() {
+		
+		Runnable updateScreenInfo = new Runnable() {
+			@Override
+			public void run() {
+				onClick_moveScreen(true);
+				
+				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
+					nCurrentScreenIdx = 0;
+				}
+			}
+		};
+		
+		Runnable updateDelayTime = new Runnable() {
+			@Override
+			public void run() {
+				int delayTime = Integer.valueOf( tfDelayTime.getText() );
+				delayTime -= 100;
+				tfDelayTime.setText( String.valueOf( delayTime ));
+			}
+		};
+		
+		@Override
+		public void run() {
+			AdbDevice device = dataManager.getSelectedDeviceInfo();
+			
+			nCurrentScreenIdx = 0;
+			while( script_play_flag ) {
+				try {
+					Thread.sleep( 100 );
+				} catch (InterruptedException e) {}
+				if( !script_play_flag ) break;
+				
+				ScreenData data = screenDatas.get( nCurrentScreenIdx );
+				
+				int delayTime = data.delayTime;
+				while( delayTime > 0 ) {
+					try {
+						Thread.sleep( 100 );
+						delayTime -= 100;
+						
+					} catch (InterruptedException e) {}
+					if( !script_play_flag ) break;
+					
+					Platform.runLater( updateDelayTime );
+				}
+				
+				Point devicePoint = screenPointToDevicePoint( data.point );
+				if( !script_play_flag ) break;
+				
+				// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+				AdbV2.touchScreen( devicePoint.x, devicePoint.y, device );
+				if( !script_play_flag ) break;
+				
+				Platform.runLater( updateScreenInfo );				
+				if( !script_play_flag ) break;
+			}
+			
+			Platform.runLater( new Runnable(){
+				@Override
+				public void run() {
+					btnScriptControl.setText( "Play" );
+					btnScriptControl.setDisable( false );
+				}});
+		}
+	};
+
 	
+	private void onClick_playScriptDatas() {
+		String name = btnScriptControl.getText();
+		if( name.compareTo("Play") == 0 ) {
+			AdbDevice device = dataManager.getSelectedDeviceInfo();
+			if( device == null ) {
+				UtilV2.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.WARNING );
+				return;
+			}
+			
+			btnScriptControl.setText( "Stop" );
+									
+			script_play_flag = true;
+			new Thread( scriptPlayRunnable ).start();
+			
+		} else {
+			btnScriptControl.setDisable( true );
+			script_play_flag = false;
+		}
+	}
 
 
 	/**
@@ -204,10 +292,6 @@ public class mainController {
 		
 		onClick_moveScreen(true);
 	}
-
-
-
-
 
 	private void onClick_loadScriptDatas() {
 		final String LAST_SAVE_SCRIPT_PATH_KEY = "LAST_SCRIPT_PATH";
@@ -252,8 +336,7 @@ public class mainController {
 		}
 		
 		lbScriptSubject.setText( name );
-		
-		drawArrawImage = true;
+	
 		nCurrentScreenIdx = 0;
 		displayScreenDataImage();
 		
@@ -316,12 +399,12 @@ public class mainController {
 		}
 	}
 
-	private void onClick_moveScreen(boolean b) {
+	private boolean onClick_moveScreen(boolean b) {
 		if( b ) {
 			btnMovePrevScreenData.setDisable( false );
 			if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
 				btnMoveNextScreenData.setDisable( true );
-				return;
+				return false;
 			}
 			nCurrentScreenIdx++;
 			if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
@@ -331,7 +414,7 @@ public class mainController {
 			btnMoveNextScreenData.setDisable( false );
 			if( nCurrentScreenIdx < 1 ) {
 				btnMovePrevScreenData.setDisable( true );
-				return;
+				return false;
 			}
 			
 			nCurrentScreenIdx--;
@@ -341,6 +424,7 @@ public class mainController {
 		}
 		
 		displayScreenDataImage();
+		return true;
 	}
 
 	/**
@@ -515,8 +599,6 @@ public class mainController {
 			} else {
 				ptArrayImageDevicePoint = screenPoint;
 				
-				drawArrawImage = true;
-				
 				//System.out.printf( "화면좌표:%s, 디바이스좌표:%s\n", screenPoint.toString(), devicePoint.toString());
 				
 				displayCaptureImage( captured_image );
@@ -554,13 +636,11 @@ public class mainController {
 			return;
 		}
 		
-		if( captured_image_file == null ) {
-			String path = TouchMacroV2.instance.getCurrentPath();
-			captured_image_file = new File( path, "screencap.png" );
-		}
-		captured_image_file.delete();
+		String path = TouchMacroV2.instance.getCurrentPath();
+		File image_file = new File( path, "screencap.png" );
+		image_file.delete();
 		
-		BufferedImage bufferedImage = AdbV2.screenCapture(device, captured_image_file);
+		BufferedImage bufferedImage = AdbV2.screenCapture(device, image_file);
 		
 		AdbV2.getDeviceOrientation(device);
 		
@@ -591,9 +671,7 @@ public class mainController {
 				gc.clearRect(0, 0, cvDisplay.getWidth(), cvDisplay.getHeight());
 				gc.drawImage( display_image, 0, 0 );
 				
-				if( drawArrawImage ) {
-					gc.drawImage( img_arrow, ptArrayImageDevicePoint.x - 13, ptArrayImageDevicePoint.y );
-				}
+				gc.drawImage( img_arrow, ptArrayImageDevicePoint.x - 13, ptArrayImageDevicePoint.y );				
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -708,7 +786,6 @@ public class mainController {
 			e.printStackTrace();			
 		}
 			
-		drawArrawImage = false;
 		displayCaptureImage( captured_image );
 		
 		btnAddScreenDataPrev.setDisable( false );

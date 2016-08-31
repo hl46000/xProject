@@ -36,7 +36,6 @@
                         <Insets bottom="5.0" />
                      </VBox.margin>
                   </HBox>
-                  <Button fx:id="ID_BTN_DELAY_TIME" mnemonicParsing="false" onAction="#event_handle_action" prefHeight="23.0" prefWidth="106.0" text="지연시간적용" />
                </children>
             </VBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">

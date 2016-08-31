@@ -10,6 +10,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import android.touch.macro.adb.DeviceInfo;
+import android.touch.macro.util.Util;
 import android.touch.macro.v2.CallbackMessage;
 import android.touch.macro.v2.UtilV2;
 
@@ -170,6 +172,7 @@ public class AdbV2 {
 				device.setModel( getPropCommand( "ro.product.model", device ));
 				device.setOs_ver( getPropCommand( "ro.build.version.release", device ));
 				device.setStatus( "Online" );
+				getBatteryLevel( device );
 				getDeviceOrientation( device );
 				
 			} else {
@@ -217,6 +220,41 @@ public class AdbV2 {
 	 */
 	public static void touchScreen( int x, int y, AdbDevice device ) {
 		Command( String.format( "shell input tap %d %d", x, y ), device );
+	}
+	
+	
+	
+	
+	
+	
+	/**
+	 * 연결된 장치의 남은 베터리의 level 값을 반환 합니다. 오류 시 -1 반환
+	 * 
+	 * @param deviceInfo
+	 * @return
+	 */
+	public static int getBatteryLevel( AdbDevice device ) {
+		List<String> result = Command( "shell dumpsys battery", device );
+		
+		if( result.size() < 0 ) return -1;
+		for( String line : result ) {
+			line = line.trim();
+			
+			if( line.isEmpty()) continue;
+			if( line.startsWith("List")) continue;
+			if( line.startsWith("* daemon")) continue;
+			
+			while( line.contains("  ")) {
+				line = line.replace( "  ", " " );
+			}
+			
+			if( !line.startsWith("level:")) continue;
+			
+			String level = line.substring( "level:".length() ).trim();
+			device.setBatteryLevel( Integer.valueOf( level ));
+		}
+						
+		return device.getBatteryLevel();
 	}
 	
 	/**
