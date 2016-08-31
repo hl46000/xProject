@@ -50,6 +50,8 @@ public class mainController {
 	@FXML
 	private Label lbScreenPageInfo;						// 화면 Page 정보 표시 Lable
 	@FXML
+	private Label lbDelayTimeTitle;						// 지연시간 표시
+	@FXML
 	private Button btnAddScreenDataPrev;				// 현재 화면 이전에 화면 추가 버튼
 	@FXML
 	private Button btnAddScreenDataNext;				// 현재 화면 다음에 화면 추가 버늩
@@ -174,15 +176,16 @@ public class mainController {
 	
 	private boolean script_play_flag = false;
 	Runnable scriptPlayRunnable = new Runnable() {
-		
 		Runnable updateScreenInfo = new Runnable() {
 			@Override
 			public void run() {
-				onClick_moveScreen(true);
-				
 				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
 					nCurrentScreenIdx = 0;
+				} else {
+					nCurrentScreenIdx++;
 				}
+
+				displayScreenDataImage();
 			}
 		};
 		
@@ -236,6 +239,7 @@ public class mainController {
 				public void run() {
 					btnScriptControl.setText( "Play" );
 					btnScriptControl.setDisable( false );
+					lbDelayTimeTitle.setText("지연시간");
 				}});
 		}
 	};
@@ -251,9 +255,10 @@ public class mainController {
 			}
 			
 			btnScriptControl.setText( "Stop" );
-									
+			lbDelayTimeTitle.setText("남은시간");
+			
 			script_play_flag = true;
-			new Thread( scriptPlayRunnable ).start();
+			new Thread( scriptPlayRunnable ).start();			
 			
 		} else {
 			btnScriptControl.setDisable( true );
