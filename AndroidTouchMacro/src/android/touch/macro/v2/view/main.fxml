@@ -36,6 +36,19 @@
                         <Insets bottom="5.0" />
                      </VBox.margin>
                   </HBox>
+                  <HBox alignment="CENTER" spacing="10.0">
+                     <children>
+                        <RadioButton mnemonicParsing="false" selected="true" text="Tap">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="TouchType" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" text="Swipe" toggleGroup="$TouchType" />
+                     </children>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </HBox>
                </children>
             </VBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
