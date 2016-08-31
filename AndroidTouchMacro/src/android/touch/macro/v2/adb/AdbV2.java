@@ -74,18 +74,36 @@ public class AdbV2 {
 	 * @param device
 	 * @return
 	 */
-	public static void Command( List<String> cmds, AdbDevice device, CallbackMessage callback ) {
-		String prog = null;
+	public static void CommandThread( List<String> cmds, AdbDevice device, CallbackMessage callback ) {
+		new Thread( new CommandThread( cmds, device, callback )).start();
+	}
+	
+	static class CommandThread implements Runnable {
+		AdbDevice device;
+		CallbackMessage callback;
+		List<String> cmds;
 		
-		for( String cmd : cmds ) {
-			if( device == null ) {
-				prog = String.format( "%s", cmd );
-			} else {
-				prog = String.format( "-s %s %s", device.getSerialNumber(), cmd );
+		public CommandThread( List<String> _cmds, AdbDevice _device, CallbackMessage _callback ) {
+			cmds 		= _cmds;
+			device		= _device;
+			callback 	= _callback;
+		}
+
+		@Override
+		public void run() {
+			String prog = null;
+			
+			for( String cmd : cmds ) {
+				if( device == null ) {
+					prog = String.format( "%s", cmd );
+				} else {
+					prog = String.format( "-s %s %s", device.getSerialNumber(), cmd );
+				}
+				Command( prog, callback );
 			}
-			Command( prog, callback );
 		}
 	}
+	
 	
 	/**
 	 * @param cmd

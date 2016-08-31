@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import android.touch.macro.G;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -154,7 +153,7 @@ public class UtilV2 {
 	 * @return
 	 */
 	@SuppressWarnings("resource")
-	public synchronized static List<String> getRuntimeExecResult( String prog, CallbackMessage callback ) {
+	public static List<String> getRuntimeExecResult( String prog, CallbackMessage callback ) {
 		InputStream input = null;
 		InputStream error = null;
 		Process process = null;
@@ -162,8 +161,6 @@ public class UtilV2 {
 		List<String> ret = new ArrayList<String>();
 		try {
 			process = Runtime.getRuntime().exec( prog );
-			
-			G.tempAdbProcess.add( process );
 			
 			input = process.getInputStream();
 			error = process.getErrorStream();

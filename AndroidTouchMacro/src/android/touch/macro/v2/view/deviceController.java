@@ -254,7 +254,7 @@ public class deviceController {
 			}
 			
 			for( AdbDevice device : devices ) {
-				AdbV2.Command( cmds, device, new CallbackMessage(){
+				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
 					@Override
 					public void callbackMessage(String msg) {
 						System.out.print( msg );
@@ -275,9 +275,17 @@ public class deviceController {
 			return;
 		}
 		
+		List<String> cmds = new ArrayList<String>();
+		cmds.add("shell input keyevent KEYCODE_POWER");
+		
 		for( AdbDevice device : devices ) {
 			if( device.getDisplayOn().compareToIgnoreCase("OFF") != 0 ) {
-				AdbV2.Command( "shell input keyevent KEYCODE_POWER", device );
+				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
+					@Override
+					public void callbackMessage(String msg) {
+						System.out.println( msg );
+					}} );
+				
 				device.setDisplayOn( "OFF" );
 			}
 		}
@@ -296,9 +304,17 @@ public class deviceController {
 			return;
 		}
 		
+		List<String> cmds = new ArrayList<String>();
+		cmds.add("shell input keyevent KEYCODE_POWER");
+		
 		for( AdbDevice device : devices ) {
 			if( device.getDisplayOn().compareToIgnoreCase("ON") != 0 ) {
-				AdbV2.Command( "shell input keyevent KEYCODE_POWER", device );
+				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
+					@Override
+					public void callbackMessage(String msg) {
+						System.out.println( msg );
+					}} );
+				
 				device.setDisplayOn( "ON" );
 			}
 		}
@@ -365,12 +381,13 @@ public class deviceController {
 				cmds.add( String.format( "shell am start -n '%s/%s'", package_name, launch_activity ));
 			}
 			
-			for( String cmd : cmds ) {
-				for( AdbDevice device : devices ) {
-					for( String log : AdbV2.Command( cmd, device )) {
-						System.out.println( log );
-					}				
-				}
+			
+			for( AdbDevice device : devices ) {
+				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
+					@Override
+					public void callbackMessage(String msg) {
+						System.out.println( msg );
+					}} );
 			}
 			
 		} catch (IOException e) {
@@ -409,7 +426,7 @@ public class deviceController {
 			cmds.add( String.format( "shell am kill %s", package_name ));
 			cmds.add( String.format( "shell am start -n '%s/%s'", package_name, launch_activity ));
 			
-			AdbV2.Command( cmds, device, new CallbackMessage(){
+			AdbV2.CommandThread( cmds, device, new CallbackMessage(){
 				@Override
 				public void callbackMessage(String msg) {
 					System.out.print( msg );
@@ -450,7 +467,7 @@ public class deviceController {
 			cmds.add( String.format( "shell am force-stop %s", package_name ));
 			cmds.add( String.format( "shell am kill %s", package_name ));
 			
-			AdbV2.Command( cmds, device, new CallbackMessage(){
+			AdbV2.CommandThread( cmds, device, new CallbackMessage(){
 				@Override
 				public void callbackMessage(String msg) {
 					System.out.print( msg );
