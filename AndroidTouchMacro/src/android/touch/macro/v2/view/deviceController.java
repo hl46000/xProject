@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import android.touch.macro.v2.CallbackMessage;
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
 import android.touch.macro.v2.TouchMacroV2;
@@ -199,17 +200,74 @@ public class deviceController {
 			case "ID_MENU_APK_UPDATE"					: onClickMenu_ApkUpdate(); break;
 			case "ID_MENU_APK_REINSTALL"				: onClickMenu_ApkReinstall(); break;
 			case "ID_MENU_APK_EXCUTE"					: onClickMenu_ApkExcute(); break;
+			case "ID_MENU_APK_TERMINATE"				: onClickMenu_ApkTerminate(); break;
+			case "ID_MENU_APK_RE_EXCUTE"				: onClickMenu_ApkReExcute(); break;
 			case "ID_MENU_DISPLAY_ON"					: onClickMenu_DisplayOn(); break;
 			case "ID_MENU_DISPLAY_OFF"					: onClickMenu_DisplayOff(); break;
 			
 			case "ID_MENU_ALL_DEVICE_DISPLAY_ON"		: onClickMenu_AllDeviceDisplayOn(); break;
 			case "ID_MENU_ALL_DEVICE_DISPLAY_OFF"		: onClickMenu_AllDeviceDisplayOff(); break;
+			case "ID_MENU_ALL_DEVICE_APP_EXCUTE" 		: onClickMenu_AllDeviceAppExcute( false, true ); break;
+			case "ID_MENU_ALL_DEVICE_APP_RE_EXCUTE"		: onClickMenu_AllDeviceAppExcute( true, true ); break;
+			case "ID_MENU_ALL_DEVICE_APP_TERMINATE"		: onClickMenu_AllDeviceAppExcute( true, false ); break;
 			case "ID_BTN_ALL_DEVICE_COMMAND_ACTION"		: onClickMenu_AllDeviceCommandAction(); break;
 			}
 		}
 		
 	}
 		
+	
+	private void onClickMenu_AllDeviceAppExcute( boolean terminate, boolean excute ) {
+		List<AdbDevice> devices = getCheckedDeviceInfo();
+		if( devices.size() < 1 ) {
+			UtilV2.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
+			return;
+		}		
+		
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		keys.add( "launchable-activity" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		String launch_activity = result.get("launchable-activity");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			List<String> cmds = new ArrayList<String>();
+			if( terminate ) {
+				cmds.add( String.format( "shell am force-stop %s", package_name ));
+				cmds.add( String.format( "shell am kill %s", package_name ));
+			} 
+			if( excute ) {
+				cmds.add( String.format( "shell am start -n '%s/%s'", package_name, launch_activity ));
+			}
+			
+			for( AdbDevice device : devices ) {
+				AdbV2.Command( cmds, device, new CallbackMessage(){
+					@Override
+					public void callbackMessage(String msg) {
+						System.out.print( msg );
+						
+					}} );
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+
 	private void onClickMenu_AllDeviceDisplayOff() {
 		List<AdbDevice> devices = getCheckedDeviceInfo();
 		if( devices.size() < 1 ) {
@@ -320,6 +378,94 @@ public class deviceController {
 		}
 	}
 
+	
+	/**
+	 * 선택된 APK 파일의 앱을 단말기에서 종료 후 다시 실행 시킴니다. 
+	 */
+	private void onClickMenu_ApkReExcute() {
+		AdbDevice device = getSelectedDeviceItem();
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 재 실행 할 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		keys.add( "launchable-activity" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		String launch_activity = result.get("launchable-activity");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			List<String> cmds = new ArrayList<String>();
+			cmds.add( String.format( "shell am force-stop %s", package_name ));
+			cmds.add( String.format( "shell am kill %s", package_name ));
+			cmds.add( String.format( "shell am start -n '%s/%s'", package_name, launch_activity ));
+			
+			AdbV2.Command( cmds, device, new CallbackMessage(){
+				@Override
+				public void callbackMessage(String msg) {
+					System.out.print( msg );
+					
+				}} );				
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 선택된 APK 파일의 앱을 단말기에서 종료 시킴니다. 
+	 */
+	private void onClickMenu_ApkTerminate() {
+		AdbDevice device = getSelectedDeviceItem();
+		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
+		
+		File apk_file = APKFileChooser("단말기에서 정지 시킬 앱의 APK 파일을 선택해 주세요");
+		
+		if( apk_file == null ) 	return ;
+		if( !apk_file.exists()) return ;
+		
+		List<String> keys = new ArrayList<String>();
+		keys.add( "package" );
+		keys.add( "launchable-activity" );
+		
+		Map<String, String> result = AdbV2.getInformationFromApk( apk_file, keys );
+		
+		String package_name = result.get("package");
+		//String launch_activity = result.get("launchable-activity");
+		
+		prop.setValue( "APK_PATH", apk_file.getParentFile().getAbsolutePath() );
+		try {
+			prop.save("TouchMacro v2");
+			
+			List<String> cmds = new ArrayList<String>();
+			cmds.add( String.format( "shell am force-stop %s", package_name ));
+			cmds.add( String.format( "shell am kill %s", package_name ));
+			
+			AdbV2.Command( cmds, device, new CallbackMessage(){
+				@Override
+				public void callbackMessage(String msg) {
+					System.out.print( msg );
+					
+				}} );
+							
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 선택된 APK파일의 앱을 단말기에서 실행 시킵니다. APK 파일은 단말기에 설치되어 있어야 합니다. 
+	 */
 	private void onClickMenu_ApkExcute() {
 		AdbDevice device = getSelectedDeviceItem();
 		PropertyV2 prop = TouchMacroV2.instance.load_app_property();
@@ -349,7 +495,7 @@ public class deviceController {
 			
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	private void onClickMenu_ApkReinstall() {

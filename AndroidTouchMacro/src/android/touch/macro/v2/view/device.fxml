@@ -58,6 +58,13 @@
                                     <MenuItem fx:id="ID_BTN_ALL_DEVICE_COMMAND_ACTION" mnemonicParsing="false" onAction="#event_handle_action" text="Action" />
                                 </items>
                               </Menu>
+                              <Menu mnemonicParsing="false" text="APP Command">
+                                <items>
+                                  <MenuItem fx:id="ID_MENU_ALL_DEVICE_APP_EXCUTE" mnemonicParsing="false" onAction="#event_handle_action" text="Excute" />
+                                    <MenuItem fx:id="ID_MENU_ALL_DEVICE_APP_TERMINATE" mnemonicParsing="false" onAction="#event_handle_action" text="Terminate" />
+                                    <MenuItem fx:id="ID_MENU_ALL_DEVICE_APP_RE_EXCUTE" mnemonicParsing="false" onAction="#event_handle_action" text="Re-Excute" />
+                                </items>
+                              </Menu>
                               <SeparatorMenuItem mnemonicParsing="false" />
                               <MenuItem fx:id="ID_MENU_ALL_DEVICE_DISPLAY_ON" mnemonicParsing="false" onAction="#event_handle_action" text="Display ON" />
                               <MenuItem fx:id="ID_MENU_ALL_DEVICE_DISPLAY_OFF" mnemonicParsing="false" onAction="#event_handle_action" text="Display OFF" />
@@ -93,13 +100,16 @@
                   <TableColumn editable="false" maxWidth="110.0" minWidth="110.0" prefWidth="107.0" sortable="false" text="연결상태" />
                </columns>
                <contextMenu>
-                  <ContextMenu fx:id="cmDeviceMenu" autoFix="false" autoHide="false" consumeAutoHidingEvents="false" hideOnEscape="false">
+                  <ContextMenu fx:id="cmDeviceMenu">
                     <items>
                       <MenuItem fx:id="ID_MENU_APK_INSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Install" />
                         <MenuItem fx:id="ID_MENU_APK_UNINSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Uninstall" />
                         <MenuItem fx:id="ID_MENU_APK_UPDATE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Update" />
                         <MenuItem fx:id="ID_MENU_APK_REINSTALL" mnemonicParsing="false" onAction="#event_handle_action" text="APK Reinstall" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="ID_MENU_APK_EXCUTE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Excute" />
+                        <MenuItem fx:id="ID_MENU_APK_TERMINATE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Terminate" />
+                        <MenuItem fx:id="ID_MENU_APK_RE_EXCUTE" mnemonicParsing="false" onAction="#event_handle_action" text="APK Re-Excute" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem disable="true" mnemonicParsing="false" text="APK Extraction" />
                         <SeparatorMenuItem mnemonicParsing="false" />

@@ -151,7 +151,7 @@ public class AdbV2 {
 			if( tokens[1].compareToIgnoreCase("device") == 0 ) {
 				device.setModel( getPropCommand( "ro.product.model", device ));
 				device.setOs_ver( getPropCommand( "ro.build.version.release", device ));
-				device.setStatus( "Connected" );
+				device.setStatus( "Online" );
 				getDeviceOrientation( device );
 				
 			} else {
