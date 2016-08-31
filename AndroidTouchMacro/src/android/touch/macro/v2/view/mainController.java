@@ -152,7 +152,9 @@ public class mainController {
 			case "btnDelScreenData"				: onClick_delCurrentScreen(); break;
 			case "btnMoveNextScreenData"		: onClick_moveScreen(true); break;
 			case "btnMovePrevScreenData"		: onClick_moveScreen(false); break;
+			case "ID_BTN_MOVE_FIRST_SCREEN_DATA": onClick_moveFirstScreen(); break;
 			case "btnScriptControl"				: break;
+			case "ID_BTN_SCREEN_STEP"			: onClick_stepScreenData(); break;
 			case "ID_BTN_SAVE_SCRIPT"			: onClick_saveScriptDatas(); break;
 			case "ID_BTN_LOAD_SCRIPT"			: onClick_loadScriptDatas(); break;
 			case "ID_BTN_MODIFY_SCREEN_DATA"	: onClick_modCurrentScreen(); break;
@@ -170,6 +172,41 @@ public class mainController {
 	
 	
 	
+
+
+	/**
+	 * 가장 처음 Screen Data로 이동 시킴니다. 
+	 */
+	private void onClick_moveFirstScreen() {
+		nCurrentScreenIdx = 0;
+		displayScreenDataImage();
+	}
+
+
+
+
+
+	/**
+	 * 현재 화면 데이터를 실행 시킨다.. 
+	 */
+	private void onClick_stepScreenData() {
+		AdbDevice device = dataManager.getSelectedDeviceInfo();
+		if( device == null ) {
+			UtilV2.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.WARNING );
+			return;
+		}
+		
+		ScreenData data = screenDatas.get( nCurrentScreenIdx );
+		Point devicePoint = screenPointToDevicePoint( data.point );
+		
+		// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+		AdbV2.touchScreen( devicePoint.x, devicePoint.y, device );
+		
+		onClick_moveScreen(true);
+	}
+
+
+
 
 
 	private void onClick_loadScriptDatas() {
