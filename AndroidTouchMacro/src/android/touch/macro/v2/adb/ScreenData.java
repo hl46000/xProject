@@ -14,7 +14,7 @@ public class ScreenData {
 	public int type = TYPE_TAP;
 	
 	public Point point2 = new Point();
-	public int swipeTime = 1000;			//
+	public long swipeTime = 1000;			//
 	
 	public void print() {
 		System.out.println("===== ScreenData ==== ");

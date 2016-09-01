@@ -1,6 +1,6 @@
 package android.touch.macro.v2.view;
 
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -81,7 +81,7 @@ public class mainController {
 	
 	private Point ptArrayImagePoint		= new Point(0,0);
 	private Point ptArrayImagePoint2	= new Point(0,0);
-	private int   swipeTime				= 0;
+	private long  swipeTime				= 0;
 	private boolean startedSwipe		= false;
 	
 	private BufferedImage 	captured_image	= null;
@@ -467,11 +467,10 @@ public class mainController {
 		ptArrayImagePoint 	= data.point;
 		captured_image_file = data.image;
 		tfDelayTime.setText( String.valueOf( data.delayTime ) );
+		rbClickTypeTap.setSelected( data.type == ScreenData.TYPE_TAP );
 		
-		BufferedImage bufferedImage;
 		try {
-			bufferedImage = ImageIO.read( captured_image_file );
-			captured_image = bufferedImage;
+			captured_image = ImageIO.read( captured_image_file );
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -479,7 +478,6 @@ public class mainController {
 		
 		updateCaptureImageSizeInfo();
 		updateScreenPageInfo();
-		
 	}
 
 	/**
@@ -624,7 +622,7 @@ public class mainController {
 			if( rbClickTypeTap.isSelected() && startedSwipe ) return;
 			
 			startedSwipe = true;
-			
+			swipeTime = System.currentTimeMillis();
 			ptArrayImagePoint = screenPoint;
 			ptArrayImagePoint2 = screenPoint;
 			
@@ -632,36 +630,36 @@ public class mainController {
 			
 		} else if( e.getEventType() == MouseEvent.MOUSE_RELEASED ) {
 			if( rbClickTypeTap.isSelected() ) return;
-			ptArrayImagePoint2 = screenPoint;
 			
+			ptArrayImagePoint2 = screenPoint;
+			swipeTime = System.currentTimeMillis() - swipeTime;
 			displayCaptureImage( captured_image );
 			
 			// 장치가 선택되어 있다면 화면을 클릭 합니다. 
 			AdbDevice device = dataManager.getSelectedDeviceInfo();
-			if( device != null && !rbClickTypeTap.isSelected() && startedSwipe ) {
+			if( device != null && startedSwipe ) {
 				Point devicePoint = screenPointToDevicePoint( ptArrayImagePoint );
 				Point devicePoint2 = screenPointToDevicePoint( ptArrayImagePoint2 );
 				
-				AdbV2.swipeScreen( devicePoint.x, devicePoint.y, devicePoint2.x, devicePoint2.y, 1000, device);
+				AdbV2.swipeScreen( devicePoint.x, devicePoint.y, devicePoint2.x, devicePoint2.y, swipeTime, device);
 				
 				lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
 			}
 			startedSwipe = false;
 			
 		} else if( e.getEventType() == MouseEvent.MOUSE_EXITED ) {
-			startedSwipe = false;
+			startedSwipe = false;			
 			
 		} else if( e.getEventType() == MouseEvent.MOUSE_DRAGGED ) {
 			if( !rbClickTypeTap.isSelected() && startedSwipe ) {
 				ptArrayImagePoint2 = screenPoint;
-				
+			
 				displayCaptureImage( captured_image );
 			}
 			
 		} else if( e.getEventType() == MouseEvent.MOUSE_CLICKED ) {
-			if( 1 == e.getClickCount()) {
+			if( 1 == e.getClickCount() && rbClickTypeTap.isSelected() ) {
 				
-				//cmDisplayRotate.hide();
 				if( e.getButton() == MouseButton.SECONDARY ) {
 					// Context ment 을 보여 줍시다.
 					cmRotate.show( cvDisplay, e.getScreenX(), e.getScreenY());
@@ -745,17 +743,49 @@ public class mainController {
 				
 				if( rbClickTypeTap.isSelected()) {
 					gc.drawImage( img_arrow, ptArrayImagePoint.x - 13, ptArrayImagePoint.y );
-				} else {
-					gc.setStroke(Color.BLUEVIOLET);
-					gc.setLineWidth(3);
-			        gc.strokeLine( ptArrayImagePoint.x, ptArrayImagePoint.y, ptArrayImagePoint2.x, ptArrayImagePoint2.y);
-				}				
+				} else {					
+					gc.setStroke(Color.RED);
+					gc.setLineWidth(5);
+			        //gc.strokeLine( ptArrayImagePoint.x, ptArrayImagePoint.y, ptArrayImagePoint2.x, ptArrayImagePoint2.y);
+					drawArrowLine( gc, ptArrayImagePoint.x, ptArrayImagePoint.y, ptArrayImagePoint2.x, ptArrayImagePoint2.y, 5, 5 );
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+     * Draw an arrow line betwwen two point 
+     * @param g the graphic component
+     * @param x1 x-position of first point
+     * @param y1 y-position of first point
+     * @param x2 x-position of second point
+     * @param y2 y-position of second point
+     * @param d  the width of the arrow
+     * @param h  the height of the arrow
+     */
+    private void drawArrowLine(GraphicsContext g, int x1, int y1, int x2, int y2, int d, int h){
+       int dx = x2 - x1, dy = y2 - y1;
+       double D = Math.sqrt(dx*dx + dy*dy);
+       double xm = D - d, xn = xm, ym = h, yn = -h, x;
+       double sin = dy/D, cos = dx/D;
+
+       x = xm*cos - ym*sin + x1;
+       ym = xm*sin + ym*cos + y1;
+       xm = x;
+
+       x = xn*cos - yn*sin + x1;
+       yn = xn*sin + yn*cos + y1;
+       xn = x;
+
+       double[] xpoints = {x2, xm, xn};
+       double[] ypoints = {y2, ym, yn};
+
+       g.strokeLine(x1, y1, x2, y2);
+       g.strokePolygon(xpoints, ypoints, 3);
+    }
+	
 	/**
 	 * Image 를 표시할 영역에 마추어 확대/축소된 이미지 객체를 반환한다. 
 	 * 

@@ -10,11 +10,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import android.touch.macro.adb.DeviceInfo;
-import android.touch.macro.util.Util;
 import android.touch.macro.v2.CallbackMessage;
 import android.touch.macro.v2.UtilV2;
-import javafx.scene.image.Image;
 
 public class AdbV2 {
 	public static boolean debugLog = false;
@@ -234,7 +231,7 @@ public class AdbV2 {
 	 * @param swipeTime ms
 	 * @param device
 	 */
-	public static void swipeScreen(int x, int y, int x2, int y2, int swipeTime, AdbDevice device) {
+	public static void swipeScreen(int x, int y, int x2, int y2, long swipeTime, AdbDevice device) {
 		Command( String.format( "shell input swipe %d %d %d %d %d", x, y, x2, y2, swipeTime ), device );
 	}	 
 	
