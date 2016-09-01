@@ -2,11 +2,14 @@ package android.touch.macro.v2.adb;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
@@ -208,7 +211,68 @@ public class AdbV2 {
 		
 		return ret;
 	}
+	
+	@SuppressWarnings("resource")
+	public static BufferedImage screenCaptureEx( AdbDevice device ) {
+		BufferedImage ret 	= null;
+		String cmd = "shell screencap -p | sed 's/\\r$//'";
+		String prog = null;
+		if( device == null ) {
+			prog = String.format( "%s %s", adb_path, cmd );
+		} else {
+			prog = String.format( "%s -s %s %s", adb_path, device.getSerialNumber(), cmd );
+		}
 		
+		InputStream input = null;
+		InputStream error = null;
+		Process process = null;
+		
+		try {
+			process = Runtime.getRuntime().exec( prog );
+			
+			input = process.getInputStream();
+			error = process.getErrorStream();
+		
+			int buffer_size = 1024 * 1024;
+			
+			FileOutputStream fos = new FileOutputStream("d:\\a.png"); 
+			byte [] buffer = new byte[ buffer_size ];
+			
+			int nRead = 0;
+			while(( nRead = input.read( buffer, 0, buffer_size)) > 0 ) {
+				fos.write( buffer, 0, nRead );
+			}
+			fos.close();
+			//ret = ImageIO.read( input );
+			
+			Scanner error_scaner = new Scanner(error).useDelimiter("\\n");
+			while( error_scaner.hasNext() ) {
+				System.err.println( error_scaner.next() );
+			}
+		} catch (IOException e1 ) {
+			e1.printStackTrace();
+			
+		} finally {
+			if( input != null ) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if( error != null ) {
+				try {
+					error.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
 	/**
 	 * device 의 x, y 좌표를 클릭 합니다. 
 	 * 

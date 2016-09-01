@@ -709,7 +709,12 @@ public class mainController {
 		File image_file = new File( path, "screencap.png" );
 		image_file.delete();
 		
+		long sTime = System.currentTimeMillis();
 		BufferedImage bufferedImage = AdbV2.screenCapture(device, image_file);
+		//BufferedImage bufferedImage = AdbV2.screenCaptureEx(device);
+		
+		long eTime = System.currentTimeMillis();
+		System.out.printf("AdbV2.screenCapture spent time : %dms\n", eTime-sTime );
 		
 		AdbV2.getDeviceOrientation(device);
 		
