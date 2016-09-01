@@ -12,7 +12,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="463.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="android.touch.macro.v2.view.mainController">
    <center>
-      <Canvas fx:id="cvDisplay" height="325.0" onMouseClicked="#event_handle_mouse" onMouseMoved="#event_handle_mouse" width="603.0" BorderPane.alignment="CENTER" />
+      <Canvas fx:id="cvDisplay" height="325.0" onMouseClicked="#event_handle_mouse" onMouseDragged="#event_handle_mouse" onMouseExited="#event_handle_mouse" onMouseMoved="#event_handle_mouse" onMousePressed="#event_handle_mouse" onMouseReleased="#event_handle_mouse" width="603.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
       <VBox alignment="CENTER" maxWidth="150.0" minWidth="150.0" prefHeight="200.0" prefWidth="150.0" BorderPane.alignment="CENTER">
@@ -38,7 +38,7 @@
                   </HBox>
                   <HBox alignment="CENTER" spacing="10.0">
                      <children>
-                        <RadioButton mnemonicParsing="false" selected="true" text="Tap">
+                        <RadioButton fx:id="rbClickTypeTap" mnemonicParsing="false" selected="true" text="Tap">
                            <toggleGroup>
                               <ToggleGroup fx:id="TouchType" />
                            </toggleGroup>

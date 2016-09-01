@@ -21,10 +21,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
@@ -64,6 +66,8 @@ public class mainController {
 	@FXML
 	private Button btnScriptControl;					// script 재생 제어 버튼
 	@FXML
+	private RadioButton rbClickTypeTap;					// click type을 결정하는 RadioButton 중 tap
+	@FXML
 	private TextField tfDelayTime;						// Delay time textField
 	
 	private int display_screen_width 		= -1;		// 이미지를 표시할 영역의 넓이
@@ -74,7 +78,10 @@ public class mainController {
 	
 	//private boolean drawArrawImage			= false;	// 화면에 좌표 지정화살표를 표시 할지에 대한 Flag
 	
-	private Point ptArrayImageDevicePoint	= new Point(0,0);
+	private Point ptArrayImagePoint		= new Point(0,0);
+	private Point ptArrayImagePoint2	= new Point(0,0);
+	private int   swipeTime				= 0;
+	private boolean startedSwipe		= false;
 	
 	private BufferedImage 	captured_image	= null;
 	private File			captured_image_file = null;
@@ -227,7 +234,12 @@ public class mainController {
 				if( !script_play_flag ) break;
 				
 				// 장치가 선택되어 있다면 화면을 클릭 합니다. 
-				AdbV2.touchScreen( devicePoint.x, devicePoint.y, device );
+				if( data.type == ScreenData.TYPE_TAP ) {
+					AdbV2.touchScreen( devicePoint.x, devicePoint.y, device );
+				} else if( data.type == ScreenData.TYPE_SWIPE ) {
+					Point devicePoint2 = screenPointToDevicePoint( data.point2 );
+					AdbV2.swipeScreen( devicePoint.x, devicePoint.y, devicePoint2.x, devicePoint2.y, data.swipeTime, device );
+				}				
 				if( !script_play_flag ) break;
 				
 				Platform.runLater( updateScreenInfo );				
@@ -276,9 +288,6 @@ public class mainController {
 	}
 
 
-
-
-
 	/**
 	 * 현재 화면 데이터를 실행 시킨다.. 
 	 */
@@ -293,7 +302,12 @@ public class mainController {
 		Point devicePoint = screenPointToDevicePoint( data.point );
 		
 		// 장치가 선택되어 있다면 화면을 클릭 합니다. 
-		AdbV2.touchScreen( devicePoint.x, devicePoint.y, device );
+		if( data.type == ScreenData.TYPE_TAP ) {
+			AdbV2.touchScreen( devicePoint.x, devicePoint.y, device );
+		} else if( data.type == ScreenData.TYPE_SWIPE ) {
+			Point devicePoint2 = screenPointToDevicePoint( data.point2 );
+			AdbV2.swipeScreen( devicePoint.x, devicePoint.y, devicePoint2.x, devicePoint2.y, data.swipeTime, device );
+		}
 		
 		onClick_moveScreen(true);
 	}
@@ -333,9 +347,13 @@ public class mainController {
 			ScreenData sData = new ScreenData();
 			sData.image 	= new File(scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
 			sData.angle 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_ANGLE", i ) ));
+			sData.type		= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_TYPE", i ) ));
 			sData.point.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X", i ) ));
 			sData.point.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y", i ) ));
+			sData.point2.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X2", i ) ));
+			sData.point2.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y2", i ) ));
 			sData.delayTime = Integer.valueOf( scriptInfo.getValue( String.format( "%03d_DELAYTIME", i ) ));
+			sData.swipeTime	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_SWIPETIME", i ) ));
 		
 			screenDatas.add(sData);
 		}
@@ -381,9 +399,13 @@ public class mainController {
 		for( ScreenData sData : screenDatas ) {
 			scriptInfo.setValue( String.format( "%03d_IMAGE", index ), sData.image.getAbsolutePath());
 			scriptInfo.setValue( String.format( "%03d_ANGLE", index ), String.valueOf( sData.angle ));
+			scriptInfo.setValue( String.format( "%03d_TYPE", index ), String.valueOf( sData.type ));
 			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( sData.point.x ));
 			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( sData.point.y ));
+			scriptInfo.setValue( String.format( "%03d_X2", index ), String.valueOf( sData.point2.x ));
+			scriptInfo.setValue( String.format( "%03d_Y2", index ), String.valueOf( sData.point2.y ));
 			scriptInfo.setValue( String.format( "%03d_DELAYTIME", index ), String.valueOf( sData.delayTime ));
+			scriptInfo.setValue( String.format( "%03d_SWIPETIME", index ), String.valueOf( sData.swipeTime ));
 			index++;
 		}
 		try {
@@ -440,8 +462,8 @@ public class mainController {
 		System.out.println( "nCurrentScreenIdx : " + nCurrentScreenIdx );
 		data.print();
 		
-		display_angle = data.angle;
-		ptArrayImageDevicePoint = data.point;
+		display_angle 		= data.angle;
+		ptArrayImagePoint 	= data.point;
 		captured_image_file = data.image;
 		tfDelayTime.setText( String.valueOf( data.delayTime ) );
 		
@@ -482,9 +504,12 @@ public class mainController {
 	 */
 	private void onClick_modCurrentScreen() {
 		ScreenData data = screenDatas.get( nCurrentScreenIdx );
-		data.angle 	= this.display_angle;
-		data.point	= ptArrayImageDevicePoint;
-		data.image	= captured_image_file;
+		data.angle 		= this.display_angle;
+		data.point		= ptArrayImagePoint;
+		data.point2		= ptArrayImagePoint2;
+		data.swipeTime	= swipeTime;
+		data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;
+		data.image		= captured_image_file;
 		data.delayTime = Integer.valueOf( tfDelayTime.getText());
 		data.print();
 		
@@ -521,9 +546,12 @@ public class mainController {
 	 */
 	private ScreenData getCurrentScreenData() {
 		ScreenData data = new ScreenData();
-		data.angle 	= this.display_angle;
-		data.point	= ptArrayImageDevicePoint;
-		data.image	= captured_image_file;
+		data.angle 		= this.display_angle;
+		data.point		= ptArrayImagePoint;
+		data.point2		= ptArrayImagePoint2;
+		data.swipeTime	= swipeTime;
+		data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;
+		data.image		= captured_image_file;
 		data.delayTime = Integer.valueOf( tfDelayTime.getText());
 		data.print();
 		return data;
@@ -589,30 +617,67 @@ public class mainController {
 			return;
 		}
 		
-		Point screenPoint = new Point( (int) e.getX(), (int) e.getY() );  
-		Point devicePoint = screenPointToDevicePoint( screenPoint );
+		Point screenPoint = new Point( (int) e.getX(), (int) e.getY() );
 		
-		lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
-		
-		if( 1 == e.getClickCount()) {
-						
-			//cmDisplayRotate.hide();
-			if( e.getButton() == MouseButton.SECONDARY ) {
-				// Context ment 을 보여 줍시다.
-				cmRotate.show( cvDisplay, e.getScreenX(), e.getScreenY());
+		if( e.getEventType() == MouseEvent.MOUSE_PRESSED ) {
+			if( rbClickTypeTap.isSelected() && startedSwipe ) return;
+			
+			startedSwipe = true;
+			
+			ptArrayImagePoint = screenPoint;
+			ptArrayImagePoint2 = screenPoint;
+			
+			displayCaptureImage( captured_image );
+			
+		} else if( e.getEventType() == MouseEvent.MOUSE_RELEASED ) {
+			if( rbClickTypeTap.isSelected() ) return;
+			ptArrayImagePoint2 = screenPoint;
+			
+			displayCaptureImage( captured_image );
+			
+			// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+			AdbDevice device = dataManager.getSelectedDeviceInfo();
+			if( device != null && !rbClickTypeTap.isSelected() && startedSwipe ) {
+				Point devicePoint = screenPointToDevicePoint( ptArrayImagePoint );
+				Point devicePoint2 = screenPointToDevicePoint( ptArrayImagePoint2 );
 				
-			} else {
-				ptArrayImageDevicePoint = screenPoint;
+				AdbV2.swipeScreen( devicePoint.x, devicePoint.y, devicePoint2.x, devicePoint2.y, 1000, device);
 				
-				//System.out.printf( "화면좌표:%s, 디바이스좌표:%s\n", screenPoint.toString(), devicePoint.toString());
+				lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
+			}
+			startedSwipe = false;
+			
+		} else if( e.getEventType() == MouseEvent.MOUSE_EXITED ) {
+			startedSwipe = false;
+			
+		} else if( e.getEventType() == MouseEvent.MOUSE_DRAGGED ) {
+			if( !rbClickTypeTap.isSelected() && startedSwipe ) {
+				ptArrayImagePoint2 = screenPoint;
 				
 				displayCaptureImage( captured_image );
+			}
+			
+		} else if( e.getEventType() == MouseEvent.MOUSE_CLICKED ) {
+			if( 1 == e.getClickCount()) {
 				
-				// 장치가 선택되어 있다면 화면을 클릭 합니다. 
-				AdbDevice device = dataManager.getSelectedDeviceInfo();
-				if( device != null ) {
+				//cmDisplayRotate.hide();
+				if( e.getButton() == MouseButton.SECONDARY ) {
+					// Context ment 을 보여 줍시다.
+					cmRotate.show( cvDisplay, e.getScreenX(), e.getScreenY());
 					
-					AdbV2.touchScreen( devicePoint.x, devicePoint.y, device);
+				} else {
+					ptArrayImagePoint = screenPoint;
+					
+					displayCaptureImage( captured_image );
+					
+					// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+					AdbDevice device = dataManager.getSelectedDeviceInfo();
+					if( device != null && rbClickTypeTap.isSelected() ) {
+						Point devicePoint = screenPointToDevicePoint( screenPoint );
+						AdbV2.touchScreen( devicePoint.x, devicePoint.y, device);
+						
+						lbClickPosition.setText( String.format( "X:%4d, Y:%4d", devicePoint.x, devicePoint.y ));
+					}
 				}
 			}
 		}
@@ -676,7 +741,13 @@ public class mainController {
 				gc.clearRect(0, 0, cvDisplay.getWidth(), cvDisplay.getHeight());
 				gc.drawImage( display_image, 0, 0 );
 				
-				gc.drawImage( img_arrow, ptArrayImageDevicePoint.x - 13, ptArrayImageDevicePoint.y );				
+				if( rbClickTypeTap.isSelected()) {
+					gc.drawImage( img_arrow, ptArrayImagePoint.x - 13, ptArrayImagePoint.y );
+				} else {
+					gc.setStroke(Color.BLUEVIOLET);
+					gc.setLineWidth(3);
+			        gc.strokeLine( ptArrayImagePoint.x, ptArrayImagePoint.y, ptArrayImagePoint2.x, ptArrayImagePoint2.y);
+				}
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

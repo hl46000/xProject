@@ -223,7 +223,19 @@ public class AdbV2 {
 	}
 	
 	
-	
+	/**
+	 * device 의 화면을 x,y 에서 x2,y2로 swipe 합니다. swipe 시간은 swipeTime(ms) 입니다. 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param x2
+	 * @param y2
+	 * @param swipeTime ms
+	 * @param device
+	 */
+	public static void swipeScreen(int x, int y, int x2, int y2, int swipeTime, AdbDevice device) {
+		Command( String.format( "shell input swipe %d %d %d %d %d", x, y, x2, y2, swipeTime ), device );
+	}	 
 	
 	
 	
@@ -333,5 +345,5 @@ public class AdbV2 {
 		}
 		
 		return ret;
-	}	 
+	}
 }
