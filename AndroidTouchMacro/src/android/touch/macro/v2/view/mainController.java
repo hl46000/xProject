@@ -1,5 +1,6 @@
 package android.touch.macro.v2.view;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -734,6 +735,7 @@ public class mainController {
 		try {
 			BufferedImage rotatedBufferedImage = UtilV2.rotate( bufferedImage, display_angle );
 			BufferedImage resizedBufferedImage = loadResizedImage( rotatedBufferedImage );
+			
 			if( resizedBufferedImage != null ) {
 				display_image = SwingFXUtils.toFXImage( resizedBufferedImage, null);
 				
@@ -747,9 +749,9 @@ public class mainController {
 					gc.setStroke(Color.BLUEVIOLET);
 					gc.setLineWidth(3);
 			        gc.strokeLine( ptArrayImagePoint.x, ptArrayImagePoint.y, ptArrayImagePoint2.x, ptArrayImagePoint2.y);
-				}
+				}				
 			}
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

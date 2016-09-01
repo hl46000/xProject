@@ -14,6 +14,7 @@ import android.touch.macro.adb.DeviceInfo;
 import android.touch.macro.util.Util;
 import android.touch.macro.v2.CallbackMessage;
 import android.touch.macro.v2.UtilV2;
+import javafx.scene.image.Image;
 
 public class AdbV2 {
 	public static boolean debugLog = false;
@@ -201,7 +202,7 @@ public class AdbV2 {
 		Command( "pull /sdcard/screencap.png " + capture_file.getAbsolutePath(), device );
 		
 		if( capture_file.exists() ) {
-			try {
+			try {				
 				ret = ImageIO.read( capture_file );
 			} catch (IOException e) {
 				e.printStackTrace();
