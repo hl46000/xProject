@@ -122,6 +122,7 @@
                   <Insets bottom="5.0" top="5.0" />
                </padding>
                <children>
+                  <Button fx:id="ID_BTN_NEW_SCRIPT" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 생성하기" />
                   <Button fx:id="ID_BTN_SAVE_SCRIPT" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 저장하기" />
                   <Button fx:id="ID_BTN_LOAD_SCRIPT" mnemonicParsing="false" onAction="#event_handle_action" text="스크립트 불러오기" />
                </children>

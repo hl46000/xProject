@@ -161,6 +161,10 @@ public class deviceController {
 		tcDisplayOn.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("displayOn"));
 		tcDisplayOn.setStyle("-fx-alignment: CENTER;");
 		
+		TableColumn<AdbDevice, String> tcBatteryLvl 	= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
+		tcBatteryLvl.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("batteryLevel"));
+		tcBatteryLvl.setStyle("-fx-alignment: CENTER;");
+		
 		TableColumn<AdbDevice, String> tcStatus		= (TableColumn<AdbDevice, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcStatus.setCellValueFactory( new PropertyValueFactory<AdbDevice, String>("status"));
 		tcStatus.setStyle("-fx-alignment: CENTER;");
@@ -781,6 +785,13 @@ public class deviceController {
 		return tvDeviceInfo.getSelectionModel().getSelectedItem();		
 	}
 
+	/**
+	 * 
+	 */
+	public void updateDeviceInfoList() {
+		tvDeviceInfo.refresh();
+	}
+	
 	/**
 	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 
 	 * @return

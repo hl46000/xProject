@@ -326,6 +326,8 @@ public class AdbV2 {
 			
 			String level = line.substring( "level:".length() ).trim();
 			device.setBatteryLevel( Integer.valueOf( level ));
+			
+			System.out.println( "Battery level : " + level );
 		}
 						
 		return device.getBatteryLevel();

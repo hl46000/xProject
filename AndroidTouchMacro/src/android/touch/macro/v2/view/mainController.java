@@ -1,6 +1,5 @@
 package android.touch.macro.v2.view;
 
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,6 +9,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import android.touch.macro.v2.DataManager;
+import android.touch.macro.v2.PropertyV2;
+import android.touch.macro.v2.TouchMacroV2;
+import android.touch.macro.v2.UtilV2;
+import android.touch.macro.v2.adb.AdbDevice;
+import android.touch.macro.v2.adb.AdbV2;
+import android.touch.macro.v2.adb.ScreenData;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -29,16 +37,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-
-import javax.imageio.ImageIO;
-
-import android.touch.macro.v2.DataManager;
-import android.touch.macro.v2.PropertyV2;
-import android.touch.macro.v2.TouchMacroV2;
-import android.touch.macro.v2.UtilV2;
-import android.touch.macro.v2.adb.AdbDevice;
-import android.touch.macro.v2.adb.AdbV2;
-import android.touch.macro.v2.adb.ScreenData;
 
 public class mainController {
 	
@@ -166,6 +164,7 @@ public class mainController {
 			case "ID_BTN_MOVE_FIRST_SCREEN_DATA": onClick_moveFirstScreen(); break;
 			case "btnScriptControl"				: onClick_playScriptDatas(); break;
 			case "ID_BTN_SCREEN_STEP"			: onClick_stepScreenData(); break;
+			case "ID_BTN_NEW_SCRIPT"			: onClick_newScriptDatas(); break;
 			case "ID_BTN_SAVE_SCRIPT"			: onClick_saveScriptDatas(); break;
 			case "ID_BTN_LOAD_SCRIPT"			: onClick_loadScriptDatas(); break;
 			case "ID_BTN_MODIFY_SCREEN_DATA"	: onClick_modCurrentScreen(); break;
@@ -182,13 +181,26 @@ public class mainController {
 	}
 	
 	
+	private void onClick_newScriptDatas() {
+		nCurrentScreenIdx = 0;
+		screenDatas.clear();
+		
+		displayScreenDataImage();
+	}
+
 	private boolean script_play_flag = false;
 	Runnable scriptPlayRunnable = new Runnable() {
+		AdbDevice device = null;
+		
 		Runnable updateScreenInfo = new Runnable() {
 			@Override
 			public void run() {
 				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
 					nCurrentScreenIdx = 0;
+					
+					AdbV2.getBatteryLevel(device);
+					dataManager.updateDeviceInfoList();
+					
 				} else {
 					nCurrentScreenIdx++;
 				}
@@ -208,7 +220,7 @@ public class mainController {
 		
 		@Override
 		public void run() {
-			AdbDevice device = dataManager.getSelectedDeviceInfo();
+			device = dataManager.getSelectedDeviceInfo();
 			
 			nCurrentScreenIdx = 0;
 			while( script_play_flag ) {
@@ -245,6 +257,23 @@ public class mainController {
 				
 				Platform.runLater( updateScreenInfo );				
 				if( !script_play_flag ) break;
+				
+				
+				if( device.getBatteryLevel() < 15 ) {
+					AdbV2.Command("shell input keyevent KEYCODE_POWER", device );	// display off
+					
+					while( device.getBatteryLevel() < 30 ) {
+						try {
+							Thread.sleep( 60000 ); // 1분
+							AdbV2.getBatteryLevel(device);
+							
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					
+					AdbV2.Command("shell input keyevent KEYCODE_POWER", device );	// display on
+				}
 			}
 			
 			Platform.runLater( new Runnable(){
@@ -348,13 +377,19 @@ public class mainController {
 			ScreenData sData = new ScreenData();
 			sData.image 	= new File(scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
 			sData.angle 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_ANGLE", i ) ));
-			sData.type		= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_TYPE", i ) ));
+			try {
+				sData.type		= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_TYPE", i ) ));
+			} catch( Exception e ) { sData.type = ScreenData.TYPE_TAP; }
 			sData.point.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X", i ) ));
 			sData.point.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y", i ) ));
-			sData.point2.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X2", i ) ));
-			sData.point2.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y2", i ) ));
+			try {
+				sData.point2.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X2", i ) ));
+				sData.point2.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y2", i ) ));
+			} catch( Exception e ) { sData.point2 = sData.point; } 
 			sData.delayTime = Integer.valueOf( scriptInfo.getValue( String.format( "%03d_DELAYTIME", i ) ));
-			sData.swipeTime	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_SWIPETIME", i ) ));
+			try {
+				sData.swipeTime	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_SWIPETIME", i ) ));
+			} catch( Exception e ) { sData.swipeTime = 1000; }
 		
 			screenDatas.add(sData);
 		}

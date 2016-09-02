@@ -23,6 +23,10 @@ public class DataManager {
 		return device_controller.getSelectedDeviceItem();		
 	}
 	
+	public void updateDeviceInfoList() {
+		device_controller.updateDeviceInfoList();
+	}
+	
 	/**
 	 * @return
 	 */

@@ -97,6 +97,7 @@
                   <TableColumn editable="false" maxWidth="200.0" minWidth="150.0" prefWidth="118.0" sortable="false" text="시리얼번호" />
                   <TableColumn editable="false" maxWidth="151.0" minWidth="84.0" prefWidth="151.0" sortable="false" text="Android 버전" />
                   <TableColumn editable="false" maxWidth="80.0" minWidth="50.0" prefWidth="40.0" sortable="false" text="Display" />
+                  <TableColumn maxWidth="80.0" prefWidth="75.0" text="Battery" />
                   <TableColumn editable="false" maxWidth="110.0" minWidth="110.0" prefWidth="107.0" sortable="false" text="연결상태" />
                </columns>
                <contextMenu>
