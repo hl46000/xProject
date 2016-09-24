@@ -8,7 +8,6 @@ import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class TouchMacroV2 extends javafx.application.Application {
@@ -68,6 +67,12 @@ public class TouchMacroV2 extends javafx.application.Application {
 		return UtilV2.GetCurrentPath( this );
 	}
 	
+	/**
+	 * @return
+	 */
+	public String getUserHomePath() {
+		return UtilV2.GetUserHomePath();
+	}
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {		

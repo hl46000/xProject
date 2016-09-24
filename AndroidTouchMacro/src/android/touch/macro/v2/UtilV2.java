@@ -29,6 +29,14 @@ public class UtilV2 {
 		return jarDir;
 	}
 	
+	/**
+	 * @return
+	 */
+	public static String GetUserHomePath() {
+		String home = System.getProperty("user.home");
+		return home;
+	}
+	
 	
 	/**
 	 * @param originalImage

@@ -740,8 +740,9 @@ public class mainController {
 			return;
 		}
 		
-		String path = TouchMacroV2.instance.getCurrentPath();
+		String path = TouchMacroV2.instance.getUserHomePath();
 		File image_file = new File( path, "screencap.png" );
+		//File image_file = new File( "d:\\workTemp\\screencap.png" );
 		image_file.delete();
 		
 		long sTime = System.currentTimeMillis();
@@ -753,7 +754,7 @@ public class mainController {
 		
 		AdbV2.getDeviceOrientation(device);
 		
-		display_angle = 0;
+		//display_angle = 0;
 		captured_image = bufferedImage;
 		
 		updateCaptureImageSizeInfo();
