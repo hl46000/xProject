@@ -742,7 +742,6 @@ public class mainController {
 		
 		String path = TouchMacroV2.instance.getUserHomePath();
 		File image_file = new File( path, "screencap.png" );
-		//File image_file = new File( "d:\\workTemp\\screencap.png" );
 		image_file.delete();
 		
 		long sTime = System.currentTimeMillis();
@@ -909,6 +908,16 @@ public class mainController {
 		
 		if( result == null ) return;
 		if( !result.exists()) return;
+		
+		last_load_path = result.getParentFile().getAbsolutePath();
+		System.out.println( "LAST_FILE_PATH (load): " + last_load_path );
+		
+		app_prop.setValue(LAST_LOAD_FILE_PATH_KEY, last_load_path );
+		try {
+			app_prop.save("TouchMacro v2.0");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		
 		try {
 			captured_image_file = result;

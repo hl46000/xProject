@@ -39,7 +39,7 @@ public class TouchMacroV2 extends javafx.application.Application {
 	 * @return 성공 시에 Property 객체를 실패 시에는 null 이 반환됩니다. 
 	 */
 	public PropertyV2 load_app_property() {
-		String path = getCurrentPath();
+		String path = getUserHomePath();
 		File prop_file = new File( path, "TouchMacroV2.prop" );
 		
 		PropertyV2 prop = new PropertyV2();
