@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import android.touch.macro.util.Log;
 import android.touch.macro.v2.CallbackMessage;
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
@@ -287,7 +288,7 @@ public class deviceController {
 				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
 					@Override
 					public void callbackMessage(String msg) {
-						System.out.println( msg );
+						Log.d( msg );
 					}} );
 				
 				device.setDisplayOn( "OFF" );
@@ -316,7 +317,7 @@ public class deviceController {
 				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
 					@Override
 					public void callbackMessage(String msg) {
-						System.out.println( msg );
+						Log.d( msg );
 					}} );
 				
 				device.setDisplayOn( "ON" );
@@ -390,7 +391,7 @@ public class deviceController {
 				AdbV2.CommandThread( cmds, device, new CallbackMessage(){
 					@Override
 					public void callbackMessage(String msg) {
-						System.out.println( msg );
+						Log.d( msg );
 					}} );
 			}
 			
@@ -511,7 +512,7 @@ public class deviceController {
 			
 			String cmd = String.format( "shell am start -n '%s/%s'", package_name, launch_activity );
 			for( String log : AdbV2.Command( cmd, device )) {
-				System.out.println( log );
+				Log.d( log );
 			}				
 			
 		} catch (IOException e) {
@@ -543,11 +544,11 @@ public class deviceController {
 			String cmd2 = String.format( "install \"%s\"", apk_file.getAbsolutePath() );
 								
 			for( String log : AdbV2.Command( cmd1, device )) {
-				System.out.println( log );
+				Log.d( log );
 			}
 			
 			for( String log : AdbV2.Command( cmd2, device )) {
-				System.out.println( log );
+				Log.d( log );
 			}				
 			
 		} catch (IOException e) {
@@ -615,7 +616,7 @@ public class deviceController {
 			
 			String cmd = String.format( "uninstall \"%s\"", package_name );
 			for( String log : AdbV2.Command( cmd, device )) {
-				System.out.println( log );
+				Log.d( log );
 			}
 							
 		} catch (IOException e) {
@@ -661,7 +662,7 @@ public class deviceController {
 				
 				String cmd = String.format( cmd_format, result.getAbsoluteFile());
 				for( String log : AdbV2.Command( cmd, device )) {
-					System.out.println( log );
+					Log.d( log );
 				}									
 			} catch (IOException e) {
 				e.printStackTrace();

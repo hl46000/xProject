@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FilenameUtils;
+
 import android.touch.macro.v2.DataManager;
 import android.touch.macro.v2.PropertyV2;
 import android.touch.macro.v2.TouchMacroV2;
@@ -740,8 +742,12 @@ public class mainController {
 			return;
 		}
 		
-		String path = TouchMacroV2.instance.getUserHomePath();
-		File image_file = new File( path, "screencap.png" );
+		//String path = TouchMacroV2.instance.getUserHomePath();
+		String path = FilenameUtils.getPrefix( TouchMacroV2.instance.getUserHomePath());
+		File screencapPath = new File( path, "AndroidTouchMacro" );
+		screencapPath.mkdirs();
+		
+		File image_file = new File( screencapPath, "screencap.png" );
 		image_file.delete();
 		
 		long sTime = System.currentTimeMillis();

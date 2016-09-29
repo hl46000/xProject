@@ -10,6 +10,10 @@ public class Log {
 		log_print( "[DEBUG]", format, args); 
 	}
 	
+	public static void d( String msg ) {
+		log_print( "[DEBUG]", "%s", msg ); 
+	}
+	
 	/**
 	 * @param format
 	 * @param args
