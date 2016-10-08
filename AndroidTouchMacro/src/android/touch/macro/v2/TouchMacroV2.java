@@ -78,14 +78,17 @@ public class TouchMacroV2 extends javafx.application.Application {
 	public void start(Stage primaryStage) throws Exception {		
 		setPrimaryStage(primaryStage);
 				
-		Parent deviceView = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/device.fxml"));
-		Parent main = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
-		
+		//Parent deviceView = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/device.fxml"));
+		//Parent main = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/main.fxml"));
+		Parent mainEx = FXMLLoader.load(TouchMacroV2.this.getClass().getResource("view/mainEx.fxml"));
+		/*
 		SplitPane sp = new SplitPane();
 		sp.setOrientation(Orientation.VERTICAL);
 		sp.getItems().addAll( deviceView, main );
-								
+		
 		Scene scene = new Scene( sp );
+		*/
+		Scene scene = new Scene( mainEx );
 		primaryStage.setTitle( "Android Touch Macro v2.0" );
 		primaryStage.setScene( scene );
 		primaryStage.setResizable(false);
