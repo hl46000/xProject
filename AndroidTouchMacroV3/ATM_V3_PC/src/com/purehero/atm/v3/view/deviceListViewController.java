@@ -3,10 +3,6 @@ package com.purehero.atm.v3.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.purehero.atm.v3.model.AdbV3;
-import com.purehero.atm.v3.model.DeviceInfo;
-import com.purehero.atm.v3.model.UtilV3;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,10 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -26,6 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
+
+import com.purehero.atm.v3.model.AdbV3;
+import com.purehero.atm.v3.model.DeviceInfo;
 
 public class deviceListViewController {
 
@@ -105,7 +102,7 @@ public class deviceListViewController {
 	private void open_adb_shell() {
 		DeviceInfo deviceInfo = getSelectedDeviceItem();
 		if( deviceInfo == null ) {
-			UtilV3.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
+			//UtilV3.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
 			return;
 		}
 		
@@ -124,9 +121,11 @@ public class deviceListViewController {
 	/**
 	 * 
 	 */
+	/*
 	public void updateDeviceInfoList() {
 		tvDeviceInfo.refresh();
 	}
+	*/
 	
 	/**
 	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 

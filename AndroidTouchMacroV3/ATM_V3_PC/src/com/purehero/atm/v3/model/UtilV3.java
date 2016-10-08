@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-
 public class UtilV3 {
 	
 	/**
@@ -227,6 +224,7 @@ public class UtilV3 {
 	 * @param message
 	 * @param type
 	 */
+	/*
 	public static void alertWindow( String title, String message, AlertType type ) {
 		Alert alert = new Alert( type );
 		alert.setTitle( title );
@@ -235,6 +233,7 @@ public class UtilV3 {
 		
 		alert.showAndWait();
 	}
+	*/
 
 	/**
 	 * is 의 스트림을 outFile 로 기록합니다. <br> 기록이 완료되면 is 스트림은 close 시킴니다.
