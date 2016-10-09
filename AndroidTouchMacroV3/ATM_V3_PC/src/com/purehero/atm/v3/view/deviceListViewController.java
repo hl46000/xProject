@@ -31,8 +31,12 @@ public class deviceListViewController {
 	
 	@FXML
     public void initialize() {
+		instance = this;
+		
 		refresh_device_infos();
 	}
+	
+	public static deviceListViewController instance = null;
 	
 	@SuppressWarnings("unchecked")
 	private void refresh_device_infos() {

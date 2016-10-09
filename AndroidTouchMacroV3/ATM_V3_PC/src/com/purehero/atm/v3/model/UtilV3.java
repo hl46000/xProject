@@ -11,8 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+
 public class UtilV3 {
 	
+	public static String GetTempPath() {
+		return "c:\\temp\\atm_v3";
+	}
 	/**
 	 * 
 	 * 
@@ -52,7 +58,6 @@ public class UtilV3 {
 		return resizedImage;
 	}
 	
-	
 	/**
 	 * Rotates an image. Actually rotates a new copy of the image.
 	 * 
@@ -60,7 +65,7 @@ public class UtilV3 {
 	 * @param angle The angle in degrees
 	 * @return The rotated image
 	 */
-	public static BufferedImage rotate(BufferedImage img, double angle)	{
+	public static BufferedImage rotate( BufferedImage img, double angle ){
 		if( angle == 0.0 ) return img;
 		
 		double sin = Math.abs(Math.sin(Math.toRadians(angle)));
@@ -83,6 +88,14 @@ public class UtilV3 {
 	    //img = null;
 	    
 	    return bimg;
+	}
+	
+	public static Image rotate( Image img, double angle ){
+		if( angle == 0.0 ) return img;
+		
+		BufferedImage image = SwingFXUtils.fromFXImage( img, null );
+		image = rotate( image, angle );
+		return SwingFXUtils.toFXImage( image, null);
 	}
 	
 	/**

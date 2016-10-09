@@ -9,7 +9,7 @@
 
 <BorderPane prefHeight="440.0" prefWidth="616.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.atm.v3.view.actionTab.macroTabViewController">
    <center>
-      <SplitPane fx:id="fxSplitPane" dividerPositions="0.5" BorderPane.alignment="CENTER">
+      <SplitPane fx:id="fxSplitPane" dividerPositions="0.7" BorderPane.alignment="CENTER">
          <items>
             <AnchorPane fx:id="CanvasPane" />
             <BorderPane prefHeight="200.0" prefWidth="200.0">
@@ -79,7 +79,6 @@
                         <Button fx:id="ID_BTN_MODIFY_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="수정" textAlignment="CENTER" />
                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                            <children>
-                              <FlowPane alignment="CENTER" columnHalignment="CENTER" />
                               <Button fx:id="ID_BTN_SAVE_IMAGE" mnemonicParsing="false" onAction="#action_event_handler" text="이미지 저장하기" />
                               <Button fx:id="ID_BTN_LOAD_IMAGE" mnemonicParsing="false" onAction="#action_event_handler" text="이미지 불러오기" />
                               <Button fx:id="ID_BTN_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#action_event_handler" text="화면 캡쳐" />
@@ -91,6 +90,15 @@
                      </children>
                   </VBox>
                </center>
+               <bottom>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="ID_BTN_IMAGE_ROTATE_N90" mnemonicParsing="false" onAction="#action_event_handler" text="-90" />
+                        <Label text="화면회전" />
+                        <Button fx:id="ID_BTN_IMAGE_ROTATE_P90" mnemonicParsing="false" onAction="#action_event_handler" text="90" />
+                     </children>
+                  </HBox>
+               </bottom>
             </BorderPane>
          </items>
       </SplitPane>
@@ -137,7 +145,7 @@
       <HBox prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="스크립트명 :" />
-            <Label fx:id="lbScriptSubject" text="서머너즈워 (화산무한 자동 )" />
+            <Label fx:id="lbScriptSubject" />
          </children>
          <padding>
             <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />

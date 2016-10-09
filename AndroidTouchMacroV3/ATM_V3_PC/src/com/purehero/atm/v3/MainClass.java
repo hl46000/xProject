@@ -48,7 +48,7 @@ public class MainClass extends javafx.application.Application {
 	 */
 	private String checkPath( ClassLoader clsLoader, String resName ) {
 		File inFile		= new File( resName );
-		File outFile 	= new File( "c:\\temp\\atm_v3", inFile.getName());
+		File outFile 	= new File( UtilV3.GetTempPath(), inFile.getName());
 		if( outFile.exists() ) return outFile.getAbsolutePath();
 		
 		outFile.getParentFile().mkdirs();
@@ -60,6 +60,4 @@ public class MainClass extends javafx.application.Application {
 		
 		return outFile.getAbsolutePath();
 	}
-
-	
 }

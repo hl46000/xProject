@@ -188,10 +188,10 @@ public class AdbV3 {
 	}
 	
 	/**
-	 * ?��말기?�� ?��?�� ?��면을 캡쳐?��?�� BufferedImage 객체�? 반환?��?��.  
+	 * 단말기의 현재 화면을 캡쳐하여 BufferedImage 객체로 반환한다.  
 	 * 
-	 * @param deviceInfo ?��?��???�� ?��말이 ?��결되?�� ?��?���?, ?��?��?�� ?��말을 ?��?��?��?�� ?��?��?��?��. ?��?��값�? getDevices() method �? ?��?�� ?�� ?��?��. ?��?���? ?��말기�? ?��?�� ?��?��?�� null 값을 ?��?���? ?��?��.
-	 * @return ?��?�� ?��말기 ?��면의 Image ?��?��?�� 경로, ?��?�� �? ?���? 발생 ?�� null 리턴
+	 * @param deviceInfo 여러대의 단말이 연결되어 있다면, 하나의 단말을 선택할때 사용된다. 해당값은 getDevices() method 로 없을 수 있다. 연뎔괸 단말기가 하나 일때는 null 값을 넣으면 된다.
+	 * @return 현재 단말기 화면의 Image 파일의 경로, 실패 및 오류 발생 시 null 리턴
 	 */
 	public static BufferedImage screenCapture( DeviceInfo device, File capture_file ) {
 		BufferedImage ret 	= null;
