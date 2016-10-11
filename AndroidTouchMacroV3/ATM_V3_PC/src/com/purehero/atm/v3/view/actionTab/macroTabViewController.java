@@ -1,7 +1,16 @@
 package com.purehero.atm.v3.view.actionTab;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.IOException;
+
+import com.android.chimpchat.adb.AdbChimpDevice;
+import com.purehero.atm.v3.ex.DrawInterface;
+import com.purehero.atm.v3.ex.ResizableCanvas;
+import com.purehero.atm.v3.model.AdbV3;
+import com.purehero.atm.v3.model.DeviceInfo;
+import com.purehero.atm.v3.model.UtilV3;
+import com.purehero.atm.v3.view.deviceListViewController;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -16,13 +25,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 
-import com.purehero.atm.v3.ex.DrawInterface;
-import com.purehero.atm.v3.ex.ResizableCanvas;
-import com.purehero.atm.v3.model.AdbV3;
-import com.purehero.atm.v3.model.DeviceInfo;
-import com.purehero.atm.v3.model.UtilV3;
-import com.purehero.atm.v3.view.deviceListViewController;
-
 public class macroTabViewController {
 	@FXML
 	SplitPane fxSplitPane;
@@ -33,7 +35,10 @@ public class macroTabViewController {
 	ResizableCanvas cvDisplay = new ResizableCanvas();
 	
 	Image display_image = null;
-		
+	double display_ratio = 1.0;
+	
+	private AdbChimpDevice mChimpDevice;
+	
 	@FXML
     public void initialize() {
 		CanvasPane.getChildren().add( cvDisplay );
@@ -49,8 +54,48 @@ public class macroTabViewController {
         });
         
         fxSplitPane.setDividerPosition( 0, 0.7f);
+        
+        cvDisplay.setOnMouseDragged( mouseHandler );
+        cvDisplay.setOnMousePressed( mouseHandler );
+        cvDisplay.setOnMouseReleased( mouseHandler );
 	}
 	
+	EventHandler<MouseEvent> mouseHandler = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent mouseEvent) {
+			Point p = new Point((int) mouseEvent.getX(), (int)mouseEvent.getY());
+			
+			if( mouseEvent.getEventType().equals( MouseEvent.MOUSE_PRESSED )) {
+				try {
+					Point real = getRealPoint(p);
+					mChimpDevice.getManager().touchDown(real.x, real.y);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+				
+			 } else if( mouseEvent.getEventType().equals( MouseEvent.MOUSE_RELEASED )) {
+				 try {
+					 Point real = getRealPoint(p);
+					 mChimpDevice.getManager().touchUp(real.x, real.y);
+				 } catch (IOException ex) {
+					 ex.printStackTrace();
+				 }
+			 } else if( mouseEvent.getEventType().equals( MouseEvent.MOUSE_DRAGGED )) {
+				 try {
+					 Point real = getRealPoint(p);
+					 mChimpDevice.getManager().touchMove(real.x, real.y);
+				 } catch (IOException ex) {
+					 ex.printStackTrace();
+				 }
+			 }
+		}
+
+		private Point getRealPoint(Point p) {
+			return new Point((int)((double) p.x / display_ratio ), (int)((double) p.y / display_ratio ));
+		}
+	};
+	
+			
 	/**
 	 * @param sc_w
 	 * @param sc_h
@@ -74,9 +119,9 @@ public class macroTabViewController {
 				double img_w = display_image.getWidth();
 				double img_h = display_image.getHeight();
 				
-				double ratio = get_display_ratio( width, height, img_w, img_h );
+				display_ratio = get_display_ratio( width, height, img_w, img_h );
 				
-				gc.drawImage( display_image, 0, 0, img_w, img_h, 0, 0, img_w * ratio, img_h * ratio );
+				gc.drawImage( display_image, 0, 0, img_w, img_h, 0, 0, img_w * display_ratio, img_h * display_ratio );
 			} else {			
 		    	gc.setStroke(Color.RED);
 		    	gc.strokeLine(0, 0, width, height);
@@ -90,7 +135,7 @@ public class macroTabViewController {
 	} 
 	
 	@FXML
-	private void action_event_handler( ActionEvent e) {
+	private void action_event_handler( ActionEvent e) throws Exception {
 		Object obj = e.getSource();
 		
 		String ctrl_id = null;
@@ -113,21 +158,17 @@ public class macroTabViewController {
 		}
 	}
 	
-	private void OnClickButtonCaptureScreen() {
+	private void OnClickButtonCaptureScreen() throws Exception {
 		DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
 		if( device_info == null ) return;
 		
-		File capture_folder = new File( UtilV3.GetTempPath(), "scree_capture" );
-		capture_folder.mkdirs();
-		
-		File capture_file = new File( capture_folder, device_info.getSerialNumber() + ".png" );
-		capture_file.delete();
-		
-		BufferedImage img = AdbV3.screenCapture( device_info, capture_file);
+		BufferedImage img = AdbV3.screenCaptureEx( device_info );
 		if( img != null ) {
 			display_image = SwingFXUtils.toFXImage( img, null);
 			redraw_display_image();
 		}
+		
+		mChimpDevice = new AdbChimpDevice( device_info.device );
 	}
 
 	/**

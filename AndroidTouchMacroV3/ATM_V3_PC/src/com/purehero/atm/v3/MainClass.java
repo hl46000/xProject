@@ -3,6 +3,7 @@ package com.purehero.atm.v3;
 import java.io.File;
 import java.io.InputStream;
 
+import com.android.ddmlib.AndroidDebugBridge;
 import com.purehero.atm.v3.model.AdbV3;
 import com.purehero.atm.v3.model.UtilV3;
 
@@ -21,9 +22,12 @@ public class MainClass extends javafx.application.Application {
 
 	public MainClass() {
 		super();
-				
-		ClassLoader clsLoader = getClass().getClassLoader();
 		
+		try {
+			AndroidDebugBridge.init(true);
+		} catch( Exception e ){}
+		
+		ClassLoader clsLoader = getClass().getClassLoader();
 		AdbV3.setAdbPath ( checkPath( clsLoader, "adb/adb.exe" ));
 		AdbV3.setAaptPath( checkPath( clsLoader, "aapt/aapt.exe" ));
 	}
@@ -39,6 +43,13 @@ public class MainClass extends javafx.application.Application {
 		primaryStage.show();
 	}	
 	
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		
+		AndroidDebugBridge.terminate();
+	}
+
 	/**
 	 * 리소스 내의 실행 파일을 실행할 수 있는 위치로 이동 시키고 파일의 경로를 반환한다. 
 	 * 
