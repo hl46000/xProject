@@ -6,6 +6,7 @@ import java.io.InputStream;
 import com.android.ddmlib.AndroidDebugBridge;
 import com.purehero.atm.v3.model.AdbV3;
 import com.purehero.atm.v3.model.UtilV3;
+import com.purehero.atm.v3.view.deviceListViewController;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,7 +25,7 @@ public class MainClass extends javafx.application.Application {
 		super();
 		
 		try {
-			AndroidDebugBridge.init(true);
+			AndroidDebugBridge.init(false);
 		} catch( Exception e ){}
 		
 		ClassLoader clsLoader = getClass().getClassLoader();
@@ -45,9 +46,11 @@ public class MainClass extends javafx.application.Application {
 	
 	@Override
 	public void stop() throws Exception {
-		super.stop();
-		
+		System.out.println("APPLICATION STOP");
+		deviceListViewController.instance.release();
 		AndroidDebugBridge.terminate();
+		
+		super.stop();
 	}
 
 	/**

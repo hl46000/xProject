@@ -32,10 +32,19 @@ public class deviceListViewController {
 	@FXML
     public void initialize() throws Exception {
 		instance = this;
-		
 		refresh_device_infos();
 	}
 	
+	/**
+	 * 
+	 */
+	public void release() {
+		ObservableList<DeviceInfo> deviceInfoData = tvDeviceInfo.getItems();
+		for( DeviceInfo deviceInfo : deviceInfoData ) {
+			deviceInfo.chimpDevice.dispose();
+		}
+	}
+
 	public static deviceListViewController instance = null;
 	
 	@SuppressWarnings("unchecked")

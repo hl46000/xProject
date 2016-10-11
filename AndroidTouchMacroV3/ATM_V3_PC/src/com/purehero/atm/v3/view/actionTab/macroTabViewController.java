@@ -37,8 +37,6 @@ public class macroTabViewController {
 	Image display_image = null;
 	double display_ratio = 1.0;
 	
-	private AdbChimpDevice mChimpDevice;
-	
 	@FXML
     public void initialize() {
 		CanvasPane.getChildren().add( cvDisplay );
@@ -63,12 +61,15 @@ public class macroTabViewController {
 	EventHandler<MouseEvent> mouseHandler = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent mouseEvent) {
+			DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
+			if( device_info == null ) return;
+			
 			Point p = new Point((int) mouseEvent.getX(), (int)mouseEvent.getY());
 			
 			if( mouseEvent.getEventType().equals( MouseEvent.MOUSE_PRESSED )) {
 				try {
 					Point real = getRealPoint(p);
-					mChimpDevice.getManager().touchDown(real.x, real.y);
+					device_info.chimpDevice.getManager().touchDown(real.x, real.y);
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -76,14 +77,14 @@ public class macroTabViewController {
 			 } else if( mouseEvent.getEventType().equals( MouseEvent.MOUSE_RELEASED )) {
 				 try {
 					 Point real = getRealPoint(p);
-					 mChimpDevice.getManager().touchUp(real.x, real.y);
+					 device_info.chimpDevice.getManager().touchUp(real.x, real.y);
 				 } catch (IOException ex) {
 					 ex.printStackTrace();
 				 }
 			 } else if( mouseEvent.getEventType().equals( MouseEvent.MOUSE_DRAGGED )) {
 				 try {
 					 Point real = getRealPoint(p);
-					 mChimpDevice.getManager().touchMove(real.x, real.y);
+					 device_info.chimpDevice.getManager().touchMove(real.x, real.y);
 				 } catch (IOException ex) {
 					 ex.printStackTrace();
 				 }
@@ -167,8 +168,6 @@ public class macroTabViewController {
 			display_image = SwingFXUtils.toFXImage( img, null);
 			redraw_display_image();
 		}
-		
-		mChimpDevice = new AdbChimpDevice( device_info.device );
 	}
 
 	/**

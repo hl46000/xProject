@@ -1,5 +1,6 @@
 package com.purehero.atm.v3.model;
 
+import com.android.chimpchat.adb.AdbChimpDevice;
 import com.android.ddmlib.IDevice;
 
 import javafx.beans.property.BooleanProperty;
@@ -7,6 +8,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 public class DeviceInfo {
 	public IDevice device;
+	public AdbChimpDevice chimpDevice;
+	
 	private BooleanProperty selected = new SimpleBooleanProperty(false);
 	private String serialNumber = "X";
 	private String model = "X";
@@ -19,6 +22,8 @@ public class DeviceInfo {
 		serialNumber 	= serial;
 		model			= _model;
 		os_ver			= _os_ver;
+		
+		chimpDevice = new AdbChimpDevice( device );
 	};
 	
 	public Boolean getSelected() { return selected.get(); }
