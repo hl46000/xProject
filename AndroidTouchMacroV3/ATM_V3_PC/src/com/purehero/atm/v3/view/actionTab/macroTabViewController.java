@@ -3,6 +3,7 @@ package com.purehero.atm.v3.view.actionTab;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -32,8 +33,9 @@ public class macroTabViewController {
 	
 	ResizableCanvas cvDisplay = new ResizableCanvas();
 	
-	Image display_image = null;
-		
+	Image 	display_image = null;
+	double 	display_ratio = 1.0f;
+	
 	@FXML
     public void initialize() {
 		CanvasPane.getChildren().add( cvDisplay );
@@ -41,15 +43,20 @@ public class macroTabViewController {
 		cvDisplay.widthProperty().bind( CanvasPane.widthProperty() );
         cvDisplay.heightProperty().bind( CanvasPane.heightProperty() );
         cvDisplay.setDrawInterface( canvasDrawInterface );
-        cvDisplay.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-            	mouse_event_handler( event );
-            }
-        });
+        cvDisplay.setOnMouseClicked ( mouse_event );
+        cvDisplay.setOnMousePressed ( mouse_event );
+        cvDisplay.setOnMouseReleased( mouse_event );
+        cvDisplay.setOnMouseDragged ( mouse_event );
         
-        fxSplitPane.setDividerPosition( 0, 0.7f);
+        double divier_pos = 0.78f;
+        fxSplitPane.setDividerPosition( 0, divier_pos );
+        //CanvasPane.maxWidthProperty().bind(fxSplitPane.widthProperty().multiply( divier_pos ));
 	}
+	
+	EventHandler<MouseEvent> mouse_event = new EventHandler<MouseEvent>(){
+		@Override
+        public void handle(MouseEvent event) { mouse_event_handler( event ); }
+	};
 	
 	/**
 	 * @param sc_w
@@ -74,9 +81,9 @@ public class macroTabViewController {
 				double img_w = display_image.getWidth();
 				double img_h = display_image.getHeight();
 				
-				double ratio = get_display_ratio( width, height, img_w, img_h );
+				display_ratio = get_display_ratio( width, height, img_w, img_h );
 				
-				gc.drawImage( display_image, 0, 0, img_w, img_h, 0, 0, img_w * ratio, img_h * ratio );
+				gc.drawImage( display_image, 0, 0, img_w, img_h, 0, 0, img_w * display_ratio, img_h * display_ratio );
 			} else {			
 		    	gc.setStroke(Color.RED);
 		    	gc.strokeLine(0, 0, width, height);
@@ -87,6 +94,23 @@ public class macroTabViewController {
 	
 	@FXML
 	private void mouse_event_handler( MouseEvent e) {
+		DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
+		if( device_info == null ) return;
+		
+		if( e.getSource() == cvDisplay ) {
+			int x = (int)( e.getX() / display_ratio );
+			int y = (int)( e.getY() / display_ratio );
+			
+			if( e.getEventType().equals( MouseEvent.MOUSE_CLICKED)) {
+				AdbV3.touchScreen( x, y, device_info  );
+			} else if( e.getEventType().equals( MouseEvent.MOUSE_PRESSED )) {
+				
+			} else if( e.getEventType().equals( MouseEvent.MOUSE_RELEASED )) {
+				
+			} else if( e.getEventType().equals( MouseEvent.MOUSE_DRAGGED )) {
+				
+			}
+		}
 	} 
 	
 	@FXML
@@ -114,20 +138,32 @@ public class macroTabViewController {
 	}
 	
 	private void OnClickButtonCaptureScreen() {
-		DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
-		if( device_info == null ) return;
-		
-		File capture_folder = new File( UtilV3.GetTempPath(), "scree_capture" );
-		capture_folder.mkdirs();
-		
-		File capture_file = new File( capture_folder, device_info.getSerialNumber() + ".png" );
-		capture_file.delete();
-		
-		BufferedImage img = AdbV3.screenCapture( device_info, capture_file);
-		if( img != null ) {
-			display_image = SwingFXUtils.toFXImage( img, null);
-			redraw_display_image();
-		}
+		new Thread( new Runnable() {
+
+			@Override
+			public void run() {
+				DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
+				if( device_info == null ) return;
+				
+				File capture_folder = new File( UtilV3.GetTempPath(), "scree_capture" );
+				capture_folder.mkdirs();
+				
+				File capture_file = new File( capture_folder, device_info.getSerialNumber() + ".png" );
+				capture_file.delete();
+				
+				BufferedImage img = AdbV3.screenCapture( device_info, capture_file);
+				if( img != null ) {
+					display_image = SwingFXUtils.toFXImage( img, null);
+					
+					Platform.runLater( new Runnable(){
+						@Override
+						public void run() {
+							redraw_display_image();
+						}});					
+				}
+			}
+			
+		}).start();
 	}
 
 	/**
@@ -137,6 +173,6 @@ public class macroTabViewController {
 		canvasDrawInterface.draw( cvDisplay.getGraphicsContext2D(), cvDisplay.getWidth(), cvDisplay.getHeight());
 	}
 
-	private double get_display_screen_width()  { return cvDisplay.getWidth();  }
-	private double get_display_screen_height() { return cvDisplay.getHeight(); }
+	//private double get_display_screen_width()  { return cvDisplay.getWidth();  }
+	//private double get_display_screen_height() { return cvDisplay.getHeight(); }
 }

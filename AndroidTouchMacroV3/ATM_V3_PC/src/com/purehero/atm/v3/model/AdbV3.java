@@ -279,7 +279,7 @@ public class AdbV3 {
 	 * @param device
 	 */
 	public static void touchScreen( int x, int y, DeviceInfo device ) {
-		Command( String.format( "shell input tap %d %d", x, y ), device );
+		Command( String.format( "shell input tap %d %d", x, y ), device, null );
 	}
 	
 	

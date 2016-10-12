@@ -102,7 +102,7 @@ public class deviceListViewController {
 		}
 	}
 	
-	private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
+	//private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
 	private void open_adb_shell() {
 		DeviceInfo deviceInfo = getSelectedDeviceItem();
 		if( deviceInfo == null ) {
