@@ -10,8 +10,8 @@ public class DeviceInfo {
 	private String os_ver = "X";
 	private String status;
 	private int batteryLevel = 0;
-	private int orientation;		// ?��말기?�� 방향
-	private String displayOn = "X";			// ?���? 켜짐( ON:커짐, OFF:켜짐 )
+	private int orientation;		// ?��말기?�� 방향
+	private String displayOn = "X";			// ?���? 켜짐( ON:커짐, OFF:켜짐 )
 	
 	public DeviceInfo( String serial, String _model, String _os_ver ) {
 		serialNumber 	= serial;
