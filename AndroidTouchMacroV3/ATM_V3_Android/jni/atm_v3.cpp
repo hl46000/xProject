@@ -21,14 +21,14 @@ void init_module ( JNIEnv * env, jobject obj )
 }
 
 // JNI_OnLoad
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
 	LOGT();
 
 	JNIEnv * env = NULL;
 	jint result = -1;
 
-	if (vm->GetEnv((void **) &env, JNI_VERSION_1_4) != JNI_OK)
+	if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK)
 	{
 		LOGE("ERROR: GetEnv failed");
 		return result;
@@ -52,5 +52,9 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 		return -1;
 	}
 
-	return JNI_VERSION_1_4;
+	return JNI_VERSION_1_6;
+}
+
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
+
 }
