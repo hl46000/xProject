@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.canvas.*?>
-<?import javafx.scene.image.*?>
 <?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -52,31 +50,31 @@
                         </VBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                            <children>
-                              <Button fx:id="btnMovePrevScreenData" mnemonicParsing="false" onAction="#action_event_handler" text="&lt;" />
+                              <Button fx:id="ID_BTN_MOVE_SCREEN_PREV" mnemonicParsing="false" onAction="#action_event_handler" text="&lt;" />
                               <Label fx:id="lbScreenPageInfo" text="0/0" />
-                              <Button fx:id="btnMoveNextScreenData" mnemonicParsing="false" onAction="#action_event_handler" text="&gt;" />
+                              <Button fx:id="ID_BTN_MOVE_SCREEN_NEXT" mnemonicParsing="false" onAction="#action_event_handler" text="&gt;" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                            <children>
-                              <Button fx:id="btnAddScreenDataPrev" disable="true" mnemonicParsing="false" onAction="#action_event_handler" text="+">
+                              <Button fx:id="ID_BTN_ADD_SCREEN_DATA_AT_PREV" mnemonicParsing="false" onAction="#action_event_handler" text="+">
                                  <tooltip>
                                     <Tooltip text="현재화면의 앞에 화면을 추가합니다. \n'화면캡쳐'로는 추가할 수 없습니다. " />
                                  </tooltip>
                               </Button>
-                              <Button fx:id="btnDelScreenData" disable="true" mnemonicParsing="false" onAction="#action_event_handler" text="삭제">
+                              <Button fx:id="ID_BTN_DEL_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="삭제">
                                  <tooltip>
                                     <Tooltip text="현재화면을 삭제합니다. " />
                                  </tooltip>
                               </Button>
-                              <Button fx:id="btnAddScreenDataNext" disable="true" mnemonicParsing="false" onAction="#action_event_handler" text="+">
+                              <Button fx:id="ID_BTN_ADD_SCREEN_DATA_AT_NEXT" mnemonicParsing="false" onAction="#action_event_handler" text="+">
                                  <tooltip>
                                     <Tooltip text="현재화면의 뒤에 화면을 추가합니다. \n'이미지 불러오기'로 추가할 수 있습니다. " />
                                  </tooltip>
                               </Button>
                            </children>
                         </HBox>
-                        <Button fx:id="ID_BTN_MODIFY_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="수정" textAlignment="CENTER" />
+                        <Button fx:id="ID_BTN_MOD_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="수정" textAlignment="CENTER" />
                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                            <children>
                               <Button fx:id="ID_BTN_SAVE_IMAGE" mnemonicParsing="false" onAction="#action_event_handler" text="이미지 저장하기" />

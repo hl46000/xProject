@@ -3,6 +3,9 @@ package com.purehero.atm.v3.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.purehero.atm.v3.model.AdbV3;
+import com.purehero.atm.v3.model.DeviceInfo;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -20,9 +23,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
-import com.purehero.atm.v3.model.AdbV3;
-import com.purehero.atm.v3.model.DeviceInfo;
 
 public class deviceListViewController {
 
