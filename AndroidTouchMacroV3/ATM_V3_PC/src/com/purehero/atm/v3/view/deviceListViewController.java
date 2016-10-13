@@ -30,16 +30,25 @@ public class deviceListViewController {
 	private TableView<DeviceInfo> tvDeviceInfo;
 	
 	@FXML
-    public void initialize() {
+    public void initialize() throws Exception {
 		instance = this;
-		
 		refresh_device_infos();
 	}
 	
+	/**
+	 * 
+	 */
+	public void release() {
+		ObservableList<DeviceInfo> deviceInfoData = tvDeviceInfo.getItems();
+		for( DeviceInfo deviceInfo : deviceInfoData ) {
+			deviceInfo.chimpDevice.dispose();
+		}
+	}
+
 	public static deviceListViewController instance = null;
 	
 	@SuppressWarnings("unchecked")
-	private void refresh_device_infos() {
+	private void refresh_device_infos() throws Exception {
 		AdbV3.debugLog = true;
 		ArrayList<DeviceInfo> devices = AdbV3.getDevices();
 
@@ -66,9 +75,12 @@ public class deviceListViewController {
 		tcOsVersion.setCellValueFactory( new PropertyValueFactory<DeviceInfo, String>("os_ver"));
 		tcOsVersion.setStyle("-fx-alignment: CENTER;");
 		
+		column_index++;
+		/*
 		TableColumn<DeviceInfo, String> tcDisplayOn 	= (TableColumn<DeviceInfo, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcDisplayOn.setCellValueFactory( new PropertyValueFactory<DeviceInfo, String>("displayOn"));
 		tcDisplayOn.setStyle("-fx-alignment: CENTER;");
+		*/
 		
 		TableColumn<DeviceInfo, String> tcBatteryLvl 	= (TableColumn<DeviceInfo, String>) tvDeviceInfo.getColumns().get(column_index++);
 		tcBatteryLvl.setCellValueFactory( new PropertyValueFactory<DeviceInfo, String>("batteryLevel"));
@@ -87,7 +99,7 @@ public class deviceListViewController {
 	}
 	
 	@FXML
-	private void action_event_handler( ActionEvent e) {
+	private void action_event_handler( ActionEvent e) throws Exception {
 		Object obj = e.getSource();
 		
 		String ctrl_id = null;
