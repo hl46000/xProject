@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.purehero.atm.v3.model.AdbV3;
 import com.purehero.atm.v3.model.DeviceInfo;
+import com.purehero.atm.v3.model.UtilV3;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -14,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
@@ -102,11 +104,11 @@ public class deviceListViewController {
 		}
 	}
 	
-	//private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
+	private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
 	private void open_adb_shell() {
 		DeviceInfo deviceInfo = getSelectedDeviceItem();
 		if( deviceInfo == null ) {
-			//UtilV3.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
+			UtilV3.alertWindow( "Information", MSG_NOT_SELECTED_DEVICE, AlertType.WARNING );
 			return;
 		}
 		

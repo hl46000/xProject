@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 
 public class UtilV3 {
@@ -295,5 +297,21 @@ public class UtilV3 {
 		}
 		
 		return ret;
+	}
+	
+	/**
+	 * Alert 창의 띄운다. 
+	 * 
+	 * @param title
+	 * @param message
+	 * @param type
+	 */
+	public static void alertWindow( String title, String message, AlertType type ) {
+		Alert alert = new Alert( type );
+		alert.setTitle( title );
+		alert.setHeaderText(null);
+		alert.setContentText( message );
+		
+		alert.showAndWait();
 	}
 }

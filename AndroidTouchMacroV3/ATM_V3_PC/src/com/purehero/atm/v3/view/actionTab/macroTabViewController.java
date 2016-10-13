@@ -6,6 +6,27 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
 
@@ -19,22 +40,6 @@ import com.purehero.atm.v3.model.ScreenData;
 import com.purehero.atm.v3.model.UtilV3;
 import com.purehero.atm.v3.view.deviceListViewController;
 
-import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
-
 public class macroTabViewController {
 	
 	@FXML
@@ -45,6 +50,15 @@ public class macroTabViewController {
 
 	@FXML
 	private Label lbScreenPageInfo;						// 화면 Page 정보 표시 Lable
+	
+	@FXML
+	private Label lbScriptSubject;						// script 제목 표시 label
+	
+	@FXML
+	private TextField tfDelayTime;						// Delay time textField
+
+	@FXML
+	private RadioButton rbClickTypeTap;					// click type을 결정하는 RadioButton 중 tap
 	
 	ResizableCanvas cvDisplay = new ResizableCanvas();
 	
@@ -129,10 +143,14 @@ public class macroTabViewController {
 		if( device_info == null ) return;
 		
 		if( e.getSource() == cvDisplay ) {
+			if( display_image == null ) return;
+			
 			Point mouse_device_pos = new Point( (int)( e.getX() / display_ratio ), (int)( e.getY() / display_ratio ) );
-						
+			if( mouse_device_pos.x > display_image.getWidth() ) return;
+			if( mouse_device_pos.y > display_image.getHeight()) return;
+			
 			if( e.getEventType().equals( MouseEvent.MOUSE_CLICKED)) {
-				if( System.currentTimeMillis() - mouse_dragged_time > 1000 ) {
+				if( System.currentTimeMillis() - mouse_dragged_time > 1500 ) {
 					mouse_clicked_pos = mouse_device_pos;
 					AdbV3.touchScreen( mouse_clicked_pos.x, mouse_clicked_pos.y, device_info  );
 				}
@@ -191,60 +209,91 @@ public class macroTabViewController {
 		
 		case "ID_BTN_MOVE_SCREEN_PREV"		: OnClickButtonMoveScreenDataPrev(); break;
 		case "ID_BTN_MOVE_SCREEN_NEXT"		: OnClickButtonMoveScreenDataNext(); break;
+		
+		case "ID_BTN_SCREEN_STEP_ACTION"		: OnClickButtonStepActionScreenData(); break;
+		case "ID_BTN_MOVE_FIRST_SCREEN_DATA"	: OnClickButtonMoveFirstScreenData(); break;
+		case "btnScriptControl"					:
 		default :
 			System.out.println( ctrl_id + " : 아직 구현되지 않은 ID 입니다. " );
 			break;
 		}
 	}
 	
+	/**
+	 * 현재 화면 데이터를 ScreenData의 가장 처음으로 이동 시킵니다. 
+	 */
+	private void OnClickButtonMoveFirstScreenData() {
+		nCurrentScreenIdx = 0;
+		reload_screen_data();
+	}
+
+	/**
+	 * 현재 화면 데이터의 Touch Action 을 수행하고 다음 ScreenData로 이동합니다.
+	 */
+	private void OnClickButtonStepActionScreenData() {
+		DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
+		if( device_info == null ) {
+			UtilV3.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.WARNING );
+			return;
+		}
+
+		ScreenData data = screenDatas.get( nCurrentScreenIdx );
+		
+		// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+		if( data.type == ScreenData.TYPE_TAP ) {
+			AdbV3.touchScreen( data.point.x, data.point.y, device_info );
+		} else if( data.type == ScreenData.TYPE_SWIPE ) {
+			AdbV3.swipeScreen( data.point.x, data.point.y, data.point2.x, data.point2.y, data.swipeTime, device_info );
+		}
+		
+		OnClickButtonMoveScreenDataNext();
+	}
+
 	private void OnClickButtonMoveScreenDataPrev() { moveScreenData( false ); }
 	private void OnClickButtonMoveScreenDataNext() { moveScreenData( true ); }
 	private boolean moveScreenData(boolean bNext ) {
 		if( bNext ) {
-			if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
-				return false;
-			}
+			if( nCurrentScreenIdx + 1 >= screenDatas.size()) return false;
 			nCurrentScreenIdx++;
-			if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
-			}
-		} else {
-			if( nCurrentScreenIdx < 1 ) {
-				return false;
-			}
 			
+		} else {
+			if( nCurrentScreenIdx < 1 ) return false;
 			nCurrentScreenIdx--;
-			if( nCurrentScreenIdx == 0 ) {
-			}
 		}
 		
+		reload_screen_data();		
+		return true;
+	}
+	
+	private void reload_screen_data() {
 		ScreenData data = screenDatas.get( nCurrentScreenIdx );
 		System.out.println( "nCurrentScreenIdx : " + nCurrentScreenIdx );
 		data.print();
 		
-		mouse_clicked_pos	= data.point;
+		switch( data.type ) {
+		case ScreenData.TYPE_TAP 	: mouse_clicked_pos	= data.point; break;
+		case ScreenData.TYPE_SWIPE 	: mouse_pressed_pos = data.point;
+			mouse_released_pos = data.point2;
+			break;
+		}
+		
 		loaded_image_file	= data.image;
 		
-		//tfDelayTime.setText( String.valueOf( data.delayTime ) );
-		//rbClickTypeTap.setSelected( data.type == ScreenData.TYPE_TAP );
+		tfDelayTime.setText( String.valueOf( data.delayTime ) );
+		rbClickTypeTap.setSelected( data.type == ScreenData.TYPE_TAP );
 		try {
 			BufferedImage img = ImageIO.read( loaded_image_file );
 			if( img != null ) {
 				display_image = SwingFXUtils.toFXImage( img, null );
-				
-				Platform.runLater( new Runnable(){
-					@Override
-					public void run() {
-						redraw_display_image();
-					}});
+				redraw_display_image();
 			}	
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		updateScreenPageInfo();
-		return true;
+		update_screen_page_info();
 	}
-	
+
 	/**
 	 * 현재의 Screen 데이터를 Script Index 앞에 추가 합니다.
 	 */
@@ -257,7 +306,7 @@ public class macroTabViewController {
 		} else {
 			screenDatas.add( --nCurrentScreenIdx, data );
 		}
-		updateScreenPageInfo();
+		update_screen_page_info();
 	}
 
 	/**
@@ -272,7 +321,7 @@ public class macroTabViewController {
 		} else {
 			screenDatas.add( ++nCurrentScreenIdx, data );
 		}
-		updateScreenPageInfo();
+		update_screen_page_info();
 	}
 
 	/**
@@ -282,28 +331,48 @@ public class macroTabViewController {
 	 */
 	private ScreenData getCurrentScreenData() {
 		ScreenData data = new ScreenData();
-		data.point		= mouse_pressed_pos;
+		data.point		= rbClickTypeTap.isSelected() ? mouse_clicked_pos : mouse_pressed_pos;
 		data.point2		= mouse_released_pos;
-		//data.swipeTime	= swipeTime;
-		//data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;
-		data.type		= ScreenData.TYPE_TAP;
+		data.swipeTime	= mouse_released_time - mouse_pressed_time;
+		data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;		
 		data.image		= loaded_image_file;
-		//data.delayTime = Integer.valueOf( tfDelayTime.getText());
-		data.delayTime = 3000;
-		
+		data.image_width 	= (int)display_image.getWidth();
+		data.image_height 	= (int)display_image.getHeight();
+		data.delayTime = Integer.valueOf( tfDelayTime.getText());
 		return data;
 	}
 
+	/**
+	 * 현재 화면의 ScreenData을 화면의 내용으로 갱신합니다. 
+	 */
 	private void OnClickButtonModifyScreenData() {
-		// TODO Auto-generated method stub
+		ScreenData data = screenDatas.get( nCurrentScreenIdx );
+		data.point		= rbClickTypeTap.isSelected() ? mouse_clicked_pos : mouse_pressed_pos;
+		data.point2		= mouse_released_pos;
+		data.swipeTime	= mouse_released_time - mouse_pressed_time;
+		data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;		
+		data.image		= loaded_image_file;
+		data.image_width 	= (int)display_image.getWidth();
+		data.image_height 	= (int)display_image.getHeight();
+		data.delayTime = Integer.valueOf( tfDelayTime.getText());
 		
+		screenDatas.set( nCurrentScreenIdx, data );
 	}
 	
+	/**
+	 * 현재 화면의 데이터를 Script 에서 제거 합니다. 
+	 */
 	private void OnClickButtonDeleteScreenData() {
-		// TODO Auto-generated method stub
-		
+		screenDatas.remove( nCurrentScreenIdx );
+		if( nCurrentScreenIdx > 0 ) {
+			if( nCurrentScreenIdx >= screenDatas.size()) nCurrentScreenIdx -= 1;
+		}
+		reload_screen_data();
 	}
 
+	/**
+	 * 이미 작성된 스크립트 파일을 로딩합니다. 
+	 */
 	private void OnClickButtonScriptLoad() {
 		String last_script_path = getLastScriptPath();
 		
@@ -329,20 +398,28 @@ public class macroTabViewController {
 		
 		screenDatas.clear();
 		
+		lbScriptSubject.setText( scriptInfo.getValue( "NAME" ) );
+		
 		int count = Integer.valueOf( scriptInfo.getValue( "COUNT" ));
-		String name = scriptInfo.getValue( "NAME" );
 		for( int i = 0; i < count; i++ ) {
 			ScreenData sData = new ScreenData();
-			sData.image 	= new File(scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
-			
+			sData.image 		= new File(scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
+			sData.image_width	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_IMAGE_WIDTH", i )) );
+			sData.image_height	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_IMAGE_HEIGHT", i )) );
 			try {
 				sData.type		= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_TYPE", i ) ));
 			} catch( Exception e ) { sData.type = ScreenData.TYPE_TAP; }
+			
+			// 좌표값은 이미지 크기의 % 값으로 저장하기 때문에 읽어 들일때 환산하여 실제 위치 값으로 변환 합니다.  
 			sData.point.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X", i ) ));
+			sData.point.x	= (int)(( sData.image_width * sData.point.x ) / 100 );
 			sData.point.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y", i ) ));
+			sData.point.y	= (int)(( sData.image_height * sData.point.y ) / 100 );
 			try {
 				sData.point2.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X2", i ) ));
+				sData.point2.x	= (int)(( sData.image_width * sData.point2.x ) / 100 );
 				sData.point2.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y2", i ) ));
+				sData.point2.y	= (int)(( sData.image_height * sData.point2.y ) / 100 );
 			} catch( Exception e ) { sData.point2 = sData.point; } 
 			sData.delayTime = Integer.valueOf( scriptInfo.getValue( String.format( "%03d_DELAYTIME", i ) ));
 			try {
@@ -352,12 +429,13 @@ public class macroTabViewController {
 			screenDatas.add(sData);
 		}
 		
-		nCurrentScreenIdx = 1;
-		moveScreenData(false);
-		
-		updateScreenPageInfo();
+		nCurrentScreenIdx = 0;
+		reload_screen_data();
 	}
 
+	/**
+	 * 스크립트를 저장합니다. 
+	 */
 	private void OnClickButtonScriptSave() {
 		String last_script_path = getLastScriptPath();
 		
@@ -375,16 +453,20 @@ public class macroTabViewController {
 		
 		PropertyEx scriptInfo = new PropertyEx();
 		scriptInfo.setValue( "COUNT", String.valueOf( screenDatas.size()));
-		scriptInfo.setValue( "NAME", result.getName() );
+		scriptInfo.setValue( "NAME", lbScriptSubject.getText());
 		
 		int index = 0;
 		for( ScreenData sData : screenDatas ) {
 			scriptInfo.setValue( String.format( "%03d_IMAGE", index ), sData.image.getAbsolutePath());			
+			scriptInfo.setValue( String.format( "%03d_IMAGE_WIDTH", index ), String.valueOf( sData.image_width ));
+			scriptInfo.setValue( String.format( "%03d_IMAGE_HEIGHT", index ), String.valueOf( sData.image_height ));
 			scriptInfo.setValue( String.format( "%03d_TYPE", index ), String.valueOf( sData.type ));
-			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( sData.point.x ));
-			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( sData.point.y ));
-			scriptInfo.setValue( String.format( "%03d_X2", index ), String.valueOf( sData.point2.x ));
-			scriptInfo.setValue( String.format( "%03d_Y2", index ), String.valueOf( sData.point2.y ));
+			
+			// 좌표값은 이미지 크기의 % 값으로 저장합니다.
+			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( percent( sData.point.x, sData.image_width )));
+			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( percent( sData.point.y, sData.image_height )));
+			scriptInfo.setValue( String.format( "%03d_X2", index ), String.valueOf( percent( sData.point2.x, sData.image_width )));
+			scriptInfo.setValue( String.format( "%03d_Y2", index ), String.valueOf( percent( sData.point2.y, sData.image_height )));
 			scriptInfo.setValue( String.format( "%03d_DELAYTIME", index ), String.valueOf( sData.delayTime ));
 			scriptInfo.setValue( String.format( "%03d_SWIPETIME", index ), String.valueOf( sData.swipeTime ));
 			index++;
@@ -399,11 +481,30 @@ public class macroTabViewController {
 		}
 	}
 
-	
+	private int percent( int value, int base ) {
+		return (int)(( value * 100 ) / base );
+	}
 
+	/**
+	 * 새로운 스크립트를 시작합니다. 
+	 */
 	private void OnClickButtonScriptNew() {
-		// TODO Auto-generated method stub
-		
+		TextInputDialog dialog = new TextInputDialog("");
+		dialog.setTitle("스크립트 생성하기");
+		dialog.setHeaderText("생성할 스크립명을 입력해 주세요");
+		dialog.setContentText("스크립트 명  : ");
+
+		// Traditional way to get the response value.
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()){
+			lbScriptSubject.setText( result.get());
+			
+			display_image = null;
+			screenDatas.clear();
+			
+			redraw_display_image();
+			update_screen_page_info();
+		}
 	}
 
 	private void OnClickButtonImageLoad() {
@@ -459,6 +560,9 @@ public class macroTabViewController {
 		} 
 	}
 
+	/**
+	 * 현재의 이미지를 오른쪽으로 90도 회전 시킴니다. 
+	 */
 	private void OnClickButtonImageRotateP90() {
 		if( display_image == null ) return;
 		
@@ -467,6 +571,9 @@ public class macroTabViewController {
 		redraw_display_image(); 		
 	}
 
+	/**
+	 * 현재의 이미지를 왼쪽으로 90도 회전 시킴니다. 
+	 */
 	private void OnClickButtonImageRotateN90() {
 		if( display_image == null ) return;
 		
@@ -475,6 +582,9 @@ public class macroTabViewController {
 		redraw_display_image(); 
 	}
 
+	/**
+	 * 장치 리스트에서 선택된 단말기의 화면을 캡쳐하여 보여 줍니다.  
+	 */
 	private void OnClickButtonCaptureScreen() {
 		new Thread( new Runnable() {
 
@@ -509,8 +619,13 @@ public class macroTabViewController {
 	/**
 	 * Screen의 Page 정보를 갱신하여 표시 합니다. 
 	 */
-	private void updateScreenPageInfo() {
-		lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentScreenIdx + 1, screenDatas.size()));
+	private void update_screen_page_info() {
+		int max_page = screenDatas.size();
+		if( max_page == 0 ) {
+			lbScreenPageInfo.setText( "0/0");
+		} else {
+			lbScreenPageInfo.setText( String.format( "%d/%d", nCurrentScreenIdx + 1, screenDatas.size()));
+		}
 	}
 	
 	/**

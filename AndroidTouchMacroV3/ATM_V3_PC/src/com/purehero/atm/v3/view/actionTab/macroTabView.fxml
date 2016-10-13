@@ -17,7 +17,7 @@
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                            <children>
                               <Button fx:id="ID_BTN_MOVE_FIRST_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="&lt;&lt;" />
-                              <Button fx:id="ID_BTN_SCREEN_STEP" mnemonicParsing="false" onAction="#action_event_handler" text="Step" />
+                              <Button fx:id="ID_BTN_SCREEN_STEP_ACTION" mnemonicParsing="false" onAction="#action_event_handler" text="Step" />
                               <Button fx:id="btnScriptControl" mnemonicParsing="false" onAction="#action_event_handler" text="Play" />
                            </children>
                         </HBox>
