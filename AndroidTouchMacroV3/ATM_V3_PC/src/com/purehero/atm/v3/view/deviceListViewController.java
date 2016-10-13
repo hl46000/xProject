@@ -3,6 +3,9 @@ package com.purehero.atm.v3.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.purehero.atm.v3.model.AdbV3;
+import com.purehero.atm.v3.model.DeviceInfo;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -20,9 +23,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
-import com.purehero.atm.v3.model.AdbV3;
-import com.purehero.atm.v3.model.DeviceInfo;
 
 public class deviceListViewController {
 
@@ -114,7 +114,7 @@ public class deviceListViewController {
 		}
 	}
 	
-	private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
+	//private final String MSG_NOT_SELECTED_DEVICE = "선택된 단말기가 없습니다. \n단말기는 선택하신 후 다시 시도해 주세요.";
 	private void open_adb_shell() {
 		DeviceInfo deviceInfo = getSelectedDeviceItem();
 		if( deviceInfo == null ) {

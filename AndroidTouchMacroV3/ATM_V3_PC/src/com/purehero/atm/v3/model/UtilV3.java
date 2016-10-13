@@ -226,6 +226,10 @@ public class UtilV3 {
 			}
 		}
 		
+		if( callback != null ) {
+			callback.finished();
+		}
+		
 		return ret;
 	}
 	

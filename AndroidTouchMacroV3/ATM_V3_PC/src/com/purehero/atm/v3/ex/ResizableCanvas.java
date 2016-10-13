@@ -18,6 +18,10 @@ public class ResizableCanvas extends Canvas {
     		draw_interface.draw( getGraphicsContext2D(), getWidth(), getHeight() );
     	}
     }
+    
+    public void redraw() {
+    	draw();
+    }
  
     @Override
     public boolean isResizable() {
