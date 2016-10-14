@@ -8,8 +8,6 @@ public class ScreenData {
 	public static final int TYPE_SWIPE = 1;
 	
 	public File image = null;				// image file
-	public int image_width;					// image width
-	public int image_height;				// image height
 	public Point point 	= new Point();		// tab : click pos, swipe : start pos
 	public Point point2 = new Point();		// swipe : end pos
 	public int delayTime = 1000;			// Touch wait time (ms)
@@ -19,8 +17,6 @@ public class ScreenData {
 	public void print() {
 		System.out.println("===== ScreenData ==== ");
 		System.out.println("image : " + image );
-		System.out.println("image width : " + image_width );
-		System.out.println("image height : " + image_height );
 		System.out.println("touch type : " + type2String( type ));
 		if( type == TYPE_SWIPE ) {
 			System.out.println("start point : " + point );

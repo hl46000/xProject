@@ -4,9 +4,22 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.imageio.ImageIO;
+
+import com.purehero.atm.v3.MainClass;
+import com.purehero.atm.v3.ex.DrawInterface;
+import com.purehero.atm.v3.ex.ResizableCanvas;
+import com.purehero.atm.v3.model.AdbV3;
+import com.purehero.atm.v3.model.DeviceInfo;
+import com.purehero.atm.v3.model.PropertyEx;
+import com.purehero.atm.v3.model.ScreenData;
+import com.purehero.atm.v3.model.UtilV3;
+import com.purehero.atm.v3.view.deviceListViewController;
 
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -28,19 +41,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
-import javax.imageio.ImageIO;
-
-import com.purehero.atm.v3.MainClass;
-import com.purehero.atm.v3.ex.DrawInterface;
-import com.purehero.atm.v3.ex.ResizableCanvas;
-import com.purehero.atm.v3.model.AdbV3;
-import com.purehero.atm.v3.model.DeviceInfo;
-import com.purehero.atm.v3.model.PropertyEx;
-import com.purehero.atm.v3.model.ScreenData;
-import com.purehero.atm.v3.model.UtilV3;
-import com.purehero.atm.v3.view.deviceListViewController;
-
 public class macroTabViewController {
+	final 	double DIV_UNIT = 5000.0f;					// 실제 화면을 분활할 값 ( 100분률을 사용하면 좌표가 깨진다. 100 보다 큰값을 사용한다. )
 	
 	@FXML
 	SplitPane fxSplitPane;
@@ -62,9 +64,14 @@ public class macroTabViewController {
 	
 	ResizableCanvas cvDisplay = new ResizableCanvas();
 	
+	
+	
 	Image 	display_image = null;
+	Image	arrow_image = null;
 	double 	display_ratio = 1.0f;
 	double 	display_rotate = 0.0f;
+	double	display_screen_width = 0.0f;				// 화면에 표시되는 이미지의 넓이
+	double 	display_screen_height = 0.0f;				// 화면에 표시되는 이미지의 높이
 	
 	private List<ScreenData> screenDatas = new ArrayList<ScreenData>();
 	private int nCurrentScreenIdx = 0;
@@ -84,6 +91,14 @@ public class macroTabViewController {
         
         double divier_pos = 0.78f;
         fxSplitPane.setDividerPosition( 0, divier_pos );
+        
+        try {
+        	InputStream is = getClass().getClassLoader().getResourceAsStream("images/arrow.png" );
+        	arrow_image = new Image(is);
+        	is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	EventHandler<MouseEvent> mouse_event = new EventHandler<MouseEvent>(){
@@ -116,7 +131,27 @@ public class macroTabViewController {
 				
 				display_ratio = get_display_ratio( width, height, img_w, img_h );
 				
-				gc.drawImage( display_image, 0, 0, img_w, img_h, 0, 0, img_w * display_ratio, img_h * display_ratio );
+				display_screen_width = img_w * display_ratio;
+				display_screen_height = img_h * display_ratio;
+				
+				gc.drawImage( display_image, 0, 0, img_w, img_h, 0, 0, display_screen_width, display_screen_height );
+				
+				if( rbClickTypeTap.isSelected()) {
+					if( arrow_image != null ) {
+						gc.drawImage( arrow_image, 
+							(int)(( display_screen_width / DIV_UNIT ) * mouse_clicked_pos.x ) - 13, 
+							(int)(( display_screen_height / DIV_UNIT ) * mouse_clicked_pos.y ) 
+						);
+					}
+				} else {
+					gc.setStroke(Color.RED);
+					gc.setLineWidth(5);
+					drawArrowLine( gc, 
+						(int)(( display_screen_width / DIV_UNIT ) * mouse_pressed_pos.x ), 
+						(int)(( display_screen_height / DIV_UNIT ) * mouse_pressed_pos.y ), 
+						(int)(( display_screen_width / DIV_UNIT ) * mouse_released_pos.x ), 
+						(int)(( display_screen_height / DIV_UNIT ) * mouse_released_pos.y ), 5, 5 );
+				}
 			} else {			
 		    	gc.setStroke(Color.RED);
 		    	gc.strokeLine(0, 0, width, height);
@@ -125,6 +160,36 @@ public class macroTabViewController {
 		}		
 	};
 	
+	/**
+     * Draw an arrow line betwwen two point 
+     * @param g the graphic component
+     * @param x1 x-position of first point
+     * @param y1 y-position of first point
+     * @param x2 x-position of second point
+     * @param y2 y-position of second point
+     * @param d  the width of the arrow
+     * @param h  the height of the arrow
+     */
+    private void drawArrowLine(GraphicsContext g, int x1, int y1, int x2, int y2, int d, int h){
+       int dx = x2 - x1, dy = y2 - y1;
+       double D = Math.sqrt(dx*dx + dy*dy);
+       double xm = D - d, xn = xm, ym = h, yn = -h, x;
+       double sin = dy/D, cos = dx/D;
+
+       x = xm*cos - ym*sin + x1;
+       ym = xm*sin + ym*cos + y1;
+       xm = x;
+
+       x = xn*cos - yn*sin + x1;
+       yn = xn*sin + yn*cos + y1;
+       xn = x;
+
+       double[] xpoints = {x2, xm, xn};
+       double[] ypoints = {y2, ym, yn};
+
+       g.strokeLine(x1, y1, x2, y2);
+       g.strokePolygon(xpoints, ypoints, 3);
+    }
 	
 	// *************************************************************************************
 	boolean bMousePressed 		= false;
@@ -145,14 +210,24 @@ public class macroTabViewController {
 		if( e.getSource() == cvDisplay ) {
 			if( display_image == null ) return;
 			
-			Point mouse_device_pos = new Point( (int)( e.getX() / display_ratio ), (int)( e.getY() / display_ratio ) );
-			if( mouse_device_pos.x > display_image.getWidth() ) return;
-			if( mouse_device_pos.y > display_image.getHeight()) return;
+			int percent_x = (int) ((e.getX() * DIV_UNIT ) / display_screen_width ); 
+			if( percent_x > DIV_UNIT ) return;
+			
+			int percent_y = (int) ((e.getY() * DIV_UNIT) / display_screen_height );
+			if( percent_y > DIV_UNIT ) return;
+			
+			Point mouse_device_pos = new Point( percent_x, percent_y );
 			
 			if( e.getEventType().equals( MouseEvent.MOUSE_CLICKED)) {
 				if( System.currentTimeMillis() - mouse_dragged_time > 1500 ) {
-					mouse_clicked_pos = mouse_device_pos;
-					AdbV3.touchScreen( mouse_clicked_pos.x, mouse_clicked_pos.y, device_info  );
+					if( rbClickTypeTap.isSelected()) {
+						mouse_clicked_pos = mouse_device_pos;
+						AdbV3.touchScreen( 
+							(int)(( display_image.getWidth() / DIV_UNIT ) * mouse_clicked_pos.x ), 
+							(int)(( display_image.getHeight() / DIV_UNIT ) * mouse_clicked_pos.y ), 
+							device_info  );
+						redraw_display_image();
+					}
 				}
 				
 			} else if( e.getEventType().equals( MouseEvent.MOUSE_PRESSED )) {
@@ -165,19 +240,27 @@ public class macroTabViewController {
 			} else if( e.getEventType().equals( MouseEvent.MOUSE_RELEASED )) {
 				mouse_released_time = System.currentTimeMillis();
 				mouse_released_pos	= mouse_device_pos;
-						
-				if( bMousePressed && bMouseDragged ) {
-					AdbV3.swipeScreen( 
-						mouse_pressed_pos.x, mouse_pressed_pos.y, 
-						mouse_released_pos.x, mouse_released_pos.y, 
-						mouse_released_time - mouse_pressed_time, device_info  );
+					
+				if( !rbClickTypeTap.isSelected()) {
+					if( bMousePressed && bMouseDragged ) {
+						AdbV3.swipeScreen( 
+							(int)(( display_image.getWidth() / DIV_UNIT ) * mouse_pressed_pos.x ),  
+							(int)(( display_image.getHeight() / DIV_UNIT ) * mouse_pressed_pos.y ), 
+							(int)(( display_image.getWidth() / DIV_UNIT ) * mouse_released_pos.x ), 
+							(int)(( display_image.getHeight() / DIV_UNIT ) * mouse_released_pos.y ), 
+							mouse_released_time - mouse_pressed_time, device_info  );
+					}
 				}
 				bMousePressed = false;
 				bMouseDragged = false;
 				
 			} else if( e.getEventType().equals( MouseEvent.MOUSE_DRAGGED )) {
 				mouse_dragged_time = System.currentTimeMillis();
-				bMouseDragged = true;				
+				if( !rbClickTypeTap.isSelected()) {
+					mouse_released_pos	= mouse_device_pos;
+					redraw_display_image();
+				}
+				bMouseDragged = true;
 			}
 		}
 	} 
@@ -336,8 +419,6 @@ public class macroTabViewController {
 		data.swipeTime	= mouse_released_time - mouse_pressed_time;
 		data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;		
 		data.image		= loaded_image_file;
-		data.image_width 	= (int)display_image.getWidth();
-		data.image_height 	= (int)display_image.getHeight();
 		data.delayTime = Integer.valueOf( tfDelayTime.getText());
 		return data;
 	}
@@ -352,8 +433,6 @@ public class macroTabViewController {
 		data.swipeTime	= mouse_released_time - mouse_pressed_time;
 		data.type		= rbClickTypeTap.isSelected() ? ScreenData.TYPE_TAP : ScreenData.TYPE_SWIPE;		
 		data.image		= loaded_image_file;
-		data.image_width 	= (int)display_image.getWidth();
-		data.image_height 	= (int)display_image.getHeight();
 		data.delayTime = Integer.valueOf( tfDelayTime.getText());
 		
 		screenDatas.set( nCurrentScreenIdx, data );
@@ -404,22 +483,16 @@ public class macroTabViewController {
 		for( int i = 0; i < count; i++ ) {
 			ScreenData sData = new ScreenData();
 			sData.image 		= new File(scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
-			sData.image_width	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_IMAGE_WIDTH", i )) );
-			sData.image_height	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_IMAGE_HEIGHT", i )) );
 			try {
 				sData.type		= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_TYPE", i ) ));
 			} catch( Exception e ) { sData.type = ScreenData.TYPE_TAP; }
 			
 			// 좌표값은 이미지 크기의 % 값으로 저장하기 때문에 읽어 들일때 환산하여 실제 위치 값으로 변환 합니다.  
 			sData.point.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X", i ) ));
-			sData.point.x	= (int)(( sData.image_width * sData.point.x ) / 100 );
 			sData.point.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y", i ) ));
-			sData.point.y	= (int)(( sData.image_height * sData.point.y ) / 100 );
 			try {
 				sData.point2.x 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_X2", i ) ));
-				sData.point2.x	= (int)(( sData.image_width * sData.point2.x ) / 100 );
 				sData.point2.y 	= Integer.valueOf( scriptInfo.getValue( String.format( "%03d_Y2", i ) ));
-				sData.point2.y	= (int)(( sData.image_height * sData.point2.y ) / 100 );
 			} catch( Exception e ) { sData.point2 = sData.point; } 
 			sData.delayTime = Integer.valueOf( scriptInfo.getValue( String.format( "%03d_DELAYTIME", i ) ));
 			try {
@@ -458,15 +531,13 @@ public class macroTabViewController {
 		int index = 0;
 		for( ScreenData sData : screenDatas ) {
 			scriptInfo.setValue( String.format( "%03d_IMAGE", index ), sData.image.getAbsolutePath());			
-			scriptInfo.setValue( String.format( "%03d_IMAGE_WIDTH", index ), String.valueOf( sData.image_width ));
-			scriptInfo.setValue( String.format( "%03d_IMAGE_HEIGHT", index ), String.valueOf( sData.image_height ));
 			scriptInfo.setValue( String.format( "%03d_TYPE", index ), String.valueOf( sData.type ));
 			
 			// 좌표값은 이미지 크기의 % 값으로 저장합니다.
-			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( percent( sData.point.x, sData.image_width )));
-			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( percent( sData.point.y, sData.image_height )));
-			scriptInfo.setValue( String.format( "%03d_X2", index ), String.valueOf( percent( sData.point2.x, sData.image_width )));
-			scriptInfo.setValue( String.format( "%03d_Y2", index ), String.valueOf( percent( sData.point2.y, sData.image_height )));
+			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( sData.point.x ));
+			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( sData.point.y ));
+			scriptInfo.setValue( String.format( "%03d_X2", index ), String.valueOf( sData.point2.x ));
+			scriptInfo.setValue( String.format( "%03d_Y2", index ), String.valueOf( sData.point2.y ));
 			scriptInfo.setValue( String.format( "%03d_DELAYTIME", index ), String.valueOf( sData.delayTime ));
 			scriptInfo.setValue( String.format( "%03d_SWIPETIME", index ), String.valueOf( sData.swipeTime ));
 			index++;
@@ -481,9 +552,6 @@ public class macroTabViewController {
 		}
 	}
 
-	private int percent( int value, int base ) {
-		return (int)(( value * 100 ) / base );
-	}
 
 	/**
 	 * 새로운 스크립트를 시작합니다. 

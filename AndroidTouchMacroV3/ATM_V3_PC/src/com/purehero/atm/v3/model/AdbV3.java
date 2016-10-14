@@ -279,7 +279,9 @@ public class AdbV3 {
 	 * @param device
 	 */
 	public static void touchScreen( int x, int y, DeviceInfo device ) {
-		Command( String.format( "shell input tap %d %d", x, y ), device, null );
+		List<String> cmds = new ArrayList<String>();
+		cmds.add( String.format( "shell input tap %d %d", x, y ) );
+		CommandThread( cmds, device, null );
 	}
 	
 	
@@ -294,7 +296,9 @@ public class AdbV3 {
 	 * @param device
 	 */
 	public static void swipeScreen(int x, int y, int x2, int y2, long swipeTime, DeviceInfo device) {
-		Command( String.format( "shell input swipe %d %d %d %d %d", x, y, x2, y2, swipeTime ), device );
+		List<String> cmds = new ArrayList<String>();
+		cmds.add( String.format( "shell input swipe %d %d %d %d %d", x, y, x2, y2, swipeTime ) );
+		CommandThread( cmds, device, null );
 	}	 
 	
 	
