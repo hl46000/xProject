@@ -129,6 +129,11 @@ public class macroTabViewController {
 				double img_w = display_image.getWidth();
 				double img_h = display_image.getHeight();
 				
+				DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
+				if( device_info != null ) {
+					device_info.setOrientation( img_w > img_h ? 1 : 0 );
+				}
+				
 				display_ratio = get_display_ratio( width, height, img_w, img_h );
 				
 				display_screen_width = img_w * display_ratio;
@@ -223,8 +228,8 @@ public class macroTabViewController {
 					if( rbClickTypeTap.isSelected()) {
 						mouse_clicked_pos = mouse_device_pos;
 						AdbV3.touchScreen( 
-							(int)(( display_image.getWidth() / DIV_UNIT ) * mouse_clicked_pos.x ), 
-							(int)(( display_image.getHeight() / DIV_UNIT ) * mouse_clicked_pos.y ), 
+							(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_clicked_pos.x ), 
+							(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_clicked_pos.y ), 
 							device_info  );
 						redraw_display_image();
 					}
@@ -244,10 +249,10 @@ public class macroTabViewController {
 				if( !rbClickTypeTap.isSelected()) {
 					if( bMousePressed && bMouseDragged ) {
 						AdbV3.swipeScreen( 
-							(int)(( display_image.getWidth() / DIV_UNIT ) * mouse_pressed_pos.x ),  
-							(int)(( display_image.getHeight() / DIV_UNIT ) * mouse_pressed_pos.y ), 
-							(int)(( display_image.getWidth() / DIV_UNIT ) * mouse_released_pos.x ), 
-							(int)(( display_image.getHeight() / DIV_UNIT ) * mouse_released_pos.y ), 
+							(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_pressed_pos.x ),  
+							(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_pressed_pos.y ), 
+							(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_released_pos.x ), 
+							(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_released_pos.y ), 
 							mouse_released_time - mouse_pressed_time, device_info  );
 					}
 				}

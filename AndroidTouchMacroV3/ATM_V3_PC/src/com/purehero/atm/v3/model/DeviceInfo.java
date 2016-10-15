@@ -9,15 +9,23 @@ public class DeviceInfo {
 	private String model = "X";
 	private String os_ver = "X";
 	private String status;
+	private int display_width = 0;
+	private int display_height = 0;
 	private int batteryLevel = 0;
-	private int orientation;		// ?ã®ÎßêÍ∏∞?ùò Î∞©Ìñ•
-	private String displayOn = "X";			// ?ôîÎ©? ÏºúÏßê( ON:Ïª§Ïßê, OFF:ÏºúÏßê )
+	private int orientation;		
+	private String displayOn = "X";
 	
 	public DeviceInfo( String serial, String _model, String _os_ver ) {
 		serialNumber 	= serial;
 		model			= _model;
 		os_ver			= _os_ver;
 	};
+	
+	public int getDisplayWidth(){ return orientation % 2 == 0 ? display_width : display_height; }
+	public void setDisplayWidth( int width ) { display_width = width; }
+	
+	public int getDisplayHeight(){ return orientation % 2 == 0 ? display_height : display_width; }
+	public void setDisplayHeight( int height ) { display_height = height; }
 	
 	public Boolean getSelected() { return selected.get(); }
 	public void setSelected(Boolean selected) { this.selected.set( selected ); }
@@ -52,6 +60,7 @@ public class DeviceInfo {
 		System.out.println( "[AdbDevice] orientation : " + getOrientationText( orientation ));
 		System.out.println( "[AdbDevice] battery level : " + batteryLevel );
 		System.out.println( "[AdbDevice] display : " + displayOn );
+		System.out.println( String.format( "[AdbDevice] display size : %dx%d", display_width, display_height ));
 		System.out.println( "[AdbDevice] ================================" );
 	}
 	

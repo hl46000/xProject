@@ -173,6 +173,7 @@ public class AdbV3 {
 				device.setStatus( "Online" );
 				getBatteryLevel( device );
 				getDeviceOrientation( device );
+				getDeviceDisplaySize( device );
 				
 			} else {
 				device.setStatus( tokens[1] );
@@ -187,6 +188,29 @@ public class AdbV3 {
 		return ret;
 	}
 	
+	/**
+	 * @param device
+	 */
+	private static void getDeviceDisplaySize(DeviceInfo device) {
+		List<String> result = Command( "shell wm size", device );
+		
+		if( result.size() < 0 ) return;
+		for( String line : result ) {
+			line = line.trim();
+			
+			if( line.isEmpty()) continue;
+			if( !line.startsWith("Physical size: ")) continue;
+			
+			String size = line.substring( "Physical size: ".length() ).trim();
+			String token[] = size.split("x");
+			if( token.length < 2 ) continue;
+			
+			device.setDisplayWidth( Integer.valueOf( token[0]));
+			device.setDisplayHeight( Integer.valueOf( token[1]));
+			System.out.println( String.format( "Display size : %d x %d", device.getDisplayWidth(), device.getDisplayHeight() ));
+		}
+	}
+
 	/**
 	 * 단말기의 현재 화면을 캡쳐하여 BufferedImage 객체로 반환한다.  
 	 * 
