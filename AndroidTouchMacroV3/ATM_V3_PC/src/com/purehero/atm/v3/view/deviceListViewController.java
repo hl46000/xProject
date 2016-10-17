@@ -99,8 +99,8 @@ public class deviceListViewController {
 		if( ctrl_id == null ) return;
 		
 		switch( ctrl_id ) {
-		case "ID_MENU_OPEN_SHELL" 	: open_adb_shell(); break;
-		case "ID_MENU_LIST_REPLACE" : refresh_device_infos(); break;
+		case "ID_MENU_OPEN_SHELL" 		: open_adb_shell(); break; 
+		case "ID_MENU_LIST_REPLACE" 	: refresh_device_infos(); break;
 		}
 	}
 	

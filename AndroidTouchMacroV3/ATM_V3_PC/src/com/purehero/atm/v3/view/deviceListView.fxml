@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import java.lang.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.atm.v3.view.deviceListViewController">
@@ -27,7 +27,7 @@
                   <TableColumn editable="false" maxWidth="151.0" minWidth="84.0" prefWidth="151.0" sortable="false" text="Android 버전" />
                   <TableColumn editable="false" maxWidth="80.0" minWidth="50.0" prefWidth="40.0" sortable="false" text="Display" />
                   <TableColumn editable="false" maxWidth="80.0" prefWidth="75.0" sortable="false" text="Battery" />
-                  <TableColumn editable="false" maxWidth="110.0" minWidth="110.0" prefWidth="107.0" sortable="false" text="연결상태" />
+                  <TableColumn editable="false" maxWidth="160.0" minWidth="110.0" prefWidth="155.0" sortable="false" text="연결상태" />
                </columns>
                <contextMenu>
                   <ContextMenu fx:id="cmDeviceMenu">
@@ -53,9 +53,9 @@
                         <MenuItem mnemonicParsing="false" text="Delete" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Help">
+                  <Menu mnemonicParsing="false" text="단말기">
                      <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
+                        <MenuItem fx:id="ID_MENU_LIST_REPLACE" mnemonicParsing="false" onAction="#action_event_handler" text="단말기 목록 갱신" />
                      </items>
                   </Menu>
                </menus>
