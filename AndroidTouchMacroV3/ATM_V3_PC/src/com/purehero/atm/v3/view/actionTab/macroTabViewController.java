@@ -295,6 +295,7 @@ public class macroTabViewController {
 		case "ID_BTN_DEL_SCREEN_DATA"	: OnClickButtonDeleteScreenData(); break;
 		case "ID_BTN_MOD_SCREEN_DATA"	: OnClickButtonModifyScreenData(); break;
 		
+		case "ID_BTN_MODIFY_SCREEN_DATA"	: OnClickButtonModifyScreenData(); break;
 		case "ID_BTN_MOVE_SCREEN_PREV"		: OnClickButtonMoveScreenDataPrev(); break;
 		case "ID_BTN_MOVE_SCREEN_NEXT"		: OnClickButtonMoveScreenDataNext(); break;
 		
@@ -480,6 +481,7 @@ public class macroTabViewController {
 			return;
 		}
 		
+		setLastScriptPath( result.getParent());
 		screenDatas.clear();
 		
 		lbScriptSubject.setText( scriptInfo.getValue( "NAME" ) );
