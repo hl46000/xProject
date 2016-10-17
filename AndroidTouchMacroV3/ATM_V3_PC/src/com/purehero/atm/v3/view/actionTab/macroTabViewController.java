@@ -321,9 +321,9 @@ public class macroTabViewController {
 	private void OnClickButtonPlayScriptDatas() {
 		String name = btnScriptControl.getText();
 		if( name.compareTo("Play") == 0 ) {
-			DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
-			if( device_info == null ) {
-				UtilV3.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.WARNING );
+			List<DeviceInfo> device_infos = deviceListViewController.instance.getCheckedDeviceInfo();
+			if( device_infos == null ) {
+				UtilV3.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 항목에서 장치를 체크해 주세요.", AlertType.WARNING );
 				return;
 			}
 			
@@ -331,7 +331,9 @@ public class macroTabViewController {
 			lbDelayTimeTitle.setText("남은시간");
 			
 			script_play_flag = true;
-			new Thread( scriptPlayRunnable ).start();			
+			for( DeviceInfo device_info : device_infos ) {
+				new ScriptPlayThread( device_info ).start();
+			}
 			
 		} else {
 			btnScriptControl.setDisable( true );
@@ -341,38 +343,16 @@ public class macroTabViewController {
 	}
 
 	private boolean script_play_flag = false;
-	Runnable scriptPlayRunnable = new Runnable() {
+	class ScriptPlayThread extends Thread implements Runnable {
 		DeviceInfo device_info = null;
 		
-		Runnable updateScreenInfo = new Runnable() {
-			@Override
-			public void run() {
-				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
-					nCurrentScreenIdx = 0;
-					
-					AdbV3.getBatteryLevel( device_info );
-					deviceListViewController.instance.updateDeviceInfoList();
-				} else {
-					nCurrentScreenIdx++;
-				}
+		public ScriptPlayThread(DeviceInfo device_info) {
+			super();
+			this.device_info = device_info;
+		}
 
-				reload_screen_data();
-			}
-		};
-		
-		Runnable updateDelayTime = new Runnable() {
-			@Override
-			public void run() {
-				int delayTime = Integer.valueOf( tfDelayTime.getText() );
-				delayTime -= 100;
-				tfDelayTime.setText( String.valueOf( delayTime ));
-			}
-		};
-		
 		@Override
 		public void run() {
-			device_info = deviceListViewController.instance.getSelectedDeviceItem();
-			
 			nCurrentScreenIdx = 0;
 			while( script_play_flag ) {
 				try {
@@ -443,7 +423,32 @@ public class macroTabViewController {
 					OnClickButtonMoveFirstScreenData();
 				}});
 		}
-	};
+		
+		Runnable updateScreenInfo = new Runnable() {
+			@Override
+			public void run() {
+				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
+					nCurrentScreenIdx = 0;
+					
+					AdbV3.getBatteryLevel( device_info );
+					deviceListViewController.instance.updateDeviceInfoList();
+				} else {
+					nCurrentScreenIdx++;
+				}
+
+				reload_screen_data();
+			}
+		};
+		
+		Runnable updateDelayTime = new Runnable() {
+			@Override
+			public void run() {
+				int delayTime = Integer.valueOf( tfDelayTime.getText() );
+				delayTime -= 100;
+				tfDelayTime.setText( String.valueOf( delayTime ));
+			}
+		};
+	}
 	
 	/**
 	 * 현재 화면 데이터를 ScreenData의 가장 처음으로 이동 시킵니다. 
