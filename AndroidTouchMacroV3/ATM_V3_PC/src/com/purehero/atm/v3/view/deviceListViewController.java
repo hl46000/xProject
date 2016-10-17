@@ -127,11 +127,9 @@ public class deviceListViewController {
 	/**
 	 * 
 	 */
-	/*
 	public void updateDeviceInfoList() {
 		tvDeviceInfo.refresh();
 	}
-	*/
 	
 	/**
 	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 

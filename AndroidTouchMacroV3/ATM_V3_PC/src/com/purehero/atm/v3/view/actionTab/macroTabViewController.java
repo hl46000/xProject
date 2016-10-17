@@ -62,6 +62,12 @@ public class macroTabViewController {
 	@FXML
 	private RadioButton rbClickTypeTap;					// click type을 결정하는 RadioButton 중 tap
 	
+	@FXML
+	private Button btnScriptControl;					// script play / stop 버튼
+
+	@FXML
+	private Label lbDelayTimeTitle;
+	
 	ResizableCanvas cvDisplay = new ResizableCanvas();
 	
 	
@@ -301,12 +307,143 @@ public class macroTabViewController {
 		
 		case "ID_BTN_SCREEN_STEP_ACTION"		: OnClickButtonStepActionScreenData(); break;
 		case "ID_BTN_MOVE_FIRST_SCREEN_DATA"	: OnClickButtonMoveFirstScreenData(); break;
-		case "btnScriptControl"					:
+		case "btnScriptControl"					: OnClickButtonPlayScriptDatas(); break;
+			
 		default :
 			System.out.println( ctrl_id + " : 아직 구현되지 않은 ID 입니다. " );
 			break;
 		}
 	}
+	
+	/**
+	 * 
+	 */
+	private void OnClickButtonPlayScriptDatas() {
+		String name = btnScriptControl.getText();
+		if( name.compareTo("Play") == 0 ) {
+			DeviceInfo device_info = deviceListViewController.instance.getSelectedDeviceItem();
+			if( device_info == null ) {
+				UtilV3.alertWindow( "Information", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.WARNING );
+				return;
+			}
+			
+			btnScriptControl.setText( "Stop" );
+			lbDelayTimeTitle.setText("남은시간");
+			
+			script_play_flag = true;
+			new Thread( scriptPlayRunnable ).start();			
+			
+		} else {
+			btnScriptControl.setDisable( true );
+			script_play_flag = false;
+		}
+		
+	}
+
+	private boolean script_play_flag = false;
+	Runnable scriptPlayRunnable = new Runnable() {
+		DeviceInfo device_info = null;
+		
+		Runnable updateScreenInfo = new Runnable() {
+			@Override
+			public void run() {
+				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
+					nCurrentScreenIdx = 0;
+					
+					AdbV3.getBatteryLevel( device_info );
+					deviceListViewController.instance.updateDeviceInfoList();
+				} else {
+					nCurrentScreenIdx++;
+				}
+
+				reload_screen_data();
+			}
+		};
+		
+		Runnable updateDelayTime = new Runnable() {
+			@Override
+			public void run() {
+				int delayTime = Integer.valueOf( tfDelayTime.getText() );
+				delayTime -= 100;
+				tfDelayTime.setText( String.valueOf( delayTime ));
+			}
+		};
+		
+		@Override
+		public void run() {
+			device_info = deviceListViewController.instance.getSelectedDeviceItem();
+			
+			nCurrentScreenIdx = 0;
+			while( script_play_flag ) {
+				try {
+					Thread.sleep( 100 );
+				} catch (InterruptedException e) {}
+				if( !script_play_flag ) break;
+				
+				ScreenData data = screenDatas.get( nCurrentScreenIdx );
+				
+				int delayTime = data.delayTime;
+				while( delayTime > 0 ) {
+					try {
+						Thread.sleep( 100 );
+						delayTime -= 100;
+						
+					} catch (InterruptedException e) {}
+					if( !script_play_flag ) break;
+					
+					Platform.runLater( updateDelayTime );
+				}
+				
+				if( !script_play_flag ) break;
+				
+				// 장치가 선택되어 있다면 화면을 클릭 합니다. 
+				if( data.type == ScreenData.TYPE_TAP ) {
+					AdbV3.touchScreen( 
+						(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_clicked_pos.x ), 
+						(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_clicked_pos.y ), 
+						device_info  );
+					
+				} else if( data.type == ScreenData.TYPE_SWIPE ) {
+					AdbV3.swipeScreen( 
+						(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_pressed_pos.x ),  
+						(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_pressed_pos.y ), 
+						(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_released_pos.x ), 
+						(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_released_pos.y ), 
+						mouse_released_time - mouse_pressed_time, device_info  );
+				}
+				if( !script_play_flag ) break;
+				
+				Platform.runLater( updateScreenInfo );				
+				if( !script_play_flag ) break;
+				
+
+				// 베터리 유지 기능
+				if( device_info.getBatteryLevel() < 15 ) {
+					AdbV3.Command("shell input keyevent KEYCODE_POWER", device_info );	// display off
+					
+					while( device_info.getBatteryLevel() < 30 ) {
+						try {
+							Thread.sleep( 60000 ); // 1분
+							AdbV3.getBatteryLevel(device_info);
+							
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					AdbV3.Command("shell input keyevent KEYCODE_POWER", device_info );	// display on
+				}
+			}
+			
+			Platform.runLater( new Runnable(){
+				@Override
+				public void run() {
+					btnScriptControl.setText( "Play" );
+					btnScriptControl.setDisable( false );
+					lbDelayTimeTitle.setText("지연시간");
+					OnClickButtonMoveFirstScreenData();
+				}});
+		}
+	};
 	
 	/**
 	 * 현재 화면 데이터를 ScreenData의 가장 처음으로 이동 시킵니다. 
