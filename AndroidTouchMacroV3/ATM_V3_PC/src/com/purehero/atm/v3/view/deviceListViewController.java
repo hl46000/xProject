@@ -128,7 +128,7 @@ public class deviceListViewController {
 	 * 
 	 */
 	public void updateDeviceInfoList() {
-		tvDeviceInfo.refresh();
+		//tvDeviceInfo.refresh();
 	}
 	
 	/**

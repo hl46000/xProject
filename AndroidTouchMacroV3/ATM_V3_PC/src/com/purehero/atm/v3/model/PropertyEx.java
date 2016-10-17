@@ -38,7 +38,9 @@ public class PropertyEx {
 	 */
 	public boolean save( String path, String comments ) throws IOException {
 		if( properties == null ) return false;
-		properties.store(  new OutputStreamWriter( new FileOutputStream( path ), "UTF-8" ), comments );
+		FileOutputStream fos = new FileOutputStream( path );
+		properties.store( new OutputStreamWriter( fos, "UTF-8" ), comments );
+		fos.close();
 		return true;
 	}
 	

@@ -387,11 +387,11 @@ public class AdbV3 {
 			try {
 				String value = itemData.get("candraw");
 				if( value != null ) {
-					device.setDisplayOn( Integer.valueOf( value ) == 0 ? "OFF" : "ON");
+					device.setDisplayOn( Integer.valueOf( value ) != 0 );
 				} else {
 					value = itemData.get("isdisplayon");
 					if( value != null ) {
-						device.setDisplayOn( Integer.valueOf( value ) == 0 ? "OFF" : "ON");
+						device.setDisplayOn( Integer.valueOf( value ) != 0 );
 					}
 				}
 			} catch( Exception e ) {}

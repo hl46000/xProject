@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
+
 import com.purehero.atm.v3.MainClass;
 import com.purehero.atm.v3.ex.DrawInterface;
 import com.purehero.atm.v3.ex.ResizableCanvas;
@@ -19,6 +21,7 @@ import com.purehero.atm.v3.model.DeviceInfo;
 import com.purehero.atm.v3.model.PropertyEx;
 import com.purehero.atm.v3.model.ScreenData;
 import com.purehero.atm.v3.model.UtilV3;
+import com.purehero.atm.v3.model.ZipUtils;
 import com.purehero.atm.v3.view.deviceListViewController;
 
 import javafx.application.Platform;
@@ -309,12 +312,95 @@ public class macroTabViewController {
 		case "ID_BTN_MOVE_FIRST_SCREEN_DATA"	: OnClickButtonMoveFirstScreenData(); break;
 		case "btnScriptControl"					: OnClickButtonPlayScriptDatas(); break;
 			
+		case "ID_BTN_EXPORT_SCRIPT"				: OnClickButtonExportScriptDatas();
+		case "ID_BTN_IMPORT_SCRIPT"				:
+		
 		default :
 			System.out.println( ctrl_id + " : 아직 구현되지 않은 ID 입니다. " );
 			break;
 		}
 	}
 	
+	/**
+	 * 현 스크립트 데이터들을 다른 툴에서도 사용 가능하도록 Export 합니다. 
+	 */
+	private void OnClickButtonExportScriptDatas() {
+		// Export 할 파일을 선택 합니다. 
+		String last_export_path = getLastExportPath();
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("내보낼 Export 파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("EXPORT", "*.atm") );
+		if( last_export_path != null ) {
+			File file_last_export_path = new File( last_export_path );
+			if( file_last_export_path.exists()) {
+				fileChooser.setInitialDirectory( file_last_export_path );
+			}
+		}
+		File result = fileChooser.showSaveDialog( MainClass.instance.getPrimaryStage());
+		if( result == null ) return;
+		
+		File tmpFolder = new File( result.getParentFile(), ".out" );
+		tmpFolder.mkdirs();
+		
+		File ImgFolder = new File( tmpFolder, "Images");
+		ImgFolder.mkdirs();
+		
+		File scriptFile = new File( tmpFolder, "Export.stript");
+		
+		PropertyEx scriptInfo = new PropertyEx();
+		scriptInfo.setValue( "COUNT", String.valueOf( screenDatas.size()));
+		scriptInfo.setValue( "NAME", lbScriptSubject.getText());
+		scriptInfo.setValue( "IMAGE_PATH", ImgFolder.getAbsolutePath());
+		
+		int index = 0;
+		for( ScreenData sData : screenDatas ) {
+			File image = new File( ImgFolder, sData.image.getName());
+			try {
+				FileUtils.copyFile( sData.image, image );
+			} catch (IOException e) {
+				e.printStackTrace();
+				UtilV3.alertWindow( "Error", "파일 복사에 실패 하였습니다. \n" + sData.image.getAbsolutePath(), AlertType.ERROR );
+				try {
+					FileUtils.deleteDirectory( tmpFolder );
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				return;
+			}
+			scriptInfo.setValue( String.format( "%03d_IMAGE", index ), image.getAbsolutePath());			
+			scriptInfo.setValue( String.format( "%03d_TYPE", index ), String.valueOf( sData.type ));
+			
+			// 좌표값은 이미지 크기의 % 값으로 저장합니다.
+			scriptInfo.setValue( String.format( "%03d_X", index ), String.valueOf( sData.point.x ));
+			scriptInfo.setValue( String.format( "%03d_Y", index ), String.valueOf( sData.point.y ));
+			scriptInfo.setValue( String.format( "%03d_X2", index ), String.valueOf( sData.point2.x ));
+			scriptInfo.setValue( String.format( "%03d_Y2", index ), String.valueOf( sData.point2.y ));
+			scriptInfo.setValue( String.format( "%03d_DELAYTIME", index ), String.valueOf( sData.delayTime ));
+			scriptInfo.setValue( String.format( "%03d_SWIPETIME", index ), String.valueOf( sData.swipeTime ));
+			index++;
+		}
+		try {
+			scriptInfo.save( scriptFile.getAbsolutePath(), result.getName() );
+			setLastExportPath( result.getParent());
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
+		
+		try {
+			ZipUtils.zip( tmpFolder, result );
+			FileUtils.deleteDirectory( tmpFolder );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+
+	
+
 	/**
 	 * 
 	 */
@@ -331,10 +417,8 @@ public class macroTabViewController {
 			lbDelayTimeTitle.setText("남은시간");
 			
 			script_play_flag = true;
-			for( DeviceInfo device_info : device_infos ) {
-				new ScriptPlayThread( device_info ).start();
-			}
-			
+			new ScriptPlayThread( device_infos ).start();
+						
 		} else {
 			btnScriptControl.setDisable( true );
 			script_play_flag = false;
@@ -344,20 +428,18 @@ public class macroTabViewController {
 
 	private boolean script_play_flag = false;
 	class ScriptPlayThread extends Thread implements Runnable {
-		DeviceInfo device_info = null;
+		List<DeviceInfo> device_infos = null;
 		
-		public ScriptPlayThread(DeviceInfo device_info) {
+		public ScriptPlayThread( List<DeviceInfo> device_infos) {
 			super();
-			this.device_info = device_info;
+			this.device_infos = device_infos;
 		}
 
 		@Override
 		public void run() {
 			nCurrentScreenIdx = 0;
 			while( script_play_flag ) {
-				try {
-					Thread.sleep( 100 );
-				} catch (InterruptedException e) {}
+				try { Thread.sleep( 100 ); } catch (InterruptedException e) {}
 				if( !script_play_flag ) break;
 				
 				ScreenData data = screenDatas.get( nCurrentScreenIdx );
@@ -374,44 +456,48 @@ public class macroTabViewController {
 					Platform.runLater( updateDelayTime );
 				}
 				
+				try { Thread.sleep( 10 ); } catch (InterruptedException e) {}
 				if( !script_play_flag ) break;
 				
 				// 장치가 선택되어 있다면 화면을 클릭 합니다. 
 				if( data.type == ScreenData.TYPE_TAP ) {
-					AdbV3.touchScreen( 
-						(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_clicked_pos.x ), 
-						(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_clicked_pos.y ), 
-						device_info  );
+					for( DeviceInfo device_info : device_infos ) {
+						AdbV3.touchScreen( 
+							(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_clicked_pos.x ), 
+							(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_clicked_pos.y ), 
+							device_info  );
+					}
 					
 				} else if( data.type == ScreenData.TYPE_SWIPE ) {
-					AdbV3.swipeScreen( 
-						(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_pressed_pos.x ),  
-						(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_pressed_pos.y ), 
-						(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_released_pos.x ), 
-						(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_released_pos.y ), 
-						mouse_released_time - mouse_pressed_time, device_info  );
+					for( DeviceInfo device_info : device_infos ) {
+						AdbV3.swipeScreen( 
+							(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_pressed_pos.x ),  
+							(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_pressed_pos.y ), 
+							(int)(( device_info.getDisplayWidth()  / DIV_UNIT ) * mouse_released_pos.x ), 
+							(int)(( device_info.getDisplayHeight() / DIV_UNIT ) * mouse_released_pos.y ), 
+							mouse_released_time - mouse_pressed_time, device_info  );
+					}
 				}
+				
+				try { Thread.sleep( 10 ); } catch (InterruptedException e) {}
 				if( !script_play_flag ) break;
+				
+				for( DeviceInfo device_info : device_infos ) {
+					AdbV3.getBatteryLevel( device_info );
+					AdbV3.getDeviceOrientation( device_info );	// display on /off 여부 확인
+					
+					// 베터리 유지 기능
+					if( device_info.getBatteryLevel() < 15 && device_info.getDisplayOn()) {						
+						AdbV3.Command("shell input keyevent KEYCODE_POWER", device_info );	// display off
+					} else if( device_info.getBatteryLevel() > 30 && !device_info.getDisplayOn()) {
+						AdbV3.Command("shell input keyevent KEYCODE_POWER", device_info );	// display on
+					}
+				}
 				
 				Platform.runLater( updateScreenInfo );				
-				if( !script_play_flag ) break;
 				
-
-				// 베터리 유지 기능
-				if( device_info.getBatteryLevel() < 15 ) {
-					AdbV3.Command("shell input keyevent KEYCODE_POWER", device_info );	// display off
-					
-					while( device_info.getBatteryLevel() < 30 ) {
-						try {
-							Thread.sleep( 60000 ); // 1분
-							AdbV3.getBatteryLevel(device_info);
-							
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					AdbV3.Command("shell input keyevent KEYCODE_POWER", device_info );	// display on
-				}
+				try { Thread.sleep( 10 ); } catch (InterruptedException e) {}
+				if( !script_play_flag ) break;
 			}
 			
 			Platform.runLater( new Runnable(){
@@ -429,8 +515,7 @@ public class macroTabViewController {
 			public void run() {
 				if( nCurrentScreenIdx + 1 >= screenDatas.size()) {
 					nCurrentScreenIdx = 0;
-					
-					AdbV3.getBatteryLevel( device_info );
+									
 					deviceListViewController.instance.updateDeviceInfoList();
 				} else {
 					nCurrentScreenIdx++;
@@ -858,33 +943,25 @@ public class macroTabViewController {
 	 * @param parent
 	 */
 	private void setLastImagePath(String parent) {
-		PropertyEx prop = MainClass.instance.load_app_property();
-		prop.setValue( "LAST_IMAGE_PATH", parent);
-		try {
-			prop.save("TouchMacro v3.0");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setLastPath( "LAST_IMAGE_PATH", parent);
 	}
 
-	/**
-	 * 가장 마지막에 접근한 이미지 경로를 반환 합니다. 
-	 * 
-	 * @return
-	 */
-	private String getLastImagePath() {
-		PropertyEx prop = MainClass.instance.load_app_property();
-		return prop.getValue("LAST_IMAGE_PATH");
-	}
-	
 	/**
 	 * 가장 마지막에 접근한 이미지 경로를 저장합니다. 
 	 * 
 	 * @param parent
 	 */
 	private void setLastScriptPath(String parent) {
+		setLastPath( "LAST_SCRIPT_PATH", parent);
+	}
+	
+	private void setLastExportPath(String parent) {
+		setLastPath( "LAST_EXPORT_PATH", parent);
+	}
+	
+	private void setLastPath( String Key, String parent ) {
 		PropertyEx prop = MainClass.instance.load_app_property();
-		prop.setValue( "LAST_SCRIPT_PATH", parent);
+		prop.setValue( Key, parent);
 		try {
 			prop.save("TouchMacro v3.0");
 		} catch (IOException e) {
@@ -893,11 +970,34 @@ public class macroTabViewController {
 	}
 	
 	/**
+	 * 가장 마지막에 접근한 이미지 경로를 반환 합니다. 
+	 * 
+	 * @return
+	 */
+	private String getLastImagePath() {
+		return getLastPath("LAST_IMAGE_PATH");		
+	}
+	
+	/**
+	 * 가장 마지막에 접근한 스크립트 경로를 반환 합니다. 
 	 * @return
 	 */
 	private String getLastScriptPath() {
+		return getLastPath("LAST_SCRIPT_PATH");
+	}
+	
+	/**
+	 * 가장 마지막에 접근한 Export 경로를 반환 합니다.
+	 * 
+	 * @return
+	 */
+	private String getLastExportPath() {
+		return getLastPath("LAST_EXPORT_PATH");
+	}
+	
+	private String getLastPath( String Key ) {
 		PropertyEx prop = MainClass.instance.load_app_property();
-		return prop.getValue("LAST_SCRIPT_PATH");
+		return prop.getValue(Key);
 	}
 	
 	//private double get_display_screen_width()  { return cvDisplay.getWidth();  }

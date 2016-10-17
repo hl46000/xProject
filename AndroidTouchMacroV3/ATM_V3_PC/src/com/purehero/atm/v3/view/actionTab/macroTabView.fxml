@@ -143,6 +143,9 @@
               <MenuItem fx:id="ID_BTN_NEW_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="생성하기" />
                   <MenuItem fx:id="ID_BTN_SAVE_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="저장하기" />
                   <MenuItem fx:id="ID_BTN_LOAD_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="불러오기" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="ID_BTN_IMPORT_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="가져오기" />
+                  <MenuItem fx:id="ID_BTN_EXPORT_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="내보내기" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

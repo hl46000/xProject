@@ -13,7 +13,7 @@ public class DeviceInfo {
 	private int display_height = 0;
 	private int batteryLevel = 0;
 	private int orientation;		
-	private String displayOn = "X";
+	private boolean displayOn = false;
 	
 	public DeviceInfo( String serial, String _model, String _os_ver ) {
 		serialNumber 	= serial;
@@ -48,8 +48,8 @@ public class DeviceInfo {
 	public int getBatteryLevel() { return batteryLevel; }
 	public void setBatteryLevel( int batteryLevel ) { this.batteryLevel = batteryLevel; }
 	
-	public String getDisplayOn() { return displayOn; }
-	public void setDisplayOn( String displayOn ) { this.displayOn = displayOn; }
+	public boolean getDisplayOn() { return displayOn; }
+	public void setDisplayOn( boolean displayOn ) { this.displayOn = displayOn; }
 	
 	public void print() {
 		System.out.println( "[AdbDevice] ================================" );
@@ -59,7 +59,7 @@ public class DeviceInfo {
 		System.out.println( "[AdbDevice] status : " + status );
 		System.out.println( "[AdbDevice] orientation : " + getOrientationText( orientation ));
 		System.out.println( "[AdbDevice] battery level : " + batteryLevel );
-		System.out.println( "[AdbDevice] display : " + displayOn );
+		System.out.println( "[AdbDevice] display : " + ( displayOn ? "ON" : "OFF" ));
 		System.out.println( String.format( "[AdbDevice] display size : %dx%d", display_width, display_height ));
 		System.out.println( "[AdbDevice] ================================" );
 	}
