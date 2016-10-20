@@ -312,8 +312,8 @@ public class macroTabViewController {
 		case "ID_BTN_MOVE_FIRST_SCREEN_DATA"	: OnClickButtonMoveFirstScreenData(); break;
 		case "btnScriptControl"					: OnClickButtonPlayScriptDatas(); break;
 			
-		case "ID_BTN_EXPORT_SCRIPT"				: OnClickButtonExportScriptDatas();
-		case "ID_BTN_IMPORT_SCRIPT"				:
+		case "ID_BTN_EXPORT_SCRIPT"				: OnClickButtonExportScriptDatas(); break;
+		case "ID_BTN_IMPORT_SCRIPT"				: OnClickButtonImportScriptDatas(); break;
 		
 		default :
 			System.out.println( ctrl_id + " : 아직 구현되지 않은 ID 입니다. " );
@@ -321,6 +321,62 @@ public class macroTabViewController {
 		}
 	}
 	
+	/**
+	 * 
+	 */
+	private void OnClickButtonImportScriptDatas() {
+		String last_export_path = getLastExportPath();
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Export 된 파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("EXPORT", "*.atm") );
+		if( last_export_path != null ) {
+			File file_last_export_path = new File( last_export_path );
+			if( file_last_export_path.exists()) {
+				fileChooser.setInitialDirectory( file_last_export_path );
+			}
+		}
+		File exported_file = fileChooser.showOpenDialog( MainClass.instance.getPrimaryStage());
+		if( exported_file == null ) return;
+		
+		String last_script_path = getLastScriptPath();
+		fileChooser.setTitle("저장할 스크립트파일을 선택하여 주세요.");
+		fileChooser.getExtensionFilters().remove(0);
+		fileChooser.getExtensionFilters().add( new FileChooser.ExtensionFilter("SCRIPT", "*.script") );
+		if( last_script_path != null ) {
+			File file_last_script_path = new File( last_script_path );
+			if( file_last_script_path.exists()) {
+				fileChooser.setInitialDirectory( file_last_script_path );
+			}
+		}
+		File script_file = fileChooser.showSaveDialog( MainClass.instance.getPrimaryStage());
+		if( script_file == null ) return;
+		
+		try {
+			ZipUtils.unzip( exported_file, script_file.getParentFile(), false );
+			script_file.delete();
+			FileUtils.moveFile( new File( script_file.getParentFile(), "Export.stript"), script_file);
+			
+			File newImageFolder = new File( script_file.getParentFile(), "Images");
+			
+			PropertyEx scriptInfo = new PropertyEx();
+			scriptInfo.load( script_file.getAbsolutePath());
+			
+			int count = Integer.valueOf( scriptInfo.getValue( "COUNT" ));
+			for( int i = 0; i < count; i++ ) {
+				File imageFile = new File( scriptInfo.getValue( String.format( "%03d_IMAGE", i )));
+				File new_imagePath = new File( newImageFolder, imageFile.getName());
+				scriptInfo.setValue( String.format( "%03d_IMAGE", i ), new_imagePath.getAbsolutePath());
+			}
+			scriptInfo.save( script_file.getAbsolutePath(), "" );
+			
+			load_script_datas( script_file );
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * 현 스크립트 데이터들을 다른 툴에서도 사용 가능하도록 Export 합니다. 
 	 */
@@ -383,7 +439,6 @@ public class macroTabViewController {
 		try {
 			scriptInfo.save( scriptFile.getAbsolutePath(), result.getName() );
 			setLastExportPath( result.getParent());
-			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			return;
@@ -392,6 +447,8 @@ public class macroTabViewController {
 		try {
 			ZipUtils.zip( tmpFolder, result );
 			FileUtils.deleteDirectory( tmpFolder );
+			
+			UtilV3.alertWindow( "Information", "스크립트가 Export 되었습니다.\n" + result.getAbsolutePath() + " 을 확인하세요.", AlertType.INFORMATION );
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -700,6 +757,10 @@ public class macroTabViewController {
 		File result = fileChooser.showOpenDialog( MainClass.instance.getPrimaryStage());
 		if( result == null ) return;
 	
+		load_script_datas( result );
+	}
+
+	private void load_script_datas(File result) {
 		PropertyEx scriptInfo = new PropertyEx();
 		try {
 			scriptInfo.load( result.getAbsolutePath() );
@@ -738,6 +799,7 @@ public class macroTabViewController {
 		
 		nCurrentScreenIdx = 0;
 		reload_screen_data();
+		
 	}
 
 	/**
