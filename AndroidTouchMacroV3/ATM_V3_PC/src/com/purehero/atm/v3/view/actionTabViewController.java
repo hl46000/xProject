@@ -16,7 +16,7 @@ public class actionTabViewController {
     public void initialize() throws Exception {
     	String [] TabViewNames = { 
     		"actionTab/macroTabView.fxml"	,"Touch Macro", 
-    		"actionTab/testTabView.fxml"	,"APK Test",
+    		"actionTab/apkTestTabView.fxml"	,"APK Test",
     		"actionTab/consoleTabView.fxml"	,"Console"
     	};
     	
