@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.app.view.mainViewController">
+   <children>
+      <BorderPane prefHeight="255.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <TableView fx:id="tvDeviceInfo" focusTraversable="false" prefWidth="700.0" BorderPane.alignment="CENTER">
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+               <columns>
+                  <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" sortable="false">
+                     <graphic>
+                        <CheckBox fx:id="ID_CHECKBOX_SELECT_ALL_DEVICE" mnemonicParsing="false">
+                           <tooltip>
+                              <Tooltip text="디바이스를 모두 선택하거나 모두 해제합니다." />
+                           </tooltip>
+                        </CheckBox>
+                     </graphic>
+                  </TableColumn>
+                  <TableColumn editable="false" maxWidth="183.0" minWidth="150.0" prefWidth="135.0" sortable="false" text="모델명" />
+                  <TableColumn editable="false" maxWidth="200.0" minWidth="150.0" prefWidth="118.0" sortable="false" text="시리얼번호" />
+                  <TableColumn editable="false" maxWidth="151.0" minWidth="84.0" prefWidth="151.0" sortable="false" text="Android 버전" />
+                  <TableColumn editable="false" maxWidth="80.0" minWidth="50.0" prefWidth="40.0" sortable="false" text="Display" />
+                  <TableColumn editable="false" maxWidth="80.0" prefWidth="75.0" sortable="false" text="Battery" />
+                  <TableColumn editable="false" maxWidth="160.0" minWidth="110.0" prefWidth="155.0" sortable="false" text="연결상태" />
+               </columns>
+               <contextMenu>
+                  <ContextMenu fx:id="cmDeviceMenu">
+                     <items>
+                        <MenuItem fx:id="ID_MENU_LIST_REPLACE" mnemonicParsing="false" onAction="#action_event_handler" text="리스트 갱신" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="ID_MENU_OPEN_SHELL" mnemonicParsing="false" onAction="#action_event_handler" text="Open shell" />
+                     </items>
+                  </ContextMenu>
+               </contextMenu>
+            </TableView>
+         </center>
+         <top>
+            <MenuBar BorderPane.alignment="CENTER">
+               <menus>
+                  <Menu mnemonicParsing="false" text="File">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Edit">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="단말기">
+                     <items>
+                        <MenuItem fx:id="ID_MENU_LIST_REPLACE" mnemonicParsing="false" onAction="#action_event_handler" text="단말기 목록 갱신" />
+                     </items>
+                  </Menu>
+               </menus>
+            </MenuBar>
+         </top>
+      </BorderPane>
+   </children>
+</AnchorPane>

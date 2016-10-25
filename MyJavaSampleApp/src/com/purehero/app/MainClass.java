@@ -1,98 +1,71 @@
 package com.purehero.app;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainClass implements AutoCloseable {
-	@SuppressWarnings("resource")
-	public static void main(String[] args) { new MainClass(); }
+import com.android.ddmlib.IDevice;
+import com.purehero.common.io.FileUtils;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
+public class MainClass extends javafx.application.Application {
+	public static MainClass instance = null;
+	public static void main(String[] args) { 
+		instance = new MainClass();
+		launch(args);
+	}
 	
-	ADB adb = new ADB();
+	private Stage primaryStage = null;
+	
+	private ADB adb = new ADB();
 	public MainClass() {
 		ClassLoader clsLoader = getClass().getClassLoader();
 		
-		String adbPath = checkPath( clsLoader, "adb/adb.exe" );
+		File adbPath = FileUtils.extractFileFromJar( clsLoader, "adb/adb.exe", GetTempPath());
 		adb.Initialize( adbPath );
-		
-		System.out.println("Start()");
+	}
+
+	private File GetTempPath() {
+		return new File( "c:\\temp\\atm_v3" );
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void start(Stage primaryStage) throws Exception {
+		System.out.println("START");
+		this.primaryStage = primaryStage;
+		
+		Parent mainView = FXMLLoader.load( MainClass.this.getClass().getResource("view/mainView.fxml"));
+		Scene scene = new Scene( mainView, -1, -1, Color.WHITE);		
+		primaryStage.setScene( scene );
+		primaryStage.setResizable(true);
+		primaryStage.show();
+	}
+
+	@Override
+	public void init() throws Exception {
+		System.out.println("INIT");
+	}
+
+	@Override
+	public void stop() throws Exception {
+		System.out.println("STOP");
 		adb.Release();
-		System.out.println("Close()");
+	}
+		
+	public ADB getADB() {
+		return adb;
 	}
 	
-	/**
-	 * 리소스 내의 실행 파일을 실행할 수 있는 위치로 이동 시키고 파일의 경로를 반환한다. 
-	 * 
-	 * @param clsLoader
-	 * @param resName
-	 * @return
-	 */
-	private String checkPath( ClassLoader clsLoader, String resName ) {
-		File inFile		= new File( resName );
-		File outFile 	= new File( GetTempPath(), inFile.getName());
-		if( outFile.exists() ) return outFile.getAbsolutePath();
-		
-		outFile.getParentFile().mkdirs();
-		
-		InputStream is = clsLoader.getResourceAsStream( resName );
-		if( is == null ) return "";
-		
-		fileWrite( is, outFile );
-		
-		return outFile.getAbsolutePath();
-	}
-	
-	private String GetTempPath() {
-		return "c:\\temp\\atm_v3";
-	}
-	
-	/**
-	 * is 의 스트림을 outFile 로 기록합니다. <br> 기록이 완료되면 is 스트림은 close 시킴니다.
-	 *  
-	 * @param is
-	 * @param outFile
-	 * @return outFile 에 기록된 byte 수를 반환 합니다. 
-	 */
-	private int fileWrite(InputStream is, File outFile) {
-		int ret = 0;
-		
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream( outFile );
-			
-			byte buffer[] = new byte[102400];
-			int nRead = 0;
-			
-			while(( nRead = is.read( buffer )) > 0 ) {
-				ret += nRead;
-				
-				fos.write( buffer, 0, nRead );
-			}
-						
-		} catch( Exception e ) {
-			e.printStackTrace();
-			
-		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			try {
-				if( fos != null ) {
-					fos.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	public List<DeviceInfo> getDevices() {
+		List<DeviceInfo> devices = new ArrayList<DeviceInfo>();
+		for( IDevice device : adb.getDevices()) {
+			devices.add( new DeviceInfo( device ));
 		}
-		
-		return ret;
+		return devices;
 	}
 }

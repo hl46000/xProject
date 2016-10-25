@@ -1,6 +1,8 @@
 package com.purehero.app;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener;
@@ -8,9 +10,14 @@ import com.android.ddmlib.IDevice;
 
 public class ADB implements IDeviceChangeListener {
 	private AndroidDebugBridge bridge = null;
-	private ArrayList<IDevice> devices = new ArrayList<IDevice>();
+	private List<IDevice> devices = new ArrayList<IDevice>();
+	private DeviceChangeListener changeListener = null;
 	
-	public boolean Initialize( String adbPath ) {
+	public void setDeviceChangeListener ( DeviceChangeListener changeListener ) {
+		this.changeListener = changeListener;
+	}
+	
+	public boolean Initialize( File adbPath ) {
 		// Get a device bridge instance. Initialize, create and restart.
 		try {
 			AndroidDebugBridge.initIfNeeded(false);
@@ -23,10 +30,15 @@ public class ADB implements IDeviceChangeListener {
 			return false;
 		}
 		
-		bridge = AndroidDebugBridge.getBridge();
+		try {
+			bridge = AndroidDebugBridge.getBridge();			
+		} catch( Exception e ) {}
+		
+		try {
 		if (bridge == null) {		
-			bridge = AndroidDebugBridge.createBridge( adbPath, false);
+			bridge = AndroidDebugBridge.createBridge( adbPath.getAbsolutePath(), false);
 		}
+		} catch( Exception e ) {}
 		
 		AndroidDebugBridge.addDeviceChangeListener(this);
 		return true;
@@ -37,21 +49,39 @@ public class ADB implements IDeviceChangeListener {
 	 */
 	public void Release() {
 		AndroidDebugBridge.removeDeviceChangeListener(this);
-		AndroidDebugBridge.terminate();
+		try {
+			AndroidDebugBridge.terminate();
+		} catch( Exception e ) {}
+		
+		System.out.println( "ADB Release" );
 	}
 
+	public List<IDevice> getDevices() {
+		return devices;
+	}
+	
 	@Override
 	public void deviceConnected(IDevice device) {
-		devices.add( device );
-		System.out.println( "added device : " + device.getSerialNumber());
+		if( !devices.contains( device )) {
+			devices.add( device );
+		}
+		if( changeListener != null ) {
+			changeListener.OnDeviceChangedEvent();
+		}
 	}
 
 	@Override
 	public void deviceDisconnected(IDevice device) {
-		devices.remove( device );
-		System.out.println( "removed device : " + device.getSerialNumber());
+		devices.remove(device);
+		if( changeListener != null ) {
+			changeListener.OnDeviceChangedEvent();
+		}
 	}
 
 	@Override
-	public void deviceChanged(IDevice device, int changeMask) {}
+	public void deviceChanged(IDevice device, int changeMask) {
+		if( changeListener != null && (IDevice.CHANGE_STATE & changeMask) != 0 ) {
+			changeListener.OnDeviceChangedEvent();
+		}
+	}
 }
