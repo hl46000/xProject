@@ -1,4 +1,4 @@
-package com.purehero.app;
+package com.purehero.fx.app;
 
 public interface DeviceChangeListener {
 	public void OnDeviceChangedEvent();

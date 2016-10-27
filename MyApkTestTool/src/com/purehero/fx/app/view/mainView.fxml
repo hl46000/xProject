@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="255.0" prefWidth="1033.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.app.view.mainViewController">
+<AnchorPane prefHeight="255.0" prefWidth="1033.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.mainViewController">
    <children>
       <BorderPane prefHeight="255.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
@@ -34,7 +34,7 @@
                <contextMenu>
                   <ContextMenu fx:id="cmDeviceMenu">
                      <items>
-                        <MenuItem fx:id="ID_MENU_LIST_REPLACE" mnemonicParsing="false" onAction="#handle" text="APK 선택" />
+                        <MenuItem fx:id="ID_MENU_SELECT_APK_FILE" mnemonicParsing="false" onAction="#handle" text="APK 선택" />
                         <Menu mnemonicParsing="false" text="옵션선택">
                            <items>
                               <CheckMenuItem mnemonicParsing="false" text="APK 서명" />

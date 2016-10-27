@@ -1,17 +1,18 @@
-package com.purehero.app;
+package com.purehero.fx.app;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
-import com.android.ddmlib.IDevice;
 import com.purehero.common.io.FileUtils;
+import com.purehero.common.io.PathUtils;
+import com.purehero.common.io.PropertyEx;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 public class MainClass extends javafx.application.Application {
 	public static MainClass instance = null;
@@ -61,11 +62,26 @@ public class MainClass extends javafx.application.Application {
 		return adb;
 	}
 	
-	public List<DeviceInfo> getDevices() {
-		List<DeviceInfo> devices = new ArrayList<DeviceInfo>();
-		for( IDevice device : adb.getDevices()) {
-			devices.add( new DeviceInfo( device ));
+	public Window getPrimaryStage() {
+		return primaryStage;
+	}
+	
+	/**
+	 * Application 에서 사용하는 설정값 정보 파일을 불러 옵니다.
+	 * 
+	 * @param path
+	 * @return 성공 시에 Property 객체를 실패 시에는 null 이 반환됩니다. 
+	 */
+	public PropertyEx getProperty() {
+		String path = PathUtils.GetCurrentPath( this );
+		File prop_file = new File( path, "TouchMacroV3.prop" );
+		
+		PropertyEx prop = new PropertyEx("Purehero APK test tool");
+		try {
+			prop.load( prop_file.getAbsolutePath() );
+		} catch (IOException e) {
 		}
-		return devices;
+		
+		return prop;
 	}
 }

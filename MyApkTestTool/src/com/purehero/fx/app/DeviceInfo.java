@@ -1,4 +1,4 @@
-package com.purehero.app;
+package com.purehero.fx.app;
 
 import com.android.ddmlib.IDevice;
 

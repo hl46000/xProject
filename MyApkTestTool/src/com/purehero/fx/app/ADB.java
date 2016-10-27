@@ -1,4 +1,4 @@
-package com.purehero.app;
+package com.purehero.fx.app;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ public class ADB implements IDeviceChangeListener {
 		this.changeListener = changeListener;
 	}
 	
+	private File adb = null;
 	public boolean Initialize( File adbPath ) {
 		// Get a device bridge instance. Initialize, create and restart.
 		try {
@@ -34,10 +35,11 @@ public class ADB implements IDeviceChangeListener {
 			bridge = AndroidDebugBridge.getBridge();			
 		} catch( Exception e ) {}
 		
+		adb = adbPath;
 		try {
-		if (bridge == null) {		
-			bridge = AndroidDebugBridge.createBridge( adbPath.getAbsolutePath(), false);
-		}
+			if (bridge == null) {		
+				bridge = AndroidDebugBridge.createBridge( adbPath.getAbsolutePath(), false);
+			}
 		} catch( Exception e ) {}
 		
 		AndroidDebugBridge.addDeviceChangeListener(this);
@@ -83,5 +85,17 @@ public class ADB implements IDeviceChangeListener {
 		if( changeListener != null && (IDevice.CHANGE_STATE & changeMask) != 0 ) {
 			changeListener.OnDeviceChangedEvent();
 		}
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getAdbPath() {
+		if( adb != null ) {
+			if( adb.exists()) {
+				return adb.getAbsolutePath();
+			}
+		}
+		return null;
 	}
 }
