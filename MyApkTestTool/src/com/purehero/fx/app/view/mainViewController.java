@@ -58,30 +58,13 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		
 		refresh_device_infos();
 		
-		// 메뉴 항목 중 Check 항목 들은 이미 저장된 값을 읽어 와서 설정해 준다. 
-		PropertyEx prop = MainClass.instance.getProperty();
-		ObservableList<MenuItem> items = SingleFileOption.getItems();
-		for( MenuItem item : items ) {
-			if( item instanceof CheckMenuItem ) {
-				CheckMenuItem ck = ( CheckMenuItem ) item;
-				
-				String val = prop.getValue( "CHECK_MENU_STATUS_" + item.getId());
-				ck.setSelected( val != null && val.compareTo("CHECKED") == 0 ); 
-			}
-		}
-		items = MultiFileOption.getItems();
-		for( MenuItem item : items ) {
-			if( item instanceof CheckMenuItem ) {
-				CheckMenuItem ck = ( CheckMenuItem ) item;
-				
-				String val = prop.getValue( "CHECK_MENU_STATUS_" + item.getId());
-				ck.setSelected( val != null && val.compareTo("CHECKED") == 0 ); 
-			}
-		}
-				
-		prop.save();
+		MenuUtils.loadCheckMenuStatus( SingleFileOption );
+		MenuUtils.loadCheckMenuStatus( MultiFileOption );
 	}
 	
+	/**
+	 * @return
+	 */
 	public List<DeviceInfo> getDevices() {
 		List<DeviceInfo> devices = new ArrayList<DeviceInfo>();
 		for( IDevice device : adb.getDevices()) {
@@ -90,6 +73,9 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		return devices;
 	}
 	
+	/**
+	 * 
+	 */
 	@SuppressWarnings("unchecked")
 	private void refresh_device_infos() {
 		List<DeviceInfo> devices = getDevices();
