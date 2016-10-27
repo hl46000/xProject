@@ -14,6 +14,8 @@ public class DeviceInfo {
 		device = _device;
 	}
 	
+	public IDevice getInterface() { return device; }
+	
 	public String getModelName() 	{ return device.getProperty( IDevice.PROP_DEVICE_MODEL ).toUpperCase(); }
 	public String getSerialNumber() { return device.getSerialNumber(); }
 	public String getOsVersion() 	{ return device.getProperty( IDevice.PROP_BUILD_VERSION ); }

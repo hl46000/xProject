@@ -35,12 +35,12 @@
                   <ContextMenu fx:id="cmDeviceMenu">
                      <items>
                         <MenuItem fx:id="ID_MENU_SELECT_APK_FILE" mnemonicParsing="false" onAction="#handle" text="APK 선택" />
-                        <Menu mnemonicParsing="false" text="옵션선택">
+                        <Menu fx:id="SingleFileOption" mnemonicParsing="false" text="옵션선택">
                            <items>
-                              <CheckMenuItem mnemonicParsing="false" text="APK 서명" />
-                              <CheckMenuItem mnemonicParsing="false" text="APK 삭제" />
-                              <CheckMenuItem mnemonicParsing="false" text="APK 설치" />
-                              <CheckMenuItem mnemonicParsing="false" text="APK 실행" />
+                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
+                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_UNINSTALL" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
+                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_INSTALL" mnemonicParsing="false" onAction="#handle" text="APK 설치" />
+                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_RUNNING" mnemonicParsing="false" onAction="#handle" text="APK 실행" />
                            </items>
                         </Menu>
                         <SeparatorMenuItem mnemonicParsing="false" />
@@ -56,12 +56,12 @@
                   <Menu mnemonicParsing="false" text="APK 파일">
                      <items>
                         <MenuItem mnemonicParsing="false" text="파일선택" />
-                        <Menu mnemonicParsing="false" text="옵션선택">
+                        <Menu fx:id="MultiFileOption" mnemonicParsing="false" text="옵션선택">
                           <items>
-                              <CheckMenuItem mnemonicParsing="false" text="APK 서명" />
-                              <CheckMenuItem mnemonicParsing="false" text="APK 삭제" />
-                              <CheckMenuItem mnemonicParsing="false" text="APK 설치" />
-                              <CheckMenuItem mnemonicParsing="false" text="APK 실행" />
+                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
+                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_UNINSTALL" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
+                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_INSTALL" mnemonicParsing="false" onAction="#handle" text="APK 설치" />
+                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_RUNNING" mnemonicParsing="false" onAction="#handle" text="APK 실행" />
                           </items>
                         </Menu>
                         <SeparatorMenuItem mnemonicParsing="false" />
