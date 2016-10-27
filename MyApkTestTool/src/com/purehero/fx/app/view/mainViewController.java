@@ -5,18 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
-import com.purehero.aos.signapk.SignApk;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.ADB;
-import com.purehero.fx.app.DeviceChangeListener;
-import com.purehero.fx.app.DeviceInfo;
-import com.purehero.fx.app.MainClass;
-import com.purehero.fx.common.CheckBoxTableCellEx;
-import com.purehero.fx.common.DialogUtils;
-import com.purehero.fx.common.MenuUtils;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +23,20 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 import net.dongliu.apk.parser.ApkParser;
+
+import com.android.ddmlib.IDevice;
+import com.android.ddmlib.IShellOutputReceiver;
+import com.android.ddmlib.logcat.LogCatListener;
+import com.android.ddmlib.logcat.LogCatMessage;
+import com.purehero.aos.signapk.SignApk;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.ADB;
+import com.purehero.fx.app.DeviceChangeListener;
+import com.purehero.fx.app.DeviceInfo;
+import com.purehero.fx.app.MainClass;
+import com.purehero.fx.common.CheckBoxTableCellEx;
+import com.purehero.fx.common.DialogUtils;
+import com.purehero.fx.common.MenuUtils;
 
 public class mainViewController implements DeviceChangeListener, EventHandler<ActionEvent> {
 	@FXML
@@ -140,42 +142,70 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 	public void handle(ActionEvent event) {
 		Object obj = event.getSource();
 		if( obj instanceof CheckBoxTableCellEx ) {
-			CheckBoxTableCellEx<?, ?> ckCell = ( CheckBoxTableCellEx<?, ?> ) obj;
-			
-			DeviceInfo deviceInfo = tvDeviceInfo.getItems().get( ckCell.getIndex() );
-			deviceInfo.setSelected( !deviceInfo.getSelected());
-			tvDeviceInfo.refresh();
+			handleCheckBoxTableCellEx( ( CheckBoxTableCellEx<?, ?> ) obj );
 			
 		} else if( obj instanceof CheckBox ) {
-			CheckBox cb = ( CheckBox ) obj;
+			handleCheckBox(( CheckBox ) obj);
 			
-			switch( cb.getId()) {
-			case "ID_CHECKBOX_SELECT_ALL_DEVICE" :
-				boolean isSelected = cb.isSelected();
-				for( DeviceInfo deviceInfo : tvDeviceInfo.getItems() ) {
-					deviceInfo.setSelected( isSelected );
-				}
-				tvDeviceInfo.refresh();					
-				break;
-			}
 		} else if( obj instanceof CheckMenuItem ) {
-			CheckMenuItem ckMenu = ( CheckMenuItem ) obj;
-			PropertyEx prop = MainClass.instance.getProperty();
-			prop.setValue( "CHECK_MENU_STATUS_" + ckMenu.getId(), ckMenu.isSelected() ? "CHECKED" : "" );
-			prop.save();
+			handleCheckMenuItem(( CheckMenuItem ) obj);
 		
 		} else if( obj instanceof MenuItem ) {
-			MenuItem mi = ( MenuItem ) obj;
-			
-			switch( mi.getId()) {
-			case "ID_MENU_OPEN_SHELL" 			: OnButtonClickOpenShell(); break;
-			case "ID_MENU_SELECT_APK_FILE"		: OnButtonClickSelectApkFile(); break;
-			case "ID_MENU_MULTI_APK_FILE"		: OnButtonClickMultiSelectApkFile(); break;
-			}
+			handleMenuItem(( MenuItem ) obj);
 		}
 	}
+		
+	/**
+	 * MenuItem handle event 
+	 * @param mi
+	 */
+	private void handleMenuItem(MenuItem mi) {
+		switch( mi.getId()) {
+		case "ID_MENU_LOGCAT"				: OnButtonClickLogcat(); break;
+		case "ID_MENU_OPEN_SHELL" 			: OnButtonClickOpenShell(); break;
+		case "ID_MENU_SELECT_APK_FILE"		: OnButtonClickSelectApkFile(); break;
+		case "ID_MENU_MULTI_APK_FILE"		: OnButtonClickMultiSelectApkFile(); break;
+		}
+	}
+
 	
-	
+
+	/**
+	 * CheckMenuItem handle event 
+	 * @param ckMenu
+	 */
+	private void handleCheckMenuItem(CheckMenuItem ckMenu) {
+		PropertyEx prop = MainClass.instance.getProperty();
+		prop.setValue( "CHECK_MENU_STATUS_" + ckMenu.getId(), ckMenu.isSelected() ? "CHECKED" : "" );
+		prop.save();
+	}
+
+	/**
+	 * CheckBox handle event 
+	 * @param cb
+	 */
+	private void handleCheckBox(CheckBox cb) {
+		switch( cb.getId()) {
+		case "ID_CHECKBOX_SELECT_ALL_DEVICE" :
+			boolean isSelected = cb.isSelected();
+			for( DeviceInfo deviceInfo : tvDeviceInfo.getItems() ) {
+				deviceInfo.setSelected( isSelected );
+			}
+			tvDeviceInfo.refresh();					
+			break;
+		}
+	}
+
+	/**
+	 * CheckBoxTableCellEx handle event 
+	 * @param ckCell
+	 */
+	private void handleCheckBoxTableCellEx(CheckBoxTableCellEx<?, ?> ckCell) {
+		DeviceInfo deviceInfo = tvDeviceInfo.getItems().get( ckCell.getIndex() );
+		deviceInfo.setSelected( !deviceInfo.getSelected());
+		tvDeviceInfo.refresh();
+	}
+
 	/**
 	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 
 	 * @return
@@ -333,11 +363,34 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		public boolean isCancelled() { return false; }
 	};
 	
+	LogCatListener logcatListener = new LogCatListener() {
+		@Override
+		public void log(List<LogCatMessage> msgList) {
+			for( LogCatMessage msg : msgList) {
+				System.out.println ( msg.toString());
+			}
+		}
+	};
+
+	/**
+	 * 선택된 단말기의 Logcat 정보를 consol 로 출력합니다.  
+	 */
+	private void OnButtonClickLogcat() {
+		final DeviceInfo deviceInfo = getSelectedDeviceInfo();
+		if( deviceInfo == null ) return;
+		
+		if( deviceInfo.isLogcatStarted()) {
+			deviceInfo.stopLogCat();
+		} else {
+			deviceInfo.startLogCat( logcatListener );
+		}
+	}
+	
 	/**
 	 * 선택된 단말기의 Adb shell 창을 띄움니다. 
 	 */
 	private void OnButtonClickOpenShell() {
-		DeviceInfo deviceInfo = getSelectedDeviceInfo();
+		final DeviceInfo deviceInfo = getSelectedDeviceInfo();
 		if( deviceInfo == null ) return;
 				
 		new Thread( new Runnable(){

@@ -37,7 +37,6 @@ public class MainClass extends javafx.application.Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		System.out.println("START");
 		this.primaryStage = primaryStage;
 		
 		Parent mainView = FXMLLoader.load( MainClass.this.getClass().getResource("view/mainView.fxml"));
@@ -46,12 +45,7 @@ public class MainClass extends javafx.application.Application {
 		primaryStage.setResizable(true);
 		primaryStage.show();
 	}
-
-	@Override
-	public void init() throws Exception {
-		System.out.println("INIT");
-	}
-
+	
 	@Override
 	public void stop() throws Exception {
 		System.out.println("STOP");

@@ -46,6 +46,7 @@
                         </Menu>
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="ID_MENU_OPEN_SHELL" mnemonicParsing="false" onAction="#handle" text="Open shell" />
+                        <MenuItem fx:id="ID_MENU_LOGCAT" mnemonicParsing="false" onAction="#handle" text="Logcat" />
                      </items>
                   </ContextMenu>
                </contextMenu>
