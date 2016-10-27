@@ -219,13 +219,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		if( apkFile == null ) return;
 		
 		try {
-			@SuppressWarnings("resource")
-			ApkParser apkParser = new ApkParser( apkFile );
-			final File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk")); 
-			
-			final String packageName 			= apkParser.getApkMeta().getPackageName();;
-			final String launcherActivityName 	= apkParser.getApkMeta().getLauncherActivityName();;
-			
+			final ApkParser apkParser = new ApkParser( apkFile );
 			new Thread( new Runnable(){
 				@Override
 				public void run() {
@@ -234,7 +228,8 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 					// APK 파일 서명은 한번만 하면 되기 때문에 따로 처리 한다. 
 					if( isCheckMenu( MultiFileOption, "APK_SIGN" )) {
 						updateStatusMessage( "APK Signning : " + apkFile.getName() );
-										
+							
+						File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk"));
 						SignApk sign = new SignApk();
 						sign.sign( apkFile, signedApkFile );
 						
@@ -244,7 +239,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 					
 					for( DeviceInfo deviceInfo : deviceInfos ) {
 						// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
-						new ApkFileActionDevice( deviceInfo, tmpFile, packageName, launcherActivityName, MultiFileOption ).start();
+						new ApkFileActionDevice( deviceInfo, tmpFile, apkParser, MultiFileOption ).start();
 					}
 				}}).start();	
 			
@@ -304,20 +299,29 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 	class ApkFileActionDevice extends Thread implements Runnable {
 		final DeviceInfo deviceInfo;
 		final File apkFile;
-		final String packageName;
-		final String launcherActivityName;
+		final ApkParser apkParser;
 		final Menu optionMenu;
 		
-		public ApkFileActionDevice( DeviceInfo deviceInfo, File apkFile, String packageName, String launcherActivityName, Menu optionMenu ) {
+		public ApkFileActionDevice( DeviceInfo deviceInfo, File apkFile, ApkParser apkParser, Menu optionMenu ) {
 			this.deviceInfo = deviceInfo;
 			this.apkFile = apkFile;
-			this.packageName = packageName;
-			this.launcherActivityName = launcherActivityName;
+			this.apkParser = apkParser;
 			this.optionMenu = optionMenu;
 		}
 		
 		@Override
 		public void run() {
+			String packageName = "";
+			String launcherActivityName = "";
+			
+			try {
+				packageName 		 = apkParser.getApkMeta().getPackageName();;
+				launcherActivityName = apkParser.getApkMeta().getLauncherActivityName();;
+			} catch( Exception e ) {
+				e.printStackTrace();
+				return;
+			}
+			
 			if( isCheckMenu( optionMenu, "APK_UNINSTALL" )) {
 				updateDeviceCommant( deviceInfo, "APK Uninstalling", true );
 				try {
@@ -366,13 +370,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		if( apkFile == null ) return;
 		
 		try {
-			@SuppressWarnings("resource")
-			ApkParser apkParser = new ApkParser( apkFile );
-			final File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk")); 
-			
-			final String packageName 			= apkParser.getApkMeta().getPackageName();;
-			final String launcherActivityName 	= apkParser.getApkMeta().getLauncherActivityName();;
-			
+			final ApkParser apkParser = new ApkParser( apkFile );
 			new Thread( new Runnable(){
 				@Override
 				public void run() {
@@ -381,6 +379,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 					if( isCheckMenu( SingleFileOption, "APK_SIGN" )) {
 						updateStatusMessage( "APK Signning : " + apkFile.getName() );
 						
+						File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk"));
 						SignApk sign = new SignApk();
 						sign.sign( apkFile, signedApkFile );
 						
@@ -389,7 +388,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 					}
 					
 					// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
-					new ApkFileActionDevice( deviceInfo, tmpFile, packageName, launcherActivityName, SingleFileOption ).start();					
+					new ApkFileActionDevice( deviceInfo, tmpFile, apkParser, SingleFileOption ).start();					
 				}}).start();	
 			
 		}  catch (Exception e1) {
