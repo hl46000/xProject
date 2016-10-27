@@ -27,6 +27,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
@@ -45,6 +46,9 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 	
 	@FXML
 	private Menu MultiFileOption;		// 멀티 장비 메뉴의 옵션
+	
+	@FXML
+	private Label statusMessage;		// 상태 정보를 출력해주는 Label
 	
 	private ADB adb = null;
 	
@@ -155,6 +159,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 			
 			DeviceInfo deviceInfo = tvDeviceInfo.getItems().get( ckCell.getIndex() );
 			deviceInfo.setSelected( !deviceInfo.getSelected());
+			tvDeviceInfo.refresh();
 			
 		} else if( obj instanceof CheckBox ) {
 			CheckBox cb = ( CheckBox ) obj;
@@ -180,10 +185,75 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 			switch( mi.getId()) {
 			case "ID_MENU_OPEN_SHELL" 			: OnButtonClickOpenShell(); break;
 			case "ID_MENU_SELECT_APK_FILE"		: OnButtonClickSelectApkFile(); break;
+			case "ID_MENU_MULTI_APK_FILE"		: OnButtonClickMultiSelectApkFile(); break;
 			}
 		}
 	}
 	
+	
+	/**
+	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 
+	 * @return
+	 */
+	private List<DeviceInfo> getCheckedDeviceInfo() {
+		List<DeviceInfo> ret = new ArrayList<DeviceInfo>();
+		
+		ObservableList<DeviceInfo> deviceInfoData = tvDeviceInfo.getItems();
+		for( DeviceInfo deviceInfo : deviceInfoData ) {
+			if( deviceInfo.getSelected()) ret.add( deviceInfo );
+		}
+		
+		if( ret.size() < 1 ) {
+			DialogUtils.alert( "INFORMATION", "디바이스가 선택되지 않았습니다. \n디바이스의 체크 버튼을 체크 후에 다시 시도해 주세요.", AlertType.INFORMATION );
+			return null;
+		}
+
+		return ret;
+	}
+	
+	private void OnButtonClickMultiSelectApkFile() {
+		List<DeviceInfo> deviceInfos = getCheckedDeviceInfo();
+		if( deviceInfos == null ) return;
+		
+		final File apkFile = DialogUtils.openDialog( "APK File 선택", "APK File","*.apk");
+		if( apkFile == null ) return;
+		
+		try {
+			@SuppressWarnings("resource")
+			ApkParser apkParser = new ApkParser( apkFile );
+			final File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk")); 
+			
+			final String packageName 			= apkParser.getApkMeta().getPackageName();;
+			final String launcherActivityName 	= apkParser.getApkMeta().getLauncherActivityName();;
+			
+			new Thread( new Runnable(){
+				@Override
+				public void run() {
+					File tmpFile = apkFile;
+					
+					// APK 파일 서명은 한번만 하면 되기 때문에 따로 처리 한다. 
+					if( isCheckMenu( MultiFileOption, "APK_SIGN" )) {
+						updateStatusMessage( "APK Signning : " + apkFile.getName() );
+										
+						SignApk sign = new SignApk();
+						sign.sign( apkFile, signedApkFile );
+						
+						updateStatusMessage( "APK Signed : " + signedApkFile.getName());
+						tmpFile = signedApkFile;
+					}
+					
+					for( DeviceInfo deviceInfo : deviceInfos ) {
+						// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
+						new ApkFileActionDevice( deviceInfo, tmpFile, packageName, launcherActivityName, MultiFileOption ).start();
+					}
+				}}).start();	
+			
+		}  catch (Exception e1) {
+			e1.printStackTrace();			
+		}		
+		
+	}
+
 	Runnable ListUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -191,6 +261,18 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		}
 	};
 	
+	/**
+	 * @param message
+	 */
+	public void updateStatusMessage( final String message ) {
+		Platform.runLater( new Runnable() {
+			@Override
+			public void run() {
+				statusMessage.setText( message );			
+			}
+		});
+	}
+		
 	/**
 	 * 입력된 deviceInfo 항목의 commant 내용을 갱신합니다. Thread 에서도 호출 가능하다. 
 	 * 
@@ -219,6 +301,59 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		return deviceInfo;
 	}
 	
+	class ApkFileActionDevice extends Thread implements Runnable {
+		final DeviceInfo deviceInfo;
+		final File apkFile;
+		final String packageName;
+		final String launcherActivityName;
+		final Menu optionMenu;
+		
+		public ApkFileActionDevice( DeviceInfo deviceInfo, File apkFile, String packageName, String launcherActivityName, Menu optionMenu ) {
+			this.deviceInfo = deviceInfo;
+			this.apkFile = apkFile;
+			this.packageName = packageName;
+			this.launcherActivityName = launcherActivityName;
+			this.optionMenu = optionMenu;
+		}
+		
+		@Override
+		public void run() {
+			if( isCheckMenu( optionMenu, "APK_UNINSTALL" )) {
+				updateDeviceCommant( deviceInfo, "APK Uninstalling", true );
+				try {
+					deviceInfo.getInterface().uninstallPackage( packageName );
+					updateDeviceCommant( deviceInfo, "APK Uninstalled", true );
+				} catch (Exception e) {
+					e.printStackTrace();
+					updateDeviceCommant( deviceInfo, "Failed: APK Uninstall", true );
+					return;
+				}					
+			}
+			if( isCheckMenu( optionMenu, "APK_INSTALL" )) {
+				updateDeviceCommant( deviceInfo, "APK Installing", true );
+				try {
+					deviceInfo.getInterface().installPackage( apkFile.getAbsolutePath(), false );
+					updateDeviceCommant( deviceInfo, "APK Installed", true );
+				} catch (Exception e) {
+					e.printStackTrace();
+					updateDeviceCommant( deviceInfo, "Failed: APK Installed", true );
+					return;
+				}
+				
+			}
+			if( isCheckMenu( optionMenu, "APK_RUNNING" )) {
+				updateDeviceCommant( deviceInfo, "APK Running", true );
+				try {
+					deviceInfo.getInterface().executeShellCommand( String.format( "am start -n '%s/%s'", packageName, launcherActivityName), shellOutputReceiver );						
+				} catch (Exception e) {
+					e.printStackTrace();
+					updateDeviceCommant( deviceInfo, "Failed: APK Running", true );
+					return;
+				}
+			}
+		}
+	};
+	
 	/**
 	 * APK 선택 Dialog 을 띄워 APK 파일을 선택하고, 실행 옵션에 따라서 실행합니다. 
 	 * @throws IOException 
@@ -227,63 +362,34 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		DeviceInfo deviceInfo = getSelectedDeviceInfo();
 		if( deviceInfo == null ) return;
 		
-		File apkFile = DialogUtils.openDialog( "APK File 선택", "APK File","*.apk");
+		final File apkFile = DialogUtils.openDialog( "APK File 선택", "APK File","*.apk");
 		if( apkFile == null ) return;
 		
 		try {
 			@SuppressWarnings("resource")
 			ApkParser apkParser = new ApkParser( apkFile );
-			File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk")); 
+			final File signedApkFile = new File( apkFile.getParentFile(), apkFile.getName().replace( ".apk", "_signed.apk")); 
 			
 			final String packageName 			= apkParser.getApkMeta().getPackageName();;
 			final String launcherActivityName 	= apkParser.getApkMeta().getLauncherActivityName();;
-					
+			
 			new Thread( new Runnable(){
 				@Override
 				public void run() {
-					if( isCheckMenu( SingleFileOption, "ID_CKMENU_SIGNLE_APK_SIGN" )) {
-						updateDeviceCommant( deviceInfo, "APK Signning", true );
-										
+					File tmpFile = apkFile;
+					// APK 파일 서명은 한번만 하면 되기 때문에 따로 처리 한다. 
+					if( isCheckMenu( SingleFileOption, "APK_SIGN" )) {
+						updateStatusMessage( "APK Signning : " + apkFile.getName() );
+						
 						SignApk sign = new SignApk();
 						sign.sign( apkFile, signedApkFile );
 						
-						updateDeviceCommant( deviceInfo, "APK Signed", true );
+						updateStatusMessage( "APK Signed : " + signedApkFile.getName());
+						tmpFile = signedApkFile;
 					}
 					
-					if( isCheckMenu( SingleFileOption, "ID_CKMENU_SIGNLE_APK_UNINSTALL" )) {
-						updateDeviceCommant( deviceInfo, "APK Uninstalling", true );
-						try {
-							deviceInfo.getInterface().uninstallPackage( packageName );
-							updateDeviceCommant( deviceInfo, "Failed: APK Uninstalled", true );
-						} catch (Exception e) {
-							e.printStackTrace();
-							updateDeviceCommant( deviceInfo, "Failed: APK Uninstall", true );
-							return;
-						}					
-					}
-					if( isCheckMenu( SingleFileOption, "ID_CKMENU_SIGNLE_APK_INSTALL" )) {
-						updateDeviceCommant( deviceInfo, "APK Installing", true );
-						try {
-							deviceInfo.getInterface().installPackage( signedApkFile.getAbsolutePath(), false );
-							updateDeviceCommant( deviceInfo, "APK Installed", true );
-						} catch (Exception e) {
-							e.printStackTrace();
-							updateDeviceCommant( deviceInfo, "Failed: APK Installed", true );
-							return;
-						}
-						
-					}
-					if( isCheckMenu( SingleFileOption, "ID_CKMENU_SIGNLE_APK_RUNNING" )) {
-						updateDeviceCommant( deviceInfo, "APK Running", true );
-						try {
-							deviceInfo.getInterface().executeShellCommand( String.format( "am start -n '%s/%s'", packageName, launcherActivityName), shellOutputReceiver );						
-						} catch (Exception e) {
-							e.printStackTrace();
-							updateDeviceCommant( deviceInfo, "Failed: APK Running", true );
-							return;
-						}
-					}
-					
+					// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
+					new ApkFileActionDevice( deviceInfo, tmpFile, packageName, launcherActivityName, SingleFileOption ).start();					
 				}}).start();	
 			
 		}  catch (Exception e1) {
@@ -306,7 +412,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 	};
 	
 	/**
-	 * menu의 하위 메뉴 중 id 값에 해당하는 메뉴가 check 되어 있는지를 확인 합니다. 
+	 * menu의 하위 메뉴 중 id 값에 을로 끝나는 ID을 가지는 메뉴가 check 되어 있는지를 확인 합니다. 
 	 * @param Menu
 	 * @param string
 	 * @return
@@ -314,7 +420,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 	protected boolean isCheckMenu( Menu menu, String id ) {
 		ObservableList<MenuItem> items = menu.getItems();
 		for( MenuItem item : items ) {
-			if( item.getId().compareTo( id ) != 0 ) continue;
+			if( !item.getId().endsWith( id )) continue;
 			
 			if( item instanceof CheckMenuItem ) {
 				CheckMenuItem ck = ( CheckMenuItem ) item;

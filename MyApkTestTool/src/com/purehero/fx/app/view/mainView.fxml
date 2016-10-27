@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -55,7 +56,7 @@
                <menus>
                   <Menu mnemonicParsing="false" text="APK 파일">
                      <items>
-                        <MenuItem mnemonicParsing="false" text="파일선택" />
+                        <MenuItem fx:id="ID_MENU_MULTI_APK_FILE" mnemonicParsing="false" onAction="#handle" text="파일선택" />
                         <Menu fx:id="MultiFileOption" mnemonicParsing="false" text="옵션선택">
                           <items>
                               <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
@@ -88,6 +89,13 @@
                </menus>
             </MenuBar>
          </top>
+         <bottom>
+            <Label fx:id="statusMessage" text="Status message" BorderPane.alignment="CENTER_LEFT">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </Label>
+         </bottom>
       </BorderPane>
    </children>
 </AnchorPane>
