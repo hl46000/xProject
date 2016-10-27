@@ -24,15 +24,11 @@ public class MainClass extends javafx.application.Application {
 	private Stage primaryStage = null;
 	
 	private ADB adb = new ADB();
-	private AAPT aapt = new AAPT();
 	public MainClass() {
 		ClassLoader clsLoader = getClass().getClassLoader();
 		
 		File adbPath = FileUtils.extractFileFromJar( clsLoader, "adb/adb.exe", GetTempPath());
 		adb.Initialize( adbPath );
-		
-		File aaptPath = FileUtils.extractFileFromJar( clsLoader, "aapt/aapt.exe", GetTempPath());
-		aapt.Initialize( aaptPath );
 	}
 
 	private File GetTempPath() {
