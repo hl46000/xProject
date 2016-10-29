@@ -11,12 +11,17 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -31,6 +36,7 @@ import com.android.ddmlib.logcat.LogCatMessage;
 import com.purehero.aos.signapk.SignApk;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.ADB;
+import com.purehero.fx.app.CircularList;
 import com.purehero.fx.app.DeviceChangeListener;
 import com.purehero.fx.app.DeviceInfo;
 import com.purehero.fx.app.MainClass;
@@ -49,19 +55,34 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 	private Menu MultiFileOption;		// 멀티 장비 메뉴의 옵션
 	
 	@FXML
+	private Menu menuDeviceTestPath;	// Device 테스트 경로 메뉴
+	
+	@FXML
 	private Label statusMessage;		// 상태 정보를 출력해주는 Label
+	
+	@FXML
+	private TabPane workTabPane;
 	
 	private ADB adb = null;
 	
 	@FXML
     public void initialize() throws Exception {
-		adb = MainClass.instance.getADB(); 
-		adb.setDeviceChangeListener( this );
-		
-		refresh_device_infos();
-		
 		MenuUtils.loadCheckMenuStatus( SingleFileOption );
 		MenuUtils.loadCheckMenuStatus( MultiFileOption );
+		MenuUtils.loadPathMenuText( menuDeviceTestPath );
+		
+		Parent deviceTestView = FXMLLoader.load( getClass().getResource("work/deviceTestView.fxml"));
+		Tab tab = new Tab();
+		tab.setText("Device Test");
+		tab.setContent( deviceTestView );
+		workTabPane.getTabs().add(tab);
+	}
+	
+	public void setADB( ADB adb ) {
+		this.adb = adb;
+		adb.setDeviceChangeListener( this );
+		
+		OnDeviceChangedEvent();
 	}
 	
 	/**
@@ -165,10 +186,44 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		case "ID_MENU_OPEN_SHELL" 			: OnButtonClickOpenShell(); break;
 		case "ID_MENU_SELECT_APK_FILE"		: OnButtonClickSelectApkFile(); break;
 		case "ID_MENU_MULTI_APK_FILE"		: OnButtonClickMultiSelectApkFile(); break;
+		case "ID_MENU_DEVICE_TEST_APK_PATH"	: OnButtonClickPathMenuItem("APK 모니터링 경로", mi ); break;
+		case "ID_MENU_DEVICE_TEST_LOG_PATH"	: OnButtonClickPathMenuItem("테스트 로그파일 경로", mi ); break;
+		case "ID_MENU_DEVICE_TEST_OUT_PATH"	: OnButtonClickPathMenuItem("테스트 결과파일 경로", mi ); break;
+		case "ID_MENU_DEVICE_TEST_OPTIONS"	: ONButtonClickDeviceTestOptions(); break;
 		}
 	}
 
 	
+
+	private void ONButtonClickDeviceTestOptions() {
+		try {
+			DialogUtils.showResDialog("view/testView.fxml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param title
+	 */
+	private void OnButtonClickPathMenuItem( String title, MenuItem menuItem ) {
+		File result = DialogUtils.openDirectoryDialog( title );
+		if( result == null ) return;
+		
+		ButtonType confirmation = DialogUtils.alert( "경로 변경 확인", String.format( "'%s' 를\n\n'%s' 로 변경 하시겠습니까?\n\n", title, result.getAbsolutePath()), AlertType.CONFIRMATION );
+		if( confirmation != ButtonType.OK && confirmation != ButtonType.YES ) return;
+
+		PropertyEx prop = MainClass.instance.getProperty();
+		prop.setValue( menuItem.getId(), result.getAbsolutePath());
+		prop.save();
+		
+		MenuUtils.addMenuTitle( menuDeviceTestPath, menuItem.getId(), result.getAbsolutePath() );
+		// Do somethings ~
+		
+		DialogUtils.alert( "경로 변경", String.format( "'%s' 가 \n\n'%s' 로 변경 되었습니다.\n\n", title, result.getAbsolutePath()), AlertType.INFORMATION );
+	}
 
 	/**
 	 * CheckMenuItem handle event 
@@ -230,7 +285,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		List<DeviceInfo> deviceInfos = getCheckedDeviceInfo();
 		if( deviceInfos == null ) return;
 		
-		final File apkFile = DialogUtils.openDialog( "APK File 선택", "APK File","*.apk");
+		final File apkFile = DialogUtils.openFileDialog( "APK File 선택", "APK File","*.apk");
 		if( apkFile == null ) return;
 		
 		try {
@@ -327,7 +382,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		DeviceInfo deviceInfo = getSelectedDeviceInfo();
 		if( deviceInfo == null ) return;
 		
-		final File apkFile = DialogUtils.openDialog( "APK File 선택", "APK File","*.apk");
+		final File apkFile = DialogUtils.openFileDialog( "APK File 선택", "APK File","*.apk");
 		if( apkFile == null ) return;
 		
 		try {
@@ -367,7 +422,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		@Override
 		public void log(List<LogCatMessage> msgList) {
 			for( LogCatMessage msg : msgList) {
-				System.out.println ( msg.toString());
+				System.out.println ( msg.toString() );
 			}
 		}
 	};
@@ -380,9 +435,14 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		if( deviceInfo == null ) return;
 		
 		if( deviceInfo.isLogcatStarted()) {
-			deviceInfo.stopLogCat();
+			deviceInfo.logCatStop();
+			List<String> logcatVal = deviceInfo.getLogCatMessages();
+			int i = 0;
+			for( String s : logcatVal ) {
+				System.out.printf ( "[%5d] %s\n", i++, s );
+			}
 		} else {
-			deviceInfo.startLogCat( logcatListener );
+			deviceInfo.logCatStart( logcatListener );
 		}
 	}
 	

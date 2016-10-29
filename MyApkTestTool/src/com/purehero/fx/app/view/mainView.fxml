@@ -5,102 +5,106 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="255.0" prefWidth="1033.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.mainViewController">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.mainViewController">
    <children>
-      <BorderPane prefHeight="255.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <center>
-            <TableView fx:id="tvDeviceInfo" focusTraversable="false" BorderPane.alignment="CENTER">
-               <columnResizePolicy>
-                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-               </columnResizePolicy>
-               <columns>
-                  <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" sortable="false">
-                     <graphic>
-                        <CheckBox fx:id="ID_CHECKBOX_SELECT_ALL_DEVICE" mnemonicParsing="false" onAction="#handle">
-                           <tooltip>
-                              <Tooltip text="디바이스를 모두 선택하거나 모두 해제합니다." />
-                           </tooltip>
-                        </CheckBox>
-                     </graphic>
-                  </TableColumn>
-                  <TableColumn editable="false" maxWidth="183.0" minWidth="-Infinity" prefWidth="53.0" sortable="false" text="모델명" />
-                  <TableColumn editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="100.0" sortable="false" text="시리얼번호" />
-                  <TableColumn editable="false" maxWidth="90.0" minWidth="-Infinity" prefWidth="155.0" sortable="false" text="버전" />
-                  <TableColumn editable="false" maxWidth="80.0" prefWidth="70.0" sortable="false" text="배터리" />
-                  <TableColumn editable="false" maxWidth="160.0" minWidth="-Infinity" prefWidth="91.0" sortable="false" text="연결상태" />
-                  <TableColumn editable="false" maxWidth="60.0" minWidth="-Infinity" prefWidth="91.0" sortable="false" text="Count" />
-                  <TableColumn editable="false" maxWidth="60.0" minWidth="-Infinity" prefWidth="91.0" sortable="false" text="Error" />
-                  <TableColumn editable="false" maxWidth="315.0" minWidth="250.0" prefWidth="315.0" sortable="false" text="비고" />
-               </columns>
-               <contextMenu>
-                  <ContextMenu fx:id="cmDeviceMenu">
-                     <items>
-                        <MenuItem fx:id="ID_MENU_SELECT_APK_FILE" mnemonicParsing="false" onAction="#handle" text="APK 선택" />
-                        <Menu fx:id="SingleFileOption" mnemonicParsing="false" text="옵션선택">
+      <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="518.0" prefWidth="962.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <BorderPane>
+               <center>
+                  <TableView fx:id="tvDeviceInfo" focusTraversable="false" prefHeight="150.0" prefWidth="960.0" BorderPane.alignment="CENTER">
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                     <columns>
+                        <TableColumn maxWidth="30.0" minWidth="30.0" prefWidth="30.0" sortable="false">
+                           <graphic>
+                              <CheckBox fx:id="ID_CHECKBOX_SELECT_ALL_DEVICE" mnemonicParsing="false" onAction="#handle">
+                                 <tooltip>
+                                    <Tooltip text="디바이스를 모두 선택하거나 모두 해제합니다." />
+                                 </tooltip>
+                              </CheckBox>
+                           </graphic>
+                        </TableColumn>
+                        <TableColumn editable="false" maxWidth="183.0" minWidth="-Infinity" prefWidth="53.0" sortable="false" text="모델명" />
+                        <TableColumn editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="100.0" sortable="false" text="시리얼번호" />
+                        <TableColumn editable="false" maxWidth="90.0" minWidth="-Infinity" prefWidth="155.0" sortable="false" text="버전" />
+                        <TableColumn editable="false" maxWidth="80.0" prefWidth="70.0" sortable="false" text="배터리" />
+                        <TableColumn editable="false" maxWidth="160.0" minWidth="-Infinity" prefWidth="91.0" sortable="false" text="연결상태" />
+                        <TableColumn editable="false" maxWidth="60.0" minWidth="-Infinity" prefWidth="91.0" sortable="false" text="Count" />
+                        <TableColumn editable="false" maxWidth="60.0" minWidth="-Infinity" prefWidth="91.0" sortable="false" text="Error" />
+                        <TableColumn editable="false" maxWidth="315.0" minWidth="250.0" prefWidth="315.0" sortable="false" text="비고" />
+                     </columns>
+                     <contextMenu>
+                        <ContextMenu fx:id="cmDeviceMenu">
                            <items>
-                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
-                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_UNINSTALL" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
-                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_INSTALL" mnemonicParsing="false" onAction="#handle" text="APK 설치" />
-                              <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_RUNNING" mnemonicParsing="false" onAction="#handle" text="APK 실행" />
+                              <MenuItem fx:id="ID_MENU_SELECT_APK_FILE" mnemonicParsing="false" onAction="#handle" text="APK 선택" />
+                              <Menu fx:id="SingleFileOption" mnemonicParsing="false" text="옵션선택">
+                                 <items>
+                                    <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
+                                    <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_UNINSTALL" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
+                                    <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_INSTALL" mnemonicParsing="false" onAction="#handle" text="APK 설치" />
+                                    <CheckMenuItem fx:id="ID_CKMENU_SIGNLE_APK_RUNNING" mnemonicParsing="false" onAction="#handle" text="APK 실행" />
+                                 </items>
+                              </Menu>
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="ID_MENU_OPEN_SHELL" mnemonicParsing="false" onAction="#handle" text="Open shell" />
+                              <MenuItem fx:id="ID_MENU_LOGCAT" mnemonicParsing="false" onAction="#handle" text="Logcat" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </TableView>
+               </center>
+               <top>
+                  <MenuBar BorderPane.alignment="CENTER">
+                     <menus>
+                        <Menu mnemonicParsing="false" text="APK 파일">
+                           <items>
+                              <MenuItem fx:id="ID_MENU_MULTI_APK_FILE" mnemonicParsing="false" onAction="#handle" text="파일선택" />
+                              <Menu fx:id="MultiFileOption" mnemonicParsing="false" text="옵션선택">
+                                <items>
+                                    <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
+                                    <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_UNINSTALL" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
+                                    <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_INSTALL" mnemonicParsing="false" onAction="#handle" text="APK 설치" />
+                                    <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_RUNNING" mnemonicParsing="false" onAction="#handle" text="APK 실행" />
+                                </items>
+                              </Menu>
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem mnemonicParsing="false" text="종료" />
                            </items>
                         </Menu>
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="ID_MENU_OPEN_SHELL" mnemonicParsing="false" onAction="#handle" text="Open shell" />
-                        <MenuItem fx:id="ID_MENU_LOGCAT" mnemonicParsing="false" onAction="#handle" text="Logcat" />
-                     </items>
-                  </ContextMenu>
-               </contextMenu>
-            </TableView>
-         </center>
-         <top>
-            <MenuBar BorderPane.alignment="CENTER">
-               <menus>
-                  <Menu mnemonicParsing="false" text="APK 파일">
-                     <items>
-                        <MenuItem fx:id="ID_MENU_MULTI_APK_FILE" mnemonicParsing="false" onAction="#handle" text="파일선택" />
-                        <Menu fx:id="MultiFileOption" mnemonicParsing="false" text="옵션선택">
-                          <items>
-                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_SIGN" mnemonicParsing="false" onAction="#handle" text="APK 서명" />
-                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_UNINSTALL" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
-                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_INSTALL" mnemonicParsing="false" onAction="#handle" text="APK 설치" />
-                              <CheckMenuItem fx:id="ID_CKMENU_MULTI_APK_RUNNING" mnemonicParsing="false" onAction="#handle" text="APK 실행" />
-                          </items>
-                        </Menu>
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="종료" />
-                     </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="테스트">
-                     <items>
-                        <Menu mnemonicParsing="false" text="경로 설정">
+                        <Menu mnemonicParsing="false" text="테스트">
                            <items>
-                              <MenuItem mnemonicParsing="false" text="APK 경로[IN]" />
-                              <MenuItem mnemonicParsing="false" text="로그 경로[OUT]" />
-                              <MenuItem mnemonicParsing="false" text="출력 경로[OUT]" />
+                              <Menu fx:id="menuDeviceTestPath" mnemonicParsing="false" text="경로 설정">
+                                 <items>
+                                    <MenuItem fx:id="ID_MENU_DEVICE_TEST_APK_PATH" mnemonicParsing="false" onAction="#handle" text="APK 모니터링 경로" />
+                                    <MenuItem fx:id="ID_MENU_DEVICE_TEST_LOG_PATH" mnemonicParsing="false" onAction="#handle" text="로그 경로[OUT]" />
+                                    <MenuItem fx:id="ID_MENU_DEVICE_TEST_OUT_PATH" mnemonicParsing="false" onAction="#handle" text="출력 경로[OUT]" />
+                                 </items>
+                              </Menu>
                            </items>
                         </Menu>
-                        <MenuItem mnemonicParsing="false" text="테스트 옵션설정" />
-                     </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="도움말">
-                     <items>
-                        <MenuItem fx:id="ID_MENU_LIST_REPLACE" mnemonicParsing="false" onAction="#handle" text="단말기 목록 갱신" />
-                     </items>
-                  </Menu>
-               </menus>
-            </MenuBar>
-         </top>
-         <bottom>
-            <BorderPane BorderPane.alignment="CENTER">
+                        <Menu mnemonicParsing="false" text="도움말">
+                           <items>
+                              <MenuItem fx:id="ID_MENU_LIST_REPLACE" mnemonicParsing="false" onAction="#handle" text="단말기 목록 갱신" />
+                           </items>
+                        </Menu>
+                     </menus>
+                  </MenuBar>
+               </top>
+            </BorderPane>
+            <BorderPane>
                <bottom>
-                  <Label fx:id="statusMessage" text="Status message" BorderPane.alignment="CENTER_LEFT">
+                  <Label fx:id="statusMessage" maxWidth="1.7976931348623157E308" style="-fx-background-color: DARKGRAY;" text="Status message" BorderPane.alignment="CENTER_LEFT">
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
                   </Label>
                </bottom>
+               <center>
+                  <TabPane fx:id="workTabPane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
+               </center>
             </BorderPane>
-         </bottom>
-      </BorderPane>
+         </items>
+      </SplitPane>
    </children>
 </AnchorPane>

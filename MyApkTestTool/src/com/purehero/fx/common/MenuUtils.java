@@ -44,4 +44,38 @@ public class MenuUtils {
 			}
 		}
 	}
+	
+	/**
+	 * @param menu
+	 * @param id
+	 * @param msg
+	 */
+	public static void addMenuTitle( Menu menu, String id, String msg ) {
+		ObservableList<MenuItem> items = menu.getItems();
+		for( MenuItem item : items ) {
+			if( !item.getId().endsWith( id )) continue;
+			
+			String text =  item.getText();
+			String token [] = text.split(":");
+			
+			item.setText( token[0] +": " + msg );
+		}
+	}
+
+	/**
+	 * 메뉴 항목 중 설정된 경로를 표시해야 할 경우 이미 저장된 값을 읽어 와서 설정해 준다.
+	 * 
+	 * @param menu
+	 */
+	public static void loadPathMenuText(Menu menu) {
+		PropertyEx prop = MainClass.instance.getProperty();
+		
+		ObservableList<MenuItem> items = menu.getItems();
+		for( MenuItem item : items ) {
+			String path = prop.getValue( item.getId());
+			if( path != null ) {
+				addMenuTitle( menu, item.getId(), path );
+			}
+		}
+	}
 }

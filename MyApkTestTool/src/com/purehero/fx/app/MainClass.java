@@ -6,6 +6,7 @@ import java.io.IOException;
 import com.purehero.common.io.FileUtils;
 import com.purehero.common.io.PathUtils;
 import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.view.mainViewController;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -39,7 +40,12 @@ public class MainClass extends javafx.application.Application {
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
 		
-		Parent mainView = FXMLLoader.load( MainClass.this.getClass().getResource("view/mainView.fxml"));
+		FXMLLoader mainViewLoader = new FXMLLoader(MainClass.this.getClass().getResource("view/mainView.fxml"));
+		Parent mainView = mainViewLoader.load();
+		
+		mainViewController ctrl = (mainViewController) mainViewLoader.getController();
+		ctrl.setADB(adb);
+		
 		Scene scene = new Scene( mainView, -1, -1, Color.WHITE);		
 		primaryStage.setScene( scene );
 		primaryStage.setResizable(true);
@@ -48,7 +54,6 @@ public class MainClass extends javafx.application.Application {
 	
 	@Override
 	public void stop() throws Exception {
-		System.out.println("STOP");
 		adb.Release();
 	}
 		

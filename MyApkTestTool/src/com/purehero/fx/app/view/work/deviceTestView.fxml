@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.work.deviceTestViewController">
+   <children>
+      <Label layoutX="89.0" layoutY="141.0" text="Label" />
+      <CheckBox layoutX="65.0" layoutY="200.0" mnemonicParsing="false" text="CheckBox" />
+      <TextField layoutX="144.0" layoutY="137.0" />
+      <Button layoutX="328.0" layoutY="137.0" mnemonicParsing="false" text="Button" />
+   </children>
+</AnchorPane>
