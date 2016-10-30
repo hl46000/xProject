@@ -1,4 +1,4 @@
-package com.purehero.fx.app;
+package com.purehero.android;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.logcat.LogCatListener;
 import com.android.ddmlib.logcat.LogCatMessage;
 import com.android.ddmlib.logcat.LogCatReceiverTask;
+import com.purehero.common.io.CircularList;
 
 public class LogCat {
 	private LogCatReceiverTask logcatTask;

@@ -2,7 +2,7 @@ package com.purehero.fx.app.view;
 
 import java.io.File;
 
-import com.purehero.fx.app.DeviceInfo;
+import com.purehero.android.DeviceInfo;
 import com.purehero.fx.common.MenuUtils;
 
 import javafx.scene.control.Menu;

@@ -1,4 +1,4 @@
-package com.purehero.fx.app;
+package com.purehero.android;
 
 import java.util.List;
 

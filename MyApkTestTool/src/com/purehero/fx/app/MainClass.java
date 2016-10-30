@@ -3,6 +3,7 @@ package com.purehero.fx.app;
 import java.io.File;
 import java.io.IOException;
 
+import com.purehero.android.ADB;
 import com.purehero.common.io.FileUtils;
 import com.purehero.common.io.PathUtils;
 import com.purehero.common.io.PropertyEx;

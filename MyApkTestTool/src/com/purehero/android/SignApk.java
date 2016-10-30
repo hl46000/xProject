@@ -14,7 +14,7 @@
  * limitations under the License. 
  */
  
-package com.purehero.aos.signapk; 
+package com.purehero.android; 
  
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
