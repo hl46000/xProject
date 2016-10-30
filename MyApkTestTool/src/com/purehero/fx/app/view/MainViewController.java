@@ -39,11 +39,12 @@ import com.purehero.android.DeviceInfo;
 import com.purehero.android.SignApk;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.work.DeviceTestViewController;
 import com.purehero.fx.common.CheckBoxTableCellEx;
 import com.purehero.fx.common.DialogUtils;
 import com.purehero.fx.common.MenuUtils;
 
-public class mainViewController implements DeviceChangeListener, EventHandler<ActionEvent> {
+public class MainViewController implements DeviceChangeListener, EventHandler<ActionEvent> {
 	@FXML
 	private TableView<DeviceInfo> tvDeviceInfo;
 	
@@ -70,11 +71,15 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		MenuUtils.loadCheckMenuStatus( MultiFileOption );
 		MenuUtils.loadPathMenuText( menuDeviceTestPath );
 		
-		Parent deviceTestView = FXMLLoader.load( getClass().getResource("work/deviceTestView.fxml"));
+		FXMLLoader deviceTestViewLoader = new FXMLLoader( getClass().getResource("work/DeviceTestView.fxml")); 
+		Parent deviceTestView = deviceTestViewLoader.load();
 		Tab tab = new Tab();
 		tab.setText("Device Test");
 		tab.setContent( deviceTestView );
 		workTabPane.getTabs().add(tab);
+		
+		DeviceTestViewController deviceTestViewController = ( DeviceTestViewController ) deviceTestViewLoader.getController();
+		deviceTestViewController.startService();
 	}
 	
 	public void setADB( ADB adb ) {
@@ -109,7 +114,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 		tcCheckBox.setCellFactory( new Callback<TableColumn<DeviceInfo, Boolean>, TableCell<DeviceInfo, Boolean>>() {
             public TableCell<DeviceInfo, Boolean> call(TableColumn<DeviceInfo, Boolean> p) {
             	CheckBoxTableCellEx<DeviceInfo, Boolean> ckCell = new CheckBoxTableCellEx<DeviceInfo, Boolean>(); 
-            	ckCell.setOnAction( mainViewController.this );
+            	ckCell.setOnAction( MainViewController.this );
             	return ckCell;
             }
         });
@@ -295,7 +300,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 					File tmpFile = apkFileSign( MultiFileOption, apkFile );
 					for( DeviceInfo deviceInfo : deviceInfos ) {
 						// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
-						new ApkFileActionDevice( mainViewController.this, deviceInfo, tmpFile, apkParser, MultiFileOption ).start();
+						new ApkFileActionDevice( MainViewController.this, deviceInfo, tmpFile, apkParser, MultiFileOption ).start();
 					}
 				}}).start();	
 			
@@ -392,7 +397,7 @@ public class mainViewController implements DeviceChangeListener, EventHandler<Ac
 					File tmpFile = apkFileSign( SingleFileOption, apkFile );
 					
 					// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
-					new ApkFileActionDevice( mainViewController.this, deviceInfo, tmpFile, apkParser, SingleFileOption ).start();					
+					new ApkFileActionDevice( MainViewController.this, deviceInfo, tmpFile, apkParser, SingleFileOption ).start();					
 				}}).start();	
 			
 		}  catch (Exception e1) {

@@ -2,12 +2,7 @@ package com.purehero.fx.app;
 
 import java.io.File;
 import java.io.IOException;
-
-import com.purehero.android.ADB;
-import com.purehero.common.io.FileUtils;
-import com.purehero.common.io.PathUtils;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.view.mainViewController;
+import java.util.ArrayList;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,6 +10,12 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
+import com.purehero.android.ADB;
+import com.purehero.common.io.FileUtils;
+import com.purehero.common.io.PathUtils;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.view.MainViewController;
 
 public class MainClass extends javafx.application.Application {
 	public static MainClass instance = null;
@@ -44,7 +45,7 @@ public class MainClass extends javafx.application.Application {
 		FXMLLoader mainViewLoader = new FXMLLoader(MainClass.this.getClass().getResource("view/mainView.fxml"));
 		Parent mainView = mainViewLoader.load();
 		
-		mainViewController ctrl = (mainViewController) mainViewLoader.getController();
+		MainViewController ctrl = (MainViewController) mainViewLoader.getController();
 		ctrl.setADB(adb);
 		
 		Scene scene = new Scene( mainView, -1, -1, Color.WHITE);		
@@ -53,8 +54,16 @@ public class MainClass extends javafx.application.Application {
 		primaryStage.show();
 	}
 	
+	ArrayList<IRelease> i_releases = new ArrayList<IRelease>(); 
+	public void addReleaseInterface( IRelease release_interface ) {
+		i_releases.add( release_interface );
+	}
+	
 	@Override
 	public void stop() throws Exception {
+		for( IRelease if_release : i_releases ) {
+			if_release.Release();
+		}
 		adb.Release();
 	}
 		

@@ -9,13 +9,13 @@ import javafx.scene.control.Menu;
 import net.dongliu.apk.parser.ApkParser;
 
 public class ApkFileActionDevice extends Thread implements Runnable {
-	final mainViewController parent;
+	final MainViewController parent;
 	final DeviceInfo deviceInfo;
 	final File apkFile;
 	final ApkParser apkParser;
 	final Menu optionMenu;
 	
-	public ApkFileActionDevice( mainViewController parent, DeviceInfo deviceInfo, File apkFile, ApkParser apkParser, Menu optionMenu ) {
+	public ApkFileActionDevice( MainViewController parent, DeviceInfo deviceInfo, File apkFile, ApkParser apkParser, Menu optionMenu ) {
 		this.parent = parent;
 		this.deviceInfo = deviceInfo;
 		this.apkFile = apkFile;

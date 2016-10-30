@@ -1,12 +1,5 @@
 package com.purehero.android;
 
-import java.util.List;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 import com.android.ddmlib.IDevice;
 
 public class DeviceInfo extends LogCat {
@@ -31,21 +24,21 @@ public class DeviceInfo extends LogCat {
 		return 0;
 	}
 
-	private BooleanProperty selected = new SimpleBooleanProperty(false);
-	public Boolean getSelected() { return selected.get(); }
-	public void setSelected(Boolean selected) { this.selected.set( selected ); }
+	private boolean selected = false;
+	public Boolean getSelected() { return selected; }
+	public void setSelected(Boolean selected) { this.selected = selected; }
 	
-	private SimpleStringProperty commant = new SimpleStringProperty("idle");
-	public String getCommant() { return commant.get(); }
-	public void setCommant( String _commant ) { this.commant.set( _commant ); }
+	private String commant = "idle";
+	public String getCommant() { return commant; }
+	public void setCommant( String _commant ) { this.commant = _commant; }
 	
 	// 카운트
-	private SimpleIntegerProperty count = new SimpleIntegerProperty(0);
-	public int getCount() { return count.get(); }
-	public void setCount( int _count ) { this.count.set( _count ); }
+	private int count = 0;
+	public int getCount() { return count; }
+	public void setCount( int _count ) { this.count = _count; }
 	
 	// 오류 카운트
-	private SimpleIntegerProperty errorCount = new SimpleIntegerProperty(0);
-	public int getErrorCount() { return errorCount.get(); }
-	public void setErrorCount( int _errorCount ) { this.errorCount.set( _errorCount ); }
+	private int errorCount = 0;
+	public int getErrorCount() { return errorCount; }
+	public void setErrorCount( int _errorCount ) { this.errorCount = _errorCount; }
 }
