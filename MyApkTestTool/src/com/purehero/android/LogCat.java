@@ -45,9 +45,10 @@ public class LogCat {
 	 * LogCat 수집을 정지 합니다. 
 	 */
 	public void logCatStop() {
+		logcatTask.removeLogCatListener( internal_logcatListener );
 		if( logCatListener != null ) {
 			logcatTask.removeLogCatListener( logCatListener );
-		}
+		}		
 		logcatTask.stop();
 		logcatTask = null;
 	}

@@ -56,10 +56,19 @@ public class MainClass extends javafx.application.Application {
 	}
 	
 	private static List<IRelease> i_releases = new ArrayList<IRelease>();	// i_releases 객체가 static 이 아니면 stop 함수에서 정상적으로 처리가 되지 않는다.  
+	/**
+	 * Application 이 종료될때 리소스 해제등이 필요한 경우을 위해 Release 함수를 호출해 주는 interface 을 등록 합니다. 
+	 * 
+	 * @param release_interface
+	 */
 	public void addReleaseInterface( IRelease release_interface ) {
 		i_releases.add( release_interface );
 	}
 	
+	/** 
+	 * Application 이 종료될때 호출되는 함수
+	 * @see javafx.application.Application#stop()
+	 */
 	@Override
 	public void stop() throws Exception {
 		for( IRelease if_release : i_releases ) {

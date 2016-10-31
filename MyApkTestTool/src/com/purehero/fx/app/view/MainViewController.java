@@ -38,13 +38,14 @@ import com.purehero.android.DeviceChangeListener;
 import com.purehero.android.DeviceInfo;
 import com.purehero.android.SignApk;
 import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.IRelease;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.work.DeviceTestViewController;
 import com.purehero.fx.common.CheckBoxTableCellEx;
 import com.purehero.fx.common.DialogUtils;
 import com.purehero.fx.common.MenuUtils;
 
-public class MainViewController implements DeviceChangeListener, EventHandler<ActionEvent> {
+public class MainViewController implements DeviceChangeListener, EventHandler<ActionEvent>, IRelease {
 	@FXML
 	private TableView<DeviceInfo> tvDeviceInfo;
 	
@@ -67,6 +68,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	
 	@FXML
     public void initialize() throws Exception {
+		initTableView();
+		
 		MenuUtils.loadCheckMenuStatus( SingleFileOption );
 		MenuUtils.loadCheckMenuStatus( MultiFileOption );
 		MenuUtils.loadPathMenuText( menuDeviceTestPath );
@@ -80,8 +83,25 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		
 		DeviceTestViewController deviceTestViewController = ( DeviceTestViewController ) deviceTestViewLoader.getController();
 		deviceTestViewController.startService();
+		
+		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	@Override
+	public void Release() {
+		List<DeviceInfo> devices = getDevices();
+		for( DeviceInfo device : devices ) {
+			if( device.isLogcatStarted()) {
+				device.logCatStop();
+			}
+		}
+	}
+	
+	/**
+	 * ADB 객체를 사용할 수 있도록 받아오고, 장비의 변경을 감지하는 Listener 을 설정 합니다. 
+	 * 
+	 * @param adb
+	 */
 	public void setADB( ADB adb ) {
 		this.adb = adb;
 		adb.setDeviceChangeListener( this );
@@ -90,6 +110,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
+	 * 현재 PC에 연결된 Android 장치들의 정보를 반환합니다. ADB로 연결이 되어 있어야 합니다. 
+	 * 
 	 * @return
 	 */
 	public List<DeviceInfo> getDevices() {
@@ -100,13 +122,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		return devices;
 	}
 	
-	/**
-	 * 
-	 */
 	@SuppressWarnings("unchecked")
-	private void refresh_device_infos() {
-		List<DeviceInfo> devices = getDevices();
-
+	private void initTableView() {
 		int column_index = 0;
 		
 		TableColumn<DeviceInfo, Boolean> tcCheckBox	= (TableColumn<DeviceInfo, Boolean>) tvDeviceInfo.getColumns().get(column_index++);
@@ -127,6 +144,13 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		IntegerTableColumn	( tvDeviceInfo, "count", 		"CENTER", column_index++ );		// 실행 횟수
 		IntegerTableColumn	( tvDeviceInfo, "errorCount", 	"CENTER", column_index++ );		// 오류발생 횟수
 		StringTableColumn	( tvDeviceInfo, "commant", 		"CENTER", column_index++ );		// 비고
+	}
+	
+	/**
+	 * ADB에 연결된 장치 정보를 얻어와 tableView 의 내용을 갱신 시킴니다.  
+	 */
+	private void refresh_device_infos() {
+		List<DeviceInfo> devices = getDevices();
 		
 		ObservableList<DeviceInfo> deviceInfoData = FXCollections.observableArrayList( devices );		
 		tvDeviceInfo.setItems( deviceInfoData );
