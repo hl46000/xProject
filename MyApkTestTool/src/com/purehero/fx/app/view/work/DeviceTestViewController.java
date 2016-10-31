@@ -1,15 +1,20 @@
 package com.purehero.fx.app.view.work;
 
 import java.io.File;
+import java.io.IOException;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -19,6 +24,7 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.IRelease;
 import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.MainViewController;
 import com.purehero.fx.common.DialogUtils;
 
 public class DeviceTestViewController implements EventHandler<ActionEvent>, IRelease{
@@ -28,10 +34,18 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	
 	@FXML
 	private TextField tfDeviceTestOutputPath;
+
+	@FXML
+	private Accordion testContainer;
 	
 	FileAlterationObserver observer = null;
     FileAlterationMonitor monitor = null;
 	
+	/**
+	 * DeviceTestViewController 을 초기화 하는 함수 입니다. 
+	 * 
+	 * @throws Exception
+	 */
 	@FXML
     public void initialize() throws Exception {
 		TextField textFields[] = { tfDeviceTestApkPath, tfDeviceTestOutputPath };
@@ -46,6 +60,9 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.purehero.fx.app.IRelease#Release()
+	 */
 	@Override
 	public void Release() {
 		stopService();
@@ -60,15 +77,56 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		}
 	}
 
+	/**
+	 * ActionEvent 에서 click event 을 처리하는 함수 입니다. 
+	 * 
+	 * @param obj
+	 */
 	private void OnClickHandler(Object obj) {
 		Control ctrl = ( Control ) obj;
 		switch( ctrl.getId()) {
 		case "ID_BUTTON_SELECT_DEVICE_TEST_APK_PATH" 	: OnClickSelectDeviceTestPath( "APK 모니터링 경로", tfDeviceTestApkPath ); startService(); break;
 		case "ID_BUTTON_SELECT_DEVICE_TEST_OUTPUT_PATH" : OnClickSelectDeviceTestPath( "테스트 결과파일 경로", tfDeviceTestOutputPath ); break;
+		case "ID_BUTTON_ADD_TEST_VIEW"					: OnClickAddTestView(); break;
 		}
 		
 	}
 
+	/**
+	 * testContainer 에 testView 을 추가 합니다. 
+	 */
+	private void OnClickAddTestView() {
+		FXMLLoader testViewLoader = new FXMLLoader( getClass().getResource("TestView.fxml")); 
+		try {
+			Parent testView = testViewLoader.load();
+			
+			TitledPane tp = new TitledPane();
+			tp.setText( String.format( "%d 번째 테스트", testContainer.getPanes().size() + 1 ));
+			tp.setContent( testView );
+			testContainer.getPanes().add( tp );
+
+			TestViewController testViewController = ( TestViewController ) testViewLoader.getController();
+			testViewController.setParentTitledPane( tp );
+			testViewController.setDeviceTestViewController( this );
+			
+		} catch (IOException e) {			
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * @param tp
+	 */
+	public void removeTestView( TitledPane tp ) {
+		testContainer.getPanes().remove( tp );
+	}
+
+	/**
+	 * Device Test 관련 경로를 변경할 때 호출되는 함수 입니다. 
+	 * 
+	 * @param title
+	 * @param textField
+	 */
 	private void OnClickSelectDeviceTestPath( String title, TextField textField ) {
 		File result = DialogUtils.openDirectoryDialog( title );
 		if( result == null ) return;
@@ -85,6 +143,9 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		DialogUtils.alert( "경로 변경", String.format( "'%s' 가 \n\n'%s' 로 변경 되었습니다.\n\n", title, result.getAbsolutePath()), AlertType.INFORMATION );
 	}
 
+	/**
+	 * 서비스를 중단 합니다. 
+	 */
 	private void stopService() {
 		if( monitor != null && observer != null ) {
 			monitor.removeObserver( observer );
@@ -109,6 +170,9 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		}
 	}
 	
+	/**
+	 * APK Path 에 APK 파일이 생성되면 테스트를 진행하는 Service 을 시작 합니다. 
+	 */
 	public void startService() {
 		File apkFolder = new File( tfDeviceTestApkPath.getText());
 		if( !apkFolder.exists()) {
@@ -127,6 +191,14 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
         try { monitor.start(); } catch (Exception e) { e.printStackTrace(); }
 	}
 	
+	MainViewController mainViewController = null;
+	public void setMainViewController(MainViewController mainViewController) {
+		this.mainViewController = mainViewController;
+	}
+	
+	/**
+	 * APK Path에 APK 파일의 생성을 감지하는 Listener 입니다. 
+	 */
 	FileAlterationListener fileMonitorListener = new FileAlterationListenerAdaptor() {
 		@Override
 		public void onFileCreate(File file) {

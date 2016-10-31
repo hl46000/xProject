@@ -82,6 +82,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		workTabPane.getTabs().add(tab);
 		
 		DeviceTestViewController deviceTestViewController = ( DeviceTestViewController ) deviceTestViewLoader.getController();
+		deviceTestViewController.setMainViewController( this );
 		deviceTestViewController.startService();
 		
 		MainClass.instance.addReleaseInterface( this );
