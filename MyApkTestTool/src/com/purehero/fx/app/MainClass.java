@@ -3,6 +3,7 @@ package com.purehero.fx.app;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -54,7 +55,7 @@ public class MainClass extends javafx.application.Application {
 		primaryStage.show();
 	}
 	
-	ArrayList<IRelease> i_releases = new ArrayList<IRelease>(); 
+	private static List<IRelease> i_releases = new ArrayList<IRelease>();	// i_releases 객체가 static 이 아니면 stop 함수에서 정상적으로 처리가 되지 않는다.  
 	public void addReleaseInterface( IRelease release_interface ) {
 		i_releases.add( release_interface );
 	}
