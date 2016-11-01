@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
 <?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -17,13 +16,13 @@
             </Label>
          </left>
          <center>
-            <TextField BorderPane.alignment="CENTER" />
+            <TextField fx:id="tfTestTitle" BorderPane.alignment="CENTER" />
          </center>
          <padding>
             <Insets bottom="5.0" left="10.0" right="5.0" top="10.0" />
          </padding>
          <right>
-            <Button mnemonicParsing="false" text="적용" BorderPane.alignment="CENTER" />
+            <Button fx:id="ID_BUTTON_TEST_TITLE_APPLY" mnemonicParsing="false" onAction="#handle" text="적용" BorderPane.alignment="CENTER" />
          </right>
       </BorderPane>
    </top>
@@ -37,7 +36,7 @@
                         <HBox alignment="CENTER_LEFT">
                            <children>
                               <Label text="반복회수 : " />
-                              <TextField alignment="CENTER" prefWidth="100.0" />
+                              <TextField fx:id="tfTestRepeatCount" alignment="CENTER" prefWidth="100.0" text="30" />
                            </children>
                         </HBox>
                      </children>
@@ -50,25 +49,25 @@
             <Separator orientation="VERTICAL" />
             <VBox spacing="5.0">
                <children>
-                  <CheckBox mnemonicParsing="false" text="APK Install" />
-                  <CheckBox disable="true" mnemonicParsing="false" selected="true" text="Application Running" />
+                  <CheckBox fx:id="cbApkInstall" mnemonicParsing="false" text="APK Install" />
+                  <CheckBox fx:id="cbAppRunning" disable="true" mnemonicParsing="false" selected="true" text="Application Running" />
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
-                        <CheckBox mnemonicParsing="false" selected="true" text="시간 지연 : " />
-                        <TextField alignment="CENTER" prefWidth="100.0" />
-                        <Label text="ms" />
+                        <CheckBox fx:id="cbRunningDelayTime" mnemonicParsing="false" selected="true" text="시간 지연 : " />
+                        <TextField fx:id="tfRunningDelayTime" alignment="CENTER" prefWidth="100.0" text="15" />
+                        <Label text="(초)" />
                      </children>
                   </HBox>
-                  <CheckBox mnemonicParsing="false" text="Log Save" />
-                  <CheckBox disable="true" mnemonicParsing="false" selected="true" text="Application Exit" />
+                  <CheckBox fx:id="cbLogSave" mnemonicParsing="false" selected="true" text="Log Save" />
+                  <CheckBox fx:id="cbAppExit" disable="true" mnemonicParsing="false" selected="true" text="Application Exit" />
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
-                        <CheckBox mnemonicParsing="false" selected="true" text="시간 지연 : " />
-                        <TextField alignment="CENTER" prefWidth="100.0" />
-                        <Label text="ms" />
+                        <CheckBox fx:id="cbExitDelayTime" mnemonicParsing="false" selected="true" text="시간 지연 : " />
+                        <TextField fx:id="tfExitDelayTime" alignment="CENTER" prefWidth="100.0" text="5" />
+                        <Label text="(초)" />
                      </children>
                   </HBox>
-                  <CheckBox mnemonicParsing="false" text="APK Uninstall" />
+                  <CheckBox fx:id="cbApkUninstall" mnemonicParsing="false" text="APK Uninstall" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="10.0" right="5.0" top="10.0" />
@@ -80,13 +79,13 @@
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <Label text="테스트 회수 : " />
-                        <TextField alignment="CENTER" prefWidth="100.0" />
+                        <TextField fx:id="tfTestCount" alignment="CENTER" prefWidth="100.0" text="0" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <Label text="오 류  회 수 : " />
-                        <TextField alignment="CENTER" prefWidth="100.0" />
+                        <TextField fx:id="tfErrorCount" alignment="CENTER" prefWidth="100.0" text="0" />
                      </children>
                   </HBox>
                </children>

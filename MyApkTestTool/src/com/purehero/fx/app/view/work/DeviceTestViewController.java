@@ -3,6 +3,7 @@ package com.purehero.fx.app.view.work;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -26,6 +27,7 @@ import com.purehero.fx.app.IRelease;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.MainViewController;
 import com.purehero.fx.common.DialogUtils;
+import com.purehero.fx.control.ex.TitledPaneEx;
 
 public class DeviceTestViewController implements EventHandler<ActionEvent>, IRelease{
 	
@@ -100,15 +102,16 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		try {
 			Parent testView = testViewLoader.load();
 			
-			TitledPane tp = new TitledPane();
+			TitledPaneEx tp = new TitledPaneEx();
 			tp.setText( String.format( "%d 번째 테스트", testContainer.getPanes().size() + 1 ));
 			tp.setContent( testView );
 			testContainer.getPanes().add( tp );
-
+			
 			TestViewController testViewController = ( TestViewController ) testViewLoader.getController();
 			testViewController.setParentTitledPane( tp );
 			testViewController.setDeviceTestViewController( this );
 			
+			tp.setController( testViewController );
 		} catch (IOException e) {			
 			e.printStackTrace();
 		}
@@ -202,7 +205,21 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	FileAlterationListener fileMonitorListener = new FileAlterationListenerAdaptor() {
 		@Override
 		public void onFileCreate(File file) {
-			System.out.println( file.getAbsolutePath());
+			ObservableList<TitledPane> panes = testContainer.getPanes();
+			for( TitledPane pane : panes ) {
+				TitledPaneEx paneEx = ( TitledPaneEx ) pane;
+				testContainer.setExpandedPane( paneEx );
+				
+				TestViewController testViewController = ( TestViewController ) paneEx.getController();
+				testViewController.clear();
+								
+				try {
+					testViewController.runTesting( mainViewController );
+				} catch (Exception e) {
+					e.printStackTrace();
+				}				
+			}
+			testContainer.setExpandedPane( null );
 		}
     };
 }

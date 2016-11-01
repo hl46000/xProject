@@ -41,9 +41,9 @@ import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.IRelease;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.work.DeviceTestViewController;
-import com.purehero.fx.common.CheckBoxTableCellEx;
 import com.purehero.fx.common.DialogUtils;
 import com.purehero.fx.common.MenuUtils;
+import com.purehero.fx.control.ex.CheckBoxTableCellEx;
 
 public class MainViewController implements DeviceChangeListener, EventHandler<ActionEvent>, IRelease {
 	@FXML
@@ -192,7 +192,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	public void handle(ActionEvent event) {
 		Object obj = event.getSource();
 		if( obj instanceof CheckBoxTableCellEx ) {
-			handleCheckBoxTableCellEx( ( CheckBoxTableCellEx<?, ?> ) obj );
+			handleCheckBoxTableCellEx( (com.purehero.fx.control.ex.CheckBoxTableCellEx<?, ?> ) obj );
 			
 		} else if( obj instanceof CheckBox ) {
 			handleCheckBox(( CheckBox ) obj);
@@ -294,7 +294,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 
 	 * @return
 	 */
-	private List<DeviceInfo> getCheckedDeviceInfo() {
+	public List<DeviceInfo> getCheckedDeviceInfo() {
 		List<DeviceInfo> ret = new ArrayList<DeviceInfo>();
 		
 		ObservableList<DeviceInfo> deviceInfoData = tvDeviceInfo.getItems();
@@ -303,7 +303,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		}
 		
 		if( ret.size() < 1 ) {
-			DialogUtils.alert( "INFORMATION", "디바이스가 선택되지 않았습니다. \n디바이스의 체크 버튼을 체크 후에 다시 시도해 주세요.", AlertType.INFORMATION );
+			DialogUtils.alertThread( "INFORMATION", "디바이스가 선택되지 않았습니다. \n디바이스의 체크 버튼을 체크 후에 다시 시도해 주세요.", AlertType.INFORMATION );
 			return null;
 		}
 
@@ -385,7 +385,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	public void updateDeviceCommant( DeviceInfo deviceInfo, String commant, boolean listUpdate ) {
 		deviceInfo.setCommant( commant );
 		if( listUpdate ) {
-			Platform.runLater( ListUpdateRunnable );	
+			Platform.runLater( ListUpdateRunnable );
 		}
 	}
 	
@@ -394,7 +394,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	 * 
 	 * @return
 	 */
-	private DeviceInfo getSelectedDeviceInfo() {
+	public DeviceInfo getSelectedDeviceInfo() {
 		DeviceInfo deviceInfo = tvDeviceInfo.getSelectionModel().getSelectedItem();
 		if( deviceInfo == null ) {
 			DialogUtils.alert( "INFORMATION", "디바이스가 선택되지 않았습니다. \n디바이스를 선택 후 다시 시도해 주세요.", AlertType.INFORMATION );

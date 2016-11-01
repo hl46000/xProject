@@ -1,4 +1,4 @@
-package com.purehero.fx.common;
+package com.purehero.fx.control.ex;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;

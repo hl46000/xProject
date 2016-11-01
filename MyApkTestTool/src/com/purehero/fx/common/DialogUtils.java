@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.MainClass;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -36,6 +37,19 @@ public class DialogUtils {
 		alert.setContentText( message );
 		
 		return alert.showAndWait().get();
+	}
+	
+	public static void alertThread( String title, String message, AlertType type ) {
+		Platform.runLater( new Runnable(){
+			@Override
+			public void run() {
+				Alert alert = new Alert( type );
+				alert.setTitle( title );
+				alert.setHeaderText(null);
+				alert.setContentText( message );
+				
+				alert.showAndWait().get();
+			}} );
 	}
 		
 	/**
