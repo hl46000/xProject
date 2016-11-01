@@ -41,6 +41,7 @@ public class LogCat {
 				bIsLogcatStarted = false;
 			}}).start();
 	}
+	
 	/**
 	 * LogCat 수집을 정지 합니다. 
 	 */
@@ -49,6 +50,7 @@ public class LogCat {
 		if( logCatListener != null ) {
 			logcatTask.removeLogCatListener( logCatListener );
 		}		
+		
 		logcatTask.stop();
 		logcatTask = null;
 	}
@@ -83,7 +85,7 @@ public class LogCat {
 		public void log(List<LogCatMessage> msgList) {
 			for( LogCatMessage msg : msgList) {
 				logCatBuffer.add( msg.toString() );
-			}
+			};
 		}
 	};
 	
