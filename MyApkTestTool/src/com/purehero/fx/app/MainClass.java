@@ -14,6 +14,7 @@ import javafx.stage.Window;
 
 import com.purehero.android.ADB;
 import com.purehero.common.io.FileUtils;
+import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PathUtils;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.view.MainViewController;

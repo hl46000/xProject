@@ -37,8 +37,8 @@ import com.purehero.android.ADB;
 import com.purehero.android.DeviceChangeListener;
 import com.purehero.android.DeviceInfo;
 import com.purehero.android.SignApk;
+import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.IRelease;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.work.DeviceTestViewController;
 import com.purehero.fx.common.DialogUtils;
@@ -88,8 +88,13 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	private boolean bReleased = false;
+	public boolean isReleased() { return bReleased; } 
+	
 	@Override
 	public void Release() {
+		bReleased = true;
+		
 		List<DeviceInfo> devices = getDevices();
 		for( DeviceInfo device : devices ) {
 			if( device.isLogcatStarted()) {
@@ -437,7 +442,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 
 		@Override
 		public void addOutput(byte[] data, int offset, int length) {
-			System.out.println( new String( data, offset, length ));
+			System.out.println( "1" + new String( data, offset, length ));
 		}
 
 		@Override
@@ -451,7 +456,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		@Override
 		public void log(List<LogCatMessage> msgList) {
 			for( LogCatMessage msg : msgList) {
-				System.out.println ( msg.toString() );
+				System.out.println ( "2" + msg.toString() );
 			}
 		}
 	};

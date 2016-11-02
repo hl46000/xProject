@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert.AlertType;
+import net.dongliu.apk.parser.ApkParser;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
@@ -22,8 +23,8 @@ import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
+import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.IRelease;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.MainViewController;
 import com.purehero.fx.common.DialogUtils;
@@ -205,8 +206,20 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	FileAlterationListener fileMonitorListener = new FileAlterationListenerAdaptor() {
 		@Override
 		public void onFileCreate(File file) {
+			System.out.println( "fileMonitorListener::onFileCreate = " + file.getAbsolutePath());
+			
+			ApkParser apkParser = null;
+			try {
+				apkParser = new ApkParser( file );
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				return;
+			}
+						
 			ObservableList<TitledPane> panes = testContainer.getPanes();
 			for( TitledPane pane : panes ) {
+				if( mainViewController.isReleased()) return;
+				
 				TitledPaneEx paneEx = ( TitledPaneEx ) pane;
 				testContainer.setExpandedPane( paneEx );
 				
@@ -214,7 +227,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				testViewController.clear();
 								
 				try {
-					testViewController.runTesting( mainViewController );
+					testViewController.runTesting( mainViewController, apkParser, file );
 				} catch (Exception e) {
 					e.printStackTrace();
 				}				

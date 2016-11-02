@@ -29,8 +29,10 @@ public class LogCat {
 	public void logCatStart( LogCatListener listener ) {
 		logcatTask = new LogCatReceiverTask(device);
 		logcatTask.addLogCatListener( internal_logcatListener );
-		logcatTask.addLogCatListener( listener );
-		logCatListener = listener;
+		if( listener != null ) {
+			logcatTask.addLogCatListener( listener );
+			logCatListener = listener;
+		}
 		
 		new Thread( new Runnable(){
 			@Override

@@ -1,5 +1,7 @@
 package com.purehero.fx.app.view.work;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import net.dongliu.apk.parser.ApkParser;
+import net.dongliu.apk.parser.bean.ApkMeta;
 
 public class TestViewController implements EventHandler<ActionEvent>{
 	
@@ -59,7 +63,7 @@ public class TestViewController implements EventHandler<ActionEvent>{
 	
 	
 	/**
-	 *  
+	 * Controller 초기화 함수
 	 * 
 	 * @throws Exception
 	 */
@@ -104,18 +108,21 @@ public class TestViewController implements EventHandler<ActionEvent>{
 		tfTestTitle.setText( parentTitledPane.getText() );
 	}
 
+	/**
+	 * 테스트를 위해 필요한 값들을 초기화 시킴니다. 
+	 */
 	public void clear() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void runTesting(MainViewController mainViewController) throws Exception {
+	public void runTesting(MainViewController mainViewController, ApkParser apkParser, File apkFile) throws Exception {
 		List<DeviceInfo> deviceInfos = mainViewController.getCheckedDeviceInfo();
 		if( deviceInfos == null ) return;
 		
 		List<DeviceTestRunner> testRunners = new ArrayList<DeviceTestRunner>(); 
 		for( DeviceInfo deviceInfo : deviceInfos ) {
-			DeviceTestRunner testRunner = new DeviceTestRunner( mainViewController, deviceInfo );
+			DeviceTestRunner testRunner = new DeviceTestRunner( mainViewController, deviceInfo, apkParser, apkFile );
 			testRunners.add( testRunner );
 			testRunner.start();
 		}
@@ -126,6 +133,9 @@ public class TestViewController implements EventHandler<ActionEvent>{
 		}
 	}
 	
+	/**
+	 * 테스트의 진행 횟수 카운트를 증가 시킴
+	 */
 	private Runnable TestCountIncrementRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -134,35 +144,96 @@ public class TestViewController implements EventHandler<ActionEvent>{
 		}
 	};
 	
+	/**
+	 * 테스트의 오류 카운트를 증가 시킴
+	 */
+	private Runnable TestErrorCountIncrementRunnable = new Runnable() {
+		@Override
+		public void run() {
+			int value = Integer.valueOf( tfErrorCount.getText());
+			tfErrorCount.setText( String.format( "%d", value + 1 ));						
+		}
+	};
+	
+	/**
+	 * 테스트를 담당하는 Thread class
+	 * 
+	 * @author purehero
+	 *
+	 */
 	class DeviceTestRunner extends Thread implements Runnable {
+		final int nRepeatCount 		= Integer.valueOf( tfTestRepeatCount.getText());
+		final int runningDelayTime 	= Integer.valueOf( tfRunningDelayTime.getText() );
+		final int exitDelayTime 	= Integer.valueOf( tfExitDelayTime.getText() );
+		final boolean bInstall		= cbApkInstall.isSelected();
+		final boolean bRunning		= cbAppRunning.isSelected();
+		final boolean bRunningDelay	= cbRunningDelayTime.isSelected();
+		final boolean bTerminate	= cbAppExit.isSelected();
+		final boolean bExitDelay	= cbExitDelayTime.isSelected();
+		final boolean bUninstall	= cbApkUninstall.isSelected();
+		final boolean bLogSave		= cbLogSave.isSelected();
+		
 		final MainViewController mainViewController;
 		final DeviceInfo deviceInfo;
-		
-		int nRepeatCount 		= Integer.valueOf( tfTestRepeatCount.getText());
-		int runningDelayTime 	= Integer.valueOf( tfRunningDelayTime.getText() );
-		int exitDelayTime 		= Integer.valueOf( tfExitDelayTime.getText() );
-		boolean bInstall		= cbApkInstall.isSelected();
-		boolean bUninstall		= cbApkUninstall.isSelected();
-		boolean bRunningDelay	= cbRunningDelayTime.isSelected();
-		boolean bExitDelay		= cbExitDelayTime.isSelected();
-		
-		public DeviceTestRunner( MainViewController mainViewController, DeviceInfo deviceInfo ) {
+		final ApkParser apkParser;
+		final File apkFile;
+		public DeviceTestRunner( MainViewController mainViewController, DeviceInfo deviceInfo, ApkParser apkParser, File apkFile ) {
 			this.mainViewController = mainViewController;
 			this.deviceInfo = deviceInfo;
+			this.apkParser	= apkParser;
+			this.apkFile	= apkFile;
 		}
 		
 		@Override
 		public void run() {
-			for( int count = 0; count < nRepeatCount; count++ ) {
+			ApkMeta apkMeta = null;
+			try {
+				apkMeta = apkParser.getApkMeta();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+				return;
+			}
+			
+			final String packageName 			= apkMeta.getPackageName();			// APK 파일의 package name
+			final String appLabel 				= apkMeta.getLabel();				// APK 파일의 App name
+			final String launcherActivityName 	= apkMeta.getLauncherActivityName();// APK 파일의 Launcher activity name
+			
+			boolean bTestFailed = false;
+			for( int count = 0; count < nRepeatCount && !mainViewController.isReleased(); count++ ) {
+				bTestFailed = false;	// 기본값 성공
+				
+				////////////////////////////////////////////// 테스트 앱 설치 ////////////////////////////////////////////
 				if( bInstall ) {
-					mainViewController.updateDeviceCommant(deviceInfo, "APK Installing", true );
-					
-					mainViewController.updateDeviceCommant(deviceInfo, "APK Installed", true );
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치 합니다.", appLabel ), true );
+					try {
+						deviceInfo.getInterface().installPackage( apkFile.getAbsolutePath(), false );						
+					} catch (Exception e) {
+						mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+						return;
+					}
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치완료", appLabel ), true );
+				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
+				
+				////////////////////////////////////////////// 테스트 앱 실행 ////////////////////////////////////////////
+				if( bRunning ) {
+					mainViewController.updateDeviceCommant( deviceInfo, String.format( "'%s' 앱 실행", appLabel ), true );
+					if( bLogSave ) {	// LogCat 저장 옵션이 켜져있으면 앱 시작 전에 LogCat 수집을 활성화 시킨다. 
+						deviceInfo.logCatStart( null );	// LogCat 이 시작되면 Clear 을 먼저 수행한 이후 부터의 데이터만 수집한다. 
+					}
+					try {
+						deviceInfo.getInterface().executeShellCommand( String.format( "am start -n '%s/%s'", packageName, launcherActivityName), mainViewController.shellOutputReceiver );						
+					} catch (Exception e) {
+						mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+						return;
+					}
 				}
 				
+				////////////////////////////////////////////// 테스트 앱 실행 후 대기 시간 ////////////////////////////////////////////
 				if( bRunningDelay ) {
 					for( int i = 0; i < runningDelayTime; i++ ) {
-						mainViewController.updateDeviceCommant(deviceInfo, String.format( "Remaining waiting time %d(s)", runningDelayTime - i ), true );
+						if( mainViewController.isReleased()) break;		// 앱 종료 확인
+						mainViewController.updateDeviceCommant(deviceInfo, String.format( "앱 실행 후 대기 중...남은 시간 %d(s)", runningDelayTime - i ), true );
 						try {
 							Thread.sleep( 1000 );
 						} catch (InterruptedException e) {
@@ -170,11 +241,38 @@ public class TestViewController implements EventHandler<ActionEvent>{
 						}
 					}
 				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				
 				
+				////////////////////////////////////////////// 로그 저장 ////////////////////////////////////////////
+				if( bLogSave ) { 
+					deviceInfo.logCatStop();
+					List<String> logCatLines = deviceInfo.getLogCatMessages();
+					
+					// LogCat 메세지 내용을 확인한다. 오류가 있으면
+					bTestFailed = true;	// 테스트 실패
+					
+					// 저장 경로를 설정한다. 
+					
+				}
+				
+				////////////////////////////////////////////// 테스트 앱 실행 종료 ////////////////////////////////////////////
+				if( bTerminate ) {
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 앱을 종료 합니다.", appLabel ), true );
+					try {
+						deviceInfo.getInterface().executeShellCommand( String.format( "am force-stop %s", packageName ), mainViewController.shellOutputReceiver );						
+						deviceInfo.getInterface().executeShellCommand( String.format( "am kill %s", packageName ), mainViewController.shellOutputReceiver );
+					} catch (Exception e) {
+						mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+						return;
+					}
+				}
+								
+				//////////////////////////////////////////// 앱 종료 후 대기 시간 ////////////////////////////////////////////
 				if( bExitDelay ) {
 					for( int i = 0; i < exitDelayTime; i++ ) {
-						mainViewController.updateDeviceCommant(deviceInfo, String.format( "Remaining waiting time %d(s)", exitDelayTime - i ), true );
+						if( mainViewController.isReleased()) break;		// 앱 종료 확인
+						mainViewController.updateDeviceCommant(deviceInfo, String.format( "앱 종료 후 대기 중...남은 시간 %d(s)", exitDelayTime - i ), true );
 						try {
 							Thread.sleep( 1000 );
 						} catch (InterruptedException e) {
@@ -182,19 +280,31 @@ public class TestViewController implements EventHandler<ActionEvent>{
 						}
 					}
 				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				
+				//////////////////////////////////////////// 테스트 앱 삭제 ////////////////////////////////////////////
 				if( bUninstall ) {
-					mainViewController.updateDeviceCommant(deviceInfo, "APK Uninstalling", true );
-					
-					mainViewController.updateDeviceCommant(deviceInfo, "APK Uninstalled", true );
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제", appLabel ), true );
+					try {
+						deviceInfo.getInterface().uninstallPackage( packageName );
+					} catch (Exception e) {
+						mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+						return;
+					}
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제 완료", appLabel ), true );
+				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
+				
+				// TEST COUNT INCREMENT
+				deviceInfo.setCount( deviceInfo.getCount() + 1 );				// 단말 목록의 테스트 카운트 증가
+				if( bTestFailed ) {
+					deviceInfo.setErrorCount( deviceInfo.getErrorCount() + 1 );	// 단말 목록의 오류 카운트 증가
+					Platform.runLater( TestErrorCountIncrementRunnable );		// 오류 카운트 증가
 				}
 				
-				deviceInfo.setCount( deviceInfo.getCount() + 1 );
-				mainViewController.updateDeviceCommant(deviceInfo, "Test done", true );
-				
-				Platform.runLater( TestCountIncrementRunnable );
+				mainViewController.updateDeviceCommant(deviceInfo, "Test done", true ); // 단말 목록 UI 갱신
+				Platform.runLater( TestCountIncrementRunnable );				// 테스트 카운트 증가
 			}
-		
 		}
 	}
 }
