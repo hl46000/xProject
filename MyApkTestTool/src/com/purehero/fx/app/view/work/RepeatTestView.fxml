@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.work.TestViewController">
+<BorderPane maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.work.RepeatTestViewController">
    <top>
       <BorderPane maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
          <left>
@@ -50,19 +50,46 @@
             <VBox spacing="5.0">
                <children>
                   <CheckBox fx:id="cbApkInstall" mnemonicParsing="false" text="APK Install" />
-                  <CheckBox fx:id="cbAppRunning" disable="true" mnemonicParsing="false" selected="true" text="Application Running" />
+                  <CheckBox fx:id="cbAppRunning" mnemonicParsing="false" selected="true" text="Application Running" />
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
-                        <CheckBox fx:id="cbRunningDelayTime" mnemonicParsing="false" selected="true" text="시간 지연 : " />
+                        <CheckBox fx:id="cbRunningDelayTime" mnemonicParsing="false" selected="true" text="시간 지연 : ">
+                           <tooltip>
+                              <Tooltip text="앱을 실행 후 대기 시간" />
+                           </tooltip></CheckBox>
                         <TextField fx:id="tfRunningDelayTime" alignment="CENTER" prefWidth="100.0" text="15" />
                         <Label text="(초)" />
                      </children>
                   </HBox>
-                  <CheckBox fx:id="cbLogSave" mnemonicParsing="false" selected="true" text="Log Save" />
-                  <CheckBox fx:id="cbAppExit" disable="true" mnemonicParsing="false" selected="true" text="Application Exit" />
+                  <HBox>
+                     <children>
+                        <CheckBox fx:id="cbLogSave" mnemonicParsing="false" selected="true" text="Log Save">
+                           <HBox.margin>
+                              <Insets right="15.0" />
+                           </HBox.margin>
+                        </CheckBox>
+                        <RadioButton mnemonicParsing="false" selected="true" text="ALL">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="LogSaveType" />
+                           </toggleGroup>
+                           <tooltip>
+                              <Tooltip text="정상로그와 오류로그 모두 저장" />
+                           </tooltip>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" text="Only Error" toggleGroup="$LogSaveType">
+                           <tooltip>
+                              <Tooltip text="오류로그만 저장" />
+                           </tooltip>
+                        </RadioButton>
+                     </children>
+                  </HBox>
+                  <CheckBox fx:id="cbAppExit" mnemonicParsing="false" selected="true" text="Application Exit" />
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
-                        <CheckBox fx:id="cbExitDelayTime" mnemonicParsing="false" selected="true" text="시간 지연 : " />
+                        <CheckBox fx:id="cbExitDelayTime" mnemonicParsing="false" selected="true" text="시간 지연 : ">
+                           <tooltip>
+                              <Tooltip text="앱 종료 후 대기 시간" />
+                           </tooltip></CheckBox>
                         <TextField fx:id="tfExitDelayTime" alignment="CENTER" prefWidth="100.0" text="5" />
                         <Label text="(초)" />
                      </children>

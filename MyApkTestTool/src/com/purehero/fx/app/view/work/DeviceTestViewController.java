@@ -99,7 +99,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	 * testContainer 에 testView 을 추가 합니다. 
 	 */
 	private void OnClickAddTestView() {
-		FXMLLoader testViewLoader = new FXMLLoader( getClass().getResource("TestView.fxml")); 
+		FXMLLoader testViewLoader = new FXMLLoader( getClass().getResource("RepeatTestView.fxml")); 
 		try {
 			Parent testView = testViewLoader.load();
 			
@@ -108,7 +108,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 			tp.setContent( testView );
 			testContainer.getPanes().add( tp );
 			
-			TestViewController testViewController = ( TestViewController ) testViewLoader.getController();
+			RepeatTestViewController testViewController = ( RepeatTestViewController ) testViewLoader.getController();
 			testViewController.setParentTitledPane( tp );
 			testViewController.setDeviceTestViewController( this );
 			
@@ -215,7 +215,10 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				e1.printStackTrace();
 				return;
 			}
-						
+			
+			File output_folder = new File( tfDeviceTestOutputPath.getText());
+			if( !output_folder.exists()) output_folder.mkdirs();
+			
 			ObservableList<TitledPane> panes = testContainer.getPanes();
 			for( TitledPane pane : panes ) {
 				if( mainViewController.isReleased()) return;
@@ -223,11 +226,11 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				TitledPaneEx paneEx = ( TitledPaneEx ) pane;
 				testContainer.setExpandedPane( paneEx );
 				
-				TestViewController testViewController = ( TestViewController ) paneEx.getController();
+				RepeatTestViewController testViewController = ( RepeatTestViewController ) paneEx.getController();
 				testViewController.clear();
 								
 				try {
-					testViewController.runTesting( mainViewController, apkParser, file );
+					testViewController.runTesting( mainViewController, apkParser, file, output_folder );
 				} catch (Exception e) {
 					e.printStackTrace();
 				}				

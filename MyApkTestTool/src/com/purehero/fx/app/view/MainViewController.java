@@ -388,7 +388,9 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	 * @param listUpdate
 	 */
 	public void updateDeviceCommant( DeviceInfo deviceInfo, String commant, boolean listUpdate ) {
-		deviceInfo.setCommant( commant );
+		if( commant != null ){
+			deviceInfo.setCommant( commant );
+		}
 		if( listUpdate ) {
 			Platform.runLater( ListUpdateRunnable );
 		}
@@ -442,7 +444,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 
 		@Override
 		public void addOutput(byte[] data, int offset, int length) {
-			System.out.println( "1" + new String( data, offset, length ));
+			//System.out.println( "1" + new String( data, offset, length ));
 		}
 
 		@Override
@@ -455,9 +457,11 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	LogCatListener logcatListener = new LogCatListener() {
 		@Override
 		public void log(List<LogCatMessage> msgList) {
+			/*
 			for( LogCatMessage msg : msgList) {
-				System.out.println ( "2" + msg.toString() );
+				System.out.println ( msg.toString() );
 			}
+			*/
 		}
 	};
 

@@ -2,8 +2,12 @@ package com.purehero.fx.app.view.work;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import com.purehero.android.DeviceInfo;
 import com.purehero.fx.app.view.MainViewController;
@@ -20,7 +24,7 @@ import javafx.scene.control.TitledPane;
 import net.dongliu.apk.parser.ApkParser;
 import net.dongliu.apk.parser.bean.ApkMeta;
 
-public class TestViewController implements EventHandler<ActionEvent>{
+public class RepeatTestViewController implements EventHandler<ActionEvent>{
 	
 	@FXML
 	private TextField tfTestTitle;			// test title text field
@@ -116,13 +120,13 @@ public class TestViewController implements EventHandler<ActionEvent>{
 		
 	}
 
-	public void runTesting(MainViewController mainViewController, ApkParser apkParser, File apkFile) throws Exception {
+	public void runTesting(MainViewController mainViewController, ApkParser apkParser, File apkFile, File output_folder) throws Exception {
 		List<DeviceInfo> deviceInfos = mainViewController.getCheckedDeviceInfo();
 		if( deviceInfos == null ) return;
 		
 		List<DeviceTestRunner> testRunners = new ArrayList<DeviceTestRunner>(); 
 		for( DeviceInfo deviceInfo : deviceInfos ) {
-			DeviceTestRunner testRunner = new DeviceTestRunner( mainViewController, deviceInfo, apkParser, apkFile );
+			DeviceTestRunner testRunner = new DeviceTestRunner( mainViewController, deviceInfo, apkParser, apkFile, output_folder );
 			testRunners.add( testRunner );
 			testRunner.start();
 		}
@@ -177,11 +181,13 @@ public class TestViewController implements EventHandler<ActionEvent>{
 		final DeviceInfo deviceInfo;
 		final ApkParser apkParser;
 		final File apkFile;
-		public DeviceTestRunner( MainViewController mainViewController, DeviceInfo deviceInfo, ApkParser apkParser, File apkFile ) {
+		final File outputFolder;
+		public DeviceTestRunner( MainViewController mainViewController, DeviceInfo deviceInfo, ApkParser apkParser, File apkFile, File outputFolder ) {
 			this.mainViewController = mainViewController;
-			this.deviceInfo = deviceInfo;
-			this.apkParser	= apkParser;
-			this.apkFile	= apkFile;
+			this.deviceInfo 	= deviceInfo;
+			this.apkParser		= apkParser;
+			this.apkFile		= apkFile;
+			this.outputFolder 	= outputFolder;
 		}
 		
 		@Override
@@ -197,9 +203,10 @@ public class TestViewController implements EventHandler<ActionEvent>{
 			final String packageName 			= apkMeta.getPackageName();			// APK 파일의 package name
 			final String appLabel 				= apkMeta.getLabel();				// APK 파일의 App name
 			final String launcherActivityName 	= apkMeta.getLauncherActivityName();// APK 파일의 Launcher activity name
+			final String testStartDate			= new SimpleDateFormat("yyyyMMdd_HHmmss").format( new Date() );
 			
 			boolean bTestFailed = false;
-			for( int count = 0; count < nRepeatCount && !mainViewController.isReleased(); count++ ) {
+			for( int countIdx = 0; countIdx < nRepeatCount && !mainViewController.isReleased(); countIdx++ ) {
 				bTestFailed = false;	// 기본값 성공
 				
 				////////////////////////////////////////////// 테스트 앱 설치 ////////////////////////////////////////////
@@ -228,6 +235,7 @@ public class TestViewController implements EventHandler<ActionEvent>{
 						return;
 					}
 				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				
 				////////////////////////////////////////////// 테스트 앱 실행 후 대기 시간 ////////////////////////////////////////////
 				if( bRunningDelay ) {
@@ -246,15 +254,39 @@ public class TestViewController implements EventHandler<ActionEvent>{
 				
 				////////////////////////////////////////////// 로그 저장 ////////////////////////////////////////////
 				if( bLogSave ) { 
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "LogCat 내용을 확인 합니다" ), true );
 					deviceInfo.logCatStop();
 					List<String> logCatLines = deviceInfo.getLogCatMessages();
 					
 					// LogCat 메세지 내용을 확인한다. 오류가 있으면
-					bTestFailed = true;	// 테스트 실패
-					
+					for( String line : logCatLines ) {
+						if( line.indexOf( "Fatal" ) != -1 ) {
+							bTestFailed = true;	// 테스트 실패
+							break;
+						}
+					}
+										
 					// 저장 경로를 설정한다. 
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "LogCat 내용을 저장 합니다" ), true );
+					File logFile = new File( outputFolder, 
+						String.format( "%s_%s/%s/%s/%s/%03d_log.txt", 
+							testStartDate, 					// 현재 날짜와 시간
+							packageName,					// TEST 하는 APK 파일의 Package name
+							parentTitledPane.getText(),		// TEST Title
+							deviceInfo.getModelName(),		// TEST 을 실행한 단말기 모델명
+							bTestFailed ? "error" : "log", 	// TEST 성공/실패 여부
+							countIdx						// 몇 번째 TEST 인지 Index 번호  
+						)
+					);
+					if( !logFile.getParentFile().exists()) logFile.getParentFile().mkdirs();
 					
+					try {
+						FileUtils.writeLines( logFile, logCatLines );
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				
 				////////////////////////////////////////////// 테스트 앱 실행 종료 ////////////////////////////////////////////
 				if( bTerminate ) {
@@ -267,6 +299,7 @@ public class TestViewController implements EventHandler<ActionEvent>{
 						return;
 					}
 				}
+				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 								
 				//////////////////////////////////////////// 앱 종료 후 대기 시간 ////////////////////////////////////////////
 				if( bExitDelay ) {
@@ -302,7 +335,7 @@ public class TestViewController implements EventHandler<ActionEvent>{
 					Platform.runLater( TestErrorCountIncrementRunnable );		// 오류 카운트 증가
 				}
 				
-				mainViewController.updateDeviceCommant(deviceInfo, "Test done", true ); // 단말 목록 UI 갱신
+				mainViewController.updateDeviceCommant(deviceInfo, null, true ); // 단말 목록 UI 갱신
 				Platform.runLater( TestCountIncrementRunnable );				// 테스트 카운트 증가
 			}
 		}
