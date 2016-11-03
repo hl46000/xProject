@@ -33,7 +33,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import net.dongliu.apk.parser.ApkParser;
 
 public class DeviceTestViewController implements EventHandler<ActionEvent>, IRelease{
 	
@@ -55,7 +54,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
     FileAlterationMonitor monitor = null;
 	
 	/**
-	 * DeviceTestViewController 을 초기화 하는 함수 입니다. 
+	 * DeviceTestViewController 을 초기화 하는 함수 
 	 * 
 	 * @throws Exception
 	 */
@@ -69,6 +68,17 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 			String path = prop.getValue( item.getId());
 			if( path != null ) {
 				item.setText( path );				
+			}
+		}
+		
+		// 앱이 시작하기 전에 이미 존재하던 파일들을 추가 시킨다. 
+		File ApkFolder = new File( tfDeviceTestApkPath.getText());
+		if( ApkFolder.exists() ) {
+			File apkFiles [] = ApkFolder.listFiles();
+			for( File file : apkFiles ) {
+				if( !file.isFile()) continue;
+				if( !file.getName().toLowerCase().endsWith(".apk")) continue;
+				apkFileInfos.add( new ApkFileInfo( file ));
 			}
 		}
 		
