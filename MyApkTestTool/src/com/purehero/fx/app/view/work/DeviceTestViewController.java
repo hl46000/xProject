@@ -2,21 +2,7 @@ package com.purehero.fx.app.view.work;
 
 import java.io.File;
 import java.io.IOException;
-
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Alert.AlertType;
-import net.dongliu.apk.parser.ApkParser;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Control;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import java.util.ArrayList;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -28,7 +14,26 @@ import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.MainViewController;
 import com.purehero.fx.common.DialogUtils;
+import com.purehero.fx.common.TableViewUtils;
 import com.purehero.fx.control.ex.TitledPaneEx;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.Accordion;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Control;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import net.dongliu.apk.parser.ApkParser;
 
 public class DeviceTestViewController implements EventHandler<ActionEvent>, IRelease{
 	
@@ -41,6 +46,11 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	@FXML
 	private Accordion testContainer;
 	
+	@FXML
+	private TableView<ApkFileInfo> tbApkFileList;
+	
+	private ObservableList<ApkFileInfo> apkFileInfos = FXCollections.observableList( new ArrayList<ApkFileInfo>()); 
+	
 	FileAlterationObserver observer = null;
     FileAlterationMonitor monitor = null;
 	
@@ -51,6 +61,8 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	 */
 	@FXML
     public void initialize() throws Exception {
+		initTableView();
+		
 		TextField textFields[] = { tfDeviceTestApkPath, tfDeviceTestOutputPath };
 		PropertyEx prop = MainClass.instance.getProperty();
 		for( TextField item : textFields ) {
@@ -63,6 +75,13 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	private void initTableView() {
+		TableViewUtils.StringTableColumn( tbApkFileList, "name", 	"CENTER", 0 );
+		TableViewUtils.StringTableColumn( tbApkFileList, "status", 	"CENTER", 1 );
+				
+		tbApkFileList.setItems( apkFileInfos );	
+	}
+
 	/* (non-Javadoc)
 	 * @see com.purehero.fx.app.IRelease#Release()
 	 */
@@ -201,11 +220,33 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	}
 	
 	/**
+	 * APK 파일 목록 리스트를 갱신 시킨다.
+	 */
+	private Runnable ApkFileListUpdate = new Runnable () {
+		@Override
+		public void run() { tbApkFileList.refresh(); }
+	};
+	
+	/**
 	 * APK Path에 APK 파일의 생성을 감지하는 Listener 입니다. 
 	 */
 	FileAlterationListener fileMonitorListener = new FileAlterationListenerAdaptor() {
 		@Override
+		public void onFileDelete(File file) {
+			for( ApkFileInfo apkfileInfo : apkFileInfos ) {
+				if( apkfileInfo.getName().compareTo( file.getName() ) == 0 ) {
+					apkFileInfos.remove( apkfileInfo );
+					break;
+				}
+			}
+			Platform.runLater( ApkFileListUpdate );			
+		}
+
+		@Override
 		public void onFileCreate(File file) {
+			apkFileInfos.add( new ApkFileInfo(file));
+			Platform.runLater( ApkFileListUpdate );
+			/*
 			System.out.println( "fileMonitorListener::onFileCreate = " + file.getAbsolutePath());
 			
 			ApkParser apkParser = null;
@@ -236,6 +277,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				}				
 			}
 			testContainer.setExpandedPane( null );
+			*/
 		}
     };
 }

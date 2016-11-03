@@ -36,7 +36,7 @@
                         <HBox alignment="CENTER_LEFT">
                            <children>
                               <Label text="반복회수 : " />
-                              <TextField fx:id="tfTestRepeatCount" alignment="CENTER" prefWidth="100.0" text="30" />
+                              <TextField fx:id="tfTestRepeatCount" alignment="CENTER" prefWidth="50.0" text="30" />
                            </children>
                         </HBox>
                      </children>
@@ -57,7 +57,7 @@
                            <tooltip>
                               <Tooltip text="앱을 실행 후 대기 시간" />
                            </tooltip></CheckBox>
-                        <TextField fx:id="tfRunningDelayTime" alignment="CENTER" prefWidth="100.0" text="15" />
+                        <TextField fx:id="tfRunningDelayTime" alignment="CENTER" prefWidth="50.0" text="15" />
                         <Label text="(초)" />
                      </children>
                   </HBox>
@@ -76,7 +76,7 @@
                               <Tooltip text="정상로그와 오류로그 모두 저장" />
                            </tooltip>
                         </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="Only Error" toggleGroup="$LogSaveType">
+                        <RadioButton mnemonicParsing="false" text="Error Only" toggleGroup="$LogSaveType">
                            <tooltip>
                               <Tooltip text="오류로그만 저장" />
                            </tooltip>
@@ -90,7 +90,7 @@
                            <tooltip>
                               <Tooltip text="앱 종료 후 대기 시간" />
                            </tooltip></CheckBox>
-                        <TextField fx:id="tfExitDelayTime" alignment="CENTER" prefWidth="100.0" text="5" />
+                        <TextField fx:id="tfExitDelayTime" alignment="CENTER" prefWidth="50.0" text="5" />
                         <Label text="(초)" />
                      </children>
                   </HBox>
@@ -106,13 +106,13 @@
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <Label text="테스트 회수 : " />
-                        <TextField fx:id="tfTestCount" alignment="CENTER" prefWidth="100.0" text="0" />
+                        <TextField fx:id="tfTestCount" alignment="CENTER" prefWidth="50.0" text="0" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <Label text="오 류  회 수 : " />
-                        <TextField fx:id="tfErrorCount" alignment="CENTER" prefWidth="100.0" text="0" />
+                        <TextField fx:id="tfErrorCount" alignment="CENTER" prefWidth="50.0" text="0" />
                      </children>
                   </HBox>
                </children>
@@ -121,7 +121,7 @@
                </padding>
             </VBox>
             <Separator orientation="VERTICAL" />
-            <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0">
+            <HBox alignment="TOP_RIGHT">
                <children>
                   <Button fx:id="ID_BUTTON_DEL_TEST_VIEW" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#handle" text="테스트 삭제">
                      <HBox.margin>

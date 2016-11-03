@@ -5,6 +5,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.android.ddmlib.IDevice;
+import com.android.ddmlib.IShellOutputReceiver;
+import com.android.ddmlib.logcat.LogCatListener;
+import com.android.ddmlib.logcat.LogCatMessage;
+import com.purehero.android.ADB;
+import com.purehero.android.DeviceChangeListener;
+import com.purehero.android.DeviceInfo;
+import com.purehero.android.SignApk;
+import com.purehero.common.io.IRelease;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.work.DeviceTestViewController;
+import com.purehero.fx.common.DialogUtils;
+import com.purehero.fx.common.MenuUtils;
+import com.purehero.fx.common.TableViewUtils;
+import com.purehero.fx.control.ex.CheckBoxTableCellEx;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,28 +39,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
 import net.dongliu.apk.parser.ApkParser;
-
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
-import com.android.ddmlib.logcat.LogCatListener;
-import com.android.ddmlib.logcat.LogCatMessage;
-import com.purehero.android.ADB;
-import com.purehero.android.DeviceChangeListener;
-import com.purehero.android.DeviceInfo;
-import com.purehero.android.SignApk;
-import com.purehero.common.io.IRelease;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.MainClass;
-import com.purehero.fx.app.view.work.DeviceTestViewController;
-import com.purehero.fx.common.DialogUtils;
-import com.purehero.fx.common.MenuUtils;
-import com.purehero.fx.control.ex.CheckBoxTableCellEx;
 
 public class MainViewController implements DeviceChangeListener, EventHandler<ActionEvent>, IRelease {
 	@FXML
@@ -128,28 +125,18 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		return devices;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void initTableView() {
 		int column_index = 0;
 		
-		TableColumn<DeviceInfo, Boolean> tcCheckBox	= (TableColumn<DeviceInfo, Boolean>) tvDeviceInfo.getColumns().get(column_index++);
-		tcCheckBox.setCellValueFactory( new PropertyValueFactory<DeviceInfo, Boolean>("selected"));
-		tcCheckBox.setCellFactory( new Callback<TableColumn<DeviceInfo, Boolean>, TableCell<DeviceInfo, Boolean>>() {
-            public TableCell<DeviceInfo, Boolean> call(TableColumn<DeviceInfo, Boolean> p) {
-            	CheckBoxTableCellEx<DeviceInfo, Boolean> ckCell = new CheckBoxTableCellEx<DeviceInfo, Boolean>(); 
-            	ckCell.setOnAction( MainViewController.this );
-            	return ckCell;
-            }
-        });
-				
-		StringTableColumn	( tvDeviceInfo, "modelName", 	"CENTER", column_index++ );		// 모델명
-		StringTableColumn	( tvDeviceInfo, "serialNumber", "CENTER", column_index++ );		// 시리얼 번호
-		StringTableColumn	( tvDeviceInfo, "osVersion", 	"CENTER", column_index++ );		// OS 버전
-		IntegerTableColumn	( tvDeviceInfo, "batteryLevel", "CENTER", column_index++ );		// 베터리 레벨
-		StringTableColumn	( tvDeviceInfo, "state", 		"CENTER", column_index++ );		// 연결 상태
-		IntegerTableColumn	( tvDeviceInfo, "count", 		"CENTER", column_index++ );		// 실행 횟수
-		IntegerTableColumn	( tvDeviceInfo, "errorCount", 	"CENTER", column_index++ );		// 오류발생 횟수
-		StringTableColumn	( tvDeviceInfo, "commant", 		"CENTER", column_index++ );		// 비고
+		TableViewUtils.CheckBoxTableColumn	( tvDeviceInfo, "selected", 	"CENTER", column_index++, MainViewController.this );		// check box
+		TableViewUtils.StringTableColumn	( tvDeviceInfo, "modelName", 	"CENTER", column_index++ );		// 모델명
+		TableViewUtils.StringTableColumn	( tvDeviceInfo, "serialNumber", "CENTER", column_index++ );		// 시리얼 번호
+		TableViewUtils.StringTableColumn	( tvDeviceInfo, "osVersion", 	"CENTER", column_index++ );		// OS 버전
+		TableViewUtils.IntegerTableColumn	( tvDeviceInfo, "batteryLevel", "CENTER", column_index++ );		// 베터리 레벨
+		TableViewUtils.StringTableColumn	( tvDeviceInfo, "state", 		"CENTER", column_index++ );		// 연결 상태
+		TableViewUtils.IntegerTableColumn	( tvDeviceInfo, "count", 		"CENTER", column_index++ );		// 실행 횟수
+		TableViewUtils.IntegerTableColumn	( tvDeviceInfo, "errorCount", 	"CENTER", column_index++ );		// 오류발생 횟수
+		TableViewUtils.StringTableColumn	( tvDeviceInfo, "commant", 		"CENTER", column_index++ );		// 비고
 	}
 	
 	/**
@@ -162,36 +149,6 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		tvDeviceInfo.setItems( deviceInfoData );
 	}
 	
-	/**
-	 * Integer column 을 설정합니다. 
-	 * 
-	 * @param tvDeviceInfo
-	 * @param property
-	 * @param align
-	 * @param index
-	 */
-	@SuppressWarnings("unchecked")
-	private void IntegerTableColumn(TableView<DeviceInfo> tvDeviceInfo, String property, String align, int index ) {
-		TableColumn<DeviceInfo, Integer> tableColumn 	= (TableColumn<DeviceInfo, Integer>) tvDeviceInfo.getColumns().get(index);
-		tableColumn.setCellValueFactory( new PropertyValueFactory<DeviceInfo, Integer>(property));
-		tableColumn.setStyle( String.format( "-fx-alignment: %s;", align ));
-	}
-
-	/**
-	 * 문자열 column 을 설정합니다. 
-	 * 
-	 * @param tvDeviceInfo
-	 * @param property
-	 * @param align
-	 * @param index
-	 */
-	@SuppressWarnings("unchecked")
-	private void StringTableColumn( TableView<DeviceInfo> tvDeviceInfo, String property, String align, int index ) {
-		TableColumn<DeviceInfo, String> tableColumn 	= (TableColumn<DeviceInfo, String>) tvDeviceInfo.getColumns().get( index );
-		tableColumn.setCellValueFactory( new PropertyValueFactory<DeviceInfo, String>(property));
-		tableColumn.setStyle( String.format( "-fx-alignment: %s;", align ));
-	}
-
 	@FXML
 	@Override
 	public void handle(ActionEvent event) {

@@ -6,7 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.work.DeviceTestViewController">
+<BorderPane prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.work.DeviceTestViewController">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -65,7 +65,7 @@
    <bottom>
       <HBox alignment="CENTER" minHeight="35.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="ID_BUTTON_ADD_TEST_VIEW" mnemonicParsing="false" onAction="#handle" text="테스트 추가" />
+            <Button fx:id="ID_BUTTON_ADD_TEST_VIEW" mnemonicParsing="false" onAction="#handle" text="반복 테스트 추가" />
             <Button mnemonicParsing="false" text="테스트 설정 저장" />
          </children>
          <BorderPane.margin>
@@ -77,6 +77,16 @@
       </HBox>
    </bottom>
    <center>
-      <Accordion fx:id="testContainer" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
+      <SplitPane dividerPositions="0.3" BorderPane.alignment="CENTER">
+         <items>
+            <TableView fx:id="tbApkFileList">
+              <columns>
+                <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="-1.0" sortable="false" text="테스트 APK LIST" />
+                  <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" sortable="false" text="상태" />
+              </columns>
+            </TableView>
+            <Accordion fx:id="testContainer" maxHeight="1.7976931348623157E308" />
+         </items>
+      </SplitPane>
    </center>
 </BorderPane>
