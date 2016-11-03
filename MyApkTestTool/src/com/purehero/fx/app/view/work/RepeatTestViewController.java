@@ -177,6 +177,11 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 		final boolean bUninstall	= cbApkUninstall.isSelected();
 		final boolean bLogSave		= cbLogSave.isSelected();
 		
+		String packageName 			;			// APK 파일의 package name
+		String appLabel 			;				// APK 파일의 App name
+		String launcherActivityName ;// APK 파일의 Launcher activity name
+		String testStartDate		;
+		
 		final MainViewController mainViewController;
 		final DeviceInfo deviceInfo;
 		final ApkParser apkParser;
@@ -190,6 +195,40 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 			this.outputFolder 	= outputFolder;
 		}
 		
+		/**
+		 * 단말기에 APK 파일 설치 
+		 * 
+		 * @throws Exception
+		 */
+		private void apkFileInstall( long delay ) throws Exception {
+			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치 합니다.", appLabel ), true );
+			try {
+				deviceInfo.getInterface().installPackage( apkFile.getAbsolutePath(), false );						
+			} catch (Exception e) {
+				mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+				throw e;
+			}
+			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치완료", appLabel ), true );
+			Thread.sleep( delay );
+		}
+		
+		/**
+		 * 단말기에서 APK 파일 제거
+		 * 
+		 * @throws Exception
+		 */
+		private void apkFileUnistall( long delay ) throws Exception {
+			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제", appLabel ), true );
+			try {
+				deviceInfo.getInterface().uninstallPackage( packageName );
+			} catch (Exception e) {
+				mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+				throw e;
+			}
+			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제 완료", appLabel ), true );
+			Thread.sleep( delay );
+		}
+		
 		@Override
 		public void run() {
 			ApkMeta apkMeta = null;
@@ -200,10 +239,19 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 				return;
 			}
 			
-			final String packageName 			= apkMeta.getPackageName();			// APK 파일의 package name
-			final String appLabel 				= apkMeta.getLabel();				// APK 파일의 App name
-			final String launcherActivityName 	= apkMeta.getLauncherActivityName();// APK 파일의 Launcher activity name
-			final String testStartDate			= new SimpleDateFormat("yyyyMMdd_HHmmss").format( new Date() );
+			packageName 			= apkMeta.getPackageName();			// APK 파일의 package name
+			appLabel 				= apkMeta.getLabel();				// APK 파일의 App name
+			launcherActivityName 	= apkMeta.getLauncherActivityName();// APK 파일의 Launcher activity name
+			testStartDate			= new SimpleDateFormat("yyyyMMdd_HHmmss").format( new Date() );
+
+			// APK 재설치
+			try {
+				apkFileUnistall( 1000 );
+				apkFileInstall( 1000 );
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				return;
+			}			
 			
 			boolean bTestFailed = false;
 			for( int countIdx = 0; countIdx < nRepeatCount && !mainViewController.isReleased(); countIdx++ ) {
@@ -211,14 +259,12 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 				
 				////////////////////////////////////////////// 테스트 앱 설치 ////////////////////////////////////////////
 				if( bInstall ) {
-					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치 합니다.", appLabel ), true );
 					try {
-						deviceInfo.getInterface().installPackage( apkFile.getAbsolutePath(), false );						
-					} catch (Exception e) {
-						mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+						apkFileInstall( 1000 );
+					} catch (Exception e1) {
+						e1.printStackTrace();
 						return;
 					}
-					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치완료", appLabel ), true );
 				}
 				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				
@@ -285,6 +331,16 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					
+					// APK File을 결과 폴더에 복사해 놓는다.
+					File dstApkFile = new File( outputFolder, String.format( "%s_%s/%s", testStartDate, packageName, apkFile.getName() ));
+					if( !dstApkFile.exists()) {
+						try {
+							FileUtils.copyFile( apkFile, dstApkFile );
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				
@@ -317,14 +373,12 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 				
 				//////////////////////////////////////////// 테스트 앱 삭제 ////////////////////////////////////////////
 				if( bUninstall ) {
-					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제", appLabel ), true );
 					try {
-						deviceInfo.getInterface().uninstallPackage( packageName );
-					} catch (Exception e) {
-						mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+						apkFileUnistall( 1000 );
+					} catch (Exception e1) {
+						e1.printStackTrace();
 						return;
 					}
-					mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제 완료", appLabel ), true );
 				}
 				if( mainViewController.isReleased()) break;				// 앱 종료 확인
 				

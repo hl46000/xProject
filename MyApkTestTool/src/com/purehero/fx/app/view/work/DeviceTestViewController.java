@@ -4,11 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import net.dongliu.apk.parser.ApkParser;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
+import com.purehero.android.SignApk;
 import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.MainClass;
@@ -68,17 +72,6 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 			String path = prop.getValue( item.getId());
 			if( path != null ) {
 				item.setText( path );				
-			}
-		}
-		
-		// 앱이 시작하기 전에 이미 존재하던 파일들을 추가 시킨다. 
-		File ApkFolder = new File( tfDeviceTestApkPath.getText());
-		if( ApkFolder.exists() ) {
-			File apkFiles [] = ApkFolder.listFiles();
-			for( File file : apkFiles ) {
-				if( !file.isFile()) continue;
-				if( !file.getName().toLowerCase().endsWith(".apk")) continue;
-				apkFileInfos.add( new ApkFileInfo( file ));
 			}
 		}
 		
@@ -215,11 +208,12 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		stopService();
 		
 		// The monitor will perform polling on the folder every 5 seconds
-        final long pollingInterval = 5 * 1000;
+        //final long pollingInterval = 5 * 1000;
 		observer = new FileAlterationObserver(apkFolder);
 		observer.addListener( fileMonitorListener );
 		
-		monitor = new FileAlterationMonitor(pollingInterval);
+		//monitor = new FileAlterationMonitor(pollingInterval);
+		monitor = new FileAlterationMonitor();
         monitor.addObserver( observer );
         try { monitor.start(); } catch (Exception e) { e.printStackTrace(); }
 	}
@@ -237,6 +231,8 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		public void run() { tbApkFileList.refresh(); }
 	};
 	
+	Thread deviceTestThread = null;
+	
 	/**
 	 * APK Path에 APK 파일의 생성을 감지하는 Listener 입니다. 
 	 */
@@ -251,43 +247,132 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 			}
 			Platform.runLater( ApkFileListUpdate );			
 		}
-
+		
 		@Override
 		public void onFileCreate(File file) {
-			apkFileInfos.add( new ApkFileInfo(file));
-			Platform.runLater( ApkFileListUpdate );
-			/*
-			System.out.println( "fileMonitorListener::onFileCreate = " + file.getAbsolutePath());
+			synchronized (apkFileInfos) {
+				apkFileInfos.add( new ApkFileInfo(file));
+				
+				Platform.runLater( ApkFileListUpdate );
+				if( deviceTestThread == null ) {
+					deviceTestThread = new Thread( deviceTestRunnable );
+					deviceTestThread.start();
+				}
+			}
+		}
+    };
+    
+    /**
+     * @param message
+     */
+    private void updateStatusMessage( String message ) {
+    	if( mainViewController != null ) {
+			mainViewController.updateStatusMessage( message );
+		}
+    }
+    
+    /**
+     * @param apkFile
+     * @param apkStatus
+     * @param statusMsg
+     */
+    private void updateApkFileListStatus( ApkFileInfo apkFile, String apkStatus, String statusMsg ) {
+    	apkFile.setStatus(apkStatus);
+		Platform.runLater( ApkFileListUpdate );
+		if( statusMsg != null ) {
+			updateStatusMessage( statusMsg );
+		}
+    }
+    Runnable deviceTestRunnable = new Runnable() {
+		@SuppressWarnings("resource")
+		@Override
+		public void run() {
 			
-			ApkParser apkParser = null;
-			try {
-				apkParser = new ApkParser( file );
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				return;
+			boolean testLoop = false;
+			synchronized (apkFileInfos) { 
+				testLoop = !apkFileInfos.isEmpty();
 			}
 			
-			File output_folder = new File( tfDeviceTestOutputPath.getText());
-			if( !output_folder.exists()) output_folder.mkdirs();
-			
-			ObservableList<TitledPane> panes = testContainer.getPanes();
-			for( TitledPane pane : panes ) {
-				if( mainViewController.isReleased()) return;
+			while( testLoop ) {
+				ApkFileInfo apkFile = null;
+				synchronized (apkFileInfos) { 
+					apkFile = apkFileInfos.get(0);
+				}
 				
-				TitledPaneEx paneEx = ( TitledPaneEx ) pane;
-				testContainer.setExpandedPane( paneEx );
-				
-				RepeatTestViewController testViewController = ( RepeatTestViewController ) paneEx.getController();
-				testViewController.clear();
+				updateStatusMessage( String.format( "'%s' 파일 테스트 시작", apkFile.getName() ));
+				try { Thread.sleep( 1000 ); } catch (InterruptedException e2) {}
+
+				updateApkFileListStatus( apkFile, "분석", String.format( "'%s' 파일 분석 중", apkFile.getName() ));
 								
+				// Test 할 APK 파일에 서명을 합니다. ( 기본으로 서명 작업을 수행합니다. )
+				ApkParser apkParser = null;
 				try {
-					testViewController.runTesting( mainViewController, apkParser, file, output_folder );
-				} catch (Exception e) {
-					e.printStackTrace();
-				}				
+					apkParser = new ApkParser( apkFile.getApkFile() );
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					updateStatusMessage( String.format( "'%s' 파일 분석 실패로 테스트 중지", apkFile.getName() ));
+					return;
+				}
+				
+				File output_folder = new File( tfDeviceTestOutputPath.getText());
+				if( !output_folder.exists()) output_folder.mkdirs();
+				
+				File imsiFoler = new File( output_folder, "temp" );
+				if( !imsiFoler.exists()) imsiFoler.mkdirs();
+				
+				updateApkFileListStatus( apkFile, "서명", String.format( "'%s' 파일 서명 중", apkFile.getName() ));
+								
+				File signedApkFile = null;
+				try {
+					signedApkFile = File.createTempFile( "signed", ".apk", imsiFoler );
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					updateStatusMessage( String.format( "'%s' 파일 서명 실패로 테스트 중지", apkFile.getName() ));
+					return;
+				} 
+						
+				// APK 파일 서명
+				SignApk signApk = new SignApk();
+				signApk.sign( apkFile.getApkFile(), signedApkFile );
+				
+				// TEST 진행
+				updateApkFileListStatus( apkFile, "진행", String.format( "'%s' 파일 테스트 진행", apkFile.getName() ));
+				
+				ObservableList<TitledPane> panes = testContainer.getPanes();
+				for( TitledPane pane : panes ) {
+					if( mainViewController.isReleased()) return;
+					
+					TitledPaneEx paneEx = ( TitledPaneEx ) pane;
+					testContainer.setExpandedPane( paneEx );
+					
+					RepeatTestViewController testViewController = ( RepeatTestViewController ) paneEx.getController();
+					testViewController.clear();
+									
+					try {
+						testViewController.runTesting( mainViewController, apkParser, signedApkFile, output_folder );
+					} catch (Exception e) {
+						e.printStackTrace();
+					}				
+				}
+				testContainer.setExpandedPane( null );
+				
+				// TEST 결과 정리
+				
+				
+				// TEST 파일 정리
+				synchronized (apkFileInfos) { 
+					apkFileInfos.remove(0);
+					Platform.runLater( ApkFileListUpdate );
+					
+					// 다음 파일이 존재하면 다음 파일 Test을 진행합니다. 
+					testLoop = !apkFileInfos.isEmpty();
+				}
+				try { FileUtils.forceDelete( apkFile.getApkFile()); } catch (IOException e) {}
 			}
-			testContainer.setExpandedPane( null );
-			*/
+			
+			synchronized (apkFileInfos) {
+				deviceTestThread = null;
+			}
 		}
     };
 }
