@@ -284,7 +284,6 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		}
     }
     Runnable deviceTestRunnable = new Runnable() {
-		@SuppressWarnings("resource")
 		@Override
 		public void run() {
 			
@@ -311,28 +310,18 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					updateStatusMessage( String.format( "'%s' 파일 분석 실패로 테스트 중지", apkFile.getName() ));
-					return;
+					break;
 				}
 				
 				File output_folder = new File( tfDeviceTestOutputPath.getText());
-				if( !output_folder.exists()) output_folder.mkdirs();
-				
 				File imsiFoler = new File( output_folder, "temp" );
 				if( !imsiFoler.exists()) imsiFoler.mkdirs();
-				
-				updateApkFileListStatus( apkFile, "서명", String.format( "'%s' 파일 서명 중", apkFile.getName() ));
-								
-				File signedApkFile = null;
-				try {
-					signedApkFile = File.createTempFile( "signed", ".apk", imsiFoler );
-				} catch (IOException e1) {
-					e1.printStackTrace();
-					updateStatusMessage( String.format( "'%s' 파일 서명 실패로 테스트 중지", apkFile.getName() ));
-					return;
-				} 
 						
 				// APK 파일 서명
+				updateApkFileListStatus( apkFile, "서명", String.format( "'%s' 파일 서명 중", apkFile.getName() ));
+				
 				SignApk signApk = new SignApk();
+				File signedApkFile = new File( imsiFoler, apkFile.getName().replace(".apk", "_signed.apk"));
 				signApk.sign( apkFile.getApkFile(), signedApkFile );
 				
 				// TEST 진행
@@ -368,6 +357,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 					testLoop = !apkFileInfos.isEmpty();
 				}
 				try { FileUtils.forceDelete( apkFile.getApkFile()); } catch (IOException e) {}
+				try { FileUtils.forceDelete( signedApkFile ); } catch (IOException e) {}				
 			}
 			
 			synchronized (apkFileInfos) {
