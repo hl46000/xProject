@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="libs/android-sun-jarsign-support-1.1.jar"/>
 	<classpathentry kind="lib" path="libs/apkParser.jar" sourcepath="/MyJavaSampleApp00/src"/>
 	<classpathentry kind="lib" path="libs/jfxrt.jar"/>
+	<classpathentry kind="lib" path="libs/gson.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

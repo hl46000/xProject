@@ -113,8 +113,79 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		case "ID_BUTTON_SELECT_DEVICE_TEST_APK_PATH" 	: OnClickSelectDeviceTestPath( "APK 모니터링 경로", tfDeviceTestApkPath ); startService(); break;
 		case "ID_BUTTON_SELECT_DEVICE_TEST_OUTPUT_PATH" : OnClickSelectDeviceTestPath( "테스트 결과파일 경로", tfDeviceTestOutputPath ); break;
 		case "ID_BUTTON_ADD_TEST_VIEW"					: OnClickAddTestView(); break;
+		case "ID_BUTTON_SAVE_TEST_SETTING"				: OnClickSaveTestSetting(); break;
+		case "ID_BUTTON_LOAD_TEST_SETTING"				: OnClickLoadTestSetting(); break;
 		}
 		
+	}
+
+	/**
+	 * 
+	 */
+	private void OnClickLoadTestSetting() {
+		File result = DialogUtils.openFileDialog( "테스트 설정 로드", "SETTING","*.setting");
+		if( result == null ) return;
+		
+		PropertyEx prop = new PropertyEx("");
+		try {
+			prop.load( result.getAbsolutePath());
+			
+			testContainer.getPanes().clear();
+			
+			int count = Integer.valueOf( prop.getValue("COUNT"));
+			for( int i = 0; i < count; i++ ) {
+				String jsonString = prop.getValue( String.format("SETTING_DATA%03d", i));
+				
+				FXMLLoader testViewLoader = new FXMLLoader( getClass().getResource("RepeatTestView.fxml")); 
+				try {
+					Parent testView = testViewLoader.load();
+					
+					TitledPaneEx tp = new TitledPaneEx();
+					tp.setText( String.format( "%d 번째 테스트", testContainer.getPanes().size() + 1 ));
+					tp.setContent( testView );
+					testContainer.getPanes().add( tp );
+					
+					RepeatTestViewController testViewController = ( RepeatTestViewController ) testViewLoader.getController();
+					testViewController.setParentTitledPane( tp );
+					testViewController.setDeviceTestViewController( this );
+					testViewController.setTestDatas( jsonString );
+					
+					tp.setController( testViewController );
+				} catch (IOException e) {			
+					e.printStackTrace();
+				}
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void OnClickSaveTestSetting() {
+		File result = DialogUtils.saveFileDialog( "테스트 설정 저장", "SETTING","*.setting");
+		if( result == null ) return;
+		
+		PropertyEx prop = new PropertyEx("테스트 설정 파일"); 
+				
+		int index = 0;
+		ObservableList<TitledPane> panes = testContainer.getPanes();
+		prop.setValue( "COUNT", String.format( "%d", panes.size()));
+		
+		for( TitledPane pane : panes ) {
+			TitledPaneEx paneEx = ( TitledPaneEx ) pane;
+			testContainer.setExpandedPane( paneEx );
+			
+			RepeatTestViewController testViewController = ( RepeatTestViewController ) paneEx.getController();
+			String key = String.format( "SETTING_DATA%03d", index++ );
+			String val = testViewController.getTestDatas();
+			prop.setValue(key, val );
+		}
+		
+		prop.save( result.getAbsolutePath());
+		DialogUtils.alert( "확인", "테스트 설정파일이 저장되었습니다", AlertType.INFORMATION );
 	}
 
 	/**
@@ -286,13 +357,12 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
     Runnable deviceTestRunnable = new Runnable() {
 		@Override
 		public void run() {
-			
 			boolean testLoop = false;
 			synchronized (apkFileInfos) { 
 				testLoop = !apkFileInfos.isEmpty();
 			}
 			
-			while( testLoop ) {
+			while( testLoop && !mainViewController.isReleased()) {
 				ApkFileInfo apkFile = null;
 				synchronized (apkFileInfos) { 
 					apkFile = apkFileInfos.get(0);
@@ -347,6 +417,8 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				
 				// TEST 결과 정리
 				
+				// TEST 완료
+				updateApkFileListStatus( apkFile, "완료", String.format( "'%s' 파일 테스트 완료", apkFile.getName() ));
 				
 				// TEST 파일 정리
 				synchronized (apkFileInfos) { 
