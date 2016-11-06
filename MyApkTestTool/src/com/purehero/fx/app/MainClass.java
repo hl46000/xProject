@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+import org.luaj.vm2.lib.jse.JsePlatform;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,8 +26,32 @@ import com.purehero.fx.app.view.MainViewController;
 public class MainClass extends javafx.application.Application {
 	public static MainClass instance = null;
 	public static void main(String[] args) { 
-		instance = new MainClass();
-		launch(args);
+		//instance = new MainClass();
+		//launch(args);
+		
+		LuaValue luaG 				= JsePlatform.standardGlobals();
+		LuaValue CheckLogCatFunc	= null;
+		String scriptPath 			= "d:\\testFunc.lua";
+		try {
+			luaG.get("dofile").call( LuaValue.valueOf( scriptPath ));
+			CheckLogCatFunc = luaG.get("testFunc");
+			
+			List<String> p1 = new ArrayList<String>();
+			p1.add( "1111111111" );
+			p1.add( "2222222222" );
+			p1.add( "2222222222" );
+			p1.add( "2222222222" );
+			p1.add( 0, String.valueOf( p1.size() ));
+			
+			LuaValue[] LuaParams = new LuaValue[] {
+				    CoerceJavaToLua.coerce(p1.toArray())
+				};
+			LuaValue retvals = (LuaValue) CheckLogCatFunc.invoke( LuaValue.varargsOf( LuaParams ));
+			System.out.println( "java result : " + retvals.toString());
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+		System.exit(0);
 	}
 	
 	private Stage primaryStage = null;
@@ -38,6 +66,15 @@ public class MainClass extends javafx.application.Application {
 
 	private File GetTempPath() {
 		return new File( "c:\\temp\\atm_v3" );
+	}
+	
+	/**
+	 * 현재 실행 파일의 위치(경로)를 반환합니다. 
+	 * 
+	 * @return
+	 */
+	public String getCurrentPath() {
+		return PathUtils.GetCurrentPath( this );
 	}
 
 	@Override
@@ -94,6 +131,8 @@ public class MainClass extends javafx.application.Application {
 	 */
 	public PropertyEx getProperty() {
 		String path = PathUtils.GetCurrentPath( this );
+		System.out.println( path );
+		
 		File prop_file = new File( path, "MyApkTestTool.prop" );
 		
 		PropertyEx prop = new PropertyEx("Purehero APK test tool");

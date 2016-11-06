@@ -8,10 +8,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+import org.luaj.vm2.lib.jse.JsePlatform;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.purehero.android.DeviceInfo;
+import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.MainViewController;
 
 import javafx.application.Platform;
@@ -111,7 +115,8 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 			tfTestTitle.setText( title );
 			parentTitledPane.setText( title );
 		}
-		if( object.has("REPEAT_COUNT")) 	tfRunningDelayTime.setText	( object.get("REPEAT_COUNT").getAsString() );
+		if( object.has("REPEAT_COUNT")) 	tfTestRepeatCount.setText	( object.get("REPEAT_COUNT").getAsString() );
+		if( object.has("AFTER_RUN_DELAY")) 	tfRunningDelayTime.setText	( object.get("AFTER_RUN_DELAY").getAsString() );
 		if( object.has("AFTER_EXIT_DELAY")) tfExitDelayTime.setText		( object.get("AFTER_EXIT_DELAY").getAsString() );
 		if( object.has("APK_INSTALL")) 		cbApkInstall.setSelected	( object.get("APK_INSTALL").getAsBoolean() );
 		if( object.has("APP_RUNNING")) 		cbAppRunning.setSelected	( object.get("APP_RUNNING").getAsBoolean() );
@@ -275,6 +280,9 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 		String launcherActivityName ;// APK 파일의 Launcher activity name
 		String testStartDate		;
 		
+		LuaValue luaG 				= JsePlatform.standardGlobals();
+		LuaValue CheckLogCatFunc	= null;
+		
 		final MainViewController mainViewController;
 		final DeviceInfo deviceInfo;
 		final ApkParser apkParser;
@@ -286,6 +294,15 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 			this.apkParser		= apkParser;
 			this.apkFile		= apkFile;
 			this.outputFolder 	= outputFolder;
+			
+			String scriptPath 	= String.format( "%s/CheckLogCatFunc.lua", MainClass.instance.getCurrentPath());
+			System.out.println( scriptPath );
+
+			try {
+				luaG.get("dofile").call( LuaValue.valueOf( scriptPath ));
+				CheckLogCatFunc = luaG.get("CheckLogCatFunc");
+			} catch( Exception e ) {
+			}
 		}
 		
 		/**
@@ -401,11 +418,16 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 						List<String> logCatLines = deviceInfo.getLogCatMessages();
 						
 						// LogCat 메세지 내용을 확인한다. 오류가 있으면
-						for( String line : logCatLines ) {
-							if( line.indexOf( "Fatal" ) != -1 ) {
+						if( CheckLogCatFunc != null ) {
+							LuaValue[] LuaParams = new LuaValue[] {
+								CoerceJavaToLua.coerce( logCatLines.toArray()) 
+							};
+								    
+							LuaValue retvals = (LuaValue) CheckLogCatFunc.invoke( LuaValue.varargsOf( LuaParams ) );
+							if( retvals.toboolean()) {
 								bTestFailed = true;	// 테스트 실패
 								break;
-							}
+							}							
 						}
 											
 						// 저장 경로를 설정한다. 

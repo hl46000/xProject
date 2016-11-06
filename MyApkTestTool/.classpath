@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="libs/apkParser.jar" sourcepath="/MyJavaSampleApp00/src"/>
 	<classpathentry kind="lib" path="libs/jfxrt.jar"/>
 	<classpathentry kind="lib" path="libs/gson.jar"/>
+	<classpathentry kind="lib" path="libs/luaj-jse-3.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
