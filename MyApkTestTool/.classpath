@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="libs/jfxrt.jar"/>
 	<classpathentry kind="lib" path="libs/gson.jar"/>
 	<classpathentry kind="lib" path="libs/luaj-jse-3.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jsr80-1.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

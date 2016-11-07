@@ -1,5 +1,7 @@
 package com.purehero.common.io;
 
+import java.net.URL;
+
 public class PathUtils {
 	/**
 	 * 
@@ -7,11 +9,20 @@ public class PathUtils {
 	 * @return
 	 */
 	public static String GetCurrentPath( Object runnableClass ) {
-		String jarDir = runnableClass.getClass().getClassLoader().getResource("").getPath();
-		if( System.getProperty( "os.name" ).contains( "Window" )) {
-			if( jarDir.startsWith("/")) jarDir = jarDir.substring(1);
+		try {
+			Class<?> _class 			= runnableClass.getClass();
+			ClassLoader _classLoader 	= _class.getClassLoader();
+			URL _resource				= _classLoader.getResource("path.txt");
+			String jarDir 				= _resource.getPath();
+			
+			if( System.getProperty( "os.name" ).contains( "Window" )) {
+				if( jarDir.startsWith("/")) jarDir = jarDir.substring(1);
+			}
+			
+			return jarDir;
+		} catch( Exception e ) {
+			e.printStackTrace();
 		}
-		
-		return jarDir;
+		return null;
 	}
 }

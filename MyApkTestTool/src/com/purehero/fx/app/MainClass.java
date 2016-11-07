@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
-import org.luaj.vm2.lib.jse.JsePlatform;
+import com.purehero.android.ADB;
+import com.purehero.common.io.FileUtils;
+import com.purehero.common.io.IRelease;
+import com.purehero.common.io.PathUtils;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.view.MainViewController;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,19 +19,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import com.purehero.android.ADB;
-import com.purehero.common.io.FileUtils;
-import com.purehero.common.io.IRelease;
-import com.purehero.common.io.PathUtils;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.view.MainViewController;
-
 public class MainClass extends javafx.application.Application {
 	public static MainClass instance = null;
 	public static void main(String[] args) { 
-		//instance = new MainClass();
-		//launch(args);
-		
+		instance = new MainClass();
+		launch(args);
+		/*
 		LuaValue luaG 				= JsePlatform.standardGlobals();
 		LuaValue CheckLogCatFunc	= null;
 		String scriptPath 			= "d:\\testFunc.lua";
@@ -52,6 +48,7 @@ public class MainClass extends javafx.application.Application {
 			e.printStackTrace();
 		}
 		System.exit(0);
+		*/
 	}
 	
 	private Stage primaryStage = null;
@@ -81,7 +78,7 @@ public class MainClass extends javafx.application.Application {
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
 		
-		FXMLLoader mainViewLoader = new FXMLLoader(MainClass.this.getClass().getResource("view/mainView.fxml"));
+		FXMLLoader mainViewLoader = new FXMLLoader(MainClass.this.getClass().getResource("view/MainView.fxml"));
 		Parent mainView = mainViewLoader.load();
 		
 		MainViewController ctrl = (MainViewController) mainViewLoader.getController();
@@ -130,9 +127,7 @@ public class MainClass extends javafx.application.Application {
 	 * @return 성공 시에 Property 객체를 실패 시에는 null 이 반환됩니다. 
 	 */
 	public PropertyEx getProperty() {
-		String path = PathUtils.GetCurrentPath( this );
-		System.out.println( path );
-		
+		String path = PathUtils.GetCurrentPath( MainClass.instance );
 		File prop_file = new File( path, "MyApkTestTool.prop" );
 		
 		PropertyEx prop = new PropertyEx("Purehero APK test tool");

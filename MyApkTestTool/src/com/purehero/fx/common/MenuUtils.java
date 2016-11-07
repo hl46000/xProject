@@ -34,6 +34,8 @@ public class MenuUtils {
 	 * @param optionMenu
 	 */
 	public static void loadCheckMenuStatus(Menu optionMenu ) {
+		if( optionMenu == null ) return;
+		
 		PropertyEx prop = MainClass.instance.getProperty();
 		ObservableList<MenuItem> items = optionMenu.getItems();
 		for( MenuItem item : items ) {
