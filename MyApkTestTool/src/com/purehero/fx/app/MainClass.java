@@ -24,31 +24,6 @@ public class MainClass extends javafx.application.Application {
 	public static void main(String[] args) { 
 		instance = new MainClass();
 		launch(args);
-		/*
-		LuaValue luaG 				= JsePlatform.standardGlobals();
-		LuaValue CheckLogCatFunc	= null;
-		String scriptPath 			= "d:\\testFunc.lua";
-		try {
-			luaG.get("dofile").call( LuaValue.valueOf( scriptPath ));
-			CheckLogCatFunc = luaG.get("testFunc");
-			
-			List<String> p1 = new ArrayList<String>();
-			p1.add( "1111111111" );
-			p1.add( "2222222222" );
-			p1.add( "2222222222" );
-			p1.add( "2222222222" );
-			p1.add( 0, String.valueOf( p1.size() ));
-			
-			LuaValue[] LuaParams = new LuaValue[] {
-				    CoerceJavaToLua.coerce(p1.toArray())
-				};
-			LuaValue retvals = (LuaValue) CheckLogCatFunc.invoke( LuaValue.varargsOf( LuaParams ));
-			System.out.println( "java result : " + retvals.toString());
-		} catch( Exception e ) {
-			e.printStackTrace();
-		}
-		System.exit(0);
-		*/
 	}
 	
 	private Stage primaryStage = null;

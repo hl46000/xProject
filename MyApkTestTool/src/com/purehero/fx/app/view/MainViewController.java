@@ -125,6 +125,9 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		return devices;
 	}
 	
+	/**
+	 * 장치 목록 TableView 을 초기화 합니다. 
+	 */
 	private void initTableView() {
 		int column_index = 0;
 		
@@ -180,13 +183,13 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		case "ID_MENU_DEVICE_TEST_APK_PATH"	: OnButtonClickPathMenuItem("APK 모니터링 경로", mi ); break;
 		case "ID_MENU_DEVICE_TEST_LOG_PATH"	: OnButtonClickPathMenuItem("테스트 로그파일 경로", mi ); break;
 		case "ID_MENU_DEVICE_TEST_OUT_PATH"	: OnButtonClickPathMenuItem("테스트 결과파일 경로", mi ); break;
-		case "ID_MENU_DEVICE_TEST_OPTIONS"	: ONButtonClickDeviceTestOptions(); break;
+		case "ID_MENU_DEVICE_TEST_OPTIONS"	: OnButtonClickDeviceTestOptions(); break;
 		}
 	}
 
 	
 
-	private void ONButtonClickDeviceTestOptions() {
+	private void OnButtonClickDeviceTestOptions() {
 		try {
 			DialogUtils.showResDialog("view/testView.fxml");
 		} catch (IOException e) {
@@ -195,7 +198,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * 
+	 * 경로를 설정하는 메뉴을 클릭 했을때 처리 함수
 	 * 
 	 * @param title
 	 */
