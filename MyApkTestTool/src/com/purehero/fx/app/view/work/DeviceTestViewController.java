@@ -3,6 +3,7 @@ package com.purehero.fx.app.view.work;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.dongliu.apk.parser.ApkParser;
 
@@ -382,7 +383,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 					updateStatusMessage( String.format( "'%s' 파일 분석 실패로 테스트 중지", apkFile.getName() ));
 					break;
 				}
-				
+								
 				File output_folder = new File( tfDeviceTestOutputPath.getText());
 				File imsiFoler = new File( output_folder, "temp" );
 				if( !imsiFoler.exists()) imsiFoler.mkdirs();
@@ -408,12 +409,21 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 					testViewController.clear();
 									
 					try {
-						testViewController.runTesting( mainViewController, apkParser, signedApkFile, output_folder );
+						List<String> result = testViewController.runTesting( mainViewController, apkParser, signedApkFile, output_folder );
+						for( String line : result ) {
+							System.out.println( line );
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}				
 				}
 				testContainer.setExpandedPane( null );
+				
+				try {
+					apkParser.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 				
 				// TEST 결과 정리
 				
@@ -429,7 +439,10 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 					testLoop = !apkFileInfos.isEmpty();
 				}
 				try { FileUtils.forceDelete( apkFile.getApkFile()); } catch (IOException e) {}
-				try { FileUtils.forceDelete( signedApkFile ); } catch (IOException e) {}				
+				try { FileUtils.forceDelete( signedApkFile ); } catch (IOException e) {}
+				
+				// 리포트 파일이 있으면 메일로 발송한다. 
+				//SMTP
 			}
 			
 			synchronized (apkFileInfos) {

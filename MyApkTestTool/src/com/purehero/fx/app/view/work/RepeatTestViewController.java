@@ -25,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import net.dongliu.apk.parser.ApkParser;
@@ -71,6 +72,8 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 	@FXML
 	private CheckBox cbApkUninstall;		// APK 파일을 Uninstall 할 것인가?
 	
+	@FXML
+	private RadioButton rbLogSaveALL;		// 로그 저장 ALL
 	
 	/**
 	 * Controller 초기화 함수
@@ -164,9 +167,9 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 		tfErrorCount.setText("0");
 	}
 
-	public void runTesting(MainViewController mainViewController, ApkParser apkParser, File apkFile, File output_folder) throws Exception {
+	public List<String> runTesting(MainViewController mainViewController, ApkParser apkParser, File apkFile, File output_folder) throws Exception {
 		List<DeviceInfo> deviceInfos = mainViewController.getCheckedDeviceInfo();
-		if( deviceInfos == null ) return;
+		if( deviceInfos == null ) return null;
 		
 		List<DeviceTestRunner> testRunners = new ArrayList<DeviceTestRunner>(); 
 		for( DeviceInfo deviceInfo : deviceInfos ) {
@@ -178,10 +181,28 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 			testRunner.start();
 		}
 		
+		List<String> ret = new ArrayList<String>();
+		
 		// thread 가 모두 종료 될때까지 대기 한다. 
 		for( DeviceTestRunner testRunner : testRunners ) {
 			testRunner.join();
+			
+			File resultFile = testRunner.getResultFile();
+			if( resultFile == null || !resultFile.exists()) {
+				String deviceModelName = testRunner.getDeviceModel();
+				ret.add( String.format( "[%s]\nTest result file not exist", deviceModelName ) );
+			} else {
+				ret.addAll( FileUtils.readLines( resultFile, "UTF-8"));
+			}
+			
+			ret.add( System.lineSeparator());
+			ret.add( System.lineSeparator());
+			ret.add( "=====================================================================" );
+			ret.add( System.lineSeparator());
+			ret.add( System.lineSeparator());
 		}
+		
+		return ret;
 	}
 	
 	/**
@@ -283,6 +304,8 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 		LuaValue luaG 				= JsePlatform.standardGlobals();
 		LuaValue CheckLogCatFunc	= null;
 		
+		File resultFile = null;
+		
 		final MainViewController mainViewController;
 		final DeviceInfo deviceInfo;
 		final ApkParser apkParser;
@@ -303,6 +326,22 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 				CheckLogCatFunc = luaG.get("CheckLogCatFunc");
 			} catch( Exception e ) {
 			}
+		}
+		
+		/**
+		 * Test 진행 중/했던 단말기의 모델명을 반환합니다.  
+		 */
+		public String getDeviceModel() {
+			return deviceInfo.getModelName();
+		}
+
+		/**
+		 * Test 결과를 기록한 파일객체를 반환합니다. 
+		 * 
+		 * @return
+		 */
+		public File getResultFile() {
+			return resultFile;
 		}
 		
 		/**
@@ -412,42 +451,56 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 					
 					
 					////////////////////////////////////////////// 로그 저장 ////////////////////////////////////////////
+					if( resultFile == null ) {
+						resultFile = new File( outputFolder, String.format( "%s_%s/%s_result.txt", testStartDate, packageName, getDeviceModel() ));
+						
+						FileUtils.writeStringToFile( resultFile, String.format( "[%s]%s", getDeviceModel(), System.lineSeparator()), true );
+					}
+					
+					// 테스트의 결과를 확인 합니다. 
+					mainViewController.updateDeviceCommant(deviceInfo, String.format( "LogCat 내용을 확인 합니다" ), true );
+					deviceInfo.logCatStop();
+					List<String> logCatLines = deviceInfo.getLogCatMessages();
+					
+					// LogCat 메세지 내용을 확인한다. 오류가 있으면
+					if( CheckLogCatFunc != null ) {
+						LuaValue[] LuaParams = new LuaValue[] {
+							CoerceJavaToLua.coerce( logCatLines.toArray()) 
+						};
+							    
+						LuaValue retvals = (LuaValue) CheckLogCatFunc.invoke( LuaValue.varargsOf( LuaParams ) );
+						if( retvals.toboolean()) {
+							bTestFailed = true;	// 테스트 실패
+						}							
+					}
+					// 테스트의 결과를 결과 파일에 기록합니다. 
+					FileUtils.writeStringToFile( resultFile, String.format( "%3d ==> %s%s", countIdx, bTestFailed ? "FAIL" : "PASS", System.lineSeparator()), true );
+					
+					// LogCat 내용 저장
 					if( bLogSave ) { 
-						mainViewController.updateDeviceCommant(deviceInfo, String.format( "LogCat 내용을 확인 합니다" ), true );
-						deviceInfo.logCatStop();
-						List<String> logCatLines = deviceInfo.getLogCatMessages();
+						boolean bLogSave = rbLogSaveALL.isSelected(); 
+						if( !bLogSave ) bLogSave = bTestFailed;
 						
-						// LogCat 메세지 내용을 확인한다. 오류가 있으면
-						if( CheckLogCatFunc != null ) {
-							LuaValue[] LuaParams = new LuaValue[] {
-								CoerceJavaToLua.coerce( logCatLines.toArray()) 
-							};
-								    
-							LuaValue retvals = (LuaValue) CheckLogCatFunc.invoke( LuaValue.varargsOf( LuaParams ) );
-							if( retvals.toboolean()) {
-								bTestFailed = true;	// 테스트 실패
-								break;
-							}							
-						}
-											
-						// 저장 경로를 설정한다. 
-						mainViewController.updateDeviceCommant(deviceInfo, String.format( "LogCat 내용을 저장 합니다" ), true );
-						File logFile = new File( outputFolder, 
-							String.format( "%s_%s/%s/%s/%s/%03d_log.txt", 
-								testStartDate, 					// 현재 날짜와 시간
-								packageName,					// TEST 하는 APK 파일의 Package name
-								parentTitledPane.getText(),		// TEST Title
-								deviceInfo.getModelName(),		// TEST 을 실행한 단말기 모델명
-								bTestFailed ? "error" : "log", 	// TEST 성공/실패 여부
-								countIdx						// 몇 번째 TEST 인지 Index 번호  
-							)
-						);
-						if( !logFile.getParentFile().exists()) logFile.getParentFile().mkdirs();
-						
-						try {
-							FileUtils.writeLines( logFile, logCatLines );
-						} catch (IOException e) {
-							e.printStackTrace();
+						// 저장 경로를 설정한다.
+						if( bLogSave ) {
+							mainViewController.updateDeviceCommant(deviceInfo, String.format( "LogCat 내용을 저장 합니다" ), true );
+							File logFile = new File( outputFolder, 
+								String.format( "%s_%s/%s/%s/%s/%03d_log.txt", 
+									testStartDate, 					// 현재 날짜와 시간
+									packageName,					// TEST 하는 APK 파일의 Package name
+									parentTitledPane.getText(),		// TEST Title
+									deviceInfo.getModelName(),		// TEST 을 실행한 단말기 모델명
+									bTestFailed ? "error" : "log", 	// TEST 성공/실패 여부
+									countIdx						// 몇 번째 TEST 인지 Index 번호  
+								)
+							);
+							if( !logFile.getParentFile().exists()) logFile.getParentFile().mkdirs();
+							
+							try {
+								FileUtils.writeLines( logFile, logCatLines );
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
 						
 						// APK File을 결과 폴더에 복사해 놓는다.

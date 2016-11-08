@@ -68,7 +68,7 @@
                               <Insets right="15.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <RadioButton mnemonicParsing="false" selected="true" text="ALL">
+                        <RadioButton fx:id="rbLogSaveALL" mnemonicParsing="false" selected="true" text="ALL">
                            <toggleGroup>
                               <ToggleGroup fx:id="LogSaveType" />
                            </toggleGroup>
