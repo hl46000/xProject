@@ -194,12 +194,6 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 			} else {
 				ret.addAll( FileUtils.readLines( resultFile, "UTF-8"));
 			}
-			
-			ret.add( System.lineSeparator());
-			ret.add( System.lineSeparator());
-			ret.add( "=====================================================================" );
-			ret.add( System.lineSeparator());
-			ret.add( System.lineSeparator());
 		}
 		
 		return ret;
@@ -380,6 +374,9 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 		
 		@Override
 		public void run() {
+			int testCount = 0;
+			int errorCount = 0;
+			
 			try {
 				setEnableTestUI( false );
 				
@@ -415,7 +412,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 							apkFileInstall( 1000 );
 						} catch (Exception e1) {
 							e1.printStackTrace();
-							return;
+							break;
 						}
 					}
 					if( mainViewController.isReleased()) break;				// 앱 종료 확인
@@ -430,7 +427,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 							deviceInfo.getInterface().executeShellCommand( String.format( "am start -n '%s/%s'", packageName, launcherActivityName), mainViewController.shellOutputReceiver );						
 						} catch (Exception e) {
 							mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
-							return;
+							break;
 						}
 					}
 					if( mainViewController.isReleased()) break;				// 앱 종료 확인
@@ -471,6 +468,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 						LuaValue retvals = (LuaValue) CheckLogCatFunc.invoke( LuaValue.varargsOf( LuaParams ) );
 						if( retvals.toboolean()) {
 							bTestFailed = true;	// 테스트 실패
+							errorCount ++;
 						}							
 					}
 					// 테스트의 결과를 결과 파일에 기록합니다. 
@@ -523,7 +521,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 							deviceInfo.getInterface().executeShellCommand( String.format( "am kill %s", packageName ), mainViewController.shellOutputReceiver );
 						} catch (Exception e) {
 							mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
-							return;
+							break;
 						}
 					}
 					if( mainViewController.isReleased()) break;				// 앱 종료 확인
@@ -548,7 +546,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 							apkFileUnistall( 1000 );
 						} catch (Exception e1) {
 							e1.printStackTrace();
-							return;
+							break;
 						}
 					}
 					if( mainViewController.isReleased()) break;				// 앱 종료 확인
@@ -562,12 +560,30 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 					
 					mainViewController.updateDeviceCommant(deviceInfo, null, true ); // 단말 목록 UI 갱신
 					Platform.runLater( TestCountIncrementRunnable );				// 테스트 카운트 증가
+					
+					testCount++;
 				}
 			} catch( Exception e ) {
 				e.printStackTrace();
 				
 			} finally {
 				setEnableTestUI( true );
+				
+				if( resultFile != null ) {
+					try {
+						FileUtils.writeStringToFile( resultFile, 
+							String.format( "%sTest count : %d, Error count : %d%s%s%s", 
+								System.lineSeparator(),
+								testCount, 
+								errorCount,
+								System.lineSeparator(),
+								"=====================================================================",
+								System.lineSeparator()
+							), true );
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}

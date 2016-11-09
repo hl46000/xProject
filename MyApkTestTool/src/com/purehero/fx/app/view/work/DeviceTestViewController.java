@@ -2,8 +2,11 @@ package com.purehero.fx.app.view.work;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.mail.MessagingException;
 
 import net.dongliu.apk.parser.ApkParser;
 
@@ -16,6 +19,7 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import com.purehero.android.SignApk;
 import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PropertyEx;
+import com.purehero.common.io.SMTP;
 import com.purehero.fx.app.MainClass;
 import com.purehero.fx.app.view.MainViewController;
 import com.purehero.fx.common.DialogUtils;
@@ -363,6 +367,10 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				testLoop = !apkFileInfos.isEmpty();
 			}
 			
+			List<String> recipientList = new ArrayList<String>(); 
+			List<String> testResult = new ArrayList<String>(); 
+			
+			recipientList.add("purehero@inka.co.kr");
 			while( testLoop && !mainViewController.isReleased()) {
 				ApkFileInfo apkFile = null;
 				synchronized (apkFileInfos) { 
@@ -404,15 +412,17 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 					
 					TitledPaneEx paneEx = ( TitledPaneEx ) pane;
 					testContainer.setExpandedPane( paneEx );
-					
+										
 					RepeatTestViewController testViewController = ( RepeatTestViewController ) paneEx.getController();
 					testViewController.clear();
 									
 					try {
+						testResult.add( "=====================================================================" );
+						testResult.add( paneEx.getText());
+						testResult.add( "=====================================================================" );
 						List<String> result = testViewController.runTesting( mainViewController, apkParser, signedApkFile, output_folder );
-						for( String line : result ) {
-							System.out.println( line );
-						}
+						testResult.addAll( result );
+						testResult.add( "=====================================================================" );
 					} catch (Exception e) {
 						e.printStackTrace();
 					}				
@@ -424,8 +434,6 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				
-				// TEST 결과 정리
 				
 				// TEST 완료
 				updateApkFileListStatus( apkFile, "완료", String.format( "'%s' 파일 테스트 완료", apkFile.getName() ));
@@ -442,7 +450,11 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				try { FileUtils.forceDelete( signedApkFile ); } catch (IOException e) {}
 				
 				// 리포트 파일이 있으면 메일로 발송한다. 
-				//SMTP
+				try {
+					SMTP.sendInkaNoreplyMail( "DEVICE TEST RESULT", recipientList, testResult, null );
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			
 			synchronized (apkFileInfos) {
