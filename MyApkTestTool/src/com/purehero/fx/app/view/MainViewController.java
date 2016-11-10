@@ -16,7 +16,8 @@ import com.purehero.android.SignApk;
 import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.MainClass;
-import com.purehero.fx.app.view.work.DeviceTestViewController;
+import com.purehero.fx.app.view.macro.DeviceMacroViewController;
+import com.purehero.fx.app.view.test.DeviceTestViewController;
 import com.purehero.fx.common.DialogUtils;
 import com.purehero.fx.common.MenuUtils;
 import com.purehero.fx.common.TableViewUtils;
@@ -71,20 +72,39 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		MenuUtils.loadCheckMenuStatus( MultiFileOption );
 		MenuUtils.loadPathMenuText( menuDeviceTestPath );
 		
-		FXMLLoader deviceTestViewLoader = new FXMLLoader( getClass().getResource("work/DeviceTestView.fxml")); 
-		Parent deviceTestView = deviceTestViewLoader.load();
-		Tab tab = new Tab();
-		tab.setText("Device Test");
-		tab.setContent( deviceTestView );
-		workTabPane.getTabs().add(tab);
-		
-		DeviceTestViewController deviceTestViewController = ( DeviceTestViewController ) deviceTestViewLoader.getController();
-		deviceTestViewController.setMainViewController( this );
-		deviceTestViewController.startService();
+		workTabPane.getTabs().add( loadDeviceTestView());
+		workTabPane.getTabs().add( loadDeviceMacroView());
 		
 		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	private Tab loadDeviceMacroView() throws IOException {
+		FXMLLoader deviceMacroViewLoader = new FXMLLoader( getClass().getResource("macro/DeviceMacroView.fxml")); 
+		Parent deviceMacroView = deviceMacroViewLoader.load();
+		Tab tab = new Tab();
+		tab.setText("Device Macro");
+		tab.setContent( deviceMacroView );
+				
+		DeviceMacroViewController deviceMacroViewController = ( DeviceMacroViewController ) deviceMacroViewLoader.getController();
+		deviceMacroViewController.setMainViewController( this );
+		
+		return tab;
+	}
+
+	private Tab loadDeviceTestView() throws IOException {
+		FXMLLoader deviceTestViewLoader = new FXMLLoader( getClass().getResource("test/DeviceTestView.fxml")); 
+		Parent deviceTestView = deviceTestViewLoader.load();
+		Tab tab = new Tab();
+		tab.setText("Device Test");
+		tab.setContent( deviceTestView );
+				
+		DeviceTestViewController deviceTestViewController = ( DeviceTestViewController ) deviceTestViewLoader.getController();
+		deviceTestViewController.setMainViewController( this );
+		deviceTestViewController.startService();
+		
+		return tab;
+	}
+
 	private boolean bReleased = false;
 	public boolean isReleased() { return bReleased; } 
 	

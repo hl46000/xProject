@@ -1,30 +1,9 @@
-package com.purehero.fx.app.view.work;
+package com.purehero.fx.app.view.test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.mail.MessagingException;
-
-import net.dongliu.apk.parser.ApkParser;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.monitor.FileAlterationListener;
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
-
-import com.purehero.android.SignApk;
-import com.purehero.common.io.IRelease;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.common.io.SMTP;
-import com.purehero.fx.app.MainClass;
-import com.purehero.fx.app.view.MainViewController;
-import com.purehero.fx.common.DialogUtils;
-import com.purehero.fx.common.TableViewUtils;
-import com.purehero.fx.control.ex.TitledPaneEx;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -42,6 +21,23 @@ import javafx.scene.control.Control;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import net.dongliu.apk.parser.ApkParser;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
+
+import com.purehero.android.SignApk;
+import com.purehero.common.io.IRelease;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.common.io.SMTP;
+import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.MainViewController;
+import com.purehero.fx.common.DialogUtils;
+import com.purehero.fx.common.TableViewUtils;
+import com.purehero.fx.control.ex.TitledPaneEx;
 
 public class DeviceTestViewController implements EventHandler<ActionEvent>, IRelease{
 	
@@ -421,8 +417,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 						testResult.add( paneEx.getText());
 						testResult.add( "=====================================================================" );
 						List<String> result = testViewController.runTesting( mainViewController, apkParser, signedApkFile, output_folder );
-						testResult.addAll( result );
-						testResult.add( "=====================================================================" );
+						testResult.addAll( result );						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}				

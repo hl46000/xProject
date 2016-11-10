@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
-<?import javafx.scene.canvas.*?>
-<?import javafx.scene.image.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="440.0" prefWidth="616.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.atm.v3.view.actionTab.macroTabViewController">
+<BorderPane prefHeight="440.0" prefWidth="616.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.macro.DeviceMacroViewController">
    <center>
       <SplitPane fx:id="fxSplitPane" dividerPositions="0.7" BorderPane.alignment="CENTER">
          <items>
@@ -18,9 +17,9 @@
                      <children>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                            <children>
-                              <Button fx:id="ID_BTN_MOVE_FIRST_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="&lt;&lt;" />
-                              <Button fx:id="ID_BTN_SCREEN_STEP_ACTION" mnemonicParsing="false" onAction="#action_event_handler" text="Step" />
-                              <Button fx:id="btnScriptControl" mnemonicParsing="false" onAction="#action_event_handler" text="Play" />
+                              <Button fx:id="ID_BTN_MOVE_FIRST_SCREEN_DATA" mnemonicParsing="false" onAction="#handle" text="&lt;&lt;" />
+                              <Button fx:id="ID_BTN_SCREEN_STEP_ACTION" mnemonicParsing="false" onAction="#handle" text="Step" />
+                              <Button fx:id="btnScriptControl" mnemonicParsing="false" onAction="#handle" text="Play" />
                            </children>
                         </HBox>
                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
@@ -52,31 +51,31 @@
                         </VBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                            <children>
-                              <Button fx:id="ID_BTN_MOVE_SCREEN_PREV" mnemonicParsing="false" onAction="#action_event_handler" text="&lt;" />
+                              <Button fx:id="ID_BTN_MOVE_SCREEN_PREV" mnemonicParsing="false" onAction="#handle" text="&lt;" />
                               <Label fx:id="lbScreenPageInfo" text="0/0" />
-                              <Button fx:id="ID_BTN_MOVE_SCREEN_NEXT" mnemonicParsing="false" onAction="#action_event_handler" text="&gt;" />
+                              <Button fx:id="ID_BTN_MOVE_SCREEN_NEXT" mnemonicParsing="false" onAction="#handle" text="&gt;" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                            <children>
-                              <Button fx:id="ID_BTN_ADD_SCREEN_DATA_AT_PREV" mnemonicParsing="false" onAction="#action_event_handler" text="+">
+                              <Button fx:id="ID_BTN_ADD_SCREEN_DATA_AT_PREV" mnemonicParsing="false" onAction="#handle" text="+">
                                  <tooltip>
                                     <Tooltip text="현재화면의 앞에 화면을 추가합니다. \n'화면캡쳐'로는 추가할 수 없습니다. " />
                                  </tooltip>
                               </Button>
-                              <Button fx:id="ID_BTN_DEL_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="삭제">
+                              <Button fx:id="ID_BTN_DEL_SCREEN_DATA" mnemonicParsing="false" onAction="#handle" text="삭제">
                                  <tooltip>
                                     <Tooltip text="현재화면을 삭제합니다. " />
                                  </tooltip>
                               </Button>
-                              <Button fx:id="ID_BTN_ADD_SCREEN_DATA_AT_NEXT" mnemonicParsing="false" onAction="#action_event_handler" text="+">
+                              <Button fx:id="ID_BTN_ADD_SCREEN_DATA_AT_NEXT" mnemonicParsing="false" onAction="#handle" text="+">
                                  <tooltip>
                                     <Tooltip text="현재화면의 뒤에 화면을 추가합니다. \n'이미지 불러오기'로 추가할 수 있습니다. " />
                                  </tooltip>
                               </Button>
                            </children>
                         </HBox>
-                        <Button fx:id="ID_BTN_MODIFY_SCREEN_DATA" mnemonicParsing="false" onAction="#action_event_handler" text="수정" textAlignment="CENTER" />
+                        <Button fx:id="ID_BTN_MODIFY_SCREEN_DATA" mnemonicParsing="false" onAction="#handle" text="수정" textAlignment="CENTER" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" top="10.0" />
@@ -129,23 +128,23 @@
         <menus>
           <Menu mnemonicParsing="false" text="이미지">
             <items>
-              <MenuItem fx:id="ID_BTN_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#action_event_handler" text="화면캡쳐" />
+              <MenuItem fx:id="ID_BTN_CAPTURE_SCREEN" mnemonicParsing="false" onAction="#handle" text="화면캡쳐" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="ID_BTN_SAVE_IMAGE" mnemonicParsing="false" onAction="#action_event_handler" text="저장하기" />
-                  <MenuItem fx:id="ID_BTN_LOAD_IMAGE" mnemonicParsing="false" onAction="#action_event_handler" text="불러오기" />
+                  <MenuItem fx:id="ID_BTN_SAVE_IMAGE" mnemonicParsing="false" onAction="#handle" text="저장하기" />
+                  <MenuItem fx:id="ID_BTN_LOAD_IMAGE" mnemonicParsing="false" onAction="#handle" text="불러오기" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="ID_BTN_IMAGE_ROTATE_P90" mnemonicParsing="false" onAction="#action_event_handler" text="+90 회전" />
-                  <MenuItem fx:id="ID_BTN_IMAGE_ROTATE_N90" mnemonicParsing="false" onAction="#action_event_handler" text="-90 회전" />
+                  <MenuItem fx:id="ID_BTN_IMAGE_ROTATE_P90" mnemonicParsing="false" onAction="#handle" text="+90 회전" />
+                  <MenuItem fx:id="ID_BTN_IMAGE_ROTATE_N90" mnemonicParsing="false" onAction="#handle" text="-90 회전" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="스크립트">
             <items>
-              <MenuItem fx:id="ID_BTN_NEW_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="생성하기" />
-                  <MenuItem fx:id="ID_BTN_SAVE_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="저장하기" />
-                  <MenuItem fx:id="ID_BTN_LOAD_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="불러오기" />
+              <MenuItem fx:id="ID_BTN_NEW_SCRIPT" mnemonicParsing="false" onAction="#handle" text="생성하기" />
+                  <MenuItem fx:id="ID_BTN_SAVE_SCRIPT" mnemonicParsing="false" onAction="#handle" text="저장하기" />
+                  <MenuItem fx:id="ID_BTN_LOAD_SCRIPT" mnemonicParsing="false" onAction="#handle" text="불러오기" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="ID_BTN_IMPORT_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="가져오기" />
-                  <MenuItem fx:id="ID_BTN_EXPORT_SCRIPT" mnemonicParsing="false" onAction="#action_event_handler" text="내보내기" />
+                  <MenuItem fx:id="ID_BTN_IMPORT_SCRIPT" mnemonicParsing="false" onAction="#handle" text="가져오기" />
+                  <MenuItem fx:id="ID_BTN_EXPORT_SCRIPT" mnemonicParsing="false" onAction="#handle" text="내보내기" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

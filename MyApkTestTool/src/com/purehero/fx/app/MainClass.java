@@ -36,7 +36,7 @@ public class MainClass extends javafx.application.Application {
 		adb.Initialize( adbPath );
 	}
 
-	private File GetTempPath() {
+	public File GetTempPath() {
 		return new File( "c:\\temp\\atm_v3" );
 	}
 	
