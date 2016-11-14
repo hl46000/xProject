@@ -32,7 +32,7 @@ public class ImageUtils {
 	 * @return The rotated image
 	 */
 	public static BufferedImage rotate( BufferedImage img, double angle ){
-		if( angle == 0.0 ) return img;
+		if( angle == 0.0 || angle == 360.0 ) return img;
 		
 		double sin = Math.abs(Math.sin(Math.toRadians(angle)));
 		double cos = Math.abs(Math.cos(Math.toRadians(angle)));

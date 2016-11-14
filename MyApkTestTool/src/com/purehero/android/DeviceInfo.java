@@ -1,10 +1,13 @@
 package com.purehero.android;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.RawImage;
+import com.purehero.common.io.ImageUtils;
 
 public class DeviceInfo extends LogCat {
 	public DeviceInfo( IDevice _device ) {
@@ -50,6 +53,8 @@ public class DeviceInfo extends LogCat {
 	public void setErrorCount( int _errorCount ) { this.errorCount = _errorCount; }
 	
 	public BufferedImage getScreenshot(){
+		getDeviceOrientation();
+		
 		RawImage img = null;
 		try {
 			img = device.getScreenshot();
@@ -92,8 +97,8 @@ public class DeviceInfo extends LogCat {
 		
 		BufferedImage bimg=new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
 		bimg.setRGB(0,0,w,h,argb,0,w);
-		
-		return bimg;
+		 
+		return ImageUtils.rotate( bimg, 360.0 - orientation * 90 );
 	}
 	
 	private int display_width = 0;
@@ -160,39 +165,53 @@ public class DeviceInfo extends LogCat {
 	
 	private int orientation;
 	public int getOrientation() { return orientation; }
-	public void setOrientation( int orientation ) { this.orientation = orientation; }
+	public void setOrientation( int orientation ) { 
+		this.orientation = orientation;
+		System.out.println("setOrientation : " + orientation );
+	}
 	/**
 	 *  
 	 */
 	private IShellOutputReceiver DeviceOrientation_ShellOutputReceiver = new IShellOutputReceiver() {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
 		@Override
 		public void addOutput(byte[] data, int offset, int length) {
-			//System.out.println( "1" + new String( data, offset, length ));
-			String line = new String( data, offset, length ).trim();
-			if( !line.contains("orientation")) return;
-			
-			String items [] = line.trim().split(",");
-			for( String item : items ) {
-				String token [] = item.trim().split("=");
-				if( token.length > 1 ) {
-					String key = token[0].trim().toLowerCase();
-					String value = token[1].trim().toLowerCase();
-					
-					try {
-						if( key.compareTo("candraw") == 0 ) {
-							setDisplayOn( Integer.valueOf( value ) != 0 );
-						} else if( key.compareTo("isdisplayon") == 0 ) {
-							setDisplayOn( Integer.valueOf( value ) != 0 );
-						} else if( key.compareTo("orientation") == 0 ) {
-							setOrientation( Integer.valueOf( value ));
-						}
-					} catch( Exception e ) {}
-				}
-			}
+			baos.write( data, offset, length );
 		}
 
 		@Override
-		public void flush() { }
+		public void flush() { 
+			String lines [] = baos.toString().split( System.lineSeparator());
+			
+			for( String line : lines ) {
+				if( !line.contains("orientation")) continue;
+				
+				String items [] = line.trim().split(",");
+				for( String item : items ) {
+					String token [] = item.trim().split("=");
+					if( token.length > 1 ) {
+						String key = token[0].trim().toLowerCase();
+						String value = token[1].trim().toLowerCase();
+						
+						try {
+							if( key.compareTo("candraw") == 0 ) {
+								setDisplayOn( Integer.valueOf( value ) != 0 );
+							} else if( key.compareTo("isdisplayon") == 0 ) {
+								setDisplayOn( Integer.valueOf( value ) != 0 );
+							} else if( key.compareTo("orientation") == 0 ) {
+								setOrientation( Integer.valueOf( value ));
+							}
+						} catch( Exception e ) {}
+					}
+				}
+			}
+			try {
+				baos.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		@Override
 		public boolean isCancelled() { 
