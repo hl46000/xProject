@@ -4,13 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.purehero.android.ADB;
-import com.purehero.common.io.FileUtils;
-import com.purehero.common.io.IRelease;
-import com.purehero.common.io.PathUtils;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.view.MainViewController;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,6 +14,13 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
+import com.purehero.android.ADB;
+import com.purehero.common.io.FileUtils;
+import com.purehero.common.io.IRelease;
+import com.purehero.common.io.PathUtils;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.view.MainViewController;
 
 public class MainClass extends javafx.application.Application {
 	public static MainClass instance = null;
@@ -29,6 +32,9 @@ public class MainClass extends javafx.application.Application {
 	private Stage primaryStage = null;
 	
 	private ADB adb = new ADB();
+	//private ExecutorService threadPool = Executors.newFixedThreadPool(5);;
+	private ThreadPoolExecutor threadPool = new ThreadPoolExecutor( 10, 10, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()  );
+	
 	public MainClass() {
 		ClassLoader clsLoader = getClass().getClassLoader();
 		
@@ -52,6 +58,8 @@ public class MainClass extends javafx.application.Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
+		
+		
 		
 		FXMLLoader mainViewLoader = new FXMLLoader(MainClass.this.getClass().getResource("view/MainView.fxml"));
 		Parent mainView = mainViewLoader.load();
@@ -84,6 +92,17 @@ public class MainClass extends javafx.application.Application {
 		for( IRelease if_release : i_releases ) {
 			if_release.Release();
 		}
+				
+		if( threadPool != null ) {
+			while( !threadPool.isTerminated()) {
+				threadPool.shutdownNow();
+				try {
+					Thread.sleep( 300 );
+				} catch( Exception e ) {}
+			}
+		}
+		threadPool = null;
+		
 		adb.Release();
 	}
 		
@@ -112,5 +131,15 @@ public class MainClass extends javafx.application.Application {
 		}
 		
 		return prop;
+	}
+	
+	/**
+	 * @param command
+	 */
+	synchronized public void runThreadPool( Runnable command ) {
+		if( threadPool != null ) {
+			threadPool.execute(command);
+			System.out.println( command.toString());
+		}
 	}
 }

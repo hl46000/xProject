@@ -327,7 +327,7 @@ final 	double DIV_UNIT = 5000.0f;					// 실제 화면을 분활할 값 ( 100분
 		File exported_file = DialogUtils.openFileDialog( "Export 된 파일을 선택하여 주세요", "EXPORT", "*.atm");
 		if( exported_file == null ) return;
 		
-		File script_file = DialogUtils.openFileDialog( "저장할 스크립트파일을 선택하여 주세요.", "SCRIPT", "*.script");
+		File script_file = DialogUtils.saveFileDialog( "저장할 스크립트파일을 선택하여 주세요.", "SCRIPT", "*.script");
 		if( script_file == null ) return;
 		
 		try {

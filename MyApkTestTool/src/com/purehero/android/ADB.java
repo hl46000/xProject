@@ -18,10 +18,12 @@ public class ADB implements IDeviceChangeListener {
 	}
 	
 	private File adb = null;
+		
 	public boolean Initialize( File adbPath ) {
 		// Get a device bridge instance. Initialize, create and restart.
 		try {
 			AndroidDebugBridge.initIfNeeded(false);
+			
 		} catch (IllegalStateException ise) {
 			ise.printStackTrace();
 			System.err.println("The IllegalStateException is not a show " +

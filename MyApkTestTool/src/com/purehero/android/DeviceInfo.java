@@ -4,10 +4,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.RawImage;
 import com.purehero.common.io.ImageUtils;
+import com.purehero.fx.app.MainClass;
 
 public class DeviceInfo extends LogCat {
 	public DeviceInfo( IDevice _device ) {
@@ -62,6 +64,16 @@ public class DeviceInfo extends LogCat {
 			e.printStackTrace();
 			return null;
 		}
+		
+		return ImageUtils.rotate( RawImage2BufferedImage2( img ), 360.0 - orientation * 90 );
+	}
+	
+	/**
+	 * @param img
+	 * @return
+	 */
+	/*
+	private BufferedImage RawImage2BufferedImage(RawImage img) {
 		int w=img.width;
 		int h=img.height;
 		int size=w * h;
@@ -97,8 +109,25 @@ public class DeviceInfo extends LogCat {
 		
 		BufferedImage bimg=new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
 		bimg.setRGB(0,0,w,h,argb,0,w);
-		 
-		return ImageUtils.rotate( bimg, 360.0 - orientation * 90 );
+		
+		return bimg;
+	}
+	*/
+	
+	private BufferedImage RawImage2BufferedImage2(RawImage img) {
+		int w=img.width;
+		int h=img.height;
+		int size=w * h;
+		int argb[]=new int[size];
+		int bytesPerPixel = img.bpp / 8 / 2;
+		
+		for (int i=0; i < size; i++) {
+			argb[i]=img.getARGB(i << bytesPerPixel);
+		}
+		
+		BufferedImage bimg=new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
+		bimg.setRGB(0,0,w,h,argb,0,w);
+		return bimg;
 	}
 	
 	private int display_width = 0;
@@ -113,24 +142,33 @@ public class DeviceInfo extends LogCat {
 	 *  
 	 */
 	private IShellOutputReceiver DeviceDisplaySize_ShellOutputReceiver = new IShellOutputReceiver() {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
 		@Override
 		public void addOutput(byte[] data, int offset, int length) {
-			//System.out.println( "1" + new String( data, offset, length ));
-			String line = new String( data, offset, length ).trim();
-			
-			if( line.isEmpty()) return;
-			if( !line.startsWith("Physical size: ")) return;
-			
-			String size = line.substring( "Physical size: ".length() ).trim();
-			String token[] = size.split("x");
-			if( token.length < 2 ) return;
-			
-			setDisplayWidth( Integer.valueOf( token[0]));
-			setDisplayHeight( Integer.valueOf( token[1]));
+			baos.write( data, offset, length );
 		}
 
 		@Override
-		public void flush() {}
+		public void flush() {
+			String lines [] = baos.toString().split( System.lineSeparator());
+			for( String line : lines ) {
+				if( line.isEmpty()) continue;
+				if( !line.startsWith("Physical size: ")) continue;
+				
+				String size = line.substring( "Physical size: ".length() ).trim();
+				String token[] = size.split("x");
+				if( token.length < 2 ) continue;
+				
+				setDisplayWidth( Integer.valueOf( token[0]));
+				setDisplayHeight( Integer.valueOf( token[1]));
+			}
+			try {
+				baos.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		@Override
 		public boolean isCancelled() { return false; }
@@ -140,23 +178,14 @@ public class DeviceInfo extends LogCat {
 	 * @param device
 	 */
 	private void getDeviceDisplaySize() {
-		try {
-			device.executeShellCommand("wm size", DeviceDisplaySize_ShellOutputReceiver );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		MainClass.instance.runThreadPool( new WorkThread( this, "wm size", DeviceDisplaySize_ShellOutputReceiver ));
 	}
-	
 	
 	/**
 	 * 
 	 */
 	public void getDeviceOrientation() {
-		try {
-			device.executeShellCommand("dumpsys SurfaceFlinger", DeviceOrientation_ShellOutputReceiver );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		MainClass.instance.runThreadPool( new WorkThread( this, "dumpsys SurfaceFlinger", DeviceOrientation_ShellOutputReceiver ));
 	}
 	
 	private boolean displayOn = false;
@@ -167,14 +196,13 @@ public class DeviceInfo extends LogCat {
 	public int getOrientation() { return orientation; }
 	public void setOrientation( int orientation ) { 
 		this.orientation = orientation;
-		System.out.println("setOrientation : " + orientation );
 	}
 	/**
 	 *  
 	 */
 	private IShellOutputReceiver DeviceOrientation_ShellOutputReceiver = new IShellOutputReceiver() {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		
+				
 		@Override
 		public void addOutput(byte[] data, int offset, int length) {
 			baos.write( data, offset, length );
@@ -182,12 +210,14 @@ public class DeviceInfo extends LogCat {
 
 		@Override
 		public void flush() { 
-			String lines [] = baos.toString().split( System.lineSeparator());
+			String contents = baos.toString();
+			String lines [] = contents.split( System.lineSeparator());
 			
 			for( String line : lines ) {
 				if( !line.contains("orientation")) continue;
 				
 				String items [] = line.trim().split(",");
+				
 				for( String item : items ) {
 					String token [] = item.trim().split("=");
 					if( token.length > 1 ) {
@@ -202,10 +232,15 @@ public class DeviceInfo extends LogCat {
 							} else if( key.compareTo("orientation") == 0 ) {
 								setOrientation( Integer.valueOf( value ));
 							}
-						} catch( Exception e ) {}
+						} catch( Exception e ) {
+							break;
+						}
 					}
 				}
+				
 			}
+			
+			
 			try {
 				baos.flush();
 			} catch (IOException e) {
@@ -214,13 +249,11 @@ public class DeviceInfo extends LogCat {
 		}
 
 		@Override
-		public boolean isCancelled() { 
-			return false;
-		}
+		public boolean isCancelled() { return false; }
 	};
 	
 	public void touchScreen(int x, int y ) {
-		Command( String.format( "input tap %d %d", x, y ));
+		Command( String.format( "input tap %d %d", x, y ) );
 	}
 
 	public void swipeScreen(int x, int y, int x2, int y2, long swipeTime) {
@@ -239,14 +272,37 @@ public class DeviceInfo extends LogCat {
 	};
 	
 	public void Command( String cmd ) {
-		new Thread( new Runnable(){
-			@Override
-			public void run() {
-				try {
-					device.executeShellCommand( cmd, ShellOutputReceiver );
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}}).start();			
+		MainClass.instance.runThreadPool( new WorkThread( this, cmd, ShellOutputReceiver ));			
 	}
+	
+	/**
+	 * @author MY
+	 *
+	 */
+	class WorkThread implements Runnable {
+		final DeviceInfo deviceInfo;
+		final String cmd;
+		final IShellOutputReceiver receiver;
+		public WorkThread( DeviceInfo deviceInfo, String cmd, IShellOutputReceiver receiver ) {
+			this.deviceInfo = deviceInfo;
+			this.cmd = cmd;
+			this.receiver = receiver;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				deviceInfo.getInterface().executeShellCommand( cmd, receiver );
+			} catch (AdbCommandRejectedException e ) {
+				//e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public String toString() {
+			return String.format( "[%d] %s", Thread.currentThread().getId(), cmd );
+		}
+	};
 }
