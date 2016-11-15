@@ -3,7 +3,7 @@ package com.purehero.fx.app.view.test;
 import java.io.File;
 
 public class ApkFileInfo {
-	private final File apkfile;
+	private File apkfile;
 	private String status = "대기";
 	public ApkFileInfo( File file ) {
 		apkfile = file;
@@ -23,5 +23,23 @@ public class ApkFileInfo {
 	
 	public void setStatus( String _status ) {
 		status = _status;
+	}
+	
+	/////////////////////////////////////////////////
+	String appName;
+	public String getAppName() { return appName; }
+	public void setAppName( String _appName ) {
+		appName = _appName;
+	}
+	
+	String packageName;
+	public String getPackageName() { return packageName; }
+	public void setPackageName( String _packageName ) {
+		packageName = _packageName;
+	}
+	
+	public String getApkFilePath() { return apkfile.getAbsolutePath(); }
+	public void setApkFilePath( String path ) {
+		apkfile = new File( path );
 	}
 }

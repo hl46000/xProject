@@ -16,6 +16,7 @@ import com.purehero.android.SignApk;
 import com.purehero.common.io.IRelease;
 import com.purehero.common.io.PropertyEx;
 import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.apk_list.DeviceApkListViewController;
 import com.purehero.fx.app.view.macro.DeviceMacroViewController;
 import com.purehero.fx.app.view.test.DeviceTestViewController;
 import com.purehero.fx.common.DialogUtils;
@@ -79,10 +80,28 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		
 		workTabPane.getTabs().add( loadDeviceTestView());
 		workTabPane.getTabs().add( loadDeviceMacroView());
+		workTabPane.getTabs().add( loadDeviceApkListView());
 		
 		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	/**
+	 * @return
+	 * @throws IOException 
+	 */
+	private Tab loadDeviceApkListView() throws IOException {
+		FXMLLoader deviceApkListViewLoader = new FXMLLoader( getClass().getResource("apk_list/DeviceApkListView.fxml")); 
+		Parent deviceApkListView = deviceApkListViewLoader.load();
+		Tab tab = new Tab();
+		tab.setText("Device APK LIST");
+		tab.setContent( deviceApkListView );
+				
+		DeviceApkListViewController deviceApkListViewController = ( DeviceApkListViewController ) deviceApkListViewLoader.getController();
+		deviceApkListViewController.setMainViewController( this );
+		
+		return tab;
+	}
+
 	/**
 	 * Macro view 에 해당하는 fxml(DeviceMacroView.fxml) 파일을 로딩하여 Tab 에 Add 시켜서 Tab 객체를 반환한다. 
 	 * 

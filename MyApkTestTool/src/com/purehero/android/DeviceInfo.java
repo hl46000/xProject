@@ -10,6 +10,7 @@ import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.RawImage;
 import com.purehero.common.io.ImageUtils;
 import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.WorkThread;
 
 /**
  * Adb에 연결된 단말기의 정보 및 Action 을 수행하기 위한 CLASS
@@ -279,36 +280,5 @@ public class DeviceInfo extends LogCat {
 	
 	public void Command( String cmd ) {
 		MainClass.instance.runThreadPool( new WorkThread( this, cmd, ShellOutputReceiver ));			
-	}
-	
-	/**
-	 * @author MY
-	 *
-	 */
-	class WorkThread implements Runnable {
-		final DeviceInfo deviceInfo;
-		final String cmd;
-		final IShellOutputReceiver receiver;
-		public WorkThread( DeviceInfo deviceInfo, String cmd, IShellOutputReceiver receiver ) {
-			this.deviceInfo = deviceInfo;
-			this.cmd = cmd;
-			this.receiver = receiver;
-		}
-		
-		@Override
-		public void run() {
-			try {
-				deviceInfo.getInterface().executeShellCommand( cmd, receiver );
-			} catch (AdbCommandRejectedException e ) {
-				//e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public String toString() {
-			return String.format( "[%d] %s", Thread.currentThread().getId(), cmd );
-		}
-	};
+	} 
 }

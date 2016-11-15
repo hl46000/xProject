@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.apk_list.DeviceApkListViewController">
+   <top>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <Label text="단말기 APK LIST">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </top>
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" minHeight="35.0" spacing="10.0" BorderPane.alignment="CENTER_LEFT">
+         <children>
+            <Button fx:id="ID_BTN_LIST_UPDATE" mnemonicParsing="false" onAction="#handle" text="Button" />
+            <Button fx:id="ID_BUTTON_SAVE_TEST_SETTING" mnemonicParsing="false" text="Button" />
+            <Button fx:id="ID_BUTTON_LOAD_TEST_SETTING" mnemonicParsing="false" text="Button" />
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </BorderPane.margin>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </bottom>
+   <left>
+      <TableView fx:id="tbApkInfoList" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="-1.0" text="APP NAME" />
+            <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="-1.0" sortable="false" text="PACKAGE NAME" />
+            <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="-1.0" sortable="false" text="APK PATH" />
+        </columns>
+      </TableView>
+   </left>
+</BorderPane>
