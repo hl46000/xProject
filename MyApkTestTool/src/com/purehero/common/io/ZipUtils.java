@@ -12,10 +12,16 @@ import java.util.zip.ZipOutputStream;
 //import java.util.zip.ZipInputStream;
 //import java.util.zip.ZipOutputStream;
 
+/**
+ * Zip 압축/압축해제 CLASS
+ * 
+ * @author purehero
+ *
+ */
 public class ZipUtils {
 	private static final int COMPRESSION_LEVEL = 8;
 
-    private static final int BUFFER_SIZE = 1024 * 2;
+    private static final int BUFFER_SIZE = 1024 * 128;	// zip 파일을 읽고 쓸때 사용하는 버퍼 크기
 
     /**
      * 지정된 폴더를 Zip 파일로 압축한다.

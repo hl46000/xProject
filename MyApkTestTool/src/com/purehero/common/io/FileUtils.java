@@ -32,7 +32,8 @@ public class FileUtils {
 	
 	
 	/**
-	 * is 의 스트림을 outFile 로 기록합니다. <br> 기록이 완료되면 is 스트림은 close 시킴니다.
+	 * is 의 스트림을 outFile 로 기록한다.<br>
+	 * 기록이 완료되면 is 스트림은 close 시킨다.
 	 *  
 	 * @param is
 	 * @param outFile

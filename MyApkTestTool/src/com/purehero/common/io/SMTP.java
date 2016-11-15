@@ -17,6 +17,16 @@ import javax.mail.internet.MimeMultipart;
 import com.sun.mail.smtp.SMTPTransport;
 
 public class SMTP {
+	/**
+	 * Inka의 noreply@appsealing.com 계정으로 이메일을 발송한다. 
+	 * 
+	 * @param title			e-mail 제목
+	 * @param recipientList	수신자 리스트
+	 * @param mailBodyLines	e-mail 내용들
+	 * @param attachFile	첨부파일( 없으면 null 입력 )
+	 * @throws UnsupportedEncodingException
+	 * @throws MessagingException
+	 */
 	public static void sendInkaNoreplyMail(String title, List<String> recipientList, List<String> mailBodyLines, File attachFile ) throws UnsupportedEncodingException, MessagingException {
 		if( recipientList == null || recipientList.size() < 1 ) {
 			return;
@@ -40,6 +50,16 @@ public class SMTP {
 		sendInkaNoreplyMail( title, recipient, mailBody, attachFile );
 	}
 	
+	/**
+	 * Inka의 noreply@appsealing.com 계정으로 이메일을 발송한다. 
+	 * 
+	 * @param title e-mail 제목
+	 * @param recipient 수신자 문자열( 여러명일 경우 ',' 로 구분 )
+	 * @param mailBody e-mail 내용
+	 * @param attachFile 첨부파일( 없으면 null 입력 )
+	 * @throws UnsupportedEncodingException
+	 * @throws MessagingException
+	 */
 	public static void sendInkaNoreplyMail(String title, String recipient, String mailBody, File attachFile ) throws UnsupportedEncodingException, MessagingException {
      	final String smtpServer = "smtp.gmail.com";
 		final String sender 	= "noreply@appsealing.com";

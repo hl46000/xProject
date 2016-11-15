@@ -60,10 +60,15 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	private Label statusMessage;		// 상태 정보를 출력해주는 Label
 	
 	@FXML
-	private TabPane workTabPane;
+	private TabPane workTabPane;		
 	
 	private ADB adb = null;
 	
+	/**
+	 * UI 화면이 시작될때 처음 호출되는 함수
+	 * 
+	 * @throws Exception
+	 */
 	@FXML
     public void initialize() throws Exception {
 		initTableView();
@@ -78,6 +83,12 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		MainClass.instance.addReleaseInterface( this );
 	}
 	
+	/**
+	 * Macro view 에 해당하는 fxml(DeviceMacroView.fxml) 파일을 로딩하여 Tab 에 Add 시켜서 Tab 객체를 반환한다. 
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	private Tab loadDeviceMacroView() throws IOException {
 		FXMLLoader deviceMacroViewLoader = new FXMLLoader( getClass().getResource("macro/DeviceMacroView.fxml")); 
 		Parent deviceMacroView = deviceMacroViewLoader.load();
@@ -91,6 +102,12 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		return tab;
 	}
 
+	/**
+	 * Device Test view 에 해당하는 fxml(DeviceTestView.fxml) 파일을 로딩하여 Tab 에 Add 시켜서 Tab 객체를 반환한다.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	private Tab loadDeviceTestView() throws IOException {
 		FXMLLoader deviceTestViewLoader = new FXMLLoader( getClass().getResource("test/DeviceTestView.fxml")); 
 		Parent deviceTestView = deviceTestViewLoader.load();
@@ -106,12 +123,22 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	private boolean bReleased = false;
+	/**
+	 * Controll 객체가 Release 되었는지를 반환 한다. 
+	 * 테스트 진행 Thread 에서 Application 이 종료되었는지를 확인할 때 사용된다. 
+	 * 
+	 * @return
+	 */
 	public boolean isReleased() { return bReleased; } 
 	
+	/* 
+	 * 앱이 종료될때 해당 UI의 리소스를 반환하기 위해 호출된다. 
+	 */
 	@Override
 	public void Release() {
 		bReleased = true;
 		
+		// 각 Device의 Logcat 서비스가 실행 중이면 이를 중지 시킨다. 
 		List<DeviceInfo> devices = getDevices();
 		for( DeviceInfo device : devices ) {
 			if( device.isLogcatStarted()) {
@@ -121,7 +148,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * ADB 객체를 사용할 수 있도록 받아오고, 장비의 변경을 감지하는 Listener 을 설정 합니다. 
+	 * ADB 객체를 사용할 수 있도록 받아오고, 장비의 변경을 감지하는 Listener 을 설정 한다.  
 	 * 
 	 * @param adb
 	 */
@@ -133,7 +160,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * 현재 PC에 연결된 Android 장치들의 정보를 반환합니다. ADB로 연결이 되어 있어야 합니다. 
+	 * 현재 PC에 연결된 Android 장치들의 정보를 반환합니다. ADB로 연결이 되어 있어야 한다. 
 	 * 
 	 * @return
 	 */
@@ -146,7 +173,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * 장치 목록 TableView 을 초기화 합니다. 
+	 * 장치 목록 TableView 을 초기화 한다.
 	 */
 	private void initTableView() {
 		int column_index = 0;
@@ -163,7 +190,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * ADB에 연결된 장치 정보를 얻어와 tableView 의 내용을 갱신 시킴니다.  
+	 * ADB에 연결된 장치 정보를 얻어와 tableView 의 내용을 갱신 시킨다.
 	 */
 	private void refresh_device_infos() {
 		List<DeviceInfo> devices = getDevices();
@@ -172,6 +199,9 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		tvDeviceInfo.setItems( deviceInfoData );
 	}
 	
+	/* 
+	 * UI에서 발생하는 ActionEvent 처리를 담당한다. 
+	 */
 	@FXML
 	@Override
 	public void handle(ActionEvent event) {
@@ -191,6 +221,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 		
 	/**
+	 * UI에서 발생하는 ActionEvent 중 MenuItem 에서 발생한 Event 처리를 담당한다. 
+	 * 
 	 * MenuItem handle event 
 	 * @param mi
 	 */
@@ -209,6 +241,9 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 
 	
 
+	/**
+	 * 테스트 옵션 설정 버튼 처리 함수
+	 */
 	private void OnButtonClickDeviceTestOptions() {
 		try {
 			DialogUtils.showResDialog("view/testView.fxml");
@@ -240,7 +275,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * CheckMenuItem handle event 
+	 * UI에서 발생하는 ActionEvent 중 CheckMenuItem 에서 발생한 Event 처리를 담당한다. 
 	 * @param ckMenu
 	 */
 	private void handleCheckMenuItem(CheckMenuItem ckMenu) {
@@ -250,7 +285,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * CheckBox handle event 
+	 * UI에서 발생하는 ActionEvent 중 CheckBox 에서 발생한 Event 처리를 담당한다. 
+	 *  
 	 * @param cb
 	 */
 	private void handleCheckBox(CheckBox cb) {
@@ -266,7 +302,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * CheckBoxTableCellEx handle event 
+	 * UI에서 발생하는 ActionEvent 중 CheckBoxTableCellEx 에서 발생한 Event 처리를 담당한다. 
+	 * 
 	 * @param ckCell
 	 */
 	private void handleCheckBoxTableCellEx(CheckBoxTableCellEx<?, ?> ckCell) {
@@ -276,7 +313,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * 디바이스 정보창에 check box 가 체크된 객체들을 반환 합니다. 
+	 * 디바이스 정보창에 check box 가 체크된 DeviceInfo 객체들을 반환한다.
 	 * @return
 	 */
 	public List<DeviceInfo> getCheckedDeviceInfo() {
@@ -295,6 +332,10 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		return ret;
 	}
 	
+	/**
+	 * APK 선택 Dialog 을 띄워 APK 파일을 선택하고, 실행 옵션에 따라서 실행한다.
+	 * 단말기 리스트에서 항목이 체크된 선택된 단말기들에서 실행이 된다.  
+	 */
 	private void OnButtonClickMultiSelectApkFile() {
 		List<DeviceInfo> deviceInfos = getCheckedDeviceInfo();
 		if( deviceInfos == null ) return;
@@ -321,7 +362,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * APK 파일을 서명하여 돌려 줍니다. 메뉴항목에서 서명메뉴에 체크가 되어 있지 않으면 원본 APK 파일을 반환합니다. 
+	 * APK 파일을 서명하여 돌려 준다. 
+	 * 메뉴항목에서 서명메뉴에 체크가 되어 있지 않으면 원본 APK 파일을 반환한다. 
 	 * 
 	 * @param OptionMenu
 	 * @param apkFile
@@ -342,6 +384,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
+	 * UI 하단의 status bar의 메시지를 갱신한다. 
+	 * 
 	 * @param message
 	 */
 	public void updateStatusMessage( final String message ) {
@@ -361,7 +405,9 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	};
 	
 	/**
-	 * 입력된 deviceInfo 항목의 commant 내용을 갱신합니다. Thread 에서도 호출 가능하다. 
+	 * 입력된 deviceInfo 항목의 commant 내용을 갱신한다. 
+	 * commant 값이 null 이면 단말기 항목만 갱신한다.  
+	 * Thread 에서도 호출 가능하다. 
 	 * 
 	 * @param deviceInfo
 	 * @param commant
@@ -377,7 +423,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * 
+	 * 단말기 리스트에서 선택된( 체크가 아님 ) 단말기의 DeviceInfo 객체를 반환한다. 
 	 * 
 	 * @return
 	 */
@@ -391,7 +437,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * APK 선택 Dialog 을 띄워 APK 파일을 선택하고, 실행 옵션에 따라서 실행합니다. 
+	 * APK 선택 Dialog 을 띄워 APK 파일을 선택하고, 실행 옵션에 따라서 실행한다.
+	 * 단말기 리스트에서 선택된 단말기에서만 실행이 된다.  
 	 * @throws IOException 
 	 */
 	private void OnButtonClickSelectApkFile() {
@@ -418,7 +465,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/**
-	 * ADB Shell 명령어의 결과값을 받을 공통 리시버 입니다. 
+	 * ADB Shell 명령어의 결과값을 받을 공통 리시버, 아무 동작도 하지 않는다. 
 	 */
 	public IShellOutputReceiver shellOutputReceiver = new IShellOutputReceiver() {
 
@@ -434,19 +481,17 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		public boolean isCancelled() { return false; }
 	};
 	
+	/**
+	 * LogCat 수신을 위한 리시버, 아무 동작도 하지 않는다. 
+	 */
 	LogCatListener logcatListener = new LogCatListener() {
 		@Override
 		public void log(List<LogCatMessage> msgList) {
-			/*
-			for( LogCatMessage msg : msgList) {
-				System.out.println ( msg.toString() );
-			}
-			*/
 		}
 	};
 
 	/**
-	 * 선택된 단말기의 Logcat 정보를 consol 로 출력합니다.  
+	 * 선택된 단말기의 Logcat 정보를 받아 와서 consol 로 출력한다.   
 	 */
 	private void OnButtonClickLogcat() {
 		final DeviceInfo deviceInfo = getSelectedDeviceInfo();
@@ -465,7 +510,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 	
 	/**
-	 * 선택된 단말기의 Adb shell 창을 띄움니다. 
+	 * 선택된 단말기의 Adb shell 창을 띄운다. 
 	 */
 	private void OnButtonClickOpenShell() {
 		final DeviceInfo deviceInfo = getSelectedDeviceInfo();
@@ -486,7 +531,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	}
 
 	/* 
-	 * 디바이스 정보에 변화가 생기면 호출되는 함수 입니다. 
+	 * 디바이스 정보에 변화가 생기면 호출되는 함수
 	 */
 	@Override
 	public void OnDeviceChangedEvent() {

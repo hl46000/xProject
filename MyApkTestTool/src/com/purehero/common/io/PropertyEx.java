@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.util.Properties;
 
 /**
+ * Property 을 사용하기 위한 CLASS 
+ * 
  * @author purehero
  *
  */
@@ -21,6 +23,8 @@ public class PropertyEx {
 	}
 	
 	/**
+	 * Property 파일을 불러온다. 
+	 * 
 	 * @param path
 	 * @throws IOException
 	 */
@@ -35,6 +39,7 @@ public class PropertyEx {
 	}
 	
 	/**
+	 * Property 내용을 파일로 기록한다. 
 	 * 
 	 * @param path
 	 * @param comments
@@ -56,6 +61,8 @@ public class PropertyEx {
 	}
 	
 	/**
+	 * Property 내용을 파일로 기록한다. <br> load 함수로 불러온 파일로 기록한다. 
+	 * 
 	 * @param comments
 	 * @return
 	 * @throws IOException
@@ -65,6 +72,8 @@ public class PropertyEx {
 	}
 	
 	/**
+	 * key 에 해당하는 값을 반환한다. <br>key 에 해당하는 값이 없으면 null 이 반환된다. 
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -74,6 +83,8 @@ public class PropertyEx {
 	}
 	
 	/**
+	 * 새로운 key, value 항목을 생성한다. <br> key 항목이 이미 존재하면 기존 key 값을 value 로 갱신한다. 
+	 * 
 	 * @param key
 	 * @param value
 	 * @return
@@ -87,6 +98,8 @@ public class PropertyEx {
 	}
 	
 	/**
+	 * load 함수로 불러온 Property 파일의 경로를 반환한다. 
+	 * 
 	 * @return
 	 */
 	public String getPropertyFilePath() {

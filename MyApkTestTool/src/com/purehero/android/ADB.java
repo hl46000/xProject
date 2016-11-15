@@ -13,12 +13,23 @@ public class ADB implements IDeviceChangeListener {
 	private List<IDevice> devices = new ArrayList<IDevice>();
 	private DeviceChangeListener changeListener = null;
 	
+	/**
+	 * 디바이스 변경 감지 Listener 
+	 * 
+	 * @param changeListener
+	 */
 	public void setDeviceChangeListener ( DeviceChangeListener changeListener ) {
 		this.changeListener = changeListener;
 	}
 	
 	private File adb = null;
 		
+	/**
+	 * ADB 초기화 함수, adbPath 필요
+	 * 
+	 * @param adbPath
+	 * @return
+	 */
 	public boolean Initialize( File adbPath ) {
 		// Get a device bridge instance. Initialize, create and restart.
 		try {
@@ -49,7 +60,7 @@ public class ADB implements IDeviceChangeListener {
 	}
 	
 	/**
-	 * 
+	 * 리소스 반환함수, Listener 및 ADB 관련 리소스를 해제한다. 
 	 */
 	public void Release() {
 		AndroidDebugBridge.removeDeviceChangeListener(this);
@@ -60,10 +71,16 @@ public class ADB implements IDeviceChangeListener {
 		System.out.println( "ADB Release" );
 	}
 
+	/**
+	 * ADB에 연결되어 있는 단말기들의 IDevice 객체를 반환한다. 
+	 * 
+	 * @return
+	 */
 	public List<IDevice> getDevices() {
 		return devices;
 	}
 	
+	// ADB에 새로운 장비가 연결되었을 때 호출되는 함수, 단말기 리스트에 새로 연결된 단말기를 추가한다. 
 	@Override
 	public void deviceConnected(IDevice device) {
 		if( !devices.contains( device )) {
@@ -74,6 +91,7 @@ public class ADB implements IDeviceChangeListener {
 		}
 	}
 
+	// ADB에 단말기의 연결이 끊겼을때 호출되는 함수, 단말기 리스트에서 끊긴 단말기를 삭제한다. 
 	@Override
 	public void deviceDisconnected(IDevice device) {
 		devices.remove(device);
@@ -82,6 +100,7 @@ public class ADB implements IDeviceChangeListener {
 		}
 	}
 
+	// ADB에 연결된 단말기의 상태가 변경되었을 경우 호출되는 함수
 	@Override
 	public void deviceChanged(IDevice device, int changeMask) {
 		if( changeListener != null && (IDevice.CHANGE_STATE & changeMask) != 0 ) {
@@ -90,6 +109,8 @@ public class ADB implements IDeviceChangeListener {
 	}
 	
 	/**
+	 * ADB 파일의 경로를 반환한다. 
+	 * 
 	 * @return
 	 */
 	public String getAdbPath() {

@@ -11,6 +11,12 @@ import com.android.ddmlib.RawImage;
 import com.purehero.common.io.ImageUtils;
 import com.purehero.fx.app.MainClass;
 
+/**
+ * Adb에 연결된 단말기의 정보 및 Action 을 수행하기 위한 CLASS
+ * 
+ * @author purehero
+ *
+ */
 public class DeviceInfo extends LogCat {
 	public DeviceInfo( IDevice _device ) {
 		super( _device );

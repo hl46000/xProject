@@ -5,6 +5,7 @@ import java.net.URL;
 
 public class PathUtils {
 	/**
+	 * 실행중인 경로를 반환한다. 
 	 * 
 	 * @param runnableClass
 	 * @return
