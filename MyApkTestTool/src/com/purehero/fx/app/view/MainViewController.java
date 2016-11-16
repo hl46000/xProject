@@ -556,4 +556,21 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	public void OnDeviceChangedEvent() {
 		refresh_device_infos();
 	}
+	
+	/**
+	 * 단말기에서 APK 파일 제거
+	 * 
+	 * @throws Exception
+	 */
+	public void apkFileUnistall( DeviceInfo deviceInfo, String packageName, String appName, long delay ) throws Exception {
+		updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제", appName ), true );
+		try {
+			deviceInfo.getInterface().uninstallPackage( packageName );
+		} catch (Exception e) {
+			updateDeviceCommant( deviceInfo, e.getMessage(), true );
+			throw e;
+		}
+		updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제 완료", appName ), true );
+		Thread.sleep( delay );
+	}
 }

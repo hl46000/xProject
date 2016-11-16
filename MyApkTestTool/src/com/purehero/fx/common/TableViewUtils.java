@@ -17,7 +17,7 @@ public class TableViewUtils {
 	 * 
 	 * @param tvDeviceInfo
 	 * @param property
-	 * @param align
+	 * @param align [ top-left | top-center | top-right | center-left | center | center-right bottom-left | bottom-center | bottom-right | baseline-left | baseline-center | baseline-right ]
 	 * @param index
 	 */
 	@SuppressWarnings("unchecked")
@@ -33,7 +33,7 @@ public class TableViewUtils {
 	 * 
 	 * @param tvDeviceInfo
 	 * @param property
-	 * @param align
+	 * @param align [ top-left | top-center | top-right | center-left | center | center-right bottom-left | bottom-center | bottom-right | baseline-left | baseline-center | baseline-right ]
 	 * @param index
 	 */
 	@SuppressWarnings("unchecked")

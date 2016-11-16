@@ -354,24 +354,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에 설치완료", appLabel ), true );
 			Thread.sleep( delay );
 		}
-		
-		/**
-		 * 단말기에서 APK 파일 제거
-		 * 
-		 * @throws Exception
-		 */
-		private void apkFileUnistall( long delay ) throws Exception {
-			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제", appLabel ), true );
-			try {
-				deviceInfo.getInterface().uninstallPackage( packageName );
-			} catch (Exception e) {
-				mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
-				throw e;
-			}
-			mainViewController.updateDeviceCommant(deviceInfo, String.format( "'%s' 단말기에서 삭제 완료", appLabel ), true );
-			Thread.sleep( delay );
-		}
-		
+				
 		@Override
 		public void run() {
 			int testCount = 0;
@@ -395,7 +378,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 	
 				// APK 재설치
 				try {
-					apkFileUnistall( 1000 );
+					mainViewController.apkFileUnistall( deviceInfo, packageName, appLabel, 1000 );
 					apkFileInstall( 1000 );
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -543,7 +526,7 @@ public class RepeatTestViewController implements EventHandler<ActionEvent>{
 					//////////////////////////////////////////// 테스트 앱 삭제 ////////////////////////////////////////////
 					if( bUninstall ) {
 						try {
-							apkFileUnistall( 1000 );
+							mainViewController.apkFileUnistall( deviceInfo, packageName, appLabel, 1000 );
 						} catch (Exception e1) {
 							e1.printStackTrace();
 							break;

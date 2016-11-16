@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -11,17 +13,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Alert.AlertType;
 import net.dongliu.apk.parser.ApkParser;
 
-import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IShellOutputReceiver;
-import com.android.ddmlib.SyncException;
-import com.android.ddmlib.TimeoutException;
 import com.purehero.android.DeviceInfo;
 import com.purehero.common.io.HTTPS;
 import com.purehero.common.io.IRelease;
@@ -76,10 +76,10 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 	private void initTableView() {
 		int column_index = 0;
 		
-		TableViewUtils.CheckBoxTableColumn	( tbApkInfoList, "selected", 	"CENTER", column_index++, DeviceApkListViewController.this );		// check box
-		TableViewUtils.StringTableColumn	( tbApkInfoList, "appName", 	"CENTER", column_index++ );
-		TableViewUtils.StringTableColumn	( tbApkInfoList, "packageName", "CENTER", column_index++ );
-		TableViewUtils.StringTableColumn	( tbApkInfoList, "apkFilePath", "CENTER", column_index++ );
+		TableViewUtils.CheckBoxTableColumn	( tbApkInfoList, "selected", 	"center-left", column_index++, DeviceApkListViewController.this );		// check box
+		TableViewUtils.StringTableColumn	( tbApkInfoList, "appName", 	"center-left", column_index++ );
+		TableViewUtils.StringTableColumn	( tbApkInfoList, "packageName", "center-left", column_index++ );
+		TableViewUtils.StringTableColumn	( tbApkInfoList, "apkFilePath", "center-left", column_index++ );
 		
 		tbApkInfoList.setItems( apkFileInfos );	
 	}
@@ -112,6 +112,26 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 		switch( obj.getId()) {
 		case "ID_MENU_GET_APP_NAME" 	: OnMenuItemGetAppName(); 		break;
 		case "ID_MENU_EXTRACTION_APK"	: OnMenuItemExtractionAPK();	break;
+		case "ID_MENU_DELETE_APK"		: OnMenuItemDeleteAPK();		break;
+		}
+	}
+
+	private void OnMenuItemDeleteAPK() {
+		DeviceInfo deviceInfo = mainViewController.getSelectedDeviceInfo();
+		if( deviceInfo == null ) return;
+		
+		ApkFileInfo apkFileInfo = tbApkInfoList.getSelectionModel().getSelectedItem();
+		if( apkFileInfo == null ) {
+			DialogUtils.alert( "INFORMATION", "APK 파일이 선택되지 않았습니다. \nAPK 파일을 선택 후 다시 시도해 주세요.", AlertType.INFORMATION );
+			return;
+		}
+		
+		if( ButtonType.OK == DialogUtils.alert( "CONFIRMATION", String.format("'%s' 을 삭제합니다.", apkFileInfo.getAppName()), AlertType.CONFIRMATION )) {
+			try {
+				mainViewController.apkFileUnistall( deviceInfo, apkFileInfo.getPackageName(), apkFileInfo.getAppName(), 1000 );
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -242,8 +262,41 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 
 	private void OnButtonClicked( Button button ) {
 		switch( button.getId()) {
-		case "ID_BTN_LIST_UPDATE" : OnButtonListUpdate(); break;
+		case "ID_BTN_LIST_UPDATE" 			: OnButtonListUpdate(); break;
+		case "ID_BUTTON_DELETE_CHECKED_APK" : OnButtonDeleteCheckedAPK(); break;
 		}
+	}
+
+	Runnable DeleteCheckedApkRunnable = new Runnable() {
+		@Override
+		public void run() {
+			DeviceInfo deviceInfo = mainViewController.getSelectedDeviceInfo();
+			if( deviceInfo == null ) return;
+			
+			List<Integer> delItems = new ArrayList<Integer>();
+			
+			for( int i = 0; i < apkFileInfos.size(); i++ ) {
+				ApkFileInfo apkFileInfo = apkFileInfos.get(i);
+				if( !apkFileInfo.getSelected()) continue;
+				
+				try {
+					mainViewController.apkFileUnistall( deviceInfo, apkFileInfo.getPackageName(), apkFileInfo.getAppName(), 1000 );				
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				delItems.add(i);
+			}
+			Collections.reverse(delItems);
+			for( Integer index : delItems ) {
+				apkFileInfos.remove(index);
+			}
+			
+			Platform.runLater( ApkInfoListUpdateRunnable );
+		}
+	};
+	
+	private void OnButtonDeleteCheckedAPK() {
+		MainClass.instance.runThreadPool( DeleteCheckedApkRunnable );
 	}
 
 	private void OnButtonListUpdate() {

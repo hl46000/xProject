@@ -24,9 +24,8 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" minHeight="35.0" spacing="10.0" BorderPane.alignment="CENTER_LEFT">
          <children>
-            <Button fx:id="ID_BTN_LIST_UPDATE" mnemonicParsing="false" onAction="#handle" text="Button" />
-            <Button fx:id="ID_BUTTON_SAVE_TEST_SETTING" mnemonicParsing="false" text="Button" />
-            <Button fx:id="ID_BUTTON_LOAD_TEST_SETTING" mnemonicParsing="false" text="Button" />
+            <Button fx:id="ID_BTN_LIST_UPDATE" mnemonicParsing="false" onAction="#handle" text="APK List 갱신" />
+            <Button fx:id="ID_BUTTON_DELETE_CHECKED_APK" mnemonicParsing="false" onAction="#handle" text="체크된 APK 삭제" />
          </children>
          <BorderPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -54,6 +53,7 @@
                 <MenuItem fx:id="ID_MENU_GET_APP_NAME" mnemonicParsing="false" onAction="#handle" text="APP NAME 갱신" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="ID_MENU_EXTRACTION_APK" mnemonicParsing="false" onAction="#handle" text="APK 추출" />
+                  <MenuItem fx:id="ID_MENU_DELETE_APK" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
               </items>
             </ContextMenu>
          </contextMenu>
