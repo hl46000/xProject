@@ -70,6 +70,30 @@ public class HTTPS {
 		  }
 		  
 		  return ret;
+	}
+
+	/**
+	 * @param packageName
+	 * @return
+	 */
+	public static String getAppNameFromGooglePlay(String packageName) {
+		try {
+			List<String> result = HTTPS.getHttps( String.format( "https://play.google.com/store/apps/details?id=%s", packageName ));
+			
+			String prefix_title = "<div class=\"id-app-title\" tabindex=\"0\">";
+			for( String line : result ) {
+				int s_idx = line.indexOf( prefix_title );
+				if( s_idx != -1 ) {
+					int e_idx = line.indexOf( "</div>", s_idx );
+					
+					return line.substring( s_idx + prefix_title.length(), e_idx );
+				}
+			}
+		} catch ( Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}  
 	 
 	 /*

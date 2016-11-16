@@ -26,6 +26,10 @@ public class ApkFileInfo {
 	}
 	
 	/////////////////////////////////////////////////
+	private boolean selected = false;
+	public Boolean getSelected() { return selected; }
+	public void setSelected(Boolean selected) { this.selected = selected; }
+	
 	String appName;
 	public String getAppName() { return appName; }
 	public void setAppName( String _appName ) {
@@ -38,8 +42,9 @@ public class ApkFileInfo {
 		packageName = _packageName;
 	}
 	
-	public String getApkFilePath() { return apkfile.getAbsolutePath(); }
+	String deviceApkFilePath;
+	public String getApkFilePath() { return deviceApkFilePath; }
 	public void setApkFilePath( String path ) {
-		apkfile = new File( path );
+		deviceApkFilePath = path;
 	}
 }

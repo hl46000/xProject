@@ -39,10 +39,24 @@
    <left>
       <TableView fx:id="tbApkInfoList" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="-1.0" text="APP NAME" />
+            <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="25.0" prefWidth="27.0">
+               <graphic>
+                  <CheckBox fx:id="ID_CK_ALL_CHECK" mnemonicParsing="false" onAction="#handle" />
+               </graphic>
+            </TableColumn>
+          <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="273.0" text="APP NAME" />
             <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="-1.0" sortable="false" text="PACKAGE NAME" />
             <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="300.0" prefWidth="-1.0" sortable="false" text="APK PATH" />
         </columns>
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem fx:id="ID_MENU_GET_APP_NAME" mnemonicParsing="false" onAction="#handle" text="APP NAME 갱신" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="ID_MENU_EXTRACTION_APK" mnemonicParsing="false" onAction="#handle" text="APK 추출" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
       </TableView>
    </left>
 </BorderPane>

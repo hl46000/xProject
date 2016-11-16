@@ -1,5 +1,6 @@
 package com.purehero.common.io;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,6 +37,10 @@ public class PropertyEx {
 		
 		properties.clear();
 		properties.load( new InputStreamReader( new FileInputStream( _path ), "UTF-8"));
+	}
+	
+	public void load(File appNamePropFile) throws IOException {
+		load( appNamePropFile.getAbsolutePath());
 	}
 	
 	/**
