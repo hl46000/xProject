@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.appsealingexternalexecutor"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="23" />
+    
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_SERVICE" />
+    
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.example.attach.AttachMainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <service android:exported="false" android:name="com.example.service.AppSealingService" android:process=":report_service" android:stopWithTask="true" />
+        <!--  service android:exported="false" android:name="com.example.service.AppSealingService" android:process=":report_service" / -->
+        <service android:exported="false" android:name="com.example.service.AppSealingForegroundService" android:process=":report_service2" />
+        <activity android:name="com.example.service.AppSealingNoticeActivity" />
+        <activity android:name=".SecondActivity" />
+        
+	</application>	
+</manifest>

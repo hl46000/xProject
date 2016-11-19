@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AppSealingExternalExecutor</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="hello_second">Hello second world!</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

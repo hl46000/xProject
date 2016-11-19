@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.appsealingexternalexecutor.MainActivity" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_world" />
+
+    <Button
+        android:id="@+id/btnNoticeActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnLauncherActivity"
+        android:layout_alignBottom="@+id/btnLauncherActivity"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="14dp"
+        android:text="CovaultNoticeActivity" />
+
+    <Button
+        android:id="@+id/btnLauncherActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp"
+        android:layout_marginRight="11dp"
+        android:layout_toLeftOf="@+id/btnNoticeActivity"
+        android:text="LauncherActivity" />
+
+    <Button
+        android:id="@+id/btnRepeatNotification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnLauncherActivity"
+        android:layout_marginBottom="147dp"
+        android:text="Notification 반복" />
+
+    <Button
+        android:id="@+id/btnSecondActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnRepeatNotification"
+        android:layout_alignLeft="@+id/btnNoticeActivity"
+        android:layout_marginBottom="57dp"
+        android:layout_marginLeft="23dp"
+        android:text="Second Activity" />
+
+</RelativeLayout>
