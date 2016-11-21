@@ -2,6 +2,7 @@
 #include <android/log.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 #include <sys/ptrace.h>
 #include <errno.h>
@@ -21,6 +22,7 @@ void * second_thread( void * pParam );
 void * third_thread( void * pParam );
 
 pid_t process_ids[3] = { 0, 0, 0 };
+bool g_bThreadFlag = true;
 
 #define FIRST_PID_IDX		0
 #define SECOND_PID_IDX		FIRST_PID_IDX+1
@@ -49,15 +51,23 @@ jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 			// third process
 			// TODO : thread 을 생성해서 first process 에 attach 시킨다.
 			LOGD( "third process %d of %d", process_ids[THIRD_PID_IDX], process_ids[SECOND_PID_IDX] );
+
 			pthread_t threadID;
 			pthread_create( &threadID, NULL, third_thread, 0 );
+
+			while( g_bThreadFlag ) usleep( 100000 );
+			exit( 0 );
 
 		} else {
 			// child process
 			// TODO : thread 을 생성해서 third process 에 attach 시킨다.
 			LOGD( "second process %d", process_ids[SECOND_PID_IDX] );
+
 			pthread_t threadID;
 			pthread_create( &threadID, NULL, second_thread, 0 );
+
+			while( g_bThreadFlag ) usleep( 100000 );
+			exit( 0 );
 		}
 	} else {
 		LOGD( "first process %d", process_ids[FIRST_PID_IDX] );
@@ -69,30 +79,24 @@ jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
     return JNI_VERSION_1_6;
 }
 
-void * first_thread( void * pParam )
+void * attach_waitpid( pid_t current_pid, pid_t child_pid )
 {
-	LOGT();
-
-	pid_t pid = getpid();
-	pid_t tid = process_ids[SECOND_PID_IDX];
-	LOGD( "[%d] first_thread => second pid : %d", pid, tid );
-
-	LOGD( "[%d] =============> Try to attach : %d", pid, tid );
-	if ( ptrace( PTRACE_ATTACH, tid, NULL, NULL ) == -1 )
+	LOGD( "[%d] =============> Try to attach : %d", current_pid, child_pid );
+	if ( ptrace( PTRACE_ATTACH, child_pid, NULL, NULL ) == -1 )
 	{
-		LOGE( "[%d] Can't attach to %d (%d) : %s !!", pid, tid, errno, strerror( errno ));
+		LOGE( "[%d] Can't attach to %d (%d) : %s !!", current_pid, child_pid, errno, strerror( errno ));
 		return NULL;
 	}
-	while( ptrace( PTRACE_CONT, tid, NULL, ( void* )SIGCONT ) == -1 ) usleep( 10000 );
-	LOGD( "[%d] =============> Attach to %d!!", pid, tid );
+	while( ptrace( PTRACE_CONT, child_pid, NULL, ( void* )SIGCONT ) == -1 ) usleep( 10000 );
+	LOGD( "[%d] =============> Attach to %d!!", current_pid, child_pid );
 
 	int status, wid;
-	while( true )
+	while( g_bThreadFlag )
 	{
 		usleep( 1000 );
 
 		wid = waitpid( -1, &status, WUNTRACED );
-		if ( wid == -1 || wid != tid )
+		if ( wid == -1 || wid != child_pid )
 		{
 			continue;
 		}
@@ -104,13 +108,31 @@ void * first_thread( void * pParam )
 			LOGD( "ERROR : signo is zero, pID[%d]", wid );
 			continue;
 		}
-		LOGD( "[%d] PID[%d] Recv signal : %d", pid, wid, signo );
 
+		LOGD( "[%d] PID[%d] Recv signal : %s[%d]", current_pid, wid, strsignal( signo ), signo );
 		while( ptrace( signo, wid, NULL, NULL ) == -1 ) usleep( 10000 );
-		LOGD( "[%d] PID[%d] Passed signal : %d", pid, wid, signo );
+
+		if( signo == SIGHUP )
+		{
+			g_bThreadFlag = false;
+			continue;
+		}
+
+		LOGD( "[%d] PID[%d] Passed signal : %s[%d]", current_pid, wid, strsignal( signo ), signo );
 	}
 
 	return NULL;
+}
+
+void * first_thread( void * pParam )
+{
+	LOGT();
+
+	pid_t pid = getpid();
+	pid_t tid = process_ids[SECOND_PID_IDX];
+	LOGD( "[%d] first_thread => second pid : %d", pid, tid );
+
+	return attach_waitpid( pid, tid );
 }
 
 void * second_thread( void * pParam ) {
@@ -120,40 +142,7 @@ void * second_thread( void * pParam ) {
 	pid_t tid = process_ids[THIRD_PID_IDX];
 	LOGD( "[%d] second_thread => third pid : %d", pid, tid );
 
-	LOGD( "[%d] =============> Try to attach : %d", pid, tid );
-	if ( ptrace( PTRACE_ATTACH, tid, NULL, NULL ) == -1 )
-	{
-		LOGE( "[%d] Can't attach to %d (%d) : %s !!", pid, tid, errno, strerror( errno ));
-		return NULL;
-	}
-	while( ptrace( PTRACE_CONT, tid, NULL, ( void* )SIGCONT ) == -1 ) usleep( 10000 );
-	LOGD( "[%d] =============> Attach to %d!!", pid, tid );
-
-	int status, wid;
-	while( true )
-	{
-		usleep( 1000 );
-
-		wid = waitpid( -1, &status, WUNTRACED );
-		if ( wid == -1 || wid != tid )
-		{
-			continue;
-		}
-
-		// 메인 프로세스를 중지시킨 시그널 번호를 추출
-		int signo = WSTOPSIG( status );
-		if ( signo == 0 )
-		{
-			LOGD( "ERROR : signo is zero, pID[%d]", wid );
-			continue;
-		}
-		LOGD( "[%d] PID[%d] Recv signal : %d", pid, wid, signo );
-
-		while( ptrace( signo, wid, NULL, NULL ) == -1 ) usleep( 10000 );
-		LOGD( "[%d] PID[%d] Passed signal : %d", pid, wid, signo );
-	}
-
-	return NULL;
+	return attach_waitpid( pid, tid );
 }
 
 void * third_thread( void * pParam ) {
@@ -163,40 +152,5 @@ void * third_thread( void * pParam ) {
 	pid_t tid = process_ids[FIRST_PID_IDX];
 	LOGD( "[%d] third_thread => first pid : %d", pid, tid );
 
-	LOGD( "[%d] =============> Try to attach : %d", pid, tid );
-	if ( ptrace( PTRACE_ATTACH, tid, NULL, NULL ) == -1 )
-	{
-		LOGE( "[%d] Can't attach to %d (%d) : %s !!", pid, tid, errno, strerror( errno ));
-		return NULL;
-	}
-	while( ptrace( PTRACE_CONT, tid, NULL, ( void* )SIGCONT ) == -1 ) usleep( 10000 );
-	LOGD( "[%d] =============> Attach to %d!!", pid, tid );
-
-	int status, wid;
-	while( true )
-	{
-		usleep( 1000 );
-
-		wid = waitpid( -1, &status, WUNTRACED );
-		if ( wid == -1 || wid != tid )
-		{
-			continue;
-		}
-
-		// 메인 프로세스를 중지시킨 시그널 번호를 추출
-		int signo = WSTOPSIG( status );
-		if ( signo == 0 )
-		{
-			LOGD( "ERROR : signo is zero, pID[%d]", wid );
-			continue;
-		}
-		LOGD( "[%d] PID[%d] Recv signal : %d", pid, wid, signo );
-
-		while( ptrace( signo, wid, NULL, NULL ) == -1 ) usleep( 10000 );
-		while( ptrace( PTRACE_CONT, wid, NULL, SIGCONT ) == -1 ) usleep( 10000 );
-
-		LOGD( "[%d] PID[%d] Passed signal : %d", pid, wid, signo );
-	}
-
-	return NULL;
+	return attach_waitpid( pid, tid );
 }
