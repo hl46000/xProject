@@ -54,6 +54,7 @@
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="ID_MENU_EXTRACTION_APK" mnemonicParsing="false" onAction="#handle" text="APK 추출" />
                   <MenuItem fx:id="ID_MENU_DELETE_APK" mnemonicParsing="false" onAction="#handle" text="APK 삭제" />
+                  <MenuItem fx:id="ID_MENU_UPDATE_APK" mnemonicParsing="false" onAction="#handle" text="APK 갱신" />
               </items>
             </ContextMenu>
          </contextMenu>

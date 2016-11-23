@@ -193,7 +193,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	 * testContainer 에 testView 을 추가 합니다. 
 	 */
 	private void OnClickAddTestView() {
-		FXMLLoader testViewLoader = new FXMLLoader( getClass().getResource("RepeatTestView.fxml")); 
+		FXMLLoader testViewLoader = new FXMLLoader( DeviceTestViewController.this.getClass().getResource("RepeatTestView.fxml")); 
 		try {
 			Parent testView = testViewLoader.load();
 			
