@@ -7,6 +7,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.android.ddmlib.IShellOutputReceiver;
+import com.purehero.android.DeviceInfo;
+import com.purehero.common.io.HTTPS;
+import com.purehero.common.io.IRelease;
+import com.purehero.common.io.PropertyEx;
+import com.purehero.fx.app.MainClass;
+import com.purehero.fx.app.view.MainViewController;
+import com.purehero.fx.app.view.WorkThread;
+import com.purehero.fx.app.view.test.ApkFileInfo;
+import com.purehero.fx.common.DialogUtils;
+import com.purehero.fx.common.TableViewUtils;
+import com.purehero.fx.control.ex.CheckBoxTableCellEx;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,23 +34,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
 import net.dongliu.apk.parser.ApkParser;
 
-import com.android.ddmlib.IShellOutputReceiver;
-import com.purehero.android.DeviceInfo;
-import com.purehero.common.io.HTTPS;
-import com.purehero.common.io.IRelease;
-import com.purehero.common.io.PropertyEx;
-import com.purehero.fx.app.MainClass;
-import com.purehero.fx.app.view.MainViewController;
-import com.purehero.fx.app.view.WorkThread;
-import com.purehero.fx.app.view.test.ApkFileInfo;
-import com.purehero.fx.common.DialogUtils;
-import com.purehero.fx.common.TableViewUtils;
-import com.purehero.fx.control.ex.CheckBoxTableCellEx;
-
 public class DeviceApkListViewController implements EventHandler<ActionEvent>, IRelease {
 	
 	@FXML
 	private TableView<ApkFileInfo> tbApkInfoList;
+	
 	private ObservableList<ApkFileInfo> apkFileInfos = FXCollections.observableList( new ArrayList<ApkFileInfo>());
 	private PropertyEx appNameProp = null;
 	
@@ -113,9 +114,56 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 		case "ID_MENU_GET_APP_NAME" 	: OnMenuItemGetAppName(); 		break;
 		case "ID_MENU_EXTRACTION_APK"	: OnMenuItemExtractionAPK();	break;
 		case "ID_MENU_DELETE_APK"		: OnMenuItemDeleteAPK();		break;
+		case "ID_MENU_UPDATE_APK"		: onMenuItemUpdateAPK();		break;
 		}
 	}
 
+	private void onMenuItemUpdateAPK() {
+		DeviceInfo deviceInfo = mainViewController.getSelectedDeviceInfo();
+		if( deviceInfo == null ) return;
+		
+		ApkFileInfo apkFileInfo = tbApkInfoList.getSelectionModel().getSelectedItem();
+		if( apkFileInfo == null ) {
+			DialogUtils.alert( "INFORMATION", "APK 파일이 선택되지 않았습니다. \nAPK 파일을 선택 후 다시 시도해 주세요.", AlertType.INFORMATION );
+			return;
+		}
+		
+		File result = DialogUtils.openFileDialog( "갱신할 APK 파일을 선택하세요.", "APKs", "*.apk");
+		if( result == null ) return;
+		
+		MainClass.instance.runThreadPool( new UpdateApkOnDevice( deviceInfo, apkFileInfo, result ));
+	}
+
+	class UpdateApkOnDevice implements Runnable {
+		final DeviceInfo deviceInfo;
+		final ApkFileInfo apkFileInfo;
+		final File apkfile;
+		public UpdateApkOnDevice( DeviceInfo deviceInfo, ApkFileInfo apkFileInfo, File apkfile ) {
+			this.deviceInfo 	= deviceInfo;
+			this.apkFileInfo 	= apkFileInfo;
+			this.apkfile		= apkfile;
+		}
+		@Override
+		public void run() {
+			try {
+				mainViewController.updateDeviceCommant( deviceInfo, String.format( "'%s' APK Updating", apkFileInfo.getAppName()), true );
+				deviceInfo.getInterface().pushFile( apkfile.getAbsolutePath(), apkFileInfo.getApkFilePath() );
+				mainViewController.updateDeviceCommant( deviceInfo, String.format( "'%s' APK Updated", apkFileInfo.getAppName()), true );
+				
+				Platform.runLater( new Runnable(){
+					@Override
+					public void run() {
+						DialogUtils.alert( "APK Update 완료", 
+								String.format( "'%s' 의 APK 파일이 업데이트 되었습니다. ", apkFileInfo.getAppName()),
+								AlertType.INFORMATION );
+					}} );
+			} catch (Exception e) {
+				e.printStackTrace();
+				mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
+			} 
+		}
+	}
+	
 	private void OnMenuItemDeleteAPK() {
 		DeviceInfo deviceInfo = mainViewController.getSelectedDeviceInfo();
 		if( deviceInfo == null ) return;
@@ -163,8 +211,10 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 		@Override
 		public void run() {
 			try {
+				mainViewController.updateDeviceCommant( deviceInfo, String.format( "'%s' APK Extracting", apkFileInfo.getAppName()), true );
 				deviceInfo.getInterface().pullFile( apkFileInfo.getApkFilePath(), outfile.getAbsolutePath() );
-
+				mainViewController.updateDeviceCommant( deviceInfo, String.format( "'%s' APK Extracted", apkFileInfo.getAppName()), true );
+				
 				Platform.runLater( new Runnable(){
 					@Override
 					public void run() {
@@ -174,6 +224,7 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 					}} );
 			} catch (Exception e) {
 				e.printStackTrace();
+				mainViewController.updateDeviceCommant( deviceInfo, e.getMessage(), true );
 			} 
 		}
 	}
@@ -286,9 +337,10 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 				}
 				delItems.add(i);
 			}
+		
 			Collections.reverse(delItems);
 			for( Integer index : delItems ) {
-				apkFileInfos.remove(index);
+				apkFileInfos.remove(index.intValue());
 			}
 			
 			Platform.runLater( ApkInfoListUpdateRunnable );
@@ -308,25 +360,30 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 	}
 
 	private IShellOutputReceiver DeviceApkList_ShellOutputReceiver = new IShellOutputReceiver() {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ByteArrayOutputStream baos = null;
 				
 		@Override
 		public void addOutput(byte[] data, int offset, int length) {
+			if( baos == null ) baos = new ByteArrayOutputStream();
 			baos.write( data, offset, length );
 		}
 
 		@Override
 		public void flush() { 
 			String contents = baos.toString();
-			String lines [] = contents.split( System.lineSeparator());
+			String lines [] = contents.split( "\n" );
 			
 			for( String line : lines ) {
 				if( mainViewController.isReleased()) break;
-				parsingAndAddToApkList( line );
+				try {
+					parsingAndAddToApkList( line );
+				} catch( Exception e ) {}
 			}
 
 			try {
 				baos.flush();
+				baos.close();
+				baos = null;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -346,8 +403,8 @@ public class DeviceApkListViewController implements EventHandler<ActionEvent>, I
 		String token[] = line.split("=");
 		
 		ApkFileInfo apkFileinfo = new ApkFileInfo( null );
-		apkFileinfo.setApkFilePath( token[0] );
-		apkFileinfo.setPackageName( token[1] );
+		apkFileinfo.setApkFilePath( token[0].trim() );
+		apkFileinfo.setPackageName( token[1].trim() );
 						
 		setAppNameWithPackageName( apkFileinfo );
 		

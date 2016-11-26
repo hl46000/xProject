@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.work.RepeatTestViewController">
+<BorderPane maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.test.RepeatTestViewController">
    <top>
       <BorderPane maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
          <left>

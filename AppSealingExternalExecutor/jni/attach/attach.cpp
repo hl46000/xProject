@@ -95,7 +95,8 @@ void * attach_waitpid( pid_t current_pid, pid_t child_pid )
 	{
 		usleep( 1000 );
 
-		wid = waitpid( -1, &status, WUNTRACED );
+		//wid = waitpid( -1, &status, WUNTRACED );
+		wid = waitpid( -1, &status, 0 );
 		if ( wid == -1 || wid != child_pid )
 		{
 			continue;
@@ -111,6 +112,7 @@ void * attach_waitpid( pid_t current_pid, pid_t child_pid )
 
 		LOGD( "[%d] PID[%d] Recv signal : %s[%d]", current_pid, wid, strsignal( signo ), signo );
 		while( ptrace( signo, wid, NULL, NULL ) == -1 ) usleep( 10000 );
+		while( ptrace( SIGCONT, wid, NULL, NULL ) == -1 ) usleep( 10000 );
 
 		if( signo == SIGHUP )
 		{
