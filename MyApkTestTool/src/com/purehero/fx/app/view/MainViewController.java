@@ -212,6 +212,7 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	 * ADB에 연결된 장치 정보를 얻어와 tableView 의 내용을 갱신 시킨다.
 	 */
 	private void refresh_device_infos() {
+		DeviceInfo deviceInfo = tvDeviceInfo.getSelectionModel().getSelectedItem();
 		List<DeviceInfo> devices = getDevices();
 		
 		ObservableList<DeviceInfo> deviceInfoData = FXCollections.observableArrayList( devices );		

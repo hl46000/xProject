@@ -1,6 +1,5 @@
 package com.example.apk.extractor;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,14 +8,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
@@ -24,7 +19,6 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class ApkExtractorActivity extends Activity {
@@ -97,7 +91,7 @@ public class ApkExtractorActivity extends Activity {
 		BufferedReader br = null;
 		
 		try {
-			isr = new InputStreamReader( ApkExtractorActivity.this.getAssets().open("supported_devices.csv"), "UTF-8");
+			isr = new InputStreamReader( ApkExtractorActivity.this.getAssets().open("supported_devices_out.csv"), "UTF-8");
 			br = new BufferedReader( isr ) ;
 			
 			String line;
