@@ -18,6 +18,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        
+        <activity android:name="com.example.apk.extractor.SettingActivity" />
         <activity
             android:name="com.example.apk.extractor.ApkExtractorActivity"
             android:label="@string/app_name" >
@@ -34,5 +36,6 @@
         <activity android:name="com.example.service.AppSealingNoticeActivity" />
         <activity android:name=".SecondActivity" />
         
+                
 	</application>	
 </manifest>
