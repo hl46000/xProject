@@ -48,6 +48,9 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 	private TextField tfDeviceTestOutputPath;
 
 	@FXML
+	private TextField ftReportMailAddress;
+	
+	@FXML
 	private Accordion testContainer;
 	
 	@FXML
@@ -119,7 +122,7 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 		}
 		
 	}
-
+	
 	/**
 	 * 
 	 */
@@ -362,11 +365,24 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 			synchronized (apkFileInfos) { 
 				testLoop = !apkFileInfos.isEmpty();
 			}
+		
+			// 테스트 결과 수신자 목록
+			List<String> recipientList = new ArrayList<String>();
 			
-			List<String> recipientList = new ArrayList<String>(); 
+			String strEmailAddr = ftReportMailAddress.getText();
+			if( strEmailAddr != null ) {
+				if( strEmailAddr.length() > 0 ) {
+					String token[] = strEmailAddr.split(",");
+					if( token != null && token.length > 0 ) {
+						for( String emailAddr : token ) {
+							recipientList.add( emailAddr );
+						}
+					}
+				}
+			}			
+			 
 			List<String> testResult = new ArrayList<String>(); 
 			
-			recipientList.add("purehero@inka.co.kr");
 			while( testLoop && !mainViewController.isReleased()) {
 				ApkFileInfo apkFile = null;
 				synchronized (apkFileInfos) { 
@@ -446,7 +462,9 @@ public class DeviceTestViewController implements EventHandler<ActionEvent>, IRel
 				
 				// 리포트 파일이 있으면 메일로 발송한다. 
 				try {
-					SMTP.sendInkaNoreplyMail( "DEVICE TEST RESULT", recipientList, testResult, null );
+					if( recipientList.size() > 0 ) {
+						SMTP.sendInkaNoreplyMail( "DEVICE TEST RESULT", recipientList, testResult, null );
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

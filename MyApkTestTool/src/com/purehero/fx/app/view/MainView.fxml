@@ -25,7 +25,7 @@
                               </CheckBox>
                            </graphic>
                         </TableColumn>
-                        <TableColumn editable="false" maxWidth="183.0" minWidth="-Infinity" prefWidth="53.0" sortable="false" text="모델명" />
+                        <TableColumn editable="false" maxWidth="250.0" minWidth="-Infinity" prefWidth="200.0" sortable="false" text="단말기 이름" />
                         <TableColumn editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="100.0" sortable="false" text="시리얼번호" />
                         <TableColumn editable="false" maxWidth="90.0" minWidth="-Infinity" prefWidth="155.0" sortable="false" text="버전" />
                         <TableColumn editable="false" maxWidth="80.0" prefWidth="70.0" sortable="false" text="배터리" />

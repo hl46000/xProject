@@ -198,7 +198,8 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		int column_index = 0;
 		
 		TableViewUtils.CheckBoxTableColumn	( tvDeviceInfo, "selected", 	"CENTER", column_index++, MainViewController.this );		// check box
-		TableViewUtils.StringTableColumn	( tvDeviceInfo, "modelName", 	"CENTER", column_index++ );		// 모델명
+		TableViewUtils.StringTableColumn	( tvDeviceInfo, "deviceName", 	"CENTER", column_index++ );		// 장치명
+		//TableViewUtils.StringTableColumn	( tvDeviceInfo, "modelName", 	"CENTER", column_index++ );		// 모델명
 		TableViewUtils.StringTableColumn	( tvDeviceInfo, "serialNumber", "CENTER", column_index++ );		// 시리얼 번호
 		TableViewUtils.StringTableColumn	( tvDeviceInfo, "osVersion", 	"CENTER", column_index++ );		// OS 버전
 		TableViewUtils.IntegerTableColumn	( tvDeviceInfo, "batteryLevel", "CENTER", column_index++ );		// 베터리 레벨
@@ -212,11 +213,27 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 	 * ADB에 연결된 장치 정보를 얻어와 tableView 의 내용을 갱신 시킨다.
 	 */
 	private void refresh_device_infos() {
+		String selectedDeviceSerialNumber = null;
 		DeviceInfo deviceInfo = tvDeviceInfo.getSelectionModel().getSelectedItem();
+		if( deviceInfo != null ) {
+			selectedDeviceSerialNumber = deviceInfo.getSerialNumber();
+		}
+			
 		List<DeviceInfo> devices = getDevices();
 		
 		ObservableList<DeviceInfo> deviceInfoData = FXCollections.observableArrayList( devices );		
 		tvDeviceInfo.setItems( deviceInfoData );
+		
+		if( selectedDeviceSerialNumber != null ) {
+			for( int i = 0; i < devices.size(); i++ ) {
+				DeviceInfo info = devices.get(i);
+				if( info.getSerialNumber().compareTo( selectedDeviceSerialNumber ) == 0 ) {
+					tvDeviceInfo.getSelectionModel().select( i );
+					
+					break;
+				}
+			}
+		}
 	}
 	
 	/* 
@@ -365,20 +382,25 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		
 		try {
 			final ApkParser apkParser = new ApkParser( apkFile );
+			
+			final String packageName 		 	= apkParser.getApkMeta().getPackageName();
+			final String launcherActivityName 	= apkParser.getApkMeta().getLauncherActivityName();
+			
+			apkParser.close();
 			new Thread( new Runnable(){
 				@Override
 				public void run() {
 					File tmpFile = apkFileSign( MultiFileOption, apkFile );
 					for( DeviceInfo deviceInfo : deviceInfos ) {
 						// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
-						new ApkFileActionDevice( MainViewController.this, deviceInfo, tmpFile, apkParser, MultiFileOption ).start();
+						new ApkFileActionDevice( MainViewController.this, deviceInfo, tmpFile, packageName, launcherActivityName, MultiFileOption ).start();
 					}
-				}}).start();	
+				}}).start();
 			
-		}  catch (Exception e1) {
-			e1.printStackTrace();			
-		}		
-		
+		} catch( Exception e ) {
+			e.printStackTrace();
+			return;
+		}
 	}
 
 	/**
@@ -470,13 +492,18 @@ public class MainViewController implements DeviceChangeListener, EventHandler<Ac
 		
 		try {
 			final ApkParser apkParser = new ApkParser( apkFile );
+			
+			final String packageName 		 	= apkParser.getApkMeta().getPackageName();
+			final String launcherActivityName 	= apkParser.getApkMeta().getLauncherActivityName();
+			
+			apkParser.close();
 			new Thread( new Runnable(){
 				@Override
 				public void run() {
 					File tmpFile = apkFileSign( SingleFileOption, apkFile );
 					
 					// 단말기별로 옵션메뉴에 설정한 명령 대로 실행해 줍니다. 
-					new ApkFileActionDevice( MainViewController.this, deviceInfo, tmpFile, apkParser, SingleFileOption ).start();					
+					new ApkFileActionDevice( MainViewController.this, deviceInfo, tmpFile, packageName, launcherActivityName, SingleFileOption ).start();					
 				}}).start();	
 			
 		}  catch (Exception e1) {

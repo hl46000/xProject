@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
 <?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.fx.app.view.test.DeviceTestViewController">
    <top>
@@ -21,7 +21,7 @@
             <Separator />
             <BorderPane>
                <left>
-                  <Label text="APK 경로 : " BorderPane.alignment="CENTER">
+                  <Label text="테스트 APK 모니터링 경로 : " BorderPane.alignment="CENTER">
                      <padding>
                         <Insets right="5.0" />
                      </padding>
@@ -45,7 +45,7 @@
                   <TextField fx:id="tfDeviceTestOutputPath" editable="false" BorderPane.alignment="CENTER" />
                </center>
                <left>
-                  <Label text="출력 경로 : " BorderPane.alignment="CENTER">
+                  <Label text="테스트 결과 출력 경로 : " BorderPane.alignment="CENTER">
                      <padding>
                         <Insets right="5.0" />
                      </padding>
@@ -62,21 +62,6 @@
          </children>
       </VBox>
    </top>
-   <bottom>
-      <HBox alignment="CENTER_RIGHT" minHeight="35.0" spacing="10.0" BorderPane.alignment="CENTER_LEFT">
-         <children>
-            <Button fx:id="ID_BUTTON_ADD_TEST_VIEW" mnemonicParsing="false" onAction="#handle" text="반복 테스트 추가" />
-            <Button fx:id="ID_BUTTON_SAVE_TEST_SETTING" mnemonicParsing="false" onAction="#handle" text="테스트 설정 저장" />
-            <Button fx:id="ID_BUTTON_LOAD_TEST_SETTING" mnemonicParsing="false" onAction="#handle" text="테스트 설정 불러오기" />
-         </children>
-         <BorderPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-      </HBox>
-   </bottom>
    <center>
       <SplitPane dividerPositions="0.3" BorderPane.alignment="CENTER">
          <items>
@@ -90,4 +75,34 @@
          </items>
       </SplitPane>
    </center>
+   <bottom>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane>
+               <left>
+                  <Label text="테스트 결과 수신 E-Mail 주소 :   " BorderPane.alignment="CENTER" />
+               </left>
+               <center>
+                  <TextField fx:id="ftReportMailAddress" BorderPane.alignment="CENTER" />
+               </center>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets left="5.0" />
+               </VBox.margin>
+            </BorderPane>
+            <HBox alignment="CENTER_RIGHT" minHeight="35.0" spacing="10.0">
+               <children>
+                  <Button fx:id="ID_BUTTON_ADD_TEST_VIEW" mnemonicParsing="false" onAction="#handle" text="반복 테스트 추가" />
+                  <Button fx:id="ID_BUTTON_SAVE_TEST_SETTING" mnemonicParsing="false" onAction="#handle" text="테스트 설정 저장" />
+                  <Button fx:id="ID_BUTTON_LOAD_TEST_SETTING" mnemonicParsing="false" onAction="#handle" text="테스트 설정 불러오기" />
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </bottom>
 </BorderPane>

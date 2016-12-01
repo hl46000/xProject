@@ -1,10 +1,11 @@
 package com.purehero.android;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
-import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.RawImage;
@@ -24,9 +25,14 @@ public class DeviceInfo extends LogCat {
 
 		getDeviceDisplaySize();
 		getDeviceOrientation();
+		
+		deviceName = findDeviceName();
 	}
 	
 	public IDevice getInterface() { return device; }
+	
+	private String deviceName = null;
+	public String getDeviceName() { return deviceName; }
 		
 	public String getModelName() 	{ 
 		String modelName = device.getProperty( IDevice.PROP_DEVICE_MODEL ); 
@@ -280,5 +286,42 @@ public class DeviceInfo extends LogCat {
 	
 	public void Command( String cmd ) {
 		MainClass.instance.runThreadPool( new WorkThread( this, cmd, ShellOutputReceiver ));			
-	} 
+	}
+	
+	/**
+	 * 단말기의 이름을 반환합니다. 
+	 * 
+	 * @return
+	 */
+	private String findDeviceName() {
+		final String findString = getModelName();
+		InputStreamReader isr = null;
+		BufferedReader br = null;
+		
+		try {
+			isr = new InputStreamReader( MainClass.instance.getClass().getClassLoader().getResourceAsStream("supported_devices_out.csv"), "UTF-8");
+			br = new BufferedReader( isr ) ;
+			
+			String line;
+			while(( line = br.readLine()) != null ) {
+				if( line.indexOf( findString ) > -1 ) {
+					String token[] = line.split(",");
+					return String.format( "%s %s", token[0], token[1] );
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		} finally {
+			if( br != null ) {
+				try { br.close(); } catch (IOException e) { e.printStackTrace(); }
+			}
+			if( isr != null ) {
+				try { isr.close(); } catch (IOException e) { e.printStackTrace(); }
+			}
+		}
+		
+		return findString;
+	}
 }

@@ -6,7 +6,6 @@ import com.purehero.android.DeviceInfo;
 import com.purehero.fx.common.MenuUtils;
 
 import javafx.scene.control.Menu;
-import net.dongliu.apk.parser.ApkParser;
 
 /**
  * Menu 에서 check 되어 있는 옵션에 따라 APK 파일을 실행 시키는 CLASS
@@ -18,8 +17,9 @@ public class ApkFileActionDevice extends Thread implements Runnable {
 	final MainViewController parent;
 	final DeviceInfo deviceInfo;
 	final File apkFile;
-	final ApkParser apkParser;
 	final Menu optionMenu;
+	final String packageName;
+	final String launcherActivityName;
 	
 	/**
 	 * @param parent
@@ -28,11 +28,12 @@ public class ApkFileActionDevice extends Thread implements Runnable {
 	 * @param apkParser		APK 파일의 정보를 추출한 Parser
 	 * @param optionMenu	APK 실행 옵션을 가지고 있는 Menu 객체
 	 */
-	public ApkFileActionDevice( MainViewController parent, DeviceInfo deviceInfo, File apkFile, ApkParser apkParser, Menu optionMenu ) {
+	public ApkFileActionDevice( MainViewController parent, DeviceInfo deviceInfo, File apkFile, String packageName, String launcherActivityName, Menu optionMenu ) {
 		this.parent = parent;
 		this.deviceInfo = deviceInfo;
 		this.apkFile = apkFile;
-		this.apkParser = apkParser;
+		this.packageName = packageName;
+		this.launcherActivityName =launcherActivityName;
 		this.optionMenu = optionMenu;
 	}
 	
@@ -40,14 +41,6 @@ public class ApkFileActionDevice extends Thread implements Runnable {
 	public void run() {
 		String packageName = "";
 		String launcherActivityName = "";
-		
-		try {
-			packageName 		 = apkParser.getApkMeta().getPackageName();;
-			launcherActivityName = apkParser.getApkMeta().getLauncherActivityName();;
-		} catch( Exception e ) {
-			e.printStackTrace();
-			return;
-		}
 		
 		// 실행 옵션 Menu 항목 중 APK_UNINSTALL 항목이 check 되어 있으면 APK 파일을 해당 Device 에서 Uninstall 시킨다. 
 		if( MenuUtils.isCheckMenu( optionMenu, "APK_UNINSTALL" )) {
