@@ -1,5 +1,11 @@
 package com.example.myandroidsampleapp00;
 
-public class NativeLibrary {
+import android.content.Context;
 
+public class NativeLibrary {
+	public native void init( Context context );
+	
+	static {
+		System.loadLibrary( "sample00" );
+	}
 }
