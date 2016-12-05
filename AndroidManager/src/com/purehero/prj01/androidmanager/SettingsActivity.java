@@ -16,7 +16,7 @@ public class SettingsActivity extends PreferenceActivity {
             new MyPreferenceFragment()).commit();
 	}
 
-	// PreferenceFragment ?Å¥?ûò?ä§ ?Ç¨?ö©
+	
     public static class MyPreferenceFragment extends
             PreferenceFragment {
         @Override

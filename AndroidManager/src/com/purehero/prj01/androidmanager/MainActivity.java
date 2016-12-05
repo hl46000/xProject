@@ -1,111 +1,63 @@
 package com.purehero.prj01.androidmanager;
 
-import it.neokree.materialtabs.MaterialTab;
-import it.neokree.materialtabs.MaterialTabHost;
-import it.neokree.materialtabs.MaterialTabListener;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
+import java.util.List;
 
-public class MainActivity extends ActionBarActivity implements MaterialTabListener {
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.Bundle;
+import android.widget.ListView;
+import android.widget.Toast;
+
+public class MainActivity extends Activity {
 	
-	MaterialTabHost tabHost;
-    ViewPager pager;
-    ViewPagerAdapter adapter;
+	private ListView apkListView = null;
+	private ApkListAdapter apkListAdapter = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Toolbar toolbar = (android.support.v7.widget.Toolbar) this.findViewById(R.id.toolbar);
-        this.setSupportActionBar(toolbar);
-
-        tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
-        pager = (ViewPager) this.findViewById(R.id.pager );
-        
-     // init view pager
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        pager.setAdapter(adapter);
-        pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // when user do a swipe the selected tab change
-                tabHost.setSelectedNavigationItem(position);
-
-            }
-        });
-
-        // insert all tabs from pagerAdapter data
-        for (int i = 0; i < adapter.getCount(); i++) {
-            tabHost.addTab(
-                    tabHost.newTab()
-                            .setText(adapter.getPageTitle(i))
-                            .setTabListener(this)
-            );
-
-        }
+		apkListAdapter = new ApkListAdapter( this );
+		getApkInfos();
+		
+		apkListView = ( ListView ) findViewById( R.id.apkListView );
+		apkListView.setAdapter( apkListAdapter );
 	}
 
-	/*
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	/**
+	 * 설치된 앱(APK)들의 정보(아이콘, 앱이름, 패키지명)등을 추출한다. 
+	 */
+	private void getApkInfos() 
+	{
+	    PackageManager pm =  getPackageManager();
+	    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+	    homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		    
+	    List<ResolveInfo> homeApps = pm.queryIntentActivities(homeIntent, PackageManager.GET_ACTIVITIES);
+	    
+	    for(int i=0; i<homeApps.size(); i++){
+	        ResolveInfo info = homeApps.get(i);
+	        apkListAdapter.addItem( info.loadIcon(pm), (String) info.loadLabel(pm), info.activityInfo.packageName );
+	    }	  
 	}
 
+	private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
+	private long backPressedTime = 0;
+	
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			startActivity( new Intent( this, SettingsActivity.class ) );
-			return true;
+	public void onBackPressed() {
+		if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+			super.onBackPressed();
+			
+		} else {
+			backPressedTime = System.currentTimeMillis();
+			
+			Toast.makeText( this, "뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT ).show();;
 		}
-		return super.onOptionsItemSelected(item);
-	}
-*/
-	@Override
-	public void onTabSelected(MaterialTab tab) {
-		pager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabReselected(MaterialTab tab) {		
-	}
-
-	@Override
-	public void onTabUnselected(MaterialTab tab) {
 	}
 	
 	
-	private class ViewPagerAdapter extends FragmentStatePagerAdapter {
-
-        public ViewPagerAdapter(FragmentManager fm) {
-            super(fm);
-
-        }
-
-        public Fragment getItem(int num) {
-            return new Fragment();
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return "Sezione " + position;
-        }
-
-    }
 }
