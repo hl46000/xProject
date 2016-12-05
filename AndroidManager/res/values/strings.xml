@@ -4,5 +4,8 @@
     <string name="app_name">Android Manager</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="apk_list_item_icon_description">icon</string>
+    <string name="splash_image_description">Loading</string>
+    
 
 </resources>

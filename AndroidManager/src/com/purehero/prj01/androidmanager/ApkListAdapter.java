@@ -13,16 +13,19 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ApkListAdapter extends BaseAdapter {
+public class ApkListAdapter extends BaseAdapter 
+{
 	private final Context context;
 	private ArrayList<ApkListData> listData = new ArrayList<ApkListData>();
 	
-	public ApkListAdapter( Context context ) {
+	public ApkListAdapter( Context context ) 
+	{
 		super();
 		this.context = context;
 	}
 	
-	public ApkListData addItem( Drawable icon, String appName, String packageName ) {
+	public ApkListData addItem( Drawable icon, String appName, String packageName ) 
+	{
 		ApkListData data = new ApkListData();
 		data.icon = icon;
 		data.appName = appName;
@@ -31,12 +34,14 @@ public class ApkListAdapter extends BaseAdapter {
 		return listData.add( data ) ? data : null;		
 	}
 	
-	public void remove( int index ) {
+	public void remove( int index ) 
+	{
 		listData.remove( index );
 		dataChanged();
 	}
 	
-	public void sort() {
+	public void sort() 
+	{
 		Collections.sort( listData, ApkListData.ALPHA_COMPARATOR );
 		dataChanged();
 	}
@@ -44,29 +49,33 @@ public class ApkListAdapter extends BaseAdapter {
 	/**
 	 * 데이터가 갱신 되었음을 리스트에게 알림
 	 */
-	public void dataChanged() {
+	public void dataChanged() 
+	{
 		notifyDataSetChanged();
 	}
 
 	@Override
-	public int getCount() {
+	public int getCount() 
+	{
 		return listData.size();
 	}
 
 	@Override
-	public Object getItem(int index) {
+	public Object getItem(int index) 
+	{
 		return listData.get(index);
 	}
 
 	@Override
-	public long getItemId(int position) {
+	public long getItemId(int position) 
+	{
 		return position;
 	}
 
 	@SuppressLint("InflateParams")
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent ) {
-		
+	public View getView(int position, View convertView, ViewGroup parent ) 
+	{
 		ViewHolder viewHolder;
 		if( convertView == null ) {
 			viewHolder = new ViewHolder();
@@ -97,7 +106,8 @@ public class ApkListAdapter extends BaseAdapter {
 		return convertView;
 	}
 	
-	class ViewHolder {
+	class ViewHolder 
+	{
 		public ImageView icon;
 		public TextView appName;
 		public TextView packageName;
