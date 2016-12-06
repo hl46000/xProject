@@ -1,5 +1,6 @@
 package com.purehero.prj01.androidmanager;
 
+import java.io.File;
 import java.util.Stack;
 
 import android.app.Activity;
@@ -157,13 +158,44 @@ public class MainActivity extends Activity
 		case ID_APK_MENU_RUNNING		: apk_running( data ); 		break;
 		case ID_APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
 		case ID_APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
+		case ID_APK_MENU_SHARE			: apk_share( data ); break;
 		case ID_APK_MENU_EXTRACT 		: 
-		case ID_APK_MENU_SHARE			: Toast.makeText( MainActivity.this, data.getAppName() + " " + item.getTitle(), Toast.LENGTH_SHORT ).show(); 
+			Toast.makeText( MainActivity.this, data.getAppName() + " " + item.getTitle(), Toast.LENGTH_SHORT ).show(); 
 			break;
 		}
 					
 		return true;
 	}
+
+	/**
+	 * @param data
+	 */
+	private void apk_share(ApkListData data) 
+	{
+		workStack.clear();
+		workStack.push( data );
+		
+		Intent msg = new Intent(Intent.ACTION_SEND);
+		msg.addCategory(Intent.CATEGORY_DEFAULT);
+
+		msg.putExtra(Intent.EXTRA_SUBJECT, "주제");
+		msg.putExtra(Intent.EXTRA_TEXT, "내용");
+		msg.putExtra(Intent.EXTRA_TITLE, "제목");
+		msg.setType("text/plain");    
+
+		startActivity(Intent.createChooser(msg, "공유"));
+		
+		Intent shareIntent = new Intent();
+		shareIntent.setAction(Intent.ACTION_SEND);
+		shareIntent.setType("image/jpeg");
+		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File("")));
+		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
+		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
+		
+		startActivity(Intent.createChooser(shareIntent, "Share APK File" ));
+	}
+
+
 
 	/**
 	 * APK을 단말기에서 Uninstall 합니다. 
@@ -173,6 +205,7 @@ public class MainActivity extends Activity
 	private final int ID_ACTION_APK_UNINSTALL	= 0x1000;
 	private void apk_uninstall(ApkListData data, int position ) 
 	{
+		workStack.clear();
 		workStack.push( data );
 		
 		Uri packageURI = Uri.parse("package:"+data.getPackageName());
@@ -187,6 +220,7 @@ public class MainActivity extends Activity
 	 */
 	private void apk_goto_market(ApkListData data) 
 	{
+		workStack.clear();
 		workStack.push( data );
 		
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -204,6 +238,7 @@ public class MainActivity extends Activity
 	{
 		Intent intent = getPackageManager().getLaunchIntentForPackage(data.getPackageName());
 	    if (intent != null) {
+	    	workStack.clear();
 	    	workStack.push( data );
 	    	
 	    	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
