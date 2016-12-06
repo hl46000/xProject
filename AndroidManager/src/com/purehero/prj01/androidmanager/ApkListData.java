@@ -106,4 +106,12 @@ public class ApkListData {
 			return collator.compare( arg0.getAppName(), arg1.getAppName());
 		}
 	};
+
+	/**
+	 * @return
+	 */
+	public String getApkFilepath() 
+	{
+		return resolveInfo.activityInfo.applicationInfo.sourceDir;
+	}
 }

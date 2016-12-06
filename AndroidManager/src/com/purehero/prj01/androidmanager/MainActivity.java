@@ -2,12 +2,13 @@ package com.purehero.prj01.androidmanager;
 
 import java.io.File;
 import java.util.Stack;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -159,13 +160,26 @@ public class MainActivity extends Activity
 		case ID_APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
 		case ID_APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
 		case ID_APK_MENU_SHARE			: apk_share( data ); break;
-		case ID_APK_MENU_EXTRACT 		: 
-			Toast.makeText( MainActivity.this, data.getAppName() + " " + item.getTitle(), Toast.LENGTH_SHORT ).show(); 
-			break;
+		case ID_APK_MENU_EXTRACT 		: apk_extract( data ); break;
 		}
 					
 		return true;
 	}
+
+	@SuppressLint("SdCardPath")
+	private void apk_extract(ApkListData data) 
+	{
+		File apkFile = new File( data.getApkFilepath());
+		File baseFile = new File( "/sdcard/AndroidManager" );
+		if( !baseFile.exists()) baseFile.mkdirs();
+		
+		File destFile = new File( baseFile, data.getPackageName() + ".apk" );
+		
+		FileCopyAsync filecopy = new FileCopyAsync( this );
+		filecopy.execute( apkFile, destFile );
+	}
+
+
 
 	/**
 	 * @param data
@@ -174,7 +188,7 @@ public class MainActivity extends Activity
 	{
 		workStack.clear();
 		workStack.push( data );
-		
+		/*
 		Intent msg = new Intent(Intent.ACTION_SEND);
 		msg.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -193,6 +207,7 @@ public class MainActivity extends Activity
 		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
 		
 		startActivity(Intent.createChooser(shareIntent, "Share APK File" ));
+		*/
 	}
 
 
