@@ -1,11 +1,11 @@
 package com.purehero.prj01.androidmanager;
 
-import java.util.List;
+import java.util.Stack;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -23,6 +22,7 @@ public class MainActivity extends Activity
 	private ListView apkListView 			= null;
 	private ProgressBar progressBar  		= null;
 	private ApkListAdapter apkListAdapter 	= null;
+	private Stack<ApkListData> workStack 		= new Stack<ApkListData>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -32,6 +32,39 @@ public class MainActivity extends Activity
 						
 		new Thread( apk_info_load_runnable ).start();
 	}
+
+	
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent ) {
+		ApkListData data = null;
+		
+		if( !workStack.isEmpty()) {
+			data = workStack.pop();
+		}
+		
+		switch( requestCode ) {
+		case ID_ACTION_APK_UNINSTALL :	
+			
+			// APK Uninstall 이후 처리 로직 
+			// ( resultCode 는 항상 0이다. intent 값은 null 이 넘어 온다. )
+			if( data != null ) {
+				String packageName = data.getPackageName();
+				
+				if( packageName != null && !is_apk_installed(packageName)) {
+					int position = data.getIndex();
+					if( position != -1 ) {
+						apkListAdapter.remove( position );
+					}
+				}
+			}
+			break;
+		}
+		
+		super.onActivityResult(requestCode, resultCode, intent );
+	}
+
+
 
 	Runnable apk_info_load_runnable = new Runnable() 
 	{
@@ -70,23 +103,7 @@ public class MainActivity extends Activity
 	 */
 	private void getApkInfos() 
 	{
-	    PackageManager pm =  getPackageManager();
-	    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-	    homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		    
-	    List<ResolveInfo> homeApps = pm.queryIntentActivities(homeIntent, PackageManager.GET_ACTIVITIES);
-	    
 	    apkListAdapter = new ApkListAdapter( MainActivity.this );
-	    
-	    for(int i=0; i<homeApps.size(); i++){
-	        ResolveInfo info = homeApps.get(i);
-	        apkListAdapter.addItem( 
-	        	info.loadIcon(pm),
-	        	(String) info.loadLabel(pm), 
-	        	info.activityInfo.packageName 
-	        );
-	    }	
-	    
 	    apkListAdapter.sort();
 	}
 			
@@ -107,14 +124,22 @@ public class MainActivity extends Activity
 		}
 	}
 	
+	final int ID_APK_MENU_EXTRACT 		= 0x01;
+	final int ID_APK_MENU_DELETE 		= 0x02;
+	final int ID_APK_MENU_SHARE			= 0x03;
+	final int ID_APK_MENU_RUNNING		= 0x04;
+	final int ID_APK_MENU_GOTO_MARKET	= 0x05;
+	
 	// 메뉴 생성
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) 
 	{
 		if ( v.getId() == R.id.apkListView ) {
 			String[] menuItems = getResources().getStringArray(R.array.ApkMenu);
+			int[] IDs = { ID_APK_MENU_EXTRACT, ID_APK_MENU_DELETE, ID_APK_MENU_SHARE, ID_APK_MENU_RUNNING, ID_APK_MENU_GOTO_MARKET };
+			
 			for (int i = 0; i<menuItems.length; i++) {
-				menu.add(Menu.NONE, i, i, menuItems[i]);
+				menu.add(Menu.NONE, IDs[i], i, menuItems[i]);
 			}
 		}
 	}
@@ -126,9 +151,83 @@ public class MainActivity extends Activity
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		ApkListData data = ( ApkListData ) apkListAdapter.getItem( info.position );
+		data.setIndex( info.position );
 		
-		Toast.makeText( MainActivity.this, data.appName + " " + item.getTitle(), Toast.LENGTH_SHORT ).show();
-			
+		switch( item.getItemId()) {
+		case ID_APK_MENU_RUNNING		: apk_running( data ); 		break;
+		case ID_APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
+		case ID_APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
+		case ID_APK_MENU_EXTRACT 		: 
+		case ID_APK_MENU_SHARE			: Toast.makeText( MainActivity.this, data.getAppName() + " " + item.getTitle(), Toast.LENGTH_SHORT ).show(); 
+			break;
+		}
+					
 		return true;
+	}
+
+	/**
+	 * APK을 단말기에서 Uninstall 합니다. 
+	 * 
+	 * @param data
+	 */
+	private final int ID_ACTION_APK_UNINSTALL	= 0x1000;
+	private void apk_uninstall(ApkListData data, int position ) 
+	{
+		workStack.push( data );
+		
+		Uri packageURI = Uri.parse("package:"+data.getPackageName());
+		Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+		startActivityForResult( uninstallIntent, ID_ACTION_APK_UNINSTALL );
+	}
+
+	/**
+	 * APK 을 다운받을 수 있는 마켓 페이지로 이동한다. 
+	 * 
+	 * @param data
+	 */
+	private void apk_goto_market(ApkListData data) 
+	{
+		workStack.push( data );
+		
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=" + data.getPackageName()));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    startActivity(intent);
+	}
+
+	/**
+	 * APK 을 실행 한다. 
+	 * 
+	 * @param data
+	 */
+	private void apk_running(ApkListData data) 
+	{
+		Intent intent = getPackageManager().getLaunchIntentForPackage(data.getPackageName());
+	    if (intent != null) {
+	    	workStack.push( data );
+	    	
+	    	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    startActivity(intent);
+		    
+	    } else {
+	    	apk_goto_market( data );
+	    }
+	}
+	
+	/**
+	 * packageName 의 앱이 설치되어 있는지 확인해 준다. 
+	 * 
+	 * @param packageName
+	 * @return
+	 */
+	private boolean is_apk_installed( String packageName ) {
+		PackageManager pm = getPackageManager();
+        try {
+            pm.getPackageInfo( packageName, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
+        return false;
 	}
 }

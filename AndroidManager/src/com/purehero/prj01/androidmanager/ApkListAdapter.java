@@ -2,10 +2,13 @@ package com.purehero.prj01.androidmanager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,22 +19,23 @@ import android.widget.TextView;
 public class ApkListAdapter extends BaseAdapter 
 {
 	private final Context context;
-	private ArrayList<ApkListData> listData = new ArrayList<ApkListData>();
+	private List<ApkListData> listData = new ArrayList<ApkListData>();
 	
 	public ApkListAdapter( Context context ) 
 	{
 		super();
 		this.context = context;
-	}
-	
-	public ApkListData addItem( Drawable icon, String appName, String packageName ) 
-	{
-		ApkListData data = new ApkListData();
-		data.icon = icon;
-		data.appName = appName;
-		data.packageName = packageName;
 		
-		return listData.add( data ) ? data : null;		
+		PackageManager pm =  context.getPackageManager();
+	    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+	    homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		    
+	    List<ResolveInfo> launcherActivitys = pm.queryIntentActivities(homeIntent, PackageManager.GET_ACTIVITIES);
+	    
+	    listData.clear();
+	    for( ResolveInfo act : launcherActivitys ) {
+	    	listData.add( new ApkListData( act, pm ));
+	    }
 	}
 	
 	public void remove( int index ) 
@@ -93,15 +97,10 @@ public class ApkListAdapter extends BaseAdapter
 		}
 		
 		ApkListData data = listData.get( position );
-		if( data.icon != null ) {
-			viewHolder.icon.setVisibility( View.VISIBLE );
-			viewHolder.icon.setImageDrawable( data.icon );
-		} else {
-			viewHolder.icon.setVisibility( View.GONE );
-		}
 		
-		viewHolder.appName.setText( data.appName );
-		viewHolder.packageName.setText( data.packageName );
+		viewHolder.icon.setImageDrawable( data.getIcon());
+		viewHolder.appName.setText( data.getAppName());
+		viewHolder.packageName.setText( data.getPackageName());
 		
 		return convertView;
 	}
