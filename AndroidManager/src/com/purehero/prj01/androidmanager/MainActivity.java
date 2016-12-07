@@ -2,13 +2,13 @@ package com.purehero.prj01.androidmanager;
 
 import java.io.File;
 import java.util.Stack;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -126,23 +126,12 @@ public class MainActivity extends Activity
 		}
 	}
 	
-	final int ID_APK_MENU_EXTRACT 		= 0x01;
-	final int ID_APK_MENU_DELETE 		= 0x02;
-	final int ID_APK_MENU_SHARE			= 0x03;
-	final int ID_APK_MENU_RUNNING		= 0x04;
-	final int ID_APK_MENU_GOTO_MARKET	= 0x05;
-	
 	// 메뉴 생성
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) 
 	{
 		if ( v.getId() == R.id.apkListView ) {
-			String[] menuItems = getResources().getStringArray(R.array.ApkMenu);
-			int[] IDs = { ID_APK_MENU_EXTRACT, ID_APK_MENU_DELETE, ID_APK_MENU_SHARE, ID_APK_MENU_RUNNING, ID_APK_MENU_GOTO_MARKET };
-			
-			for (int i = 0; i<menuItems.length; i++) {
-				menu.add(Menu.NONE, IDs[i], i, menuItems[i]);
-			}
+			getMenuInflater().inflate(R.menu.contextual, menu);
 		}
 	}
 	
@@ -156,11 +145,11 @@ public class MainActivity extends Activity
 		data.setIndex( info.position );
 		
 		switch( item.getItemId()) {
-		case ID_APK_MENU_RUNNING		: apk_running( data ); 		break;
-		case ID_APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
-		case ID_APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
-		case ID_APK_MENU_SHARE			: apk_share( data ); break;
-		case ID_APK_MENU_EXTRACT 		: apk_extract( data ); break;
+		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		break;
+		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
+		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
+		case R.id.APK_MENU_SHARE		: apk_share( data ); break;
+		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); break;
 		}
 					
 		return true;
@@ -188,26 +177,15 @@ public class MainActivity extends Activity
 	{
 		workStack.clear();
 		workStack.push( data );
-		/*
-		Intent msg = new Intent(Intent.ACTION_SEND);
-		msg.addCategory(Intent.CATEGORY_DEFAULT);
-
-		msg.putExtra(Intent.EXTRA_SUBJECT, "주제");
-		msg.putExtra(Intent.EXTRA_TEXT, "내용");
-		msg.putExtra(Intent.EXTRA_TITLE, "제목");
-		msg.setType("text/plain");    
-
-		startActivity(Intent.createChooser(msg, "공유"));
-		
+			
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.setType("image/jpeg");
-		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File("")));
+		shareIntent.setType("application/vnd.android.package-archive");
+		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File( data.getApkFilepath() )));
 		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
 		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
 		
 		startActivity(Intent.createChooser(shareIntent, "Share APK File" ));
-		*/
 	}
 
 
