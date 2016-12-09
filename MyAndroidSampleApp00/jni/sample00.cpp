@@ -60,7 +60,7 @@ void init( JNIEnv * env, jobject, jobject appContext )
 		LOGE("ERROR: failed to get nativeLibraryDir field value");
 		return;
 	} else {
-		LOGD("SUCCESS: et nativeLibraryDir field value");
+		LOGD("SUCCESS: get nativeLibraryDir field value");
 	}
 
 
@@ -68,6 +68,37 @@ void init( JNIEnv * env, jobject, jobject appContext )
 	LOGD( "strNativeLibraryDir : %s", strNativeLibraryDir );
 
 	env->ReleaseStringUTFChars( nativeLibraryDir, strNativeLibraryDir );
+}
+
+#include <fcntl.h>
+void runDex2Oat( JNIEnv * env, jobject )
+{
+	LOGT();
+
+	const char * dexFilePath 	= "/sdcard/workTemp/a.apk";
+	const char * odexFilePath 	= "/sdcard/workTemp/a.apk@classes.dex";
+
+	int dexFd 	= open( dexFilePath, 	O_RDONLY );
+	int odexFd 	= open( odexFilePath, 	O_WRONLY );
+
+	char cmd_buff[1024];
+	sprintf( cmd_buff, "/system/bin/dex2oat --zip-fd=%d --zip-location=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --instruction-set-features=div --compiler-backend=Quick --runtime-arg -Xms64m --runtime-arg -Xmx512m -j8 --swap-fd=18",
+		dexFd, dexFilePath,
+		odexFd, odexFilePath );
+
+	LOGD( "%s", cmd_buff );
+	LOGD( "[[ BEGIN ]]" );
+	system( cmd_buff );
+	LOGD( "[[ END ]]" );
+
+	close( dexFd );
+	close( odexFd );
+}
+
+__attribute__((constructor))
+void JNI_OnPreLoad()
+{
+	LOGT();
 }
 
 // JNI_OnLoad
@@ -93,10 +124,11 @@ jint JNI_OnLoad( JavaVM* vm, void* )
 	}
 
 	JNINativeMethod gMethods[4] = {
-			{ "init", 	"(Landroid/content/Context;)V", 		(void*) init }
+			{ "init", 			"(Landroid/content/Context;)V", 		(void*) init },
+			{ "runDex2Oat", 	"()V", 									(void*) runDex2Oat }
 	};
 
-	if (env->RegisterNatives( clazz, gMethods, 1 ) < 0 )
+	if (env->RegisterNatives( clazz, gMethods, 2 ) < 0 )
 	{
 		LOGE( "RegisterNatives failed for '%s'", classPath );
 		return -1;

@@ -7,5 +7,7 @@ LOCAL_SRC_FILES := sample00.cpp
 
 LOCAL_CFLAGS    := -Wall -Wextra
 LOCAL_LDLIBS	+= -llog -ldl -lz -lGLESv2
+ 
+LOCAL_DEX_PREOPT := true
 
 include $(BUILD_SHARED_LIBRARY)
