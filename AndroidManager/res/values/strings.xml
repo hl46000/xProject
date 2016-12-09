@@ -7,5 +7,10 @@
     <string name="apk_list_item_icon_description">icon</string>
     <string name="splash_image_description">Loading</string>
     
+    <string name="apk_extract">추출</string>
+	<string name="apk_delete">삭제</string>
+	<string name="apk_share">공유</string>
+	<string name="apk_execute">실행</string>
+	<string name="apk_market">마켓으로 이동</string>
 
 </resources>

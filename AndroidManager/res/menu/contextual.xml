@@ -1,0 +1,7 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/APK_MENU_EXTRACT" android:title="@string/apk_extract" />
+	<item android:id="@+id/APK_MENU_DELETE" android:title="@string/apk_delete" />
+	<item android:id="@+id/APK_MENU_SHARE" android:title="@string/apk_share" />
+	<item android:id="@+id/APK_MENU_RUNNING" android:title="@string/apk_execute" />
+	<item android:id="@+id/APK_MENU_GOTO_MARKET" android:title="@string/apk_market" />
+</menu>
