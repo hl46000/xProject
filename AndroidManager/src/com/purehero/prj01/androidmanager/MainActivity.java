@@ -19,6 +19,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 public class MainActivity extends Activity 
 {
 	private ListView apkListView 			= null;
@@ -33,6 +36,10 @@ public class MainActivity extends Activity
 		setContentView(R.layout.activity_main);
 						
 		new Thread( apk_info_load_runnable ).start();
+		
+		AdView mAdView = (AdView) findViewById(R.id.adView);
+		AdRequest adRequest = new AdRequest.Builder().build();
+		mAdView.loadAd(adRequest);
 	}
 
 	
