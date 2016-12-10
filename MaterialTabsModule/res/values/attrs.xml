@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
     <declare-styleable name="MaterialTabHost">
 
         <!-- Custom attributes -->
@@ -10,12 +11,13 @@
         <attr name="textColor" format="color"  />
         
     </declare-styleable>
-    
-	<attr name="actionBarSize" format="dimension">
-        <enum name="wrap_content" value="0" />
-    </attr>
-    <attr name="primaryColor" format="color" />
-    <attr name="accentColor" format="color" />
-    <attr name="iconColor" format="color" />
-    <attr name="textColor" format="color" />
+    <declare-styleable name="ActionView">
+        <attr name="av_color" format="color"/>
+        <attr name="av_action" format="enum">
+            <enum name="drawer" value="0"/>
+            <enum name="back" value="1"/>
+            <enum name="close" value="2"/>
+            <enum name="plus" value="3"/>
+        </attr>
+    </declare-styleable>
 </resources>

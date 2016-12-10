@@ -1,42 +1,71 @@
 package com.purehero.prj01.androidmanager;
 
-import java.io.File;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
+import it.neokree.materialtabs.MaterialTab;
+import it.neokree.materialtabs.MaterialTabHost;
+import it.neokree.materialtabs.MaterialTabListener;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
-public class MainActivity extends ActionBarActivity 
+public class MainActivity extends ActionBarActivity implements MaterialTabListener
 {
-	private ListView apkListView 			= null;
-	private ProgressBar progressBar  		= null;
-	private ApkListAdapter apkListAdapter 	= null;
-	private Stack<ApkListData> workStack 		= new Stack<ApkListData>();
-	
+	MaterialTabHost tabHost;
+    ViewPager pager;
+    ViewPagerAdapter adapter;
+    
+    List<Object> fragmentList = new ArrayList<Object>();
+    List<String>   fragmentName = new ArrayList<String>();
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-						
-		new Thread( apk_info_load_runnable ).start();
 		
+		tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
+        pager = (ViewPager) this.findViewById(R.id.pager );
+
+      //fragmentList.add( new ApkListFragment());
+        fragmentList.add( new ApkListFragment()); fragmentName.add( "Installed APKs" );
+        fragmentList.add( new FragmentText()); fragmentName.add( "Second" );
+        fragmentList.add( new FragmentText()); fragmentName.add( "Third" );
+        
+        // init view pager
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(adapter);
+        pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                // when user do a swipe the selected tab change
+                tabHost.setSelectedNavigationItem(position);
+
+            }
+        });
+
+        // insert all tabs from pagerAdapter data
+        for (int i = 0; i < adapter.getCount(); i++) {
+            tabHost.addTab(
+                    tabHost.newTab()
+                            .setText(adapter.getPageTitle(i))
+                            .setTabListener(this)
+            );
+
+        }
+		
+        
+        
 		AdView mAdView = (AdView) findViewById(R.id.adView);
 		AdRequest adRequest = new AdRequest.Builder().build();
 		mAdView.loadAd(adRequest);
@@ -61,83 +90,10 @@ public class MainActivity extends ActionBarActivity
 		return super.onOptionsItemSelected(item);
 	}
 	
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent ) {
-		ApkListData data = null;
-		
-		if( !workStack.isEmpty()) {
-			data = workStack.pop();
-		}
-		
-		switch( requestCode ) {
-		case ID_ACTION_APK_UNINSTALL :	
-			
-			// APK Uninstall 이후 처리 로직 
-			// ( resultCode 는 항상 0이다. intent 값은 null 이 넘어 온다. )
-			if( data != null ) {
-				String packageName = data.getPackageName();
-				
-				if( packageName != null && !is_apk_installed(packageName)) {
-					int position = data.getIndex();
-					if( position != -1 ) {
-						apkListAdapter.remove( position );
-					}
-				}
-			}
-			break;
-		}
-		
-		super.onActivityResult(requestCode, resultCode, intent );
-	}
-
-
-
-	Runnable apk_info_load_runnable = new Runnable() 
-	{
-		@Override
-		public void run() 
-		{
-			// 초기화면을 표시하기 위해 필요한 데이터 수집
-			getApkInfos();
-			
-			// 수집된 데이터 화면에 보여 주기
-			runOnUiThread( init_ui_runnable );
-		}
-	};
-	
-	Runnable init_ui_runnable = new Runnable() 
-	{
-		@Override
-		public void run() 
-		{
-			// Progress bar 사라지게 하기
-			progressBar = ( ProgressBar ) findViewById( R.id.progressBar );
-			progressBar.setVisibility( View.GONE );
-			progressBar = null;
-			
-			// ListView 나타나게 하기
-			apkListView	= ( ListView ) findViewById( R.id.apkListView );
-			apkListView.setVisibility( View.VISIBLE );
-			apkListView.setAdapter( apkListAdapter );			
-			registerForContextMenu( apkListView );
-		}
-	};
-	
-	
-	/**
-	 * 설치된 앱(APK)들의 정보(아이콘, 앱이름, 패키지명)등을 추출한다. 
-	 */
-	private void getApkInfos() 
-	{
-	    apkListAdapter = new ApkListAdapter( MainActivity.this );
-	    apkListAdapter.sort();
-	}
-			
 	// Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
 	private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
 	private long backPressedTime = 0;
-	
+		
 	@Override
 	public void onBackPressed() 
 	{
@@ -146,141 +102,40 @@ public class MainActivity extends ActionBarActivity
 			
 		} else {
 			backPressedTime = System.currentTimeMillis();
-			
 			Toast.makeText( this, "뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT ).show();;
 		}
 	}
-	
-	// 메뉴 생성
+
 	@Override
-	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) 
-	{
-		if ( v.getId() == R.id.apkListView ) {
-			getMenuInflater().inflate(R.menu.contextual, menu);
-		}
+	public void onTabSelected(MaterialTab tab) {
 	}
-	
-	// 메뉴 클릭 
+
 	@Override
-	public boolean onContextItemSelected(MenuItem item) 
-	{
-		// 클릭된 APK 정보
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-		ApkListData data = ( ApkListData ) apkListAdapter.getItem( info.position );
-		data.setIndex( info.position );
-		
-		switch( item.getItemId()) {
-		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		break;
-		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
-		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
-		case R.id.APK_MENU_SHARE		: apk_share( data ); break;
-		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); break;
-		}
-					
-		return true;
+	public void onTabReselected(MaterialTab tab) {
 	}
 
-	@SuppressLint("SdCardPath")
-	private void apk_extract(ApkListData data) 
-	{
-		File apkFile = new File( data.getApkFilepath());
-		File baseFile = new File( "/sdcard/AndroidManager" );
-		if( !baseFile.exists()) baseFile.mkdirs();
-		
-		File destFile = new File( baseFile, data.getPackageName() + ".apk" );
-		
-		FileCopyAsync filecopy = new FileCopyAsync( this );
-		filecopy.execute( apkFile, destFile );
-	}
-
-
-
-	/**
-	 * @param data
-	 */
-	private void apk_share(ApkListData data) 
-	{
-		workStack.clear();
-		workStack.push( data );
-			
-		Intent shareIntent = new Intent();
-		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.setType("application/vnd.android.package-archive");
-		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File( data.getApkFilepath() )));
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
-		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
-		
-		startActivity(Intent.createChooser(shareIntent, "Share APK File" ));
-	}
-
-
-
-	/**
-	 * APK을 단말기에서 Uninstall 합니다. 
-	 * 
-	 * @param data
-	 */
-	private final int ID_ACTION_APK_UNINSTALL	= 0x1000;
-	private void apk_uninstall(ApkListData data, int position ) 
-	{
-		workStack.clear();
-		workStack.push( data );
-		
-		Uri packageURI = Uri.parse("package:"+data.getPackageName());
-		Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
-		startActivityForResult( uninstallIntent, ID_ACTION_APK_UNINSTALL );
-	}
-
-	/**
-	 * APK 을 다운받을 수 있는 마켓 페이지로 이동한다. 
-	 * 
-	 * @param data
-	 */
-	private void apk_goto_market(ApkListData data) 
-	{
-		workStack.clear();
-		workStack.push( data );
-		
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("market://details?id=" + data.getPackageName()));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    startActivity(intent);
-	}
-
-	/**
-	 * APK 을 실행 한다. 
-	 * 
-	 * @param data
-	 */
-	private void apk_running(ApkListData data) 
-	{
-		Intent intent = getPackageManager().getLaunchIntentForPackage(data.getPackageName());
-	    if (intent != null) {
-	    	workStack.clear();
-	    	workStack.push( data );
-	    	
-	    	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    startActivity(intent);
-		    
-	    } else {
-	    	apk_goto_market( data );
-	    }
+	@Override
+	public void onTabUnselected(MaterialTab tab) {
 	}
 	
-	/**
-	 * packageName 의 앱이 설치되어 있는지 확인해 준다. 
-	 * 
-	 * @param packageName
-	 * @return
-	 */
-	private boolean is_apk_installed( String packageName ) {
-		PackageManager pm = getPackageManager();
-        try {
-            pm.getPackageInfo( packageName, PackageManager.GET_ACTIVITIES);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
+	private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+		public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+
         }
 
-        return false;
-	}
+        public Fragment getItem(int position) {
+            return ( Fragment ) fragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return fragmentList.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+        	return fragmentName.get(position);
+        }
+    }
 }
