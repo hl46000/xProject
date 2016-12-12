@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <android/log.h>
+#include "jstr2str.h"
 
 #define  LOG_TAG	"TEST_Native"
 #define  LOGV(...)  __android_log_print(ANDROID_LOG_VERBOSE,LOG_TAG,__VA_ARGS__)
@@ -70,20 +71,38 @@ void init( JNIEnv * env, jobject, jobject appContext )
 	env->ReleaseStringUTFChars( nativeLibraryDir, strNativeLibraryDir );
 }
 
+
+
 #include <fcntl.h>
-void runDex2Oat( JNIEnv * env, jobject )
+void runDex2Oat( JNIEnv * env, jobject, jstring cache_path )
 {
 	LOGT();
 
-	const char * dexFilePath 	= "/sdcard/workTemp/a.apk";
-	const char * odexFilePath 	= "/sdcard/workTemp/a.apk@classes.dex";
+	jstr2str jstr( env, cache_path );
 
-	int dexFd 	= open( dexFilePath, 	O_RDONLY );
-	int odexFd 	= open( odexFilePath, 	O_WRONLY );
 
 	char cmd_buff[1024];
-	sprintf( cmd_buff, "/system/bin/dex2oat --zip-fd=%d --zip-location=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --instruction-set-features=div --compiler-backend=Quick --runtime-arg -Xms64m --runtime-arg -Xmx512m -j8 --swap-fd=18",
-		dexFd, dexFilePath,
+
+	//const char * dexFilePath 	= "/sdcard/workTemp/a.apk";
+	const char * dexFilePath 	= "/sdcard/workTemp/classes.dex";
+
+	char odexFilePath[260];
+	sprintf( odexFilePath, "%s/a.apk@classes.dex", jstr.c_str() );
+
+	//int dexFd 	= open( dexFilePath, 	O_RDONLY );
+	int odexFd 	= open( odexFilePath, 	O_WRONLY | O_CREAT | O_TRUNC );
+
+	//sprintf( cmd_buff, "/system/bin/dex2oat --zip-fd=%d --zip-location=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --instruction-set-features=div --compiler-filter=interpret-only --compiler-backend=Quick --runtime-arg -Xms64m --runtime-arg -Xmx512m -j4 --swap-fd=18",
+	//sprintf( cmd_buff, "/system/bin/dex2oat --zip-fd=%d --zip-location=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --instruction-set-features=div --compiler-backend=Quick --runtime-arg -Xms64m --runtime-arg -Xmx512m -j4 --swap-fd=18",
+	//sprintf( cmd_buff, "/system/bin/dex2oat --zip-fd=%d --zip-location=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --instruction-set-features=div --compiler-filter=verify-none;interpret-only --compiler-backend=Quick --runtime-arg -Xms64m --runtime-arg -Xmx512m -j4 --swap-fd=18",
+	//sprintf( cmd_buff, "/system/bin/dex2oat --dex-file=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --instruction-set-features=div --compiler-filter=verify-none --runtime-arg -Xms64m --runtime-arg -Xmx512m -j4 --swap-fd=18",
+
+	// 5.0 捞惑 可记
+	//sprintf( cmd_buff, "/system/bin/dex2oat --dex-file=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --compiler-filter=verify-none --runtime-arg -Xms64m --runtime-arg -Xmx512m -j4 --swap-fd=18",
+
+	// 4.4 可记
+	sprintf( cmd_buff, "/system/bin/dex2oat --dex-file=%s --oat-fd=%d --oat-location=%s --instruction-set=arm --runtime-arg -Xms64m --runtime-arg -Xmx512m -j4 --swap-fd=18",
+		dexFilePath,
 		odexFd, odexFilePath );
 
 	LOGD( "%s", cmd_buff );
@@ -91,7 +110,7 @@ void runDex2Oat( JNIEnv * env, jobject )
 	system( cmd_buff );
 	LOGD( "[[ END ]]" );
 
-	close( dexFd );
+	//close( dexFd );
 	close( odexFd );
 }
 
@@ -125,7 +144,7 @@ jint JNI_OnLoad( JavaVM* vm, void* )
 
 	JNINativeMethod gMethods[4] = {
 			{ "init", 			"(Landroid/content/Context;)V", 		(void*) init },
-			{ "runDex2Oat", 	"()V", 									(void*) runDex2Oat }
+			{ "runDex2Oat", 	"(Ljava/lang/String;)V", 				(void*) runDex2Oat }
 	};
 
 	if (env->RegisterNatives( clazz, gMethods, 2 ) < 0 )
