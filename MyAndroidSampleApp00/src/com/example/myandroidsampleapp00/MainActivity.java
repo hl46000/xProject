@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
 		Log.d( LOG_TAG, "getFilesDir : " + _getFilesDir.getAbsolutePath());
 		Log.d( LOG_TAG, "nativeLibraryDir : " + this.getApplicationInfo().nativeLibraryDir );
 		
-		//nativeLib.init( this );
-		//nativeLib.runDex2Oat();
+		nativeLib.init( this );
+		nativeLib.runDex2Oat( getCacheDir().getAbsolutePath() );
 	}
 }
