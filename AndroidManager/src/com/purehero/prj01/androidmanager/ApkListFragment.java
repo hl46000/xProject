@@ -5,11 +5,12 @@ import java.util.Stack;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.support.v4.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -100,6 +101,13 @@ public class ApkListFragment extends Fragment {
 			apkListView.setVisibility( View.VISIBLE );
 			apkListView.setAdapter( apkListAdapter );			
 			registerForContextMenu( apkListView );
+			
+			apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		        @Override
+		        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		        	apkListView.showContextMenuForChild(view);
+		        }
+		    });
 		}
 	};
 	
@@ -139,9 +147,25 @@ public class ApkListFragment extends Fragment {
 		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
 		case R.id.APK_MENU_SHARE		: apk_share( data ); break;
 		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); break;
+		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); break;
 		}
 					
 		return true;
+	}
+
+	/**
+	 * @param data
+	 */
+	private void apk_infomation(ApkListData data) {
+		try {
+		    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+		    intent.setData(Uri.parse("package:" + data.getPackageName()));
+		    startActivity(intent);
+
+		} catch ( ActivityNotFoundException e ) {
+		    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
+		    startActivity(intent);
+		}
 	}
 
 	@SuppressLint("SdCardPath")
@@ -153,7 +177,7 @@ public class ApkListFragment extends Fragment {
 		
 		File destFile = new File( baseFile, data.getPackageName() + ".apk" );
 		
-		FileCopyAsync filecopy = new FileCopyAsync( context );
+		FileCopyAsync filecopy = new FileCopyAsync( context, data.getAppName() );
 		filecopy.execute( apkFile, destFile );
 	}
 

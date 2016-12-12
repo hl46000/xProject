@@ -9,13 +9,17 @@ import java.io.IOException;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 public class FileCopyAsync extends AsyncTask<File, String, String> 
 {
 	private final Context context;
-	public FileCopyAsync( Context context ) {
+	private final String appTitle;
+	private File output_file = null;
+	public FileCopyAsync( Context context, String appTitle ) {
 		super();
 		this.context = context;
+		this.appTitle = appTitle;
 	}
 
 	private ProgressDialog progressDialog = null;
@@ -33,6 +37,8 @@ public class FileCopyAsync extends AsyncTask<File, String, String>
 	@Override
 	protected String doInBackground(File... files) 
 	{
+		output_file = files[1];
+		
 		copyFiles( files[0], files[1] );
 		return null;
 	}
@@ -77,6 +83,10 @@ public class FileCopyAsync extends AsyncTask<File, String, String>
 	@Override
 	protected void onPostExecute(String result) 
 	{
-		progressDialog.dismiss();		
+		progressDialog.dismiss();
+		
+		String format = context.getResources().getString( R.string.send_to_sdcard_format );
+		Toast.makeText( context, 
+			String.format( format, appTitle, output_file.getAbsolutePath()), Toast.LENGTH_LONG ).show();
 	}
 }

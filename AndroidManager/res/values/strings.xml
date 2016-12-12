@@ -7,11 +7,14 @@
     <string name="apk_list_item_icon_description">icon</string>
     <string name="splash_image_description">Loading</string>
     
-    <string name="apk_extract">추출</string>
+    <string name="apk_extract">SD Card로 복사</string>
+	<string name="apk_market">마켓으로 이동</string>
+	<string name="apk_information">정보 보기</string>
 	<string name="apk_delete">삭제</string>
 	<string name="apk_share">공유</string>
 	<string name="apk_execute">실행</string>
-	<string name="apk_market">마켓으로 이동</string>
-
+	
 	<string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
+	<string name="send_to_sdcard_format" formatted="false">%s 파일이 %s 로 저장되었습니다.</string>
+	<string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
 </resources>

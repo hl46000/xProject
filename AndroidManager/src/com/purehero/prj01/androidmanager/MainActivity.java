@@ -6,6 +6,7 @@ import java.util.List;
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
 import it.neokree.materialtabs.MaterialTabListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -38,9 +39,8 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         pager = (ViewPager) this.findViewById(R.id.pager );
 
       //fragmentList.add( new ApkListFragment());
-        fragmentList.add( new ApkListFragment()); fragmentName.add( "Installed APKs" );
-        fragmentList.add( new FragmentText()); fragmentName.add( "Second" );
-        fragmentList.add( new FragmentText()); fragmentName.add( "Third" );
+        fragmentList.add( new ApkListFragment()); fragmentName.add( "Apps" );
+        fragmentList.add( new FragmentText()); fragmentName.add( "Files" );        
         
         // init view pager
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -83,6 +83,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			startActivity( new Intent( this, SettingsActivity.class ));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -100,12 +101,13 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 			
 		} else {
 			backPressedTime = System.currentTimeMillis();
-			Toast.makeText( this, "뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT ).show();;
+			Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
 		}
 	}
 
 	@Override
 	public void onTabSelected(MaterialTab tab) {
+		pager.setCurrentItem( tab.getPosition());
 	}
 
 	@Override
@@ -119,7 +121,6 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 	private class ViewPagerAdapter extends FragmentStatePagerAdapter {
 		public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
-
         }
 
         public Fragment getItem(int position) {
