@@ -1,4 +1,4 @@
-package com.purehero.prj01.androidmanager;
+package com.purehero.apk.manager;
 
 import java.text.Collator;
 import java.util.Comparator;

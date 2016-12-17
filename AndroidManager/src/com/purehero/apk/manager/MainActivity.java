@@ -1,4 +1,4 @@
-package com.purehero.prj01.androidmanager;
+package com.purehero.apk.manager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
       //fragmentList.add( new ApkListFragment());
         fragmentList.add( new ApkListFragment()); fragmentName.add( "Apps" );
-        fragmentList.add( new FragmentText()); fragmentName.add( "Files" );        
+        //fragmentList.add( new FragmentText()); fragmentName.add( "Files" );        
         
         // init view pager
         adapter = new ViewPagerAdapter(getSupportFragmentManager());

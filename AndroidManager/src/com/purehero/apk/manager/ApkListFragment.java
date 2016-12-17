@@ -1,4 +1,4 @@
-package com.purehero.prj01.androidmanager;
+package com.purehero.apk.manager;
 
 import java.io.File;
 import java.util.Stack;
@@ -7,9 +7,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -171,8 +173,10 @@ public class ApkListFragment extends Fragment {
 	@SuppressLint("SdCardPath")
 	private void apk_extract(ApkListData data) 
 	{
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		
 		File apkFile = new File( data.getApkFilepath());
-		File baseFile = new File( "/sdcard/AndroidManager" );
+		File baseFile = new File( sharedPref.getString("sdcard_path", "/sdcard/ApkManager") );
 		if( !baseFile.exists()) baseFile.mkdirs();
 		
 		File destFile = new File( baseFile, data.getPackageName() + ".apk" );
