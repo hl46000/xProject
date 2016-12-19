@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -23,11 +24,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+
 public class ApkListFragment extends Fragment {
 	private ListView apkListView 			= null;
 	private ProgressBar progressBar  		= null;
 	private ApkListAdapter apkListAdapter 	= null;
-	private Stack<ApkListData> workStack 		= new Stack<ApkListData>();
+	private Stack<ApkListData> workStack 	= new Stack<ApkListData>();
+	private InterstitialAd interstitialAd	= null;	// 전면 광고
 	
 	private Activity context = null;
 	private View layout = null;
@@ -36,8 +42,37 @@ public class ApkListFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		context = this.getActivity();
+		
+		setFullAd();
 	}
 	
+	private void setFullAd() {
+		interstitialAd = new InterstitialAd( context );
+		interstitialAd.setAdUnitId( context.getResources().getString(R.string.ad_unit_id) );
+		AdRequest adRequest = new AdRequest.Builder().build();
+		interstitialAd.loadAd(adRequest);
+		interstitialAd.setAdListener( new AdListener(){
+			
+			@Override
+			public void onAdFailedToLoad(int errorCode) {
+				Log.d("TEST", String.format( "onAdFailedToLoad : %d", errorCode ));
+			}
+
+			@Override
+			public void onAdLoaded() {
+				Log.d("TEST", String.format( "onAdLoaded" ));
+			}
+
+			@Override
+			public void onAdClosed() {
+				Log.d("TEST", String.format( "onAdClosed" ));
+				
+				AdRequest adRequest = new AdRequest.Builder().build();
+				interstitialAd.loadAd(adRequest);
+			}
+		});
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		layout = inflater.inflate( R.layout.apk_list_layout, container, false); 
@@ -47,8 +82,15 @@ public class ApkListFragment extends Fragment {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent ) 
-	{
+	public void onResume() {
+		Log.d( "TEST", "onResume");
+		super.onResume();
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
+		Log.d( "TEST", "onActivityResult");
+		
 		ApkListData data = null;
 		
 		if( !workStack.isEmpty()) {
@@ -56,7 +98,7 @@ public class ApkListFragment extends Fragment {
 		}
 		
 		switch( requestCode ) {
-		case ID_ACTION_APK_UNINSTALL :	
+		case R_ID_APK_MENU_DELETE :	
 			
 			// APK Uninstall 이후 처리 로직 
 			// ( resultCode 는 항상 0이다. intent 값은 null 이 넘어 온다. )
@@ -72,6 +114,22 @@ public class ApkListFragment extends Fragment {
 			}
 			break;
 		}
+		/*
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+		int ad_count = sharedPref.getInt("ad_count", 3);
+		
+		//Log.d( "TEST", String.format("ad_count : %d", ad_count ));
+		if( ad_count >= 3 ) {
+			if( interstitialAd != null && interstitialAd.isLoaded()) {
+				interstitialAd.show();
+				ad_count = 0;
+			}
+		} else {
+			ad_count++;
+		}
+		sharedPref.edit().putInt("ad_count", ad_count);
+		sharedPref.edit().commit();
+		*/
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
@@ -155,6 +213,13 @@ public class ApkListFragment extends Fragment {
 		return true;
 	}
 
+	final int R_ID_APK_MENU_RUNNING		= 1000;
+	final int R_ID_APK_MENU_GOTO_MARKET = 1001;
+	final int R_ID_APK_MENU_DELETE 		= 1002;
+	final int R_ID_APK_MENU_SHARE 		= 1003;
+	final int R_ID_APK_MENU_EXTRACT 	= 1004;
+	final int R_ID_APK_MENU_INFOMATION 	= 1005;
+	
 	/**
 	 * @param data
 	 */
@@ -162,11 +227,11 @@ public class ApkListFragment extends Fragment {
 		try {
 		    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
 		    intent.setData(Uri.parse("package:" + data.getPackageName()));
-		    startActivity(intent);
+		    startActivityForResult(intent, R_ID_APK_MENU_INFOMATION);
 
 		} catch ( ActivityNotFoundException e ) {
 		    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
-		    startActivity(intent);
+		    startActivityForResult(intent, R_ID_APK_MENU_INFOMATION );
 		}
 	}
 
@@ -202,7 +267,7 @@ public class ApkListFragment extends Fragment {
 		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
 		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
 		
-		startActivity(Intent.createChooser(shareIntent, "Share APK File" ));
+		startActivityForResult(Intent.createChooser(shareIntent, "Share APK File" ), R_ID_APK_MENU_SHARE);
 	}
 
 
@@ -211,8 +276,7 @@ public class ApkListFragment extends Fragment {
 	 * APK을 단말기에서 Uninstall 합니다. 
 	 * 
 	 * @param data
-	 */
-	private final int ID_ACTION_APK_UNINSTALL	= 0x1000;
+	 */	
 	private void apk_uninstall(ApkListData data, int position ) 
 	{
 		workStack.clear();
@@ -220,7 +284,8 @@ public class ApkListFragment extends Fragment {
 		
 		Uri packageURI = Uri.parse("package:"+data.getPackageName());
 		Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
-		startActivityForResult( uninstallIntent, ID_ACTION_APK_UNINSTALL );
+		startActivityForResult( uninstallIntent, R_ID_APK_MENU_DELETE );
+		
 	}
 
 	/**
@@ -236,7 +301,8 @@ public class ApkListFragment extends Fragment {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("market://details?id=" + data.getPackageName()));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    startActivity(intent);
+        startActivityForResult(intent, R_ID_APK_MENU_GOTO_MARKET);
+        
 	}
 
 	/**
@@ -252,8 +318,8 @@ public class ApkListFragment extends Fragment {
 	    	workStack.push( data );
 	    	
 	    	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    startActivity(intent);
-		    
+	    	startActivityForResult(intent, R_ID_APK_MENU_RUNNING);
+	    	
 	    } else {
 	    	apk_goto_market( data );
 	    }
