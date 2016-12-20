@@ -63,6 +63,7 @@ public class FileListAdapter extends BaseAdapter
 		    	listData.add( new FileListData( file, context, false ));	    	
 		    }
 		}
+		sort();
 		dataChanged();
 	}
 		

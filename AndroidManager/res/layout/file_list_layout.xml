@@ -9,7 +9,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        android:ellipsize="start" />
+        android:ellipsize="start"
+        android:textSize="15dip"
+        android:text="TEXT" />
 	
 	<ListView
         android:id="@+id/fileListView"

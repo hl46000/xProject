@@ -135,12 +135,17 @@ public class FileListData {
 	/**
 	 * ApkListData 의 list 을 정렬에 필요한 비교자
 	 */
-	public static final Comparator<FileListData> ALPHA_COMPARATOR = new Comparator<FileListData> () 
-	{
+	public static final Comparator<FileListData> ALPHA_COMPARATOR = new Comparator<FileListData> () {
 		private final Collator collator = Collator.getInstance();
 		
 		@Override
 		public int compare(FileListData arg0, FileListData arg1) {
+			if( arg0.back_folder ) return -1;
+			if( arg1.back_folder ) return  1;
+			
+			if( arg0.file.isDirectory() && !arg1.file.isDirectory() ) return -1;
+			if( !arg0.file.isDirectory() && arg1.file.isDirectory() ) return  1;
+			
 			return collator.compare( arg0.getFilename(), arg1.getFilename());
 		}
 	};
