@@ -1,11 +1,12 @@
 package com.purehero.apk.manager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
 import it.neokree.materialtabs.MaterialTabListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,21 +14,26 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 
 public class MainActivity extends ActionBarActivity implements MaterialTabListener
 {
-	MaterialTabHost tabHost;
-    ViewPager pager;
-    ViewPagerAdapter adapter;
+	private MaterialTabHost tabHost;
+	private ViewPager pager;
+    private ViewPagerAdapter adapter;
     
-    List<Object> fragmentList = new ArrayList<Object>();
-    List<String>   fragmentName = new ArrayList<String>();
+    private List<Object> fragmentList = new ArrayList<Object>();
+    private List<String>   fragmentName = new ArrayList<String>();
+    
+    private InterstitialAd interstitialAd	= null;	// 전면 광고
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -39,8 +45,8 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         pager = (ViewPager) this.findViewById(R.id.pager );
 
       //fragmentList.add( new ApkListFragment());
-        fragmentList.add( new ApkListFragment()); fragmentName.add( "Apps" );
-        fragmentList.add( new FileListFragment()); fragmentName.add( "Files" );        
+        fragmentList.add( new ApkListFragment( this )); fragmentName.add( "Apps" );
+        fragmentList.add( new FileListFragment( this )); fragmentName.add( "Files" );        
         
         // init view pager
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -137,4 +143,42 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         	return fragmentName.get(position);
         }
     }
+	
+	public void showFullAd() {
+		Log.d("", "showFullAd" );
+		
+		if( interstitialAd != null ) {
+			if( interstitialAd.isLoaded()) {
+				if( System.currentTimeMillis() % 10 < 3 ) {
+					interstitialAd.show();
+				}
+			}
+			return;
+		}
+		
+		interstitialAd = new InterstitialAd( this );
+		interstitialAd.setAdUnitId( getResources().getString(R.string.ad_unit_id) );
+		AdRequest adRequest = new AdRequest.Builder().build();
+		interstitialAd.loadAd(adRequest);
+		interstitialAd.setAdListener( new AdListener(){
+			
+			@Override
+			public void onAdFailedToLoad(int errorCode) {
+				//Log.d("TEST", String.format( "onAdFailedToLoad : %d", errorCode ));
+			}
+
+			@Override
+			public void onAdLoaded() {
+				//Log.d("TEST", String.format( "onAdLoaded" ));
+			}
+
+			@Override
+			public void onAdClosed() {
+				//Log.d("TEST", String.format( "onAdClosed" ));
+				
+				AdRequest adRequest = new AdRequest.Builder().build();
+				interstitialAd.loadAd(adRequest);
+			}
+		});
+	}
 }

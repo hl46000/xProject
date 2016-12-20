@@ -10,11 +10,11 @@
     
     <string name="apk_extract">Copy to SD Card</string>
 	<string name="apk_market">Go to Google Play</string>
-	<string name="apk_information">Information</string>
-	<string name="apk_delete">Uninstall</string>
-	<string name="apk_share">Share</string>
-	<string name="apk_execute">Launch</string>
-    
+	<string name="information">Information</string>
+	<string name="delete">Delete</string>
+	<string name="share">Share</string>
+	<string name="execute">Execute</string>
+	
 	<string name="change_sdcard_path">Change SD Card Path</string>
 	<string name="app_info">App Info</string>
 			

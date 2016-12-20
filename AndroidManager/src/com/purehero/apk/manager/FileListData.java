@@ -21,19 +21,29 @@ public class FileListData {
 	private final String fileDate;
 	
 	private int index 		= -1;
-	
-	
+	private boolean back_folder = false;
+	private Context context;
 	/**
 	 * 생성자, 
 	 * 
 	 * @param info APK ResulveInfo 객체
 	 * @param pm PackageManager 객체
 	 */
-	public FileListData( File file, Context context ) {
-		this.file = file;
+	public FileListData( File file, Context context, boolean backFolder ) {
+		this.context = context;
 		
+		back_folder = backFolder;
+		if( back_folder ) {
+			this.file = null;
+			this.subTitle = null;
+			this.fileDate = null;
+			return;
+		}
+		
+		this.file = file;
 		if( file.isDirectory()) {
-			subTitle = String.format( context.getResources().getString( R.string.file_list_sub_title_folder_format), file.listFiles().length );
+			File subItems [] = file.listFiles();
+			subTitle = String.format( context.getResources().getString( R.string.file_list_sub_title_folder_format), subItems == null ? 0 : subItems.length );
 		} else {
 			float size = file.length();
 			if( size < 1024.0f ) {
@@ -62,6 +72,10 @@ public class FileListData {
 		return file;
 	}
 	
+	public boolean isBackFolder() {
+		return back_folder;
+	}
+	
 	/**
 	 * Icon 을 반환한다. 
 	 * 
@@ -70,6 +84,14 @@ public class FileListData {
 	public Drawable getIcon() {
 		if( icon == null ) {
 			// icon 을 불러 와야 하는데 어디서?
+			if( back_folder ) {
+				//icon = context.getResources().getDrawable( R.drawable.icon_back );
+			} else if( file.isDirectory() ) {
+				//icon = context.getResources().getDrawable( R.drawable.icon_folder );
+				icon = context.getResources().getDrawable( R.drawable.folder );
+			} else {
+				icon = context.getResources().getDrawable( R.drawable.file );
+			}
 		}
 		return icon;
 	}
@@ -80,7 +102,7 @@ public class FileListData {
 	 * @return
 	 */
 	public String getFilename() {
-		return file.getName();
+		return back_folder ? ".." : file.getName();
 	}
 	
 	/**

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Stack;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -24,55 +22,19 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-
 public class ApkListFragment extends Fragment {
 	private ListView apkListView 			= null;
 	private ProgressBar progressBar  		= null;
 	private ApkListAdapter apkListAdapter 	= null;
 	private Stack<ApkListData> workStack 	= new Stack<ApkListData>();
-	private InterstitialAd interstitialAd	= null;	// 전면 광고
-	
-	private Activity context = null;
+		
+	private MainActivity context = null;
 	private View layout = null;
 	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		context = this.getActivity();
-		
-		setFullAd();
+	public ApkListFragment(MainActivity mainActivity) {
+		context = mainActivity; 
 	}
 	
-	private void setFullAd() {
-		interstitialAd = new InterstitialAd( context );
-		interstitialAd.setAdUnitId( context.getResources().getString(R.string.ad_unit_id) );
-		AdRequest adRequest = new AdRequest.Builder().build();
-		interstitialAd.loadAd(adRequest);
-		interstitialAd.setAdListener( new AdListener(){
-			
-			@Override
-			public void onAdFailedToLoad(int errorCode) {
-				Log.d("TEST", String.format( "onAdFailedToLoad : %d", errorCode ));
-			}
-
-			@Override
-			public void onAdLoaded() {
-				Log.d("TEST", String.format( "onAdLoaded" ));
-			}
-
-			@Override
-			public void onAdClosed() {
-				Log.d("TEST", String.format( "onAdClosed" ));
-				
-				AdRequest adRequest = new AdRequest.Builder().build();
-				interstitialAd.loadAd(adRequest);
-			}
-		});
-	}
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		layout = inflater.inflate( R.layout.apk_list_layout, container, false); 
@@ -83,13 +45,16 @@ public class ApkListFragment extends Fragment {
 
 	@Override
 	public void onResume() {
-		Log.d( "TEST", "onResume");
+		if( workStack.isEmpty()) {
+			context.showFullAd();
+		}
+		
 		super.onResume();
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
-		Log.d( "TEST", "onActivityResult");
+		G.log( "onActivityResult");
 		
 		ApkListData data = null;
 		
@@ -114,27 +79,11 @@ public class ApkListFragment extends Fragment {
 			}
 			break;
 		}
-		/*
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		int ad_count = sharedPref.getInt("ad_count", 3);
 		
-		//Log.d( "TEST", String.format("ad_count : %d", ad_count ));
-		if( ad_count >= 3 ) {
-			if( interstitialAd != null && interstitialAd.isLoaded()) {
-				interstitialAd.show();
-				ad_count = 0;
-			}
-		} else {
-			ad_count++;
-		}
-		sharedPref.edit().putInt("ad_count", ad_count);
-		sharedPref.edit().commit();
-		*/
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	Runnable apk_info_load_runnable = new Runnable() 
-	{
+	Runnable apk_info_load_runnable = new Runnable() {
 		@Override
 		public void run() 
 		{
@@ -146,8 +95,7 @@ public class ApkListFragment extends Fragment {
 		}
 	};
 	
-	Runnable init_ui_runnable = new Runnable() 
-	{
+	Runnable init_ui_runnable = new Runnable() {
 		@Override
 		public void run() 
 		{
@@ -175,8 +123,7 @@ public class ApkListFragment extends Fragment {
 	/**
 	 * 설치된 앱(APK)들의 정보(아이콘, 앱이름, 패키지명)등을 추출한다. 
 	 */
-	private void getApkInfos() 
-	{
+	private void getApkInfos() {
 	    apkListAdapter = new ApkListAdapter( context );
 	    apkListAdapter.sort();
 	}
@@ -185,17 +132,15 @@ public class ApkListFragment extends Fragment {
 		
 	// 메뉴 생성
 	@Override
-	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) 
-	{
+	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v.getId() == R.id.apkListView ) {
-			context.getMenuInflater().inflate(R.menu.contextual, menu);
+			context.getMenuInflater().inflate(R.menu.apk_context_menu, menu);
 		}
 	}
 	
 	// 메뉴 클릭 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) 
-	{
+	public boolean onContextItemSelected(MenuItem item) {
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		ApkListData data = ( ApkListData ) apkListAdapter.getItem( info.position );
@@ -236,8 +181,7 @@ public class ApkListFragment extends Fragment {
 	}
 
 	@SuppressLint("SdCardPath")
-	private void apk_extract(ApkListData data) 
-	{
+	private void apk_extract(ApkListData data) {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		File apkFile = new File( data.getApkFilepath());
@@ -255,8 +199,7 @@ public class ApkListFragment extends Fragment {
 	/**
 	 * @param data
 	 */
-	private void apk_share(ApkListData data) 
-	{
+	private void apk_share(ApkListData data) {
 		workStack.clear();
 		workStack.push( data );
 			
@@ -277,8 +220,7 @@ public class ApkListFragment extends Fragment {
 	 * 
 	 * @param data
 	 */	
-	private void apk_uninstall(ApkListData data, int position ) 
-	{
+	private void apk_uninstall(ApkListData data, int position ) {
 		workStack.clear();
 		workStack.push( data );
 		
@@ -293,8 +235,7 @@ public class ApkListFragment extends Fragment {
 	 * 
 	 * @param data
 	 */
-	private void apk_goto_market(ApkListData data) 
-	{
+	private void apk_goto_market(ApkListData data) {
 		workStack.clear();
 		workStack.push( data );
 		
@@ -310,8 +251,7 @@ public class ApkListFragment extends Fragment {
 	 * 
 	 * @param data
 	 */
-	private void apk_running(ApkListData data) 
-	{
+	private void apk_running(ApkListData data) {
 		Intent intent = context.getPackageManager().getLaunchIntentForPackage(data.getPackageName());
 	    if (intent != null) {
 	    	workStack.clear();

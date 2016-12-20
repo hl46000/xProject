@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,25 +20,52 @@ public class FileListAdapter extends BaseAdapter
 {
 	private final Context context;
 	private List<FileListData> listData = new ArrayList<FileListData>();
+	private Stack<File> folders 		= new Stack<File>();
 	
 	public FileListAdapter( Context context, File base ){
 		super();
 		this.context = context;
 		
-	    listData.clear();
-	    for( File file : base.listFiles() ) {
-	    	listData.add( new FileListData( file, context ));	    	
-	    }
+		push_folder( base );		
 	}
 	
-	public void reload( Context context, File base ){
+	public void push_folder( File base ) {
+		folders.push( base );
+		reload( context );
+	}
+	
+	public void back_folder() {
+		folders.pop();
+		reload( context );
+	}
+	
+	public String getFolderPath() {
+		String ret = "/";
+		for( File folder : folders ) {
+			if( ret.length() > 1 ) ret += " > ";
+			ret += folder.getName();
+		}
+		return ret;
+	}
+	
+	private void reload( Context context ){
 		listData.clear();
-	    for( File file : base.listFiles() ) {
-	    	listData.add( new FileListData( file, context ));	    	
-	    }
-	    dataChanged();
+		
+		File base = new File("/");
+		if( !folders.empty()) {
+			base = folders.lastElement();
+			listData.add(new FileListData( null, context, true ));
+		}
+		
+		File subItems [] = base.listFiles();
+		if( subItems != null ) {
+		    for( File file : base.listFiles() ) {
+		    	listData.add( new FileListData( file, context, false ));	    	
+		    }
+		}
+		dataChanged();
 	}
-	
+		
 	public void remove( int index ) {
 		listData.remove( index );
 		dataChanged();
@@ -91,17 +119,26 @@ public class FileListAdapter extends BaseAdapter
 		}
 		
 		FileListData data = listData.get( position );
-		
-		Drawable icon = data.getIcon();
-		if( icon == null ) {
-			viewHolder.icon.setVisibility( View.INVISIBLE );
+		if( data.isBackFolder()) {
+			viewHolder.tvSubTitle.setVisibility( View.GONE );
+			viewHolder.tvDate.setVisibility( View.GONE );
+			viewHolder.icon.setVisibility( View.GONE );
+			
 		} else {
-			viewHolder.icon.setImageDrawable( icon );
-			viewHolder.icon.setVisibility( View.VISIBLE );
+			viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
+			viewHolder.tvSubTitle.setText( data.getSubTitle());
+			viewHolder.tvDate.setVisibility( View.VISIBLE );
+			viewHolder.tvDate.setText( data.getFileDate());
+			
+			Drawable icon = data.getIcon();
+			if( icon == null ) {
+				viewHolder.icon.setVisibility( View.INVISIBLE );
+			} else {
+				viewHolder.icon.setImageDrawable( icon );
+				viewHolder.icon.setVisibility( View.VISIBLE );
+			}
 		}
 		viewHolder.fileName.setText( data.getFilename());
-		viewHolder.tvSubTitle.setText( data.getSubTitle());
-		viewHolder.tvDate.setText( data.getFileDate());
 		
 		return convertView;
 	}

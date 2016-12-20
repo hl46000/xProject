@@ -1,12 +1,13 @@
 package com.purehero.apk.manager;
 
 import java.io.File;
+import java.util.Stack;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.method.ScrollingMovementMethod;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -15,37 +16,48 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-import com.google.android.gms.ads.InterstitialAd;
+import android.widget.TextView;
 
 public class FileListFragment extends Fragment {
 	private ListView fileListView 				= null;
 	private FileListAdapter fileListAdapter 	= null;
-	private InterstitialAd interstitialAd		= null;	// 전면 광고
-	
-	private Activity context = null;
-	private View layout = null;
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		context = this.getActivity();
+	private Stack<FileListData> workStack 		= new Stack<FileListData>();
 		
+	private MainActivity context = null;
+	private View layout = null;
+	private TextView fileListPath = null;
+    
+	public FileListFragment(MainActivity mainActivity) {
+		context = mainActivity; 
 	}
+		
+	@Override
+	public void onResume() {
+		if( workStack.isEmpty()) {
+			context.showFullAd();
+		}
+		
+		super.onResume();
+	}
+
+	
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		layout = inflater.inflate( R.layout.file_list_layout, container, false); 
+		
+		fileListPath = ( TextView ) layout.findViewById( R.id.fileListPath );
+		fileListPath.setMovementMethod(new ScrollingMovementMethod());
 		
 		new Thread( file_info_load_runnable ).start();
 		return layout;	
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent ) 
-	{
-		FileListData data = null;
-		
+	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
+				
+		workStack.clear();
+					
 		switch( requestCode ) {
 		case R_ID_FILE_MENU_DELETE :	
 			break;
@@ -54,8 +66,7 @@ public class FileListFragment extends Fragment {
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	Runnable file_info_load_runnable = new Runnable() 
-	{
+	Runnable file_info_load_runnable = new Runnable() {
 		@Override
 		public void run() 
 		{
@@ -67,8 +78,7 @@ public class FileListFragment extends Fragment {
 		}
 	};
 	
-	Runnable init_ui_runnable = new Runnable() 
-	{
+	Runnable init_ui_runnable = new Runnable() {
 		@Override
 		public void run() 
 		{
@@ -82,9 +92,20 @@ public class FileListFragment extends Fragment {
 		        @Override
 		        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		        	FileListData data = ( FileListData ) fileListAdapter.getItem( position );
-		        	fileListAdapter.reload(context, data.getFile());
+		        	if( data.getFilename().compareTo("..") == 0 ) {
+		        		fileListAdapter.back_folder();
+		        		
+		        	} else if( data.getFile().isDirectory()) {
+		        		fileListAdapter.push_folder( data.getFile());
+		        	} else {
+		        		
+		        	}
+		        	
+		        	fileListPath.setText( fileListAdapter.getFolderPath() );
 		        }
 		    });
+			
+			fileListPath.setText( fileListAdapter.getFolderPath() );
 		}
 	};
 	
@@ -92,43 +113,39 @@ public class FileListFragment extends Fragment {
 	/**
 	 * 설치된 앱(APK)들의 정보(아이콘, 앱이름, 패키지명)등을 추출한다. 
 	 */
-	private void getFileInfos() 
-	{
-	    fileListAdapter = new FileListAdapter( context, new File( "/sdcard") );
+	private void getFileInfos() {
+		File base = new File( "/sdcard");
+		if( !base.exists()) {
+			base = new File( "/");
+		}
+		
+	    fileListAdapter = new FileListAdapter( context, base );
 	    fileListAdapter.sort();
 	}
-			
 	
 		
 	// 메뉴 생성
 	@Override
-	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) 
-	{
+	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v.getId() == R.id.fileListView ) {
-			context.getMenuInflater().inflate(R.menu.contextual, menu);
+			context.getMenuInflater().inflate(R.menu.file_context_menu, menu);
 		}
 	}
 	
 	// 메뉴 클릭 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) 
-	{
+	public boolean onContextItemSelected(MenuItem item) {
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		FileListData data = ( FileListData ) fileListAdapter.getItem( info.position );
 		data.setIndex( info.position );
 		
-		/*
 		switch( item.getItemId()) {
-		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		break;
-		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
-		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
-		case R.id.APK_MENU_SHARE		: apk_share( data ); break;
-		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); break;
-		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); break;
+		case R.id.FILE_MENU_RUNNING		: file_running( data ); 		break;
+		case R.id.FILE_MENU_DELETE 		: apk_delete( data, info.position ); 	break;
+		case R.id.FILE_MENU_SHARE		: file_share( data ); break;
 		}
-		*/
-					
+							
 		return true;
 	}
 	final int R_ID_FILE_MENU_RUNNING		= 1000;
@@ -138,6 +155,9 @@ public class FileListFragment extends Fragment {
 	 * @param data
 	 */
 	private void file_share(FileListData data) {
+		workStack.clear();
+		workStack.push( data );
+		
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND);
 		shareIntent.setType("application/vnd.android.package-archive");
@@ -155,13 +175,12 @@ public class FileListFragment extends Fragment {
 	 * 
 	 * @param data
 	 */	
-	private void apk_delete(FileListData data, int position ) 
-	{
-		/*
-		Uri packageURI = Uri.parse("package:"+data.getPackageName());
-		Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
-		startActivityForResult( uninstallIntent, R_ID_FILE_MENU_DELETE );
-		*/		
+	private void apk_delete(FileListData data, int position ) {
+		workStack.clear();
+		workStack.push( data );
+		
+		data.getFile().delete();
+		fileListAdapter.remove( position );
 	}
 
 	/**
@@ -169,8 +188,10 @@ public class FileListFragment extends Fragment {
 	 * 
 	 * @param data
 	 */
-	private void file_running(FileListData data) 
-	{
+	private void file_running(FileListData data) {
+		workStack.clear();
+		workStack.push( data );
+		
 		/*
 		Intent intent = context.getPackageManager().get(data.getFile()));
 	    if (intent != null) {

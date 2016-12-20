@@ -9,11 +9,11 @@
     
     <string name="apk_extract">SD Card로 복사</string>
 	<string name="apk_market">마켓으로 이동</string>
-	<string name="apk_information">정보</string>
-	<string name="apk_delete">삭제</string>
-	<string name="apk_share">공유</string>
-	<string name="apk_execute">실행</string>
-	
+	<string name="information">정보</string>
+	<string name="delete">삭제</string>
+	<string name="share">공유</string>
+	<string name="execute">실행</string>
+		
 	<string name="change_sdcard_path">SD Card 저장경로 변경</string>
 	<string name="app_info">어플 정보</string>
 	<string name="send_mail_to_developer">개발자에게 메일을 보냅니다</string>
