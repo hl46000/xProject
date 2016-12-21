@@ -14,7 +14,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -75,6 +74,13 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		mAdView.loadAd(adRequest);
 	}
 
+	/*
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
+		G.log( "MainActivity::onActivityResult");
+	}
+	*/
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -145,7 +151,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     }
 	
 	public void showFullAd() {
-		Log.d("", "showFullAd" );
+		G.log( "showFullAd" );
 		
 		if( interstitialAd != null ) {
 			if( interstitialAd.isLoaded()) {
@@ -164,18 +170,14 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 			
 			@Override
 			public void onAdFailedToLoad(int errorCode) {
-				//Log.d("TEST", String.format( "onAdFailedToLoad : %d", errorCode ));
 			}
 
 			@Override
 			public void onAdLoaded() {
-				//Log.d("TEST", String.format( "onAdLoaded" ));
 			}
 
 			@Override
 			public void onAdClosed() {
-				//Log.d("TEST", String.format( "onAdClosed" ));
-				
 				AdRequest adRequest = new AdRequest.Builder().build();
 				interstitialAd.loadAd(adRequest);
 			}

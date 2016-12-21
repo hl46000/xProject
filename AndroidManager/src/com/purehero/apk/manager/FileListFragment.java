@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.method.ScrollingMovementMethod;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -32,22 +31,11 @@ public class FileListFragment extends Fragment {
 	}
 		
 	@Override
-	public void onResume() {
-		if( workStack.isEmpty()) {
-			context.showFullAd();
-		}
-		
-		super.onResume();
-	}
-
-	
-	
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		layout = inflater.inflate( R.layout.file_list_layout, container, false); 
 		
 		fileListPath = ( TextView ) layout.findViewById( R.id.fileListPath );
-		fileListPath.setMovementMethod(new ScrollingMovementMethod());
+		//fileListPath.setMovementMethod(new ScrollingMovementMethod());
 		
 		new Thread( file_info_load_runnable ).start();
 		return layout;	
@@ -55,7 +43,8 @@ public class FileListFragment extends Fragment {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
-				
+		G.log( "FileListFragment::onActivityResult");
+		
 		workStack.clear();
 					
 		switch( requestCode ) {
@@ -135,14 +124,17 @@ public class FileListFragment extends Fragment {
 	// 메뉴 클릭 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		G.log( "onContextItemSelected" );
+		
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		FileListData data = ( FileListData ) fileListAdapter.getItem( info.position );
 		data.setIndex( info.position );
+		G.log( "onContextItemSelected index : " + info.position );
 		
 		switch( item.getItemId()) {
 		case R.id.FILE_MENU_RUNNING		: file_running( data ); 		break;
-		case R.id.FILE_MENU_DELETE 		: apk_delete( data, info.position ); 	break;
+		case R.id.FILE_MENU_DELETE 		: file_delete( data, info.position ); 	break;
 		case R.id.FILE_MENU_SHARE		: file_share( data ); break;
 		}
 							
@@ -155,12 +147,15 @@ public class FileListFragment extends Fragment {
 	 * @param data
 	 */
 	private void file_share(FileListData data) {
+		G.log( "file_share" );
+		
 		workStack.clear();
 		workStack.push( data );
 		
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.setType("application/vnd.android.package-archive");
+		shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		shareIntent.setType("multipart/");
 		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( data.getFile() ));
 		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
 		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
@@ -175,7 +170,9 @@ public class FileListFragment extends Fragment {
 	 * 
 	 * @param data
 	 */	
-	private void apk_delete(FileListData data, int position ) {
+	private void file_delete(FileListData data, int position ) {
+		G.log( "file_delete" );
+		
 		workStack.clear();
 		workStack.push( data );
 		
@@ -189,15 +186,14 @@ public class FileListFragment extends Fragment {
 	 * @param data
 	 */
 	private void file_running(FileListData data) {
+		G.log( "file_running" );
+		
 		workStack.clear();
 		workStack.push( data );
 		
-		/*
-		Intent intent = context.getPackageManager().get(data.getFile()));
-	    if (intent != null) {
-	    	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    	startActivityForResult(intent, R_ID_FILE_MENU_RUNNING);
-	    }
-	    */
+		Intent myIntent = new Intent(Intent.ACTION_VIEW);
+		myIntent.setData(Uri.fromFile(data.getFile()));
+		Intent j = Intent.createChooser(myIntent, "Choose an application to open with:");
+		startActivityForResult(j, R_ID_FILE_MENU_RUNNING);
 	}
 }

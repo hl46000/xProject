@@ -31,6 +31,9 @@ public class ApkListFragment extends Fragment {
 	private MainActivity context = null;
 	private View layout = null;
 	
+	private boolean activity_result = false;
+	private int resume_cnt = 0;
+	
 	public ApkListFragment(MainActivity mainActivity) {
 		context = mainActivity; 
 	}
@@ -45,19 +48,29 @@ public class ApkListFragment extends Fragment {
 
 	@Override
 	public void onResume() {
-		if( workStack.isEmpty()) {
-			context.showFullAd();
-		}
+		G.log( "ApkListFragment::onResume" );
+		
+		if( activity_result ) {
+			resume_cnt ++;
+			
+			if( workStack.isEmpty() && resume_cnt > 1 ) {
+				context.showFullAd();
+				
+				activity_result = false;
+				resume_cnt		= 0;
+			}
+		}		
 		
 		super.onResume();
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
-		G.log( "onActivityResult");
+		G.log( "ApkListFragment::onActivityResult");
 		
 		ApkListData data = null;
 		
+		activity_result = true;
 		if( !workStack.isEmpty()) {
 			data = workStack.pop();
 		}
