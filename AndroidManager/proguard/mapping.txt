@@ -38608,6 +38608,9 @@ com.purehero.apk.manager.SettingsActivity -> com.purehero.apk.manager.SettingsAc
     void onCreate(android.os.Bundle) -> onCreate
 com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment -> com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment:
     void onCreate(android.os.Bundle) -> onCreate
+    void onResume() -> onResume
+    void onPause() -> onPause
+    void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
 it.neokree.materialtabs.MaterialTab -> it.neokree.materialtabs.a:
     android.view.View completeView -> a
     android.widget.ImageView icon -> b

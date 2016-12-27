@@ -29285,6 +29285,9 @@ com.purehero.apk.manager.SettingsActivity: SettingsActivity()
 com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment
 com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment: SettingsActivity$MyPreferenceFragment()
 com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment: void onCreate(android.os.Bundle)
+com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment: void onResume()
+com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment: void onPause()
+com.purehero.apk.manager.SettingsActivity$MyPreferenceFragment: void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String)
 it.neokree.materialtabs.MaterialTabHost
 it.neokree.materialtabs.MaterialTabHost: MaterialTabHost(android.content.Context)
 it.neokree.materialtabs.MaterialTabHost: MaterialTabHost(android.content.Context,android.util.AttributeSet)
