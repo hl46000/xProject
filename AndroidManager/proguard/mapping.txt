@@ -37517,9 +37517,10 @@ com.purehero.apk.manager.ApkListFragment -> com.purehero.apk.manager.ApkListFrag
     android.widget.ProgressBar progressBar -> Y
     com.purehero.apk.manager.ApkListAdapter apkListAdapter -> Z
     java.util.Stack workStack -> aa
-    com.google.android.gms.ads.InterstitialAd interstitialAd -> ab
-    android.app.Activity context -> ac
-    android.view.View layout -> ad
+    com.purehero.apk.manager.MainActivity context -> ab
+    android.view.View layout -> ac
+    boolean activity_result -> ad
+    int resume_cnt -> ae
     java.lang.Runnable apk_info_load_runnable -> a
     java.lang.Runnable init_ui_runnable -> b
     int R_ID_APK_MENU_RUNNING -> c
@@ -37528,11 +37529,10 @@ com.purehero.apk.manager.ApkListFragment -> com.purehero.apk.manager.ApkListFrag
     int R_ID_APK_MENU_SHARE -> f
     int R_ID_APK_MENU_EXTRACT -> g
     int R_ID_APK_MENU_INFOMATION -> h
-    void onCreate(android.os.Bundle) -> onCreate
-    void setFullAd() -> l
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
+    void onResume() -> onResume
     void onActivityResult(int,int,android.content.Intent) -> onActivityResult
-    void getApkInfos() -> m
+    void getApkInfos() -> l
     void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
     boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
     void apk_infomation(com.purehero.apk.manager.ApkListData) -> a
@@ -37543,14 +37543,13 @@ com.purehero.apk.manager.ApkListFragment -> com.purehero.apk.manager.ApkListFrag
     void apk_running(com.purehero.apk.manager.ApkListData) -> e
     boolean is_apk_installed(java.lang.String) -> b
     void access$0(com.purehero.apk.manager.ApkListFragment) -> a
-    android.app.Activity access$1(com.purehero.apk.manager.ApkListFragment) -> b
+    com.purehero.apk.manager.MainActivity access$1(com.purehero.apk.manager.ApkListFragment) -> b
     android.view.View access$2(com.purehero.apk.manager.ApkListFragment) -> c
     void access$3(com.purehero.apk.manager.ApkListFragment,android.widget.ProgressBar) -> a
     android.widget.ProgressBar access$4(com.purehero.apk.manager.ApkListFragment) -> d
     void access$5(com.purehero.apk.manager.ApkListFragment,android.widget.ListView) -> a
     android.widget.ListView access$6(com.purehero.apk.manager.ApkListFragment) -> e
     com.purehero.apk.manager.ApkListAdapter access$7(com.purehero.apk.manager.ApkListFragment) -> f
-    com.google.android.gms.ads.InterstitialAd access$8(com.purehero.apk.manager.ApkListFragment) -> g
 com.purehero.apk.manager.ApkListFragment$1 -> com.purehero.apk.manager.ApkListFragment$1:
     com.purehero.apk.manager.ApkListFragment this$0 -> a
     void run() -> run
@@ -37561,11 +37560,6 @@ com.purehero.apk.manager.ApkListFragment$2 -> com.purehero.apk.manager.ApkListFr
 com.purehero.apk.manager.ApkListFragment$2$1 -> com.purehero.apk.manager.ApkListFragment$2$1:
     com.purehero.apk.manager.ApkListFragment$2 this$1 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.purehero.apk.manager.ApkListFragment$3 -> com.purehero.apk.manager.ApkListFragment$3:
-    com.purehero.apk.manager.ApkListFragment this$0 -> a
-    void onAdFailedToLoad(int) -> onAdFailedToLoad
-    void onAdLoaded() -> onAdLoaded
-    void onAdClosed() -> onAdClosed
 com.purehero.apk.manager.BuildConfig -> com.purehero.apk.manager.BuildConfig:
     boolean DEBUG -> DEBUG
 com.purehero.apk.manager.FileCopyAsync -> com.purehero.apk.manager.FileCopyAsync:
@@ -37581,18 +37575,101 @@ com.purehero.apk.manager.FileCopyAsync -> com.purehero.apk.manager.FileCopyAsync
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
     void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+com.purehero.apk.manager.FileListAdapter -> com.purehero.apk.manager.FileListAdapter:
+    android.content.Context context -> a
+    java.util.List listData -> b
+    java.util.Stack folders -> c
+    void push_folder(java.io.File) -> push_folder
+    void back_folder() -> back_folder
+    java.lang.String getFolderPath() -> getFolderPath
+    void reload(android.content.Context) -> a
+    void remove(int) -> remove
+    void sort() -> sort
+    void dataChanged() -> dataChanged
+    int getCount() -> getCount
+    java.lang.Object getItem(int) -> getItem
+    long getItemId(int) -> getItemId
+    android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
+com.purehero.apk.manager.FileListAdapter$ViewHolder -> com.purehero.apk.manager.FileListAdapter$ViewHolder:
+    android.widget.ImageView icon -> icon
+    android.widget.TextView fileName -> fileName
+    android.widget.TextView tvSubTitle -> tvSubTitle
+    android.widget.TextView tvDate -> tvDate
+    com.purehero.apk.manager.FileListAdapter this$0 -> a
+com.purehero.apk.manager.FileListData -> com.purehero.apk.manager.FileListData:
+    android.graphics.drawable.Drawable icon -> a
+    java.io.File file -> b
+    java.lang.String subTitle -> c
+    java.lang.String fileDate -> d
+    int index -> e
+    boolean back_folder -> f
+    android.content.Context context -> g
+    java.util.Comparator ALPHA_COMPARATOR -> ALPHA_COMPARATOR
+    java.io.File getFile() -> getFile
+    boolean isBackFolder() -> isBackFolder
+    android.graphics.drawable.Drawable getIcon() -> getIcon
+    java.lang.String getFilename() -> getFilename
+    java.lang.String getSubTitle() -> getSubTitle
+    java.lang.String getFileDate() -> getFileDate
+    void setIndex(int) -> setIndex
+    int getIndex() -> getIndex
+    boolean access$0(com.purehero.apk.manager.FileListData) -> a
+    java.io.File access$1(com.purehero.apk.manager.FileListData) -> b
+com.purehero.apk.manager.FileListData$1 -> com.purehero.apk.manager.FileListData$1:
+    java.text.Collator collator -> a
+    int compare(com.purehero.apk.manager.FileListData,com.purehero.apk.manager.FileListData) -> compare
+    int compare(java.lang.Object,java.lang.Object) -> compare
+com.purehero.apk.manager.FileListFragment -> com.purehero.apk.manager.FileListFragment:
+    android.widget.ListView fileListView -> f
+    com.purehero.apk.manager.FileListAdapter fileListAdapter -> g
+    java.util.Stack workStack -> h
+    com.purehero.apk.manager.MainActivity context -> i
+    android.view.View layout -> Y
+    android.widget.TextView fileListPath -> Z
+    java.lang.Runnable file_info_load_runnable -> a
+    java.lang.Runnable init_ui_runnable -> b
+    int R_ID_FILE_MENU_RUNNING -> c
+    int R_ID_FILE_MENU_DELETE -> d
+    int R_ID_FILE_MENU_SHARE -> e
+    android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
+    void onActivityResult(int,int,android.content.Intent) -> onActivityResult
+    void getFileInfos() -> l
+    void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
+    boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
+    void file_share(com.purehero.apk.manager.FileListData) -> a
+    void file_delete(com.purehero.apk.manager.FileListData,int) -> a
+    void file_running(com.purehero.apk.manager.FileListData) -> b
+    void access$0(com.purehero.apk.manager.FileListFragment) -> a
+    com.purehero.apk.manager.MainActivity access$1(com.purehero.apk.manager.FileListFragment) -> b
+    android.view.View access$2(com.purehero.apk.manager.FileListFragment) -> c
+    void access$3(com.purehero.apk.manager.FileListFragment,android.widget.ListView) -> a
+    android.widget.ListView access$4(com.purehero.apk.manager.FileListFragment) -> d
+    com.purehero.apk.manager.FileListAdapter access$5(com.purehero.apk.manager.FileListFragment) -> e
+    android.widget.TextView access$6(com.purehero.apk.manager.FileListFragment) -> f
+com.purehero.apk.manager.FileListFragment$1 -> com.purehero.apk.manager.FileListFragment$1:
+    com.purehero.apk.manager.FileListFragment this$0 -> a
+    void run() -> run
+com.purehero.apk.manager.FileListFragment$2 -> com.purehero.apk.manager.FileListFragment$2:
+    com.purehero.apk.manager.FileListFragment this$0 -> a
+    void run() -> run
+    com.purehero.apk.manager.FileListFragment access$0(com.purehero.apk.manager.FileListFragment$2) -> a
+com.purehero.apk.manager.FileListFragment$2$1 -> com.purehero.apk.manager.FileListFragment$2$1:
+    com.purehero.apk.manager.FileListFragment$2 this$1 -> a
+    void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 com.purehero.apk.manager.FragmentText -> com.purehero.apk.manager.FragmentText:
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
 com.purehero.apk.manager.G -> com.purehero.apk.manager.G:
     void safe_close(java.io.Closeable) -> safe_close
+    void log(java.lang.String) -> log
 com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     it.neokree.materialtabs.MaterialTabHost tabHost -> o
     android.support.v4.view.ViewPager pager -> p
     com.purehero.apk.manager.MainActivity$ViewPagerAdapter adapter -> q
     java.util.List fragmentList -> r
     java.util.List fragmentName -> s
-    int BACK_PRESSED_TIME_INTERVAL -> t
-    long backPressedTime -> u
+    com.google.android.gms.ads.InterstitialAd interstitialAd -> t
+    int BACK_PRESSED_TIME_INTERVAL -> u
+    long backPressedTime -> v
     void onCreate(android.os.Bundle) -> onCreate
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
@@ -37600,9 +37677,19 @@ com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     void onTabSelected(it.neokree.materialtabs.MaterialTab) -> onTabSelected
     void onTabReselected(it.neokree.materialtabs.MaterialTab) -> onTabReselected
     void onTabUnselected(it.neokree.materialtabs.MaterialTab) -> onTabUnselected
+    void showFullAd() -> showFullAd
+    java.util.List access$0(com.purehero.apk.manager.MainActivity) -> a
+    java.util.List access$1(com.purehero.apk.manager.MainActivity) -> b
+    it.neokree.materialtabs.MaterialTabHost access$2(com.purehero.apk.manager.MainActivity) -> c
+    com.google.android.gms.ads.InterstitialAd access$3(com.purehero.apk.manager.MainActivity) -> d
 com.purehero.apk.manager.MainActivity$1 -> com.purehero.apk.manager.MainActivity$1:
     com.purehero.apk.manager.MainActivity this$0 -> a
     void onPageSelected(int) -> onPageSelected
+com.purehero.apk.manager.MainActivity$2 -> com.purehero.apk.manager.MainActivity$2:
+    com.purehero.apk.manager.MainActivity this$0 -> a
+    void onAdFailedToLoad(int) -> onAdFailedToLoad
+    void onAdLoaded() -> onAdLoaded
+    void onAdClosed() -> onAdClosed
 com.purehero.apk.manager.MainActivity$ViewPagerAdapter -> com.purehero.apk.manager.MainActivity$ViewPagerAdapter:
     com.purehero.apk.manager.MainActivity this$0 -> a
     android.support.v4.app.Fragment getItem(int) -> getItem
@@ -37953,11 +38040,17 @@ com.purehero.apk.manager.R$drawable -> com.purehero.apk.manager.R$drawable:
     int common_signin_btn_text_normal_light -> common_signin_btn_text_normal_light
     int common_signin_btn_text_pressed_dark -> common_signin_btn_text_pressed_dark
     int common_signin_btn_text_pressed_light -> common_signin_btn_text_pressed_light
+    int file -> file
+    int folder -> folder
     int ic_launcher -> ic_launcher
     int ic_plusone_medium_off_client -> ic_plusone_medium_off_client
     int ic_plusone_small_off_client -> ic_plusone_small_off_client
     int ic_plusone_standard_off_client -> ic_plusone_standard_off_client
     int ic_plusone_tall_off_client -> ic_plusone_tall_off_client
+    int icon_back -> icon_back
+    int icon_folder -> icon_folder
+    int icon_gif -> icon_gif
+    int icon_mp3 -> icon_mp3
     int left_arrow -> left_arrow
     int op_delete -> op_delete
     int op_extract -> op_extract
@@ -37975,6 +38068,9 @@ com.purehero.apk.manager.R$id -> com.purehero.apk.manager.R$id:
     int APK_MENU_INFOMATION -> APK_MENU_INFOMATION
     int APK_MENU_RUNNING -> APK_MENU_RUNNING
     int APK_MENU_SHARE -> APK_MENU_SHARE
+    int FILE_MENU_DELETE -> FILE_MENU_DELETE
+    int FILE_MENU_RUNNING -> FILE_MENU_RUNNING
+    int FILE_MENU_SHARE -> FILE_MENU_SHARE
     int action_bar -> action_bar
     int action_bar_activity_content -> action_bar_activity_content
     int action_bar_container -> action_bar_container
@@ -38016,6 +38112,12 @@ com.purehero.apk.manager.R$id -> com.purehero.apk.manager.R$id:
     int end -> end
     int expand_activities_button -> expand_activities_button
     int expanded_menu -> expanded_menu
+    int fileListPath -> fileListPath
+    int fileListView -> fileListView
+    int file_list_view_item_date -> file_list_view_item_date
+    int file_list_view_item_file_name -> file_list_view_item_file_name
+    int file_list_view_item_icon -> file_list_view_item_icon
+    int file_list_view_item_sub_title -> file_list_view_item_sub_title
     int grayscale -> grayscale
     int holo_dark -> holo_dark
     int holo_light -> holo_light
@@ -38108,17 +38210,22 @@ com.purehero.apk.manager.R$layout -> com.purehero.apk.manager.R$layout:
     int activity_main -> activity_main
     int apk_list_layout -> apk_list_layout
     int apk_list_view_item -> apk_list_view_item
+    int file_list_layout -> file_list_layout
+    int file_list_view_item -> file_list_view_item
     int material_tab -> material_tab
     int material_tab_icon -> material_tab_icon
     int support_simple_spinner_dropdown_item -> support_simple_spinner_dropdown_item
     int tab -> tab
     int tab_icon -> tab_icon
 com.purehero.apk.manager.R$menu -> com.purehero.apk.manager.R$menu:
-    int contextual -> contextual
+    int apk_context_menu -> apk_context_menu
+    int file_context_menu -> file_context_menu
     int main -> main
 com.purehero.apk.manager.R$raw -> com.purehero.apk.manager.R$raw:
     int gtm_analytics -> gtm_analytics
 com.purehero.apk.manager.R$string -> com.purehero.apk.manager.R$string:
+    int AM -> AM
+    int PM -> PM
     int abc_action_bar_home_description -> abc_action_bar_home_description
     int abc_action_bar_up_description -> abc_action_bar_up_description
     int abc_action_menu_overflow_description -> abc_action_menu_overflow_description
@@ -38135,13 +38242,9 @@ com.purehero.apk.manager.R$string -> com.purehero.apk.manager.R$string:
     int accept -> accept
     int action_settings -> action_settings
     int ad_unit_id -> ad_unit_id
-    int apk_delete -> apk_delete
-    int apk_execute -> apk_execute
     int apk_extract -> apk_extract
-    int apk_information -> apk_information
     int apk_list_item_icon_description -> apk_list_item_icon_description
     int apk_market -> apk_market
-    int apk_share -> apk_share
     int app_info -> app_info
     int app_name -> app_name
     int banner_ad_unit_id -> banner_ad_unit_id
@@ -38177,9 +38280,14 @@ com.purehero.apk.manager.R$string -> com.purehero.apk.manager.R$string:
     int create_calendar_message -> create_calendar_message
     int create_calendar_title -> create_calendar_title
     int decline -> decline
+    int delete -> delete
+    int execute -> execute
+    int file_list_sub_title_folder_format -> file_list_sub_title_folder_format
+    int information -> information
     int send_mail_to_developer -> send_mail_to_developer
     int send_to_mail -> send_to_mail
     int send_to_sdcard_format -> send_to_sdcard_format
+    int share -> share
     int splash_image_description -> splash_image_description
     int store_picture_message -> store_picture_message
     int store_picture_title -> store_picture_title
