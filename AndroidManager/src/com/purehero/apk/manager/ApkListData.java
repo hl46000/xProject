@@ -1,11 +1,15 @@
 package com.purehero.apk.manager;
 
+import java.io.File;
 import java.text.Collator;
 import java.util.Comparator;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 
 /**
  * @author purehero
@@ -15,12 +19,11 @@ import android.graphics.drawable.Drawable;
  */
 public class ApkListData {
 	private Drawable icon 	= null;
-	private String appName	= null;
+	private final String appName;
 	private final String packageName;
+	private final String activityName;
+	private final String apkPath;
 	private int index 		= -1;
-	
-	private final ResolveInfo resolveInfo;
-	private final PackageManager pm;
 	
 	/**
 	 * 생성자, 
@@ -28,23 +31,65 @@ public class ApkListData {
 	 * @param info APK ResulveInfo 객체
 	 * @param pm PackageManager 객체
 	 */
-	public ApkListData( ResolveInfo info, PackageManager pm ) 
-	{
-		resolveInfo = info;
-		this.pm = pm;
-		packageName = info.activityInfo.packageName;
+	public ApkListData( Context context, ResolveInfo info, PackageManager pm ) {
+		packageName 	= info.activityInfo.packageName;
+		appName 		= (String) info.loadLabel(pm);
+		activityName	= info.activityInfo.name;
+		apkPath			= info.activityInfo.applicationInfo.sourceDir;
+		
+		File folder 	= new File( context.getCacheDir(), "icons" );
+		if( !folder.exists()) {
+			folder.mkdirs();
+		}
+		File iconFile	= new File( folder, packageName );
+				
+		try {
+			icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
+			if( icon != null ) {
+				G.log( "Load icon from file : " + iconFile.getAbsolutePath());
+			} else {
+				icon		= info.loadIcon(pm);
+				G.log( "Load icon from ResolveInfo : " + packageName );
+				
+				if( icon != null ) {
+					new SaveIconToFileThread( icon, iconFile ).start();					
+				}
+			}
+			
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
 	}
+	
+	/**
+	 * @author MY
+	 * 불러온 아이콘 파일을 파일로 기록하는 Thread 을 생성한다. 
+	 *
+	 *
+	 */
+	class SaveIconToFileThread extends Thread implements Runnable {
+		final Drawable drawable;
+		final File file;
+		
+		public SaveIconToFileThread( Drawable drawable, File file ) {
+			this.drawable = drawable;
+			this.file = file;
+		}
+		
+		@Override
+		public void run() {
+			if( G.saveBitmapToFile( G.drawableToBitmap( drawable ), file )) {
+				G.log( "Saved icon to file : " + file.getAbsolutePath());
+			}
+		}
+	};
 	
 	/**
 	 * Icon 을 반환한다. 
 	 * 
 	 * @return
 	 */
-	public Drawable getIcon() 
-	{
-		if( icon == null ) {
-			icon = resolveInfo.loadIcon(pm);
-		}
+	public Drawable getIcon() {
 		return icon;
 	}
 	
@@ -53,11 +98,7 @@ public class ApkListData {
 	 * 
 	 * @return
 	 */
-	public String getAppName() 
-	{
-		if( appName == null ) {
-			appName = (String) resolveInfo.loadLabel(pm);
-		}
+	public String getAppName() {
 		return appName;
 	}
 	
@@ -66,8 +107,7 @@ public class ApkListData {
 	 * 
 	 * @return
 	 */
-	public String getPackageName() 
-	{
+	public String getPackageName() {
 		return packageName;
 	}
 	
@@ -77,7 +117,16 @@ public class ApkListData {
 	 * @return
 	 */
 	public String getLauncherActivityName() {
-		return resolveInfo.activityInfo.name;
+		return activityName;
+	}
+	
+	/**
+	 * APK 파일의 경로를 반환한다.
+	 * 
+	 * @return
+	 */
+	public String getApkFilepath() {
+		return apkPath;
 	}
 	
 	/**
@@ -107,11 +156,5 @@ public class ApkListData {
 		}
 	};
 
-	/**
-	 * @return
-	 */
-	public String getApkFilepath() 
-	{
-		return resolveInfo.activityInfo.applicationInfo.sourceDir;
-	}
+	
 }

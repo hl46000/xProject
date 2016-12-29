@@ -34,7 +34,7 @@ public class ApkListAdapter extends BaseAdapter
 	    
 	    listData.clear();
 	    for( ResolveInfo act : launcherActivitys ) {
-	    	listData.add( new ApkListData( act, pm ));	    	
+	    	listData.add( new ApkListData( context, act, pm ));	    	
 	    }
 	}
 	
