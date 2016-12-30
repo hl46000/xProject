@@ -71,6 +71,15 @@ public class ApkHistoryListAdapter extends CursorAdapter {
         return v;
 	}
 
+	
+	
+	@Override
+	public boolean isEnabled(int position) {
+		return false;
+	}
+
+
+
 	class ViewHolder 
 	{
 		public ImageView icon;

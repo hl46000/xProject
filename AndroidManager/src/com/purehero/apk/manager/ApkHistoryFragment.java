@@ -1,6 +1,7 @@
 package com.purehero.apk.manager;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,20 @@ public class ApkHistoryFragment extends Fragment {
 		apkHistoryListView	= ( ListView ) layout.findViewById( R.id.apkHistoryListView );		 
 		apkHistoryListView.setAdapter( apkHistoryListAdapter );
 		
+		registerForContextMenu( apkHistoryListView );
+		
 		return layout;	
+	}
+
+	public void removeAllItems() {
+		ApkHistoryDB db = new ApkHistoryDB( context, 1 );
+		db.removeAll();
+		apkHistoryListAdapter.changeCursor( db.selectAll());
+		
+		new Handler().postDelayed( new Runnable(){
+			@Override
+			public void run() {
+				apkHistoryListAdapter.notifyDataSetChanged();
+			}}, 1000 );
 	}
 }

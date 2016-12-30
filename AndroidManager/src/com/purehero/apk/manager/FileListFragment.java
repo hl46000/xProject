@@ -223,8 +223,8 @@ public class FileListFragment extends Fragment {
 		
 		public void show() {
 			Builder dlg = new AlertDialog.Builder( context ); 
-		    dlg.setTitle("Delete"); 
-		    dlg.setMessage( String.format( "'%s'\n\nDo you want to Delete", data.getFilename())); 
+		    dlg.setTitle( R.string.delete ); 
+		    dlg.setMessage( String.format( "'%s'\n\n%s", data.getFilename(), context.getString( R.string.file_delete_confirm ))); 
 		        //.setIcon(R.drawable.delete)
 		    dlg.setPositiveButton( R.string.delete, new DialogInterface.OnClickListener() {
 		    	public void onClick(DialogInterface dialog, int whichButton) { 

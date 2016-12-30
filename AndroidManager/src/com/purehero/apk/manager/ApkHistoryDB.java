@@ -35,8 +35,6 @@ public class ApkHistoryDB extends SQLiteOpenHelper {
 	}
 	
 	public long inset( String package_name, String app_name, String action, String reg_time ) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		
 		ContentValues values = new ContentValues();
 		values.put("package_name", package_name);
 		values.put("app_name", app_name);
@@ -45,7 +43,7 @@ public class ApkHistoryDB extends SQLiteOpenHelper {
 		
 		long result = -1;
 		try {
-			result = db.insert( TABLE_NAME, null, values);
+			result = getWritableDatabase().insert( TABLE_NAME, null, values);
 		} catch( Exception e ) {}
 		
 		return result;
@@ -55,8 +53,7 @@ public class ApkHistoryDB extends SQLiteOpenHelper {
 		List<List<Object>> result = new ArrayList<List<Object>>();
 		
 		// 읽기가 가능하게 DB 열기
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.rawQuery( sql, args );
+        Cursor c = getReadableDatabase().rawQuery( sql, args );
         if( c.getCount() == 0 ) return result;
         
         c.moveToFirst();
@@ -79,7 +76,10 @@ public class ApkHistoryDB extends SQLiteOpenHelper {
 	 * @return
 	 */
 	public Cursor selectAll() {
-		SQLiteDatabase db = getReadableDatabase();
-        return db.rawQuery( String.format( "SELECT * FROM %s ORDER BY _id DESC", TABLE_NAME ), null );        
+		return getReadableDatabase().rawQuery( String.format( "SELECT * FROM %s ORDER BY _id DESC", TABLE_NAME ), null );        
+	}
+	
+	public void removeAll() {
+		getWritableDatabase().execSQL( String.format( "DELETE FROM %s WHERE _id>0", TABLE_NAME ));
 	}
 }

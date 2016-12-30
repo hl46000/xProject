@@ -15,14 +15,16 @@
 	<string name="share">Share</string>
 	<string name="execute">Execute</string>
 	<string name="cancel">Cancel</string>
+	<string name="ok">OK</string>
 	
 	<string name="change_sdcard_path">Change SD Card Path</string>
 	<string name="app_info">App Info</string>
+	<string name="file_delete_confirm">Do you want to Delete</string>
+	<string name="delete_all_items">Delete All Items</string>
 			
 	<string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
 	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
-	<string name="send_to_sdcard_format" formatted="false">%s 파일이 %s 로 저장되었습니다.</string>
-	
+	<string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
 	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
 	
 	<string name="file_list_sub_title_folder_format">%d item</string>

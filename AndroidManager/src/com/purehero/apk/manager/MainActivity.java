@@ -107,6 +107,17 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		int tabIdx = pager.getCurrentItem();
+		String tabTitle = fragmentName.get( tabIdx );
+		
+		G.log( "tabTitle : " + tabTitle);
+		menu.findItem( R.id.delete_all_items ).setVisible( tabTitle.compareTo( "History" ) == 0 );
+		
+		return true;
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -114,10 +125,17 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		switch( id ) {
+		case R.id.action_settings :
 			startActivity( new Intent( this, SettingsActivity.class ));
 			return true;
-		}
+			
+		case R.id.delete_all_items :
+			int tabIdx = pager.getCurrentItem();
+			ApkHistoryFragment fragment = ( ApkHistoryFragment ) fragmentList.get( tabIdx );
+			fragment.removeAllItems();
+			break;
+		} 
 		return super.onOptionsItemSelected(item);
 	}
 	

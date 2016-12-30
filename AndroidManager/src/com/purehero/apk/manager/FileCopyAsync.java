@@ -6,10 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 public class FileCopyAsync extends AsyncTask<File, String, String> 
 {
@@ -25,8 +27,7 @@ public class FileCopyAsync extends AsyncTask<File, String, String>
 	private ProgressDialog progressDialog = null;
 		
 	@Override
-	protected void onPreExecute() 
-	{
+	protected void onPreExecute() {
 		super.onPreExecute();
 		
 		progressDialog = new ProgressDialog( context );
@@ -35,16 +36,14 @@ public class FileCopyAsync extends AsyncTask<File, String, String>
 	}
 
 	@Override
-	protected String doInBackground(File... files) 
-	{
+	protected String doInBackground(File... files) {
 		output_file = files[1];
 		
 		copyFiles( files[0], files[1] );
 		return null;
 	}
 
-	private void copyFiles(File src, File dest ) 
-	{
+	private void copyFiles(File src, File dest ) {
 		FileInputStream fis = null;
 		FileOutputStream fos = null;
 		
@@ -75,18 +74,36 @@ public class FileCopyAsync extends AsyncTask<File, String, String>
 	}
 
 	@Override
-	protected void onProgressUpdate(String... values) 
-	{
+	protected void onProgressUpdate(String... values) {
 		progressDialog.setProgress( Integer.valueOf( values[0] ));
 	}
 
 	@Override
-	protected void onPostExecute(String result) 
-	{
+	protected void onPostExecute(String result) {
 		progressDialog.dismiss();
-		
-		String format = context.getResources().getString( R.string.send_to_sdcard_format );
-		Toast.makeText( context, 
-			String.format( format, appTitle, output_file.getAbsolutePath()), Toast.LENGTH_LONG ).show();
+		new fileCopyConfirmDialog( appTitle, output_file ).show();		
+	}
+	
+	class fileCopyConfirmDialog {
+		private final String name;
+		private final File outfile;
+		public fileCopyConfirmDialog( String name, File outfile ) {
+			this.name = name;
+			this.outfile = outfile;
+		}
+		public void show() {
+			String format = context.getResources().getString( R.string.send_to_sdcard_format );
+			
+			Builder dlg = new AlertDialog.Builder( context ); 
+		    dlg.setTitle( R.string.apk_extract ); 
+		    dlg.setMessage( String.format( format, name, outfile.getAbsolutePath() )); 
+		        //.setIcon(R.drawable.delete)
+		    dlg.setPositiveButton( R.string.ok, new DialogInterface.OnClickListener() {
+		    	public void onClick(DialogInterface dialog, int whichButton) { 
+		    		dialog.dismiss();
+		    	}   
+		    });
+		    dlg.create().show();
+		}
 	}
 }
