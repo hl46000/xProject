@@ -3,6 +3,9 @@ package com.purehero.apk.manager;
 import java.io.File;
 import java.util.Stack;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -87,7 +91,7 @@ public class FileListFragment extends Fragment {
 		        	} else if( data.getFile().isDirectory()) {
 		        		fileListAdapter.push_folder( data.getFile());
 		        	} else {
-		        		
+		        		fileListView.showContextMenuForChild(view);
 		        	}
 		        	
 		        	fileListPath.setText( fileListAdapter.getFolderPath() );
@@ -160,7 +164,7 @@ public class FileListFragment extends Fragment {
 		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
 		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
 		
-		startActivityForResult(Intent.createChooser(shareIntent, "Share APK File" ), R_ID_FILE_MENU_SHARE);
+		startActivityForResult(Intent.createChooser(shareIntent, "Share File" ), R_ID_FILE_MENU_SHARE);
 	}
 
 
@@ -176,8 +180,10 @@ public class FileListFragment extends Fragment {
 		workStack.clear();
 		workStack.push( data );
 		
-		data.getFile().delete();
-		fileListAdapter.remove( position );
+		data.setIndex( position );
+		new fileDeleteDialog( data ).show();
+		//data.getFile().delete();
+		//fileListAdapter.remove( position );
 	}
 
 	/**
@@ -192,8 +198,47 @@ public class FileListFragment extends Fragment {
 		workStack.push( data );
 		
 		Intent myIntent = new Intent(Intent.ACTION_VIEW);
-		myIntent.setData(Uri.fromFile(data.getFile()));
+		myIntent.addCategory(Intent.CATEGORY_DEFAULT);
+		//myIntent.setData(Uri.fromFile(data.getFile()));
+		myIntent.setDataAndType( Uri.fromFile(data.getFile()), getMimeType( data.getFilename()));
+		
 		Intent j = Intent.createChooser(myIntent, "Choose an application to open with:");
 		startActivityForResult(j, R_ID_FILE_MENU_RUNNING);
+	}
+	
+	private String getMimeType(String url) {
+	    String type = null;
+	    String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+	    if (extension != null) {
+	        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+	    }
+	    return type;
+	}
+	
+	class fileDeleteDialog {
+		private FileListData data;
+		public fileDeleteDialog( FileListData data ) {
+			this.data = data;
+		}
+		
+		public void show() {
+			Builder dlg = new AlertDialog.Builder( context ); 
+		    dlg.setTitle("Delete"); 
+		    dlg.setMessage( String.format( "'%s'\n\nDo you want to Delete", data.getFilename())); 
+		        //.setIcon(R.drawable.delete)
+		    dlg.setPositiveButton( R.string.delete, new DialogInterface.OnClickListener() {
+		    	public void onClick(DialogInterface dialog, int whichButton) { 
+		    		data.getFile().delete();
+		    		fileListAdapter.remove( data.getIndex());
+		    		dialog.dismiss();
+		    	}   
+		    });
+		    dlg.setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+		    	public void onClick(DialogInterface dialog, int which) {
+		    		dialog.dismiss();
+		    	}
+		    });
+		    dlg.create().show();
+		}
 	}
 }

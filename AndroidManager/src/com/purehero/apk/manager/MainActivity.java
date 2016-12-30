@@ -33,7 +33,9 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     private List<String>   fragmentName = new ArrayList<String>();
     
     private InterstitialAd interstitialAd	= null;	// 전면 광고
-    
+    private boolean activity_result = false;
+	private int resume_cnt = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -74,12 +76,30 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		mAdView.loadAd(adRequest);
 	}
 
-	/*
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		if( activity_result ) {
+			resume_cnt ++;
+			
+			if( resume_cnt > 1 ) {
+				showFullAd();
+				
+				activity_result = false;
+				resume_cnt		= 0;
+			}
+		}		
+		G.log( "MainActivity::onResume " + resume_cnt );
+	}
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
+		super.onActivityResult( requestCode, resultCode, intent );
+	
+		activity_result = true;
 		G.log( "MainActivity::onActivityResult");
 	}
-	*/
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

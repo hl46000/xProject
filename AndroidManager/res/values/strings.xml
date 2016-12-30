@@ -14,6 +14,7 @@
 	<string name="delete">Delete</string>
 	<string name="share">Share</string>
 	<string name="execute">Execute</string>
+	<string name="cancel">Cancel</string>
 	
 	<string name="change_sdcard_path">Change SD Card Path</string>
 	<string name="app_info">App Info</string>
