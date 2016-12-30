@@ -44,7 +44,8 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         pager = (ViewPager) this.findViewById(R.id.pager );
 
         fragmentList.add( new ApkListFragment( this )); fragmentName.add( "Apps" );
-        //fragmentList.add( new FileListFragment( this )); fragmentName.add( "Files" );
+        fragmentList.add( new FileListFragment( this )); fragmentName.add( "Files" );
+        fragmentList.add( new ApkHistoryFragment( this )); fragmentName.add( "History" );
         
         // init view pager
         adapter = new ViewPagerAdapter(getSupportFragmentManager());

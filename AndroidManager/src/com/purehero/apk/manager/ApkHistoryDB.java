@@ -7,24 +7,24 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class ApkHistoryDB extends SQLiteOpenHelper {
-	private final String TABLE_NAME = "APK_HISTORY";
+	private final static String DB_FILENAME = "apk_history.db";
+	private final static String TABLE_NAME 	= "APK_HISTORY";
 	
-	public ApkHistoryDB(Context context, String db_filename, CursorFactory factory, int version) {
-		super(context, db_filename, factory, version);
+	public ApkHistoryDB(Context context, int version) {
+		super(context, DB_FILENAME, null, version);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL( String.format( "CREATE TABLE %s(", TABLE_NAME )
-				+ "seq INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ "package_name TEXT, "
 				+ "app_name TEXT, "
 				+ "action TEXT, "
-				+ "reg_time TEXT);");
+				+ "reg_time TEXT UNIQUE );");
 	}
 
 	@Override
@@ -34,16 +34,21 @@ public class ApkHistoryDB extends SQLiteOpenHelper {
         onCreate(db); // 다시 테이블 생성
 	}
 	
-	public long inset( String package_name, String app_name, String action ) {
+	public long inset( String package_name, String app_name, String action, String reg_time ) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
 		ContentValues values = new ContentValues();
 		values.put("package_name", package_name);
 		values.put("app_name", app_name);
 		values.put("action", action);
-		values.put("reg_time", "datetime('now','localtime')");
+		values.put("reg_time", reg_time);
 		
-		return db.insert( TABLE_NAME, null, values);
+		long result = -1;
+		try {
+			result = db.insert( TABLE_NAME, null, values);
+		} catch( Exception e ) {}
+		
+		return result;
 	}
 	
 	public List<List<Object>> select( String sql, String[] args ) {
@@ -68,5 +73,13 @@ public class ApkHistoryDB extends SQLiteOpenHelper {
         }
      
         return result;
+	}
+
+	/**
+	 * @return
+	 */
+	public Cursor selectAll() {
+		SQLiteDatabase db = getReadableDatabase();
+        return db.rawQuery( String.format( "SELECT * FROM %s ORDER BY _id DESC", TABLE_NAME ), null );        
 	}
 }

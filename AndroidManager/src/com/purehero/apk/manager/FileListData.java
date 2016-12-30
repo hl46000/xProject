@@ -44,27 +44,12 @@ public class FileListData {
 		if( file.isDirectory()) {
 			File subItems [] = file.listFiles();
 			subTitle = String.format( context.getResources().getString( R.string.file_list_sub_title_folder_format), subItems == null ? 0 : subItems.length );
+			
 		} else {
-			float size = file.length();
-			if( size < 1024.0f ) {
-				subTitle = String.format( "%.2f B", size );
-			} else {
-				size /= 1024.0f; 
-				if( size < 1024.0f ) {
-					subTitle = String.format( "%.2f KB", size );
-				} else {
-					size /= 1024.0f; 
-					if( size < 1024.0f ) {
-						subTitle = String.format( "%.2f MB", size );
-					} else {
-						size /= 1024.0f; 
-						subTitle = String.format( "%.2f GB", size );						
-					}
-				}
-			}
+			subTitle = G.getFilesize(file);			
 		}
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy H:mm a");
+		SimpleDateFormat sdf = new SimpleDateFormat( G.DATE_FORMAT );
 		fileDate = sdf.format(file.lastModified());
 	}
 	

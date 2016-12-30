@@ -168,7 +168,7 @@ public class ApkListFragment extends Fragment {
 		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); break;
 		}
 					
-		return true;
+		return false;
 	}
 
 	final int R_ID_APK_MENU_RUNNING		= 1000;

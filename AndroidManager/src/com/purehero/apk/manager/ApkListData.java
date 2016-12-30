@@ -37,28 +37,27 @@ public class ApkListData {
 		activityName	= info.activityInfo.name;
 		apkPath			= info.activityInfo.applicationInfo.sourceDir;
 		
-		File folder 	= new File( context.getCacheDir(), "icons" );
+		File base_folder 	= new File( context.getCacheDir(), "package" );
+		File folder			= new File( base_folder, packageName );
 		if( !folder.exists()) {
 			folder.mkdirs();
 		}
-		File iconFile	= new File( folder, packageName );
-				
+		
+		File iconFile	= new File( folder, "icon" );
 		try {
 			icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
-			if( icon != null ) {
-				G.log( "Load icon from file : " + iconFile.getAbsolutePath());
-			} else {
+			if( icon == null ) {
 				icon		= info.loadIcon(pm);
-				G.log( "Load icon from ResolveInfo : " + packageName );
 				
 				if( icon != null ) {
 					new SaveIconToFileThread( icon, iconFile ).start();					
 				}
 			}
-			
 		} catch( Exception e ) {
 			e.printStackTrace();
 		}
+		
+		G.writeFile( new File( folder, "app_name"), appName );
 	}
 	
 	/**
@@ -79,7 +78,7 @@ public class ApkListData {
 		@Override
 		public void run() {
 			if( G.saveBitmapToFile( G.drawableToBitmap( drawable ), file )) {
-				G.log( "Saved icon to file : " + file.getAbsolutePath());
+				//G.log( "Saved icon to file : " + file.getAbsolutePath());
 			}
 		}
 	};

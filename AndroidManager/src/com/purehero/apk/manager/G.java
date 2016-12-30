@@ -2,6 +2,7 @@ package com.purehero.apk.manager;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,7 +16,8 @@ import android.graphics.drawable.PictureDrawable;
 import android.util.Log;
 
 public class G {
-
+	public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
+	
 	/**
 	 * @param closeable
 	 */
@@ -36,6 +38,96 @@ public class G {
 		Log.d( "ApkManager", msg );
 	}
 	
+	/**
+	 * 파일을 오픈하여 내용을 읽어서 문자열로 반환한다. 
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static String readFile( File file ) {
+		String result = null;
+		
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream( file );
+			
+			byte buffer[] = new byte[ (int) file.length() ];
+			int nRead = fis.read( buffer, 0, buffer.length );
+			
+			result = new String( buffer, 0, nRead );
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			
+		} finally {
+			safe_close( fis );
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 문자열을 입력 받아 파일로 기록한다.
+	 * 
+	 * @param file
+	 * @param content
+	 * @return
+	 */
+	public static int writeFile( File file, String content ) {
+		int result = -1;
+		
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream( file );
+			
+			byte buffer[] = content.getBytes("UTF-8");
+			fos.write( buffer, 0, buffer.length );
+			
+			result = buffer.length;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			
+		} finally {
+			safe_close( fos );
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 파일의 크기를 문자열로 반환한다. 
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static String getFilesize( File file ) {
+		String result = "0 B";
+		
+		float size = file.length();
+		if( size < 1024.0f ) {
+			result = String.format( "%.2f B", size );
+		} else {
+			size /= 1024.0f; 
+			if( size < 1024.0f ) {
+				result = String.format( "%.2f KB", size );
+			} else {
+				size /= 1024.0f; 
+				if( size < 1024.0f ) {
+					result = String.format( "%.2f MB", size );
+				} else {
+					size /= 1024.0f; 
+					result = String.format( "%.2f GB", size );						
+				}
+			}
+		}
+		
+		return result;
+	}
 	
 	/**
 	 * Drawable 객체의  bitmap 객체를 반환합니다.
@@ -44,7 +136,7 @@ public class G {
 	 * @return
 	 */
 	public static Bitmap drawableToBitmap( BitmapDrawable drawable ) {
-		log( "BitmapDrawableToBitmap" );
+		//log( "BitmapDrawableToBitmap" );
 		return drawable.getBitmap();
 	}
 	
@@ -55,7 +147,7 @@ public class G {
 	 * @return
 	 */
 	public static Bitmap drawableToBitmap( PictureDrawable drawable ) {
-		log( "PictureDrawableToBitmap" );
+		//log( "PictureDrawableToBitmap" );
 		
 		Bitmap bm = Bitmap.createBitmap( drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 	    Canvas canvas = new Canvas(bm);

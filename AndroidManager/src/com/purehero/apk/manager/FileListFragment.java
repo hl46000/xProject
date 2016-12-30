@@ -138,7 +138,7 @@ public class FileListFragment extends Fragment {
 		case R.id.FILE_MENU_SHARE		: file_share( data ); break;
 		}
 							
-		return true;
+		return false;
 	}
 	final int R_ID_FILE_MENU_RUNNING		= 1000;
 	final int R_ID_FILE_MENU_DELETE 		= 1002;
