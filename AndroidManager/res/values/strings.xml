@@ -16,6 +16,7 @@
 	<string name="execute">Execute</string>
 	<string name="cancel">Cancel</string>
 	<string name="ok">OK</string>
+	<string name="search_text">Search</string>
 	
 	<string name="change_sdcard_path">Change SD Card Path</string>
 	<string name="app_info">App Info</string>

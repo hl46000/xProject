@@ -10,11 +10,24 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical|center_horizontal" />
 	
-	<ListView
-        android:id="@+id/apkListView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" />
-
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:orientation="vertical" android:layout_width="match_parent"
+    	android:layout_height="match_parent">
+	
+        <EditText
+		    android:id="@+id/txt_search"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_margin="5dp"		    
+		    android:hint="@string/search_text"
+		    android:textSize="12sp"
+		    android:singleLine="true" />
+        
+		<ListView
+	        android:id="@+id/apkListView"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible" />
+	</LinearLayout>
 </FrameLayout>	  
 

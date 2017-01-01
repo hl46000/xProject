@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -83,8 +86,7 @@ public class ApkListFragment extends Fragment {
 
 	Runnable apk_info_load_runnable = new Runnable() {
 		@Override
-		public void run() 
-		{
+		public void run() {
 			// 초기화면을 표시하기 위해 필요한 데이터 수집
 			getApkInfos();
 			
@@ -95,8 +97,7 @@ public class ApkListFragment extends Fragment {
 	
 	Runnable init_ui_runnable = new Runnable() {
 		@Override
-		public void run() 
-		{
+		public void run() {
 			// Progress bar 사라지게 하기
 			progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
 			progressBar.setVisibility( View.GONE );
@@ -114,6 +115,20 @@ public class ApkListFragment extends Fragment {
 		        	apkListView.showContextMenuForChild(view);
 		        }
 		    });
+			
+			EditText apk_search = (EditText) layout.findViewById( R.id.txt_search );
+			if( apk_search != null ) {
+				apk_search.addTextChangedListener(new TextWatcher() {
+			        @Override
+			        public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+			        	ApkListFragment.this.apkListAdapter.getFilter().filter(cs);
+			        }
+			        @Override
+			        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+			        @Override
+			        public void afterTextChanged(Editable arg0) { }
+			    });
+			}
 		}
 	};
 	
