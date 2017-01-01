@@ -138,7 +138,6 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
         	}
         	
         	ArrayList<ApkListData> nlist = new ArrayList<ApkListData>();
-        	String filterableString ;
             for (int i = 0; i < listData.size(); i++) {
             	final ApkListData item = listData.get(i);
                 

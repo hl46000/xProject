@@ -122,10 +122,14 @@ public class FileListAdapter extends BaseAdapter
 		FileListData data = listData.get( position );
 		if( data.isBackFolder()) {
 			viewHolder.tvSubTitle.setVisibility( View.GONE );
-			viewHolder.tvDate.setVisibility( View.GONE );
-			viewHolder.icon.setVisibility( View.GONE );
+			viewHolder.tvDate.setVisibility( View.GONE );			
+			viewHolder.fileName.setVisibility( View.GONE );
+			viewHolder.icon.setVisibility( View.VISIBLE );
+			viewHolder.icon.setImageResource( R.drawable.icon_back );
 			
 		} else {
+			viewHolder.fileName.setVisibility( View.VISIBLE );
+			viewHolder.fileName.setText( data.getFilename());
 			viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
 			viewHolder.tvSubTitle.setText( data.getSubTitle());
 			viewHolder.tvDate.setVisibility( View.VISIBLE );
@@ -139,8 +143,7 @@ public class FileListAdapter extends BaseAdapter
 				viewHolder.icon.setVisibility( View.VISIBLE );
 			}
 		}
-		viewHolder.fileName.setText( data.getFilename());
-		
+						
 		return convertView;
 	}
 	
