@@ -37478,9 +37478,39 @@ com.google.android.gms.wearable.internal.z -> com.google.android.gms.wearable.in
     android.os.ParcelFileDescriptor axN -> axN
     int describeContents() -> describeContents
     void writeToParcel(android.os.Parcel,int) -> writeToParcel
+com.purehero.apk.manager.ApkHistoryDB -> com.purehero.apk.manager.ApkHistoryDB:
+    void onCreate(android.database.sqlite.SQLiteDatabase) -> onCreate
+    void onUpgrade(android.database.sqlite.SQLiteDatabase,int,int) -> onUpgrade
+    long inset(java.lang.String,java.lang.String,java.lang.String,java.lang.String) -> inset
+    java.util.List select(java.lang.String,java.lang.String[]) -> select
+    android.database.Cursor selectAll() -> selectAll
+    void removeAll() -> removeAll
+com.purehero.apk.manager.ApkHistoryFragment -> com.purehero.apk.manager.ApkHistoryFragment:
+    com.purehero.apk.manager.MainActivity context -> a
+    android.view.View layout -> b
+    android.widget.ListView apkHistoryListView -> c
+    com.purehero.apk.manager.ApkHistoryListAdapter apkHistoryListAdapter -> d
+    android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
+    void removeAllItems() -> removeAllItems
+    com.purehero.apk.manager.ApkHistoryListAdapter access$0(com.purehero.apk.manager.ApkHistoryFragment) -> a
+com.purehero.apk.manager.ApkHistoryFragment$1 -> com.purehero.apk.manager.ApkHistoryFragment$1:
+    com.purehero.apk.manager.ApkHistoryFragment this$0 -> a
+    void run() -> run
+com.purehero.apk.manager.ApkHistoryListAdapter -> com.purehero.apk.manager.ApkHistoryListAdapter:
+    void bindView(android.view.View,android.content.Context,android.database.Cursor) -> bindView
+    java.lang.String checkNull(java.lang.String) -> a
+    android.view.View newView(android.content.Context,android.database.Cursor,android.view.ViewGroup) -> newView
+    boolean isEnabled(int) -> isEnabled
+com.purehero.apk.manager.ApkHistoryListAdapter$ViewHolder -> com.purehero.apk.manager.ApkHistoryListAdapter$ViewHolder:
+    android.widget.ImageView icon -> icon
+    android.widget.TextView app_name -> app_name
+    android.widget.TextView action -> action
+    android.widget.TextView reg_time -> reg_time
+    com.purehero.apk.manager.ApkHistoryListAdapter this$0 -> a
 com.purehero.apk.manager.ApkListAdapter -> com.purehero.apk.manager.ApkListAdapter:
     android.content.Context context -> a
     java.util.List listData -> b
+    java.util.List filteredData -> c
     void remove(int) -> remove
     void sort() -> sort
     void dataChanged() -> dataChanged
@@ -37488,6 +37518,13 @@ com.purehero.apk.manager.ApkListAdapter -> com.purehero.apk.manager.ApkListAdapt
     java.lang.Object getItem(int) -> getItem
     long getItemId(int) -> getItemId
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
+    android.widget.Filter getFilter() -> getFilter
+    java.util.List access$0(com.purehero.apk.manager.ApkListAdapter) -> a
+    void access$1(com.purehero.apk.manager.ApkListAdapter,java.util.List) -> a
+com.purehero.apk.manager.ApkListAdapter$ItemFilter -> com.purehero.apk.manager.ApkListAdapter$ItemFilter:
+    com.purehero.apk.manager.ApkListAdapter this$0 -> a
+    android.widget.Filter$FilterResults performFiltering(java.lang.CharSequence) -> performFiltering
+    void publishResults(java.lang.CharSequence,android.widget.Filter$FilterResults) -> publishResults
 com.purehero.apk.manager.ApkListAdapter$ViewHolder -> com.purehero.apk.manager.ApkListAdapter$ViewHolder:
     android.widget.ImageView icon -> icon
     android.widget.TextView appName -> appName
@@ -37497,21 +37534,26 @@ com.purehero.apk.manager.ApkListData -> com.purehero.apk.manager.ApkListData:
     android.graphics.drawable.Drawable icon -> a
     java.lang.String appName -> b
     java.lang.String packageName -> c
-    int index -> d
-    android.content.pm.ResolveInfo resolveInfo -> e
-    android.content.pm.PackageManager pm -> f
+    java.lang.String activityName -> d
+    java.lang.String apkPath -> e
+    int index -> f
     java.util.Comparator ALPHA_COMPARATOR -> ALPHA_COMPARATOR
     android.graphics.drawable.Drawable getIcon() -> getIcon
     java.lang.String getAppName() -> getAppName
     java.lang.String getPackageName() -> getPackageName
     java.lang.String getLauncherActivityName() -> getLauncherActivityName
+    java.lang.String getApkFilepath() -> getApkFilepath
     void setIndex(int) -> setIndex
     int getIndex() -> getIndex
-    java.lang.String getApkFilepath() -> getApkFilepath
 com.purehero.apk.manager.ApkListData$1 -> com.purehero.apk.manager.ApkListData$1:
     java.text.Collator collator -> a
     int compare(com.purehero.apk.manager.ApkListData,com.purehero.apk.manager.ApkListData) -> compare
     int compare(java.lang.Object,java.lang.Object) -> compare
+com.purehero.apk.manager.ApkListData$SaveIconToFileThread -> com.purehero.apk.manager.ApkListData$SaveIconToFileThread:
+    android.graphics.drawable.Drawable drawable -> a
+    java.io.File file -> b
+    com.purehero.apk.manager.ApkListData this$0 -> c
+    void run() -> run
 com.purehero.apk.manager.ApkListFragment -> com.purehero.apk.manager.ApkListFragment:
     android.widget.ListView apkListView -> i
     android.widget.ProgressBar progressBar -> Y
@@ -37519,8 +37561,6 @@ com.purehero.apk.manager.ApkListFragment -> com.purehero.apk.manager.ApkListFrag
     java.util.Stack workStack -> aa
     com.purehero.apk.manager.MainActivity context -> ab
     android.view.View layout -> ac
-    boolean activity_result -> ad
-    int resume_cnt -> ae
     java.lang.Runnable apk_info_load_runnable -> a
     java.lang.Runnable init_ui_runnable -> b
     int R_ID_APK_MENU_RUNNING -> c
@@ -37560,6 +37600,11 @@ com.purehero.apk.manager.ApkListFragment$2 -> com.purehero.apk.manager.ApkListFr
 com.purehero.apk.manager.ApkListFragment$2$1 -> com.purehero.apk.manager.ApkListFragment$2$1:
     com.purehero.apk.manager.ApkListFragment$2 this$1 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+com.purehero.apk.manager.ApkListFragment$2$2 -> com.purehero.apk.manager.ApkListFragment$2$2:
+    com.purehero.apk.manager.ApkListFragment$2 this$1 -> a
+    void onTextChanged(java.lang.CharSequence,int,int,int) -> onTextChanged
+    void beforeTextChanged(java.lang.CharSequence,int,int,int) -> beforeTextChanged
+    void afterTextChanged(android.text.Editable) -> afterTextChanged
 com.purehero.apk.manager.BuildConfig -> com.purehero.apk.manager.BuildConfig:
     boolean DEBUG -> DEBUG
 com.purehero.apk.manager.FileCopyAsync -> com.purehero.apk.manager.FileCopyAsync:
@@ -37575,6 +37620,15 @@ com.purehero.apk.manager.FileCopyAsync -> com.purehero.apk.manager.FileCopyAsync
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
     void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    android.content.Context access$3(com.purehero.apk.manager.FileCopyAsync) -> a
+com.purehero.apk.manager.FileCopyAsync$fileCopyConfirmDialog -> com.purehero.apk.manager.FileCopyAsync$fileCopyConfirmDialog:
+    java.lang.String name -> b
+    java.io.File outfile -> c
+    com.purehero.apk.manager.FileCopyAsync this$0 -> a
+    void show() -> show
+com.purehero.apk.manager.FileCopyAsync$fileCopyConfirmDialog$1 -> com.purehero.apk.manager.FileCopyAsync$fileCopyConfirmDialog$1:
+    com.purehero.apk.manager.FileCopyAsync$fileCopyConfirmDialog this$1 -> a
+    void onClick(android.content.DialogInterface,int) -> onClick
 com.purehero.apk.manager.FileListAdapter -> com.purehero.apk.manager.FileListAdapter:
     android.content.Context context -> a
     java.util.List listData -> b
@@ -37639,6 +37693,7 @@ com.purehero.apk.manager.FileListFragment -> com.purehero.apk.manager.FileListFr
     void file_share(com.purehero.apk.manager.FileListData) -> a
     void file_delete(com.purehero.apk.manager.FileListData,int) -> a
     void file_running(com.purehero.apk.manager.FileListData) -> b
+    java.lang.String getMimeType(java.lang.String) -> b
     void access$0(com.purehero.apk.manager.FileListFragment) -> a
     com.purehero.apk.manager.MainActivity access$1(com.purehero.apk.manager.FileListFragment) -> b
     android.view.View access$2(com.purehero.apk.manager.FileListFragment) -> c
@@ -37656,11 +37711,32 @@ com.purehero.apk.manager.FileListFragment$2 -> com.purehero.apk.manager.FileList
 com.purehero.apk.manager.FileListFragment$2$1 -> com.purehero.apk.manager.FileListFragment$2$1:
     com.purehero.apk.manager.FileListFragment$2 this$1 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+com.purehero.apk.manager.FileListFragment$fileDeleteDialog -> com.purehero.apk.manager.FileListFragment$fileDeleteDialog:
+    com.purehero.apk.manager.FileListData data -> b
+    com.purehero.apk.manager.FileListFragment this$0 -> a
+    void show() -> show
+    com.purehero.apk.manager.FileListData access$0(com.purehero.apk.manager.FileListFragment$fileDeleteDialog) -> a
+    com.purehero.apk.manager.FileListFragment access$1(com.purehero.apk.manager.FileListFragment$fileDeleteDialog) -> b
+com.purehero.apk.manager.FileListFragment$fileDeleteDialog$1 -> com.purehero.apk.manager.FileListFragment$fileDeleteDialog$1:
+    com.purehero.apk.manager.FileListFragment$fileDeleteDialog this$1 -> a
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.purehero.apk.manager.FileListFragment$fileDeleteDialog$2 -> com.purehero.apk.manager.FileListFragment$fileDeleteDialog$2:
+    com.purehero.apk.manager.FileListFragment$fileDeleteDialog this$1 -> a
+    void onClick(android.content.DialogInterface,int) -> onClick
 com.purehero.apk.manager.FragmentText -> com.purehero.apk.manager.FragmentText:
     android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> onCreateView
 com.purehero.apk.manager.G -> com.purehero.apk.manager.G:
+    java.lang.String DATE_FORMAT -> DATE_FORMAT
     void safe_close(java.io.Closeable) -> safe_close
     void log(java.lang.String) -> log
+    java.lang.String readFile(java.io.File) -> readFile
+    int writeFile(java.io.File,java.lang.String) -> writeFile
+    java.lang.String getFilesize(java.io.File) -> getFilesize
+    android.graphics.Bitmap drawableToBitmap(android.graphics.drawable.BitmapDrawable) -> drawableToBitmap
+    android.graphics.Bitmap drawableToBitmap(android.graphics.drawable.PictureDrawable) -> drawableToBitmap
+    android.graphics.Bitmap drawableToBitmap(android.graphics.drawable.Drawable) -> drawableToBitmap
+    android.graphics.drawable.Drawable bitmapToDrawable(android.content.Context,android.graphics.Bitmap) -> bitmapToDrawable
+    boolean saveBitmapToFile(android.graphics.Bitmap,java.io.File) -> saveBitmapToFile
 com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     it.neokree.materialtabs.MaterialTabHost tabHost -> o
     android.support.v4.view.ViewPager pager -> p
@@ -37668,10 +37744,15 @@ com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     java.util.List fragmentList -> r
     java.util.List fragmentName -> s
     com.google.android.gms.ads.InterstitialAd interstitialAd -> t
-    int BACK_PRESSED_TIME_INTERVAL -> u
-    long backPressedTime -> v
+    boolean activity_result -> u
+    int resume_cnt -> v
+    int BACK_PRESSED_TIME_INTERVAL -> w
+    long backPressedTime -> x
     void onCreate(android.os.Bundle) -> onCreate
+    void onResume() -> onResume
+    void onActivityResult(int,int,android.content.Intent) -> onActivityResult
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
     void onBackPressed() -> onBackPressed
     void onTabSelected(it.neokree.materialtabs.MaterialTab) -> onTabSelected
@@ -37695,6 +37776,8 @@ com.purehero.apk.manager.MainActivity$ViewPagerAdapter -> com.purehero.apk.manag
     android.support.v4.app.Fragment getItem(int) -> getItem
     int getCount() -> getCount
     java.lang.CharSequence getPageTitle(int) -> getPageTitle
+com.purehero.apk.manager.PackageReceiver -> com.purehero.apk.manager.PackageReceiver:
+    void onReceive(android.content.Context,android.content.Intent) -> onReceive
 com.purehero.apk.manager.R -> com.purehero.apk.manager.R:
 com.purehero.apk.manager.R$anim -> com.purehero.apk.manager.R$anim:
     int abc_fade_in -> abc_fade_in
@@ -38088,7 +38171,12 @@ com.purehero.apk.manager.R$id -> com.purehero.apk.manager.R$id:
     int adjust_height -> adjust_height
     int adjust_width -> adjust_width
     int always -> always
+    int apkHistoryListView -> apkHistoryListView
     int apkListView -> apkListView
+    int apk_history_view_item_action -> apk_history_view_item_action
+    int apk_history_view_item_app_name -> apk_history_view_item_app_name
+    int apk_history_view_item_date -> apk_history_view_item_date
+    int apk_history_view_item_icon -> apk_history_view_item_icon
     int apk_list_view_item_app_name -> apk_list_view_item_app_name
     int apk_list_view_item_icon -> apk_list_view_item_icon
     int apk_list_view_item_package_name -> apk_list_view_item_package_name
@@ -38103,6 +38191,7 @@ com.purehero.apk.manager.R$id -> com.purehero.apk.manager.R$id:
     int close -> close
     int collapseActionView -> collapseActionView
     int default_activity_button -> default_activity_button
+    int delete_all_items -> delete_all_items
     int dialog -> dialog
     int disableHome -> disableHome
     int donate_with_google -> donate_with_google
@@ -38172,6 +38261,7 @@ com.purehero.apk.manager.R$id -> com.purehero.apk.manager.R$id:
     int text -> text
     int title -> title
     int top_action_bar -> top_action_bar
+    int txt_search -> txt_search
     int up -> up
     int useLogo -> useLogo
     int withText -> withText
@@ -38208,6 +38298,8 @@ com.purehero.apk.manager.R$layout -> com.purehero.apk.manager.R$layout:
     int abc_search_view -> abc_search_view
     int abc_simple_decor -> abc_simple_decor
     int activity_main -> activity_main
+    int apk_history_layout -> apk_history_layout
+    int apk_history_view_item -> apk_history_view_item
     int apk_list_layout -> apk_list_layout
     int apk_list_view_item -> apk_list_view_item
     int file_list_layout -> file_list_layout
@@ -38248,6 +38340,7 @@ com.purehero.apk.manager.R$string -> com.purehero.apk.manager.R$string:
     int app_info -> app_info
     int app_name -> app_name
     int banner_ad_unit_id -> banner_ad_unit_id
+    int cancel -> cancel
     int change_sdcard_path -> change_sdcard_path
     int common_android_wear_notification_needs_update_text -> common_android_wear_notification_needs_update_text
     int common_android_wear_update_text -> common_android_wear_update_text
@@ -38281,9 +38374,13 @@ com.purehero.apk.manager.R$string -> com.purehero.apk.manager.R$string:
     int create_calendar_title -> create_calendar_title
     int decline -> decline
     int delete -> delete
+    int delete_all_items -> delete_all_items
     int execute -> execute
+    int file_delete_confirm -> file_delete_confirm
     int file_list_sub_title_folder_format -> file_list_sub_title_folder_format
     int information -> information
+    int ok -> ok
+    int search_text -> search_text
     int send_mail_to_developer -> send_mail_to_developer
     int send_to_mail -> send_to_mail
     int send_to_sdcard_format -> send_to_sdcard_format
