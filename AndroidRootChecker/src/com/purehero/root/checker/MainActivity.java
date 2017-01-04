@@ -3,16 +3,20 @@ package com.purehero.root.checker;
 import java.io.File;
 
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
-
+	private final String LOG_TAG = "RootChecker";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		Log.d( LOG_TAG, "This Device is " + ( isRooted() ? "Rooted!!" : "not Rooted"));
 	}
 
 	@Override
@@ -32,26 +36,53 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	private boolean isRooted() {
-	    return findBinary("su");
+	    return findSuBinary() || fineSuperSuApk();
 	}
 
-	public boolean findBinary(String binaryName) {
-	    String places [] = {
-	    		"/sbin/", 
-	    		"/system/bin/", 
-	    		"/system/xbin/", 
-	    		"/data/local/xbin/",
-	            "/data/local/bin/", 
-	            "/system/sd/xbin/", 
-	            "/system/bin/failsafe/", 
-	            "/data/local/"
+	private boolean fineSuperSuApk() {
+		String places [] = {
+	    		"/system/app/Superuser.apk", 
+	    		"/data/app/eu.chainfire.supersu.apk",
+	    		"/data/app/eu.chainfire.supersu-1.apk" 
 	    };
 	    
 	    for (String where : places) {
-	    	if ( new File( where + binaryName ).exists() ) {
+	    	File file = new File( where );
+	    	if ( file.exists() ) {
+	    		Log.d( LOG_TAG, "Found su apk file at : " + file.getAbsolutePath());
 	    		return true;
 	    	}
 	    }
 	    return false;
+	}
+	
+	private boolean findSuBinary() {
+	    String places [] = {
+	    		"/sbin/su", 
+	    		"/system/bin/su", 
+	    		"/system/xbin/su", 
+	    		"/data/local/xbin/su",
+	            "/data/local/bin/su", 
+	            "/system/sd/xbin/su", 
+	            "/system/bin/failsafe/su", 
+	            "/data/local/su",
+	            "/system/xbin/daemonsu",
+	            "/su/bin/su",
+	            "/su/xbin/su",
+	            "/su/bin/daemonsu",
+	    };
+	    
+	    for (String where : places) {
+	    	File file = new File( where );
+	    	if ( file.exists() ) {
+	    		Log.d( LOG_TAG, "Found su binary at : " + file.getAbsolutePath());
+	    		return true;
+	    	}
+	    }
+	    return false;
+	}
+	
+	private boolean testSuBinary() {
+		return false;
 	}
 }
