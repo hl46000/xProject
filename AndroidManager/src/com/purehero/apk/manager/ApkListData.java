@@ -23,6 +23,8 @@ public class ApkListData {
 	private final String packageName;
 	private final String activityName;
 	private final String apkPath;
+	private File clickCountFile = null;
+	private int clickCount;
 	private int index 		= -1;
 	
 	/**
@@ -42,7 +44,7 @@ public class ApkListData {
 		if( !folder.exists()) {
 			folder.mkdirs();
 		}
-		
+		clickCountFile	= new File( folder, "count" );
 		File iconFile	= new File( folder, "icon" );
 		try {
 			icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
@@ -57,6 +59,11 @@ public class ApkListData {
 			e.printStackTrace();
 		}
 		
+		if( clickCountFile.exists()) {
+			try {
+				clickCount = Integer.valueOf( G.readFile( clickCountFile ));
+			} catch( Exception e ) {}
+		}
 		G.writeFile( new File( folder, "app_name"), appName );
 	}
 	
@@ -143,6 +150,22 @@ public class ApkListData {
 	}
 	
 	/**
+	 * @param count
+	 */
+	public void setClickCount( int count ) {
+		clickCount = count;
+		
+		G.writeFile( clickCountFile, String.valueOf( clickCount ));
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getClickCount() {
+		return clickCount;
+	}
+	
+	/**
 	 * ApkListData 의 list 을 정렬에 필요한 비교자
 	 */
 	public static final Comparator<ApkListData> ALPHA_COMPARATOR = new Comparator<ApkListData> () 
@@ -151,7 +174,10 @@ public class ApkListData {
 		
 		@Override
 		public int compare(ApkListData arg0, ApkListData arg1) {
-			return collator.compare( arg0.getAppName(), arg1.getAppName());
+			if( arg0.getClickCount() == arg1.getClickCount()) {
+				return collator.compare( arg0.getAppName(), arg1.getAppName());
+			} 
+			return arg1.getClickCount() - arg0.getClickCount();
 		}
 	};
 

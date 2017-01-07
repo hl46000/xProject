@@ -101,7 +101,11 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		ApkListData data = filteredData.get( position );
 		
 		viewHolder.icon.setImageDrawable( data.getIcon());
-		viewHolder.appName.setText( data.getAppName());
+		if( data.getClickCount() == 0 ) {
+			viewHolder.appName.setText( data.getAppName());
+		} else {
+			viewHolder.appName.setText( String.format( "%s(%d)", data.getAppName(), data.getClickCount()));
+		}
 		viewHolder.packageName.setText( data.getPackageName());
 		
 		return convertView;

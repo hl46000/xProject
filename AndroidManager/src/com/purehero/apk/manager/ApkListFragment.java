@@ -158,6 +158,7 @@ public class ApkListFragment extends Fragment {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		ApkListData data = ( ApkListData ) apkListAdapter.getItem( info.position );
 		data.setIndex( info.position );
+		data.setClickCount( data.getClickCount() + 1 );
 		
 		switch( item.getItemId()) {
 		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		break;
