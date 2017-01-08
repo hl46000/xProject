@@ -28290,6 +28290,8 @@ com.purehero.apk.manager.ApkListData: java.lang.String getLauncherActivityName()
 com.purehero.apk.manager.ApkListData: java.lang.String getApkFilepath()
 com.purehero.apk.manager.ApkListData: void setIndex(int)
 com.purehero.apk.manager.ApkListData: int getIndex()
+com.purehero.apk.manager.ApkListData: void setClickCount(int)
+com.purehero.apk.manager.ApkListData: int getClickCount()
 com.purehero.apk.manager.ApkListData$1
 com.purehero.apk.manager.ApkListData$1: int compare(com.purehero.apk.manager.ApkListData,com.purehero.apk.manager.ApkListData)
 com.purehero.apk.manager.ApkListData$1: int compare(java.lang.Object,java.lang.Object)

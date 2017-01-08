@@ -7,3 +7,4 @@
 **/obj/
 /AndroidTouchMacroV3/.metadata
 /AndroidTouchMacroV3/.recommenders
+*.apk

@@ -112,7 +112,12 @@ public class ApkListFragment extends Fragment {
 			apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		        @Override
 		        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		        	apkListView.showContextMenuForChild(view);
+		        	ApkListData data = ( ApkListData ) apkListAdapter.getItem(position);
+		        	apk_running( data );
+		        	
+		    		data.setClickCount( data.getClickCount() + 1 );
+		    		
+		        	//apkListView.showContextMenuForChild(view);
 		        }
 		    });
 			

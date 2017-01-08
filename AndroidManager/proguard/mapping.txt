@@ -37536,7 +37536,9 @@ com.purehero.apk.manager.ApkListData -> com.purehero.apk.manager.ApkListData:
     java.lang.String packageName -> c
     java.lang.String activityName -> d
     java.lang.String apkPath -> e
-    int index -> f
+    java.io.File clickCountFile -> f
+    int clickCount -> g
+    int index -> h
     java.util.Comparator ALPHA_COMPARATOR -> ALPHA_COMPARATOR
     android.graphics.drawable.Drawable getIcon() -> getIcon
     java.lang.String getAppName() -> getAppName
@@ -37545,6 +37547,8 @@ com.purehero.apk.manager.ApkListData -> com.purehero.apk.manager.ApkListData:
     java.lang.String getApkFilepath() -> getApkFilepath
     void setIndex(int) -> setIndex
     int getIndex() -> getIndex
+    void setClickCount(int) -> setClickCount
+    int getClickCount() -> getClickCount
 com.purehero.apk.manager.ApkListData$1 -> com.purehero.apk.manager.ApkListData$1:
     java.text.Collator collator -> a
     int compare(com.purehero.apk.manager.ApkListData,com.purehero.apk.manager.ApkListData) -> compare
@@ -37590,6 +37594,7 @@ com.purehero.apk.manager.ApkListFragment -> com.purehero.apk.manager.ApkListFrag
     void access$5(com.purehero.apk.manager.ApkListFragment,android.widget.ListView) -> a
     android.widget.ListView access$6(com.purehero.apk.manager.ApkListFragment) -> e
     com.purehero.apk.manager.ApkListAdapter access$7(com.purehero.apk.manager.ApkListFragment) -> f
+    void access$8(com.purehero.apk.manager.ApkListFragment,com.purehero.apk.manager.ApkListData) -> a
 com.purehero.apk.manager.ApkListFragment$1 -> com.purehero.apk.manager.ApkListFragment$1:
     com.purehero.apk.manager.ApkListFragment this$0 -> a
     void run() -> run
