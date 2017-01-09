@@ -38,6 +38,8 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		Log.d( LOG_TAG, "onCreate" );
+		
 		tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
         pager = (ViewPager) this.findViewById(R.id.pager );
         
@@ -116,7 +118,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
         }
 
         public Fragment getItem(int position) {
-        	Log.d( LOG_TAG, "ViewPagerAdapter::getItem" );
+        	//Log.d( LOG_TAG, "ViewPagerAdapter::getItem" );
         	
             return ( Fragment ) fragmentList.get(position);
         }
@@ -128,33 +130,33 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
         @Override
         public CharSequence getPageTitle(int position) {
-        	Log.d( LOG_TAG, "ViewPagerAdapter::getPageTitle" );
+        	//Log.d( LOG_TAG, "ViewPagerAdapter::getPageTitle" );
         	return fragmentName.get(position);
         }
     }
 
 	@Override
 	public void onTabSelected(MaterialTab tab) {
-		Log.d( LOG_TAG, "onTabSelected" );
+		//Log.d( LOG_TAG, "onTabSelected" );
 		
 		pager.setCurrentItem( tab.getPosition());
 	}
 
 	@Override
 	public void onTabReselected(MaterialTab tab) {
-		Log.d( LOG_TAG, "onTabReselected" );
+		//Log.d( LOG_TAG, "onTabReselected" );
 	}
 
 	@Override
 	public void onTabUnselected(MaterialTab tab) {
-		Log.d( LOG_TAG, "onTabUnselected" );
+		//Log.d( LOG_TAG, "onTabUnselected" );
 		
 		// 전환 시 너무 자주 광고를 표시하지 안게 하기 위해 추가한다.  
 		showFullAd();		
 	}	
 	
 	public void showFullAd() {
-		Log.d( LOG_TAG, "showFullAd" );
+		//Log.d( LOG_TAG, "showFullAd" );
 		
 		if( interstitialAd != null ) {
 			if( interstitialAd.isLoaded()) {
