@@ -4,6 +4,7 @@
     <string name="app_name">Root Checker</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="check_root">Root check</string>
 
     <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
 	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>

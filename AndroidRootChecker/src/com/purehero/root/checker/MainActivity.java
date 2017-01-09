@@ -32,9 +32,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     private List<String>   fragmentName = new ArrayList<String>();
 	
     private InterstitialAd interstitialAd	= null;	// 전면 광고
-    private boolean activity_result = false;
-	private int resume_cnt = 0;
-	
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -71,8 +69,6 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		AdView mAdView = (AdView) findViewById(R.id.adView);
 		AdRequest adRequest = new AdRequest.Builder().build();
 		mAdView.loadAd(adRequest);
-		
-        //init_ui();
 	}
 	
 	@Override
@@ -81,23 +77,6 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		showFullAd();
 	}
 	
-	private void init_ui() {
-		/*
-		boolean isRooted = AndroidDeviceInfo.isRooted();
-		TextView txRooted = ( TextView ) this.findViewById( R.id.textRooted );
-		if( txRooted != null ) {
-			txRooted.setText( isRooted ? "Rooted!!" : "not Rooted" );			
-		} else {
-			Log.d( LOG_TAG, "This Device is " + ( isRooted ? "Rooted!!" : "not Rooted"));
-		}
-		
-		TextView txDeviceName = ( TextView ) this.findViewById( R.id.textDeviceName );
-		if( txDeviceName != null ) {
-			txDeviceName.setText( AndroidDeviceInfo.getDeviceName( this ) );
-		}
-		*/
-	}
-
 	// Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
 	private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
 	private long backPressedTime = 0;
@@ -171,13 +150,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		Log.d( LOG_TAG, "onTabUnselected" );
 		
 		// 전환 시 너무 자주 광고를 표시하지 안게 하기 위해 추가한다.  
-		if( interstitialAd != null ) {
-			if( interstitialAd.isLoaded()) {
-				if( System.currentTimeMillis() % 10 < 3 ) {
-					showFullAd();
-				}
-			}
-		}
+		showFullAd();		
 	}	
 	
 	public void showFullAd() {
@@ -185,7 +158,8 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		
 		if( interstitialAd != null ) {
 			if( interstitialAd.isLoaded()) {
-				if( System.currentTimeMillis() % 10 < 3 ) {
+				if( System.currentTimeMillis() % 10 < 2 ) 
+				{
 					interstitialAd.show();
 				}
 			}

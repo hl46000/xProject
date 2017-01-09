@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Root Checker</string>
+    <string name="check_root">루팅 확인</string>
     
     <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
 	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
