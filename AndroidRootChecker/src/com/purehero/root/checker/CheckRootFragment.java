@@ -1,5 +1,6 @@
 package com.purehero.root.checker;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -26,9 +27,7 @@ public class CheckRootFragment extends Fragment implements OnClickListener {
 	
 		if( layout != null ) {
 			textResultCheckRoot = ( TextView ) layout.findViewById( R.id.textResultCheckRoot );
-			if( textResultCheckRoot != null ) {
-				textResultCheckRoot.setText( AndroidDeviceInfo.isRooted() ? "Device is rooted" : "Device is not rooted");
-			}
+			updateRootCheckMessage();
 			
 			Button btnCheckRoot = ( Button ) layout.findViewById( R.id.btnCheckRoot );
 			if( btnCheckRoot != null ) {
@@ -38,6 +37,19 @@ public class CheckRootFragment extends Fragment implements OnClickListener {
 		return layout;	
 	}
 	
+	private void updateRootCheckMessage() {
+		if( textResultCheckRoot == null ) return;
+		
+		boolean isRooted = AndroidDeviceInfo.isRooted();
+		if( isRooted ) {
+			textResultCheckRoot.setTextColor( Color.RED );
+			textResultCheckRoot.setText( "Device is rooted" );
+		} else {
+			textResultCheckRoot.setTextColor( Color.GREEN );
+			textResultCheckRoot.setText( "Device is not rooted" );
+		}
+	}
+	
 	private int check_count = 0;
 	
 	@Override
@@ -45,6 +57,7 @@ public class CheckRootFragment extends Fragment implements OnClickListener {
 		switch( view.getId()) {
 		case R.id.btnCheckRoot : 
 			if( textResultCheckRoot != null ) {
+				textResultCheckRoot.setTextColor( Color.BLUE );
 				textResultCheckRoot.setText( "Checking root" );
 				check_count = 0;
 				
@@ -62,13 +75,14 @@ public class CheckRootFragment extends Fragment implements OnClickListener {
 				context.runOnUiThread( new Runnable(){
 					@Override
 					public void run() {
-						textResultCheckRoot.setText( AndroidDeviceInfo.isRooted() ? "Device is rooted" : "Device is not rooted");
+						updateRootCheckMessage();
 					}});
 				
 			} else {
 				context.runOnUiThread( new Runnable(){
 					@Override
 					public void run() {
+						textResultCheckRoot.setTextColor( Color.BLUE );
 						textResultCheckRoot.setText( textResultCheckRoot.getText() + "." );
 						check_count++;
 						
