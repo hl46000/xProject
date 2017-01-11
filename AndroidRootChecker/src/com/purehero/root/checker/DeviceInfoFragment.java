@@ -14,6 +14,7 @@ public class DeviceInfoFragment extends Fragment {
 	private View layout = null;
 	private ListView deviceInfoListView 				= null;
 	private DeviceInfoListAdapter deviceInfoListAdapter = null; 
+	
 	public DeviceInfoFragment(MainActivity mainActivity) {
 		context = mainActivity; 
 		

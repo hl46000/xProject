@@ -113,7 +113,7 @@ public class AndroidDeviceInfo {
 	}
 	
 	public static boolean isRooted() {
-	    return findSuBinary() || fineSuperSuApk() || testSuBinary();
+	    return testSuBinary() || findSuBinary() || fineSuperSuApk();
 	}
 
 	private static boolean fineSuperSuApk() {
@@ -160,36 +160,20 @@ public class AndroidDeviceInfo {
 	}
 	
 	private static boolean testSuBinary() {
+		boolean result = false;
+		
 		Process process = null;
 		try {
 			process = Runtime.getRuntime().exec("su");
-			process.waitFor();
+			result = true;
 			
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-	        
-			String line;
-			while(( line = reader.readLine()) != null ) {
-				Log.d( LOG_TAG, "[is]" + line );
-			}
-			reader.close();
-	        
-			reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			while(( line = reader.readLine()) != null ) {
-				Log.d( LOG_TAG, "[es]" + line );
-			}
-			reader.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			
+		} catch (Exception e) {
 		} finally {
 			if( process != null ) {
 				process.destroy();
 			}
 		}
-		return false;
+
+		return result;
 	}
 }

@@ -7,6 +7,7 @@ import it.neokree.materialtabs.MaterialTabListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -79,6 +80,15 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 		showFullAd();
 	}
 	
+	
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
+
+
 	// Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
 	private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
 	private long backPressedTime = 0;
