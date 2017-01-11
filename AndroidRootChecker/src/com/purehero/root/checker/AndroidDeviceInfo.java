@@ -72,14 +72,17 @@ public class AndroidDeviceInfo {
 		BufferedReader br = null;
 		
 		try {
-			isr = new InputStreamReader( context.getAssets().open("supported_devices_out.csv"), "UTF-8");
+			isr = new InputStreamReader( context.getAssets().open( chars2string('s','u','p','p','o','r','t','e','d','_','d','e','v','i','c','e','s','_','o','u','t','.','c','s','v' )), "UTF-8");
+			//isr = new InputStreamReader( context.getAssets().open( "supported_devices_out.csv" ), "UTF-8");
 			br = new BufferedReader( isr ) ;
 			
 			String line;
 			while(( line = br.readLine()) != null ) {
 				if( line.indexOf( findString ) > -1 ) {
-					String token[] = line.split(",");
-					return String.format( "%s %s", token[0], token[1] );
+					String token[] = line.split( chars2string(','));
+					//String token[] = line.split( "," );
+					return String.format( chars2string( '%','s',' ','%','s' ), token[0], token[1] );
+					//return String.format( "%s %s", token[0], token[1] );
 				}
 			}
 			
@@ -94,8 +97,20 @@ public class AndroidDeviceInfo {
 				try { isr.close(); } catch (IOException e) { e.printStackTrace(); }
 			}
 		}
-		
+
 		return findString;
+	}
+	
+	private static String chars2string( char ... args ) {
+		int len = args.length;
+		char chars[] = new char[len];
+		
+		int i = 0;
+		for( char ch : args ) {
+			chars[i++] = ch;
+		}
+		
+		return String.valueOf( chars, 0, len );
 	}
 	
 	/**
@@ -104,6 +119,7 @@ public class AndroidDeviceInfo {
 	 * @param context
 	 * @return true : 비행기 모드 
 	 */
+	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public static boolean isAirplaneMode( Context context ) {
 		if( Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1){
@@ -118,9 +134,9 @@ public class AndroidDeviceInfo {
 
 	private static boolean fineSuperSuApk() {
 		String places [] = {
-	    		"/system/app/Superuser.apk", 
-	    		"/data/app/eu.chainfire.supersu.apk",
-	    		"/data/app/eu.chainfire.supersu-1.apk" 
+			chars2string( '/','s','y','s','t','e','m','/','a','p','p','/','S','u','p','e','r','u','s','e','r','.','a','p','k' ), 
+			chars2string( '/','d','a','t','a','/','a','p','p','/','e','u','.','c','h','a','i','n','f','i','r','e','.','s','u','p','e','r','s','u','.','a','p','k'),
+			chars2string( '/','d','a','t','a','/','a','p','p','/','e','u','.','c','h','a','i','n','f','i','r','e','.','s','u','p','e','r','s','u','-','1','.','a','p','k') 
 	    };
 	    
 	    for (String where : places) {
@@ -135,18 +151,18 @@ public class AndroidDeviceInfo {
 	
 	private static boolean findSuBinary() {
 	    String places [] = {
-	    		"/sbin/su", 
-	    		"/system/bin/su", 
-	    		"/system/xbin/su", 
-	    		"/data/local/xbin/su",
-	            "/data/local/bin/su", 
-	            "/system/sd/xbin/su", 
-	            "/system/bin/failsafe/su", 
-	            "/data/local/su",
-	            "/system/xbin/daemonsu",
-	            "/su/bin/su",
-	            "/su/xbin/su",
-	            "/su/bin/daemonsu",
+	    		chars2string( '/','s','b','i','n','/','s','u'),
+	    		chars2string( '/','s','y','s','t','e','m','/','b','i','n','/','s','u'),
+	    		chars2string( '/','s','y','s','t','e','m','/','x','b','i','n','/','s','u'), 
+	    		chars2string( '/','d','a','t','a','/','l','o','c','a','l','/','x','b','i','n','/','s','u'),
+	    		chars2string( '/','d','a','t','a','/','l','o','c','a','l','/','b','i','n','/','s','u'), 
+	    		chars2string( '/','s','y','s','t','e','m','/','s','d','/','x','b','i','n','/','s','u'), 
+	    		chars2string( '/','s','y','s','t','e','m','/','b','i','n','/','f','a','i','l','s','a','f','e','/','s','u'), 
+	    		chars2string( '/','d','a','t','a','/','l','o','c','a','l','/','s','u'),
+	    		chars2string( '/','s','y','s','t','e','m','/','x','b','i','n','/','d','a','e','m','o','n','s','u'),
+	    		chars2string( '/','s','u','/','b','i','n','/','s','u'),
+	    		chars2string( '/','s','u','/','x','b','i','n','/','s','u'),
+	    		chars2string( '/','s','u','/','b','i','n','/','d','a','e','m','o','n','s','u'),
 	    };
 	    
 	    for (String where : places) {
@@ -164,7 +180,7 @@ public class AndroidDeviceInfo {
 		
 		Process process = null;
 		try {
-			process = Runtime.getRuntime().exec("su");
+			process = Runtime.getRuntime().exec( chars2string( 's','u' ));
 			result = true;
 			
 		} catch (Exception e) {

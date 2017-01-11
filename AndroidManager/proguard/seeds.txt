@@ -28394,6 +28394,7 @@ com.purehero.apk.manager.G: boolean saveBitmapToFile(android.graphics.Bitmap,jav
 com.purehero.apk.manager.MainActivity
 com.purehero.apk.manager.MainActivity: MainActivity()
 com.purehero.apk.manager.MainActivity: void onResume()
+com.purehero.apk.manager.MainActivity: void onConfigurationChanged(android.content.res.Configuration)
 com.purehero.apk.manager.MainActivity: void onActivityResult(int,int,android.content.Intent)
 com.purehero.apk.manager.MainActivity: boolean onCreateOptionsMenu(android.view.Menu)
 com.purehero.apk.manager.MainActivity: boolean onPrepareOptionsMenu(android.view.Menu)

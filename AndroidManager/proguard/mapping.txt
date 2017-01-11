@@ -37755,6 +37755,7 @@ com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     long backPressedTime -> x
     void onCreate(android.os.Bundle) -> onCreate
     void onResume() -> onResume
+    void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
     void onActivityResult(int,int,android.content.Intent) -> onActivityResult
     boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
     boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
