@@ -1,0 +1,21 @@
+This application provide status of your device is Rooted or Not Rooted
+
+Features:
+- Check the status of your Android device Rooted or Not Rooted
+- Detects if your Android device has Root access
+- Displays Android device's Build Information
+
+Disclaimer:
+- This app is not meant to root your device
+
+
+
+Root Checker 는 안드로이드 단말기의 Rooting 여부를 확인 시켜 줍니다. 
+
+기능 :
+- 단말기의 루팅 여부 확인
+- su 권한 획득 확인
+- 단말기의 빌드 정보 표시
+
+기타 :
+- Root Checker 는 단말기를 루팅 시켜주는 앱이 아닙니다.
