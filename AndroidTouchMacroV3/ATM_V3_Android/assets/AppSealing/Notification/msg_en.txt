@@ -1,1 +1,0 @@
-This notification indicates that [%s] is being secured by AppSealing Mobile Game Protection.
