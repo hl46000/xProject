@@ -1,0 +1,32 @@
+이번에 어떤 일로 인해 Zxing 바코드 라이브러리를 이용하게 되었다.
+
+그 중 처음 라이브러리를 임포트해서 사용하면 스캔 영역이 작아서 스캔하기 힘들어 진다.
+
+이럴 때 스캔 영역을 조절해야하는데, 어떠한 해상도에서도 깔끔하게 적용되는 코드가 있어서 정리해 둔다.
+
+통상적으로 스캔 영역 조절은 ViewfinderView.java 에서도 할 수 있지만, 화면 크기가 다 달라지는 안드로이드에서는
+
+일관성이 떨어질 경우가 있다. 그래서 CameraManager.java 에서 스캔 영역을 조절하도록 한다.
+
+추가한 zxing 의 CameraManager.java 에서 getFramingRect() 함수를 찾아서 아래와 같이 수정하도록 한다.
+
+
+public Rect getFramingRect() {
+    if (framingRect == null) {
+      if (camera == null) {
+        return null;
+      }
+      Point screenResolution = configManager.getScreenResolution();
+      int width = screenResolution.x * 3 / 4;
+ 
+      int height = screenResolution.y * 3 / 4;
+      Log.v("Framing rect is : ", "width is "+width+"   and height is "+height);
+      int leftOffset = (screenResolution.x - width) / 2;
+      int topOffset = (screenResolution.y - height) / 2;
+      framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+      Log.d(TAG, "Calculated framing rect: " + framingRect);
+    }
+    return framingRect;
+}
+
+이렇게 하면 스캔 영역이 확~ 넓어 진다.
