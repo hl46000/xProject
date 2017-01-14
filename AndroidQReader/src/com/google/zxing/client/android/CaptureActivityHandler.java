@@ -40,25 +40,25 @@ import java.util.Vector;
  * @author dswitkin@google.com (Daniel Switkin)
  */
 public final class CaptureActivityHandler extends Handler {
+	private static final String TAG = CaptureActivityHandler.class.getSimpleName();
 
-  private static final String TAG = CaptureActivityHandler.class.getSimpleName();
+	private final CaptureActivity activity;
+	private final DecodeThread decodeThread;
+	private State state;
+	private final Handler byPassHandler;
+	private enum State {
+		PREVIEW,
+		SUCCESS,
+		DONE
+	}
 
-  private final CaptureActivity activity;
-  private final DecodeThread decodeThread;
-  private State state;
-
-  private enum State {
-    PREVIEW,
-    SUCCESS,
-    DONE
-  }
-
-  CaptureActivityHandler(CaptureActivity activity, Vector<BarcodeFormat> decodeFormats,
-      String characterSet) {
+	CaptureActivityHandler(CaptureActivity activity, Vector<BarcodeFormat> decodeFormats,
+      String characterSet, Handler byPassHandler) {
     this.activity = activity;
     decodeThread = new DecodeThread(activity, decodeFormats, characterSet,
         new ViewfinderResultPointCallback(activity.getViewfinderView()));
     decodeThread.start();
+    this.byPassHandler = byPassHandler;
     state = State.SUCCESS;
 
     // Start ourselves capturing previews and decoding.
@@ -86,8 +86,7 @@ public final class CaptureActivityHandler extends Handler {
         Log.d(TAG, "Got decode succeeded message");
         state = State.SUCCESS;
         Bundle bundle = message.getData();
-        Bitmap barcode = bundle == null ? null :
-            (Bitmap) bundle.getParcelable(DecodeThread.BARCODE_BITMAP);
+        Bitmap barcode = bundle == null ? null : (Bitmap) bundle.getParcelable(DecodeThread.BARCODE_BITMAP);
         activity.handleDecode((Result) message.obj, barcode);
         break;
       case R.id.decode_failed:
@@ -97,15 +96,28 @@ public final class CaptureActivityHandler extends Handler {
         break;
       case R.id.return_scan_result:
         Log.d(TAG, "Got return scan result message");
-        activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
-        activity.finish();
+        
+        state = State.SUCCESS;
+        if( byPassHandler != null ) {
+        	byPassHandler.handleMessage( message );
+        } else {
+        	activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
+        	activity.finish();
+        }
         break;
+        
       case R.id.launch_product_query:
         Log.d(TAG, "Got product query message");
-        String url = (String) message.obj;
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        activity.startActivity(intent);
+        
+        state = State.SUCCESS;
+        if( byPassHandler != null ) {
+        	byPassHandler.handleMessage( message );
+        } else {
+	        String url = (String) message.obj;
+	        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+	        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+	        activity.startActivity(intent);
+        }
         break;
     }
   }
@@ -126,13 +138,14 @@ public final class CaptureActivityHandler extends Handler {
     removeMessages(R.id.decode_failed);
   }
 
-  private void restartPreviewAndDecode() {
-    if (state == State.SUCCESS) {
-      state = State.PREVIEW;
-      CameraManager.get().requestPreviewFrame(decodeThread.getHandler(), R.id.decode);
-      CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
-      activity.drawViewfinder();
-    }
-  }
+	private void restartPreviewAndDecode() {
+		if (state == State.SUCCESS) {
+      
+			state = State.PREVIEW;
+			CameraManager.get().requestPreviewFrame(decodeThread.getHandler(), R.id.decode);
+			CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
+			activity.drawViewfinder();
+		}
+	}
 
 }

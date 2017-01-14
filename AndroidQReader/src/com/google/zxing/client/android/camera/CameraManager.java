@@ -32,22 +32,18 @@ import android.view.SurfaceHolder;
 
 import com.google.zxing.client.android.PlanarYUVLuminanceSource;
 import com.google.zxing.client.android.PreferencesActivity;
+import com.google.zxing.client.android.ViewfinderView;
 
 /**
  * This object wraps the Camera service object and expects to be the only one talking to it. The
  * implementation encapsulates the steps needed to take preview-sized images, which are used for
  * both preview and decoding.
  *
- * @author dswitkin@google.com (Daniel Switkin)
+ *
  */
 public final class CameraManager {
 
   private static final String TAG = CameraManager.class.getSimpleName();
-
-  private static final int MIN_FRAME_WIDTH = 240;
-  private static final int MIN_FRAME_HEIGHT = 240;
-  private static final int MAX_FRAME_WIDTH = 480;
-  private static final int MAX_FRAME_HEIGHT = 360;
 
   private static CameraManager cameraManager;
 
@@ -119,27 +115,32 @@ public final class CameraManager {
    * Opens the camera driver and initializes the hardware parameters.
    *
    * @param holder The surface object which the camera will draw preview frames into.
+ * @param viewfinderView 
    * @throws IOException Indicates the camera driver failed to open.
    */
-  public void openDriver(SurfaceHolder holder) throws IOException {
-    if (camera == null) {
-      camera = Camera.open();
-      if (camera == null) {
-        throw new IOException();
+  @SuppressWarnings("deprecation")
+  public void openDriver(SurfaceHolder holder, ViewfinderView viewfinderView) throws IOException {
+	  if (camera == null) {
+		  camera = Camera.open();
+		  
+		  if (camera == null) {
+			  throw new IOException();
+		  }
+	  }
+    
+	  camera.setDisplayOrientation(90);
+      camera.setPreviewDisplay(holder);
+    
+      if (!initialized) {
+    	  initialized = true;
+    	  configManager.initFromCameraParameters(camera, viewfinderView);
       }
-    }
-    camera.setDisplayOrientation(90);
-    camera.setPreviewDisplay(holder);
-    if (!initialized) {
-      initialized = true;
-      configManager.initFromCameraParameters(camera);
-    }
-    configManager.setDesiredCameraParameters(camera);
+      configManager.setDesiredCameraParameters(camera);
 
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    if (prefs.getBoolean(PreferencesActivity.KEY_FRONT_LIGHT, false)) {
-      FlashlightManager.enableFlashlight();
-    }
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+      if (prefs.getBoolean(PreferencesActivity.KEY_FRONT_LIGHT, false)) {
+    	  FlashlightManager.enableFlashlight();
+      }
   }
 
   /**
@@ -219,7 +220,34 @@ public final class CameraManager {
    * @return The rectangle to draw on screen in window coordinates.
    */
   public Rect getFramingRect() {
-    Point screenResolution = configManager.getScreenResolution();
+	  Point screenResolution = configManager.getScreenResolution();
+	  
+	  if (framingRect == null) {
+	      if (camera == null) return null;
+	  
+	      // 정사작형 영역을 할당한다. 
+	      int width = Math.min( screenResolution.x * 3 / 5, screenResolution.y * 3 / 5 );
+	      int height = width;
+	      int leftOffset 	= (screenResolution.x - width ) / 2;
+	      int topOffset 	= (screenResolution.y - width) / 2;
+	      
+	      /*
+	      // 가로 세로 비율에 맞춰서 전체의 75% 크기의 영역을 할당한다.
+	      int width = screenResolution.x * 3 / 4;
+	      int height = screenResolution.y * 3 / 4;
+	      Log.v("Framing rect is : ", "width is "+width+"   and height is "+height);
+	      
+	      int leftOffset 	= (screenResolution.x - width ) / 2;
+	      int topOffset 	= (screenResolution.y - height) / 2;
+	      */
+	      framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+	      
+	      Log.d(TAG, "Calculated framing rect: " + framingRect);
+	  }
+	  
+	  return framingRect;
+
+	  /*
     if (framingRect == null) {
       if (camera == null) {
         return null;
@@ -242,25 +270,32 @@ public final class CameraManager {
       Log.d(TAG, "Calculated framing rect: " + framingRect);
     }
     return framingRect;
+    */
   }
 
   /**
    * Like {@link #getFramingRect} but coordinates are in terms of the preview frame,
    * not UI / screen.
    */
-  public Rect getFramingRectInPreview() {
-    if (framingRectInPreview == null) {
-      Rect rect = new Rect(getFramingRect());
-      Point cameraResolution = configManager.getCameraResolution();
-      Point screenResolution = configManager.getScreenResolution();
-      rect.left = rect.left * cameraResolution.x / screenResolution.x;
-      rect.right = rect.right * cameraResolution.x / screenResolution.x;
-      rect.top = rect.top * cameraResolution.y / screenResolution.y;
-      rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-      framingRectInPreview = rect;
-    }
-    return framingRectInPreview;
-  }
+	public Rect getFramingRectInPreview() {
+		if (framingRectInPreview == null) {
+			Rect rect = new Rect(getFramingRect());
+      
+			Point cameraResolution = configManager.getCameraResolution();
+			Point screenResolution = configManager.getScreenResolution();
+			
+			Log.d( TAG, cameraResolution.toString());
+			Log.d( TAG, screenResolution.toString());
+			rect.left 	= rect.left 	* cameraResolution.x / screenResolution.x;
+			rect.right 	= rect.right 	* cameraResolution.x / screenResolution.x;
+			rect.top 	= rect.top 		* cameraResolution.y / screenResolution.y;
+			rect.bottom = rect.bottom 	* cameraResolution.y / screenResolution.y;
+      
+			framingRectInPreview = rect;
+		}
+    
+		return framingRectInPreview;
+	}
 
   /**
    * Converts the result points from still resolution coordinates to screen coordinates.

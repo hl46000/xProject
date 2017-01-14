@@ -93,7 +93,8 @@ public final class ViewfinderView extends View {
   		if (resultBitmap != null) {
   			// Draw the opaque result bitmap over the scanning rectangle
   			paint.setAlpha(CURRENT_POINT_OPACITY);
-  			canvas.drawBitmap(resultBitmap, null, frame, paint);
+  			//canvas.drawBitmap(resultBitmap, null, frame, paint);
+  			canvas.drawBitmap( resultBitmap, null, frame, paint);
   			
   		} else {
 
@@ -104,7 +105,29 @@ public final class ViewfinderView extends View {
   			canvas.drawRect(frame.right - 1, frame.top, frame.right + 1, frame.bottom - 1, paint);
   			canvas.drawRect(frame.left, frame.bottom - 1, frame.right + 1, frame.bottom + 1, paint);
 	
-  			// Draw a red "laser scanner" line through the middle to show decoding is active
+  			int line_width = Math.min( frame.width(), frame.height()) / 5;
+  			paint.setColor(Color.BLUE);
+            //paint.setStrokeWidth( 1 );
+            
+  			int lineThick = 10;
+  			// ÁÂ»ó±Í
+  			drawLineX( canvas, frame.left, frame.top, line_width, lineThick, paint );
+  			drawLineY( canvas, frame.left, frame.top, line_width, lineThick, paint );
+                  
+  			// ÁÂÇÏ±Í
+  			drawLineX( canvas, frame.left, frame.bottom - lineThick, line_width, lineThick, paint );
+  			drawLineY( canvas, frame.left, frame.bottom - line_width, line_width, lineThick, paint );
+  			
+  			// ¿ì»ó±Í
+  			drawLineX( canvas, frame.right - line_width, frame.top, line_width, lineThick, paint );
+  			drawLineY( canvas, frame.right - lineThick, frame.top, line_width, lineThick, paint );
+  			
+  			//¿ìÇÏ±Í
+  			drawLineX( canvas, frame.right - line_width, frame.bottom - lineThick, line_width, lineThick, paint );
+  			drawLineY( canvas, frame.right - lineThick, frame.bottom - line_width, line_width, lineThick, paint );
+  			
+  			// Draw a red "laser scanner" line through the middle to show decoding is active  			
+  			/*
   			paint.setColor(laserColor);
   			paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
   			scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
@@ -147,9 +170,24 @@ public final class ViewfinderView extends View {
   			// Request another update at the animation interval, but only repaint the laser line,
   			// not the entire viewfinder mask.
   			postInvalidateDelayed(ANIMATION_DELAY, frame.left, frame.top, frame.right, frame.bottom);
+  			*/
   		}
   	}
 
+  	private void drawLineX( Canvas canvas, int x, int y, int w, int t, Paint paint ) {
+  		for( int i = 0; i < t; i++ ) {
+  			canvas.drawLine( x, y, x + w, y, paint );
+  			y++;
+  		}
+  	}
+  	
+  	private void drawLineY( Canvas canvas, int x, int y, int h, int t, Paint paint ) {
+  		for( int i = 0; i < t; i++ ) {
+  			canvas.drawLine( x, y, x, y + h, paint );
+  			x++;
+  		}
+  	}
+  	
   	public void drawViewfinder() {
   		resultBitmap = null;
   		invalidate();

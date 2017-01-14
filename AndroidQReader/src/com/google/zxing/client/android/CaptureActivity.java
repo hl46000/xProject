@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
@@ -46,8 +45,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.google.zxing.client.android.result.ResultHandler;
-import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.purehero.qr.reader.R;
 
 /**
@@ -88,7 +85,8 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 	protected Vector<BarcodeFormat> decodeFormats;
 	protected String characterSet;
 	protected InactivityTimer inactivityTimer;
-
+	protected Handler byPassHandler = null;
+	
 	ViewfinderView getViewfinderView() {
 		return viewfinderView;
 	}
@@ -123,11 +121,11 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     if (hasSurface) {
       // The activity was paused but not stopped, so the surface still exists. Therefore
       // surfaceCreated() won't be called, so init the camera here.
-      initCamera(surfaceHolder);
+      initCamera(surfaceHolder, viewfinderView);
     } else {
       // Install the callback and wait for surfaceCreated() to init the camera.
       surfaceHolder.addCallback(this);
-      surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+      //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
 
     source = Source.NATIVE_APP_INTENT;
@@ -201,7 +199,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   public void surfaceCreated(SurfaceHolder holder) {
     if (!hasSurface) {
       hasSurface = true;
-      initCamera(holder);
+      initCamera(holder, viewfinderView);
     }
   }
 
@@ -230,6 +228,8 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 			
 		} else {
 			//drawResultPoints(barcode, rawResult);
+			handleDecodeExternally(rawResult, barcode);
+			/*
 			switch (source) {
 			case NATIVE_APP_INTENT:
 				handleDecodeExternally(rawResult, barcode);
@@ -238,6 +238,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 			case NONE:
 				break;
 			}
+			*/
 		}
 	}
 
@@ -298,24 +299,27 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 
   // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
   private void handleDecodeExternally(Result rawResult, Bitmap barcode) {
-    viewfinderView.drawResultBitmap(barcode);
+    //viewfinderView.drawResultBitmap(barcode);
 
     // Since this message will only be shown for a second, just tell the user what kind of
     // barcode was found (e.g. contact info) rather than the full contents, which they won't
     // have time to read.
-    ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
     statusView.setText("바코드 인식 완료");
-
+    CameraManager.get().stopPreview();
+    
+    /*
+    ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
     if (copyToClipboard) {
       ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
       clipboard.setText(resultHandler.getDisplayContents());
     }
+    */
 
     if (source == Source.NATIVE_APP_INTENT) {
       // Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
       // the deprecated intent is retired.
       Intent intent = new Intent(getIntent().getAction());
-      intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+      //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
       intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
       intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
       byte[] rawBytes = rawResult.getRawBytes();
@@ -328,40 +332,50 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     }
   }
 
-  private void initCamera(SurfaceHolder surfaceHolder) {
-    try {
-      CameraManager.get().openDriver(surfaceHolder);
-    } catch (IOException ioe) {
-      Log.w(TAG, ioe);
-      displayFrameworkBugMessageAndExit();
-      return;
-    } catch (RuntimeException e) {
-      // Barcode Scanner has seen crashes in the wild of this variety:
-      // java.?lang.?RuntimeException: Fail to connect to camera service
-      Log.w(TAG, "Unexpected error initializating camera", e);
-      displayFrameworkBugMessageAndExit();
-      return;
-    }
-    if (handler == null) {
-      handler = new CaptureActivityHandler(this, decodeFormats, characterSet);
-    }
+  private void initCamera(SurfaceHolder surfaceHolder, ViewfinderView viewfinderView ) {
+	  try {
+		  CameraManager.get().openDriver(surfaceHolder, viewfinderView );
+		  
+	  } catch (IOException ioe) {
+		  Log.w(TAG, ioe);
+		  displayFrameworkBugMessageAndExit();
+		  return;
+    
+	  } catch (RuntimeException e) {
+		  // Barcode Scanner has seen crashes in the wild of this variety:
+		  // java.?lang.?RuntimeException: Fail to connect to camera service
+		  Log.w(TAG, "Unexpected error initializating camera", e);
+		  displayFrameworkBugMessageAndExit();
+		  
+		  return;
+	  }
+	  
+	  if (handler == null) {
+		  handler = new CaptureActivityHandler(this, decodeFormats, characterSet, byPassHandler);
+	  }
   }
 
-  private void displayFrameworkBugMessageAndExit() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle(getString(R.string.app_name));
-    builder.setMessage("카메라 인식에 문제가 발생하였습니다. 디바이스를 재시작하여 주십시오");
-    builder.setPositiveButton("확인", new FinishListener(this));
-    builder.setOnCancelListener(new FinishListener(this));
-    builder.show();
-  }
+  	private void displayFrameworkBugMessageAndExit() {
+  		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+  		builder.setTitle(getString(R.string.app_name));
+  		builder.setMessage("카메라 인식에 문제가 발생하였습니다. 디바이스를 재시작하여 주십시오");
+  		builder.setPositiveButton("확인", new FinishListener(this));
+  		builder.setOnCancelListener(new FinishListener(this));
+  		builder.show();
+  	}
 
-  	private void resetStatusView() {
+	protected void resetStatusView() {
   		resultView.setVisibility(View.GONE);
   		statusView.setText("사각형 영역을 바코드에 맞추면 자동으로 인식합니다");
   		statusView.setVisibility(View.VISIBLE);
   		viewfinderView.setVisibility(View.VISIBLE);
   		lastResult = null;
+ 
+  		drawViewfinder();
+  		if( handler != null ) {
+  			handler.sendEmptyMessage(R.id.restart_preview);
+  		}
+  		CameraManager.get().startPreview();
   	}
 
   	public void drawViewfinder() {

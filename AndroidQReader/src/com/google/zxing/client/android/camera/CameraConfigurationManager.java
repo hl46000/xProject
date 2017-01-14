@@ -26,6 +26,8 @@ import android.view.WindowManager;
 
 import java.util.regex.Pattern;
 
+import com.google.zxing.client.android.ViewfinderView;
+
 final class CameraConfigurationManager {
 
   private static final String TAG = CameraConfigurationManager.class.getSimpleName();
@@ -46,15 +48,16 @@ final class CameraConfigurationManager {
 
   /**
    * Reads, one time, values from the camera that are needed by the app.
+ * @param viewfinderView 
    */
-  void initFromCameraParameters(Camera camera) {
+  void initFromCameraParameters(Camera camera, ViewfinderView viewfinderView) {
     Camera.Parameters parameters = camera.getParameters();
     previewFormat = parameters.getPreviewFormat();
     previewFormatString = parameters.get("preview-format");
     Log.d(TAG, "Default preview format: " + previewFormat + '/' + previewFormatString);
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    Display display = manager.getDefaultDisplay();
-    screenResolution = new Point(display.getWidth(), display.getHeight());
+    //Display display = manager.getDefaultDisplay();
+    screenResolution = new Point( viewfinderView.getWidth(), viewfinderView.getHeight());
     Log.d(TAG, "Screen resolution: " + screenResolution);
     cameraResolution = getCameraResolution(parameters, screenResolution);
     Log.d(TAG, "Camera resolution: " + cameraResolution);
@@ -105,7 +108,7 @@ final class CameraConfigurationManager {
     if (previewSizeValueString != null) {
       Log.d(TAG, "preview-size-values parameter: " + previewSizeValueString);
       cameraResolution = findBestPreviewSizeValue(previewSizeValueString, screenResolution);
-    }
+    }    
 
     if (cameraResolution == null) {
       // Ensure that the camera resolution is a multiple of 8, as the screen may not be.
