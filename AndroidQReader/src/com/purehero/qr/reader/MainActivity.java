@@ -29,8 +29,8 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 	    statusView = (TextView) findViewById(R.id.status_view);
 	    
 	    // FIXME : 앱을 배포하기 전까진 풀지 말것
-	    //AdView mAdView = (AdView) findViewById(R.id.adView);
-	    AdView mAdView = null; 
+	    AdView mAdView = (AdView) findViewById(R.id.adView);
+	    //AdView mAdView = null; 
 		if( mAdView != null ) {
 			AdRequest adRequest = new AdRequest.Builder().build();
 			mAdView.loadAd(adRequest);
