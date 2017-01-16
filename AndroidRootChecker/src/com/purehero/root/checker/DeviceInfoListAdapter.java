@@ -1,6 +1,9 @@
 package com.purehero.root.checker;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +31,8 @@ public class DeviceInfoListAdapter extends BaseAdapter
 			
 			listDatas.add( new DeviceInfoListData( key, value ));
 		}
+		
+		Collections.sort( listDatas, ALPHA_COMPARATOR );
 	}
 	
 	@Override
@@ -76,4 +81,16 @@ public class DeviceInfoListAdapter extends BaseAdapter
 		public TextView name;
 		public TextView value;
 	}
+	
+	/**
+	 * DeviceInfoListData 의 list 을 정렬에 필요한 비교자
+	 */
+	private final Comparator<DeviceInfoListData> ALPHA_COMPARATOR = new Comparator<DeviceInfoListData> () {
+		private final Collator collator = Collator.getInstance();
+		
+		@Override
+		public int compare( DeviceInfoListData arg0, DeviceInfoListData arg1) {
+			return collator.compare( arg0.getName(), arg1.getName());
+		}
+	};
 }
