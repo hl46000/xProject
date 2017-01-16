@@ -327,12 +327,12 @@ public final class CameraManager {
    * @param height The height of the image.
    * @return A PlanarYUVLuminanceSource instance.
    */
-  public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
+  public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height, boolean reverseHorizontal ) {
     Rect rect = getFramingRectInPreview();
     int previewFormat = configManager.getPreviewFormat();
     String previewFormatString = configManager.getPreviewFormatString();
-    SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-    boolean reverseHorizontal = sharedPrefs.getBoolean(PreferencesActivity.KEY_REVERSE_IMAGE, false);
+//    SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+//    boolean reverseHorizontal = sharedPrefs.getBoolean(PreferencesActivity.KEY_REVERSE_IMAGE, false);
 
     switch (previewFormat) {
       // This is the standard Android format which all devices are REQUIRED to support.

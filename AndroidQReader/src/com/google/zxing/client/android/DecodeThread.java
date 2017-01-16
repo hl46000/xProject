@@ -54,6 +54,7 @@ final class DecodeThread extends Thread {
     hints = new Hashtable<DecodeHintType, Object>(3);
 
     // The prefs can't change while the thread is running, so pick them up once here.
+    /*
     if (decodeFormats == null || decodeFormats.isEmpty()) {
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
       decodeFormats = new Vector<BarcodeFormat>();
@@ -67,11 +68,16 @@ final class DecodeThread extends Thread {
         decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
       }
     }
+    */
+    decodeFormats = DecodeFormatManager.allDecodeFormats();
     hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
 
+    hints.put(DecodeHintType.CHARACTER_SET, "UTF-8" );
+    /*
     if (characterSet != null) {
       hints.put(DecodeHintType.CHARACTER_SET, characterSet);
     }
+    */
 
     hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, resultPointCallback);
   }

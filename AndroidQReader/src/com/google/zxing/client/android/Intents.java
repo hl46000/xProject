@@ -43,7 +43,8 @@ public final class Intents {
      * It is overridden by that setting.
      */
     public static final String MODE = "SCAN_MODE";
-
+    //public static final String MODE = "CODE_39,CODE_93,CODE_128,DATA_MATRIX,ITF,CODABAR,EAN_13,EAN_8,UPC_A,QR_CODE";
+    
     /**
      * Comma-separated list of formats to scan for. The values must match the names of
      * {@link com.google.zxing.BarcodeFormat}s, such as {@link com.google.zxing.BarcodeFormat#EAN_13}.

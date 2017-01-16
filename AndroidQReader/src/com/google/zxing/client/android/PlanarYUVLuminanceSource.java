@@ -16,10 +16,9 @@
 
 package com.google.zxing.client.android;
 
-import com.google.zxing.LuminanceSource;
-
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
+
+import com.google.zxing.LuminanceSource;
 
 /**
  * This object extends LuminanceSource around an array of YUV data returned from the camera driver,
@@ -33,13 +32,13 @@ import android.graphics.Matrix;
  */
 public final class PlanarYUVLuminanceSource extends LuminanceSource {
 
-  private final byte[] yuvData;
-  private final int dataWidth;
-  private final int dataHeight;
+  private byte[] yuvData;
+  private int dataWidth;
+  private int dataHeight;
   private final int left;
   private final int top;
 
-  public PlanarYUVLuminanceSource(byte[] yuvData,
+  public PlanarYUVLuminanceSource(byte[] _yuvData,
                                   int dataWidth,
                                   int dataHeight,
                                   int left,
@@ -53,11 +52,12 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource {
       throw new IllegalArgumentException("Crop rectangle does not fit within image data.");
     }
 
-    this.yuvData = yuvData;
+    this.yuvData = _yuvData;
     this.dataWidth = dataWidth;
     this.dataHeight = dataHeight;
     this.left = left;
     this.top = top;
+    
     if (reverseHorizontal) {
       reverseHorizontal(width, height);
     }
@@ -108,10 +108,50 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource {
     return matrix;
   }
 
-  @Override
-  public boolean isCropSupported() {
-    return true;
-  }
+	private byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight) {
+		byte[] yuv = new byte[imageWidth * imageHeight * 3 / 2];
+	    // Rotate the Y luma
+	    int i = 0;
+	    for (int x = 0; x < imageWidth; x++) {
+	        for (int y = imageHeight - 1; y >= 0; y--) {
+	            yuv[i] = data[y * imageWidth + x];
+	            i++;
+	        }
+	    }
+	    // Rotate the U and V color components
+	    i = imageWidth * imageHeight * 3 / 2 - 1;
+	    for (int x = imageWidth - 1; x > 0; x = x - 2) {
+	        for (int y = 0; y < imageHeight / 2; y++) {
+	            yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth) + x];
+	            i--;
+	            yuv[i] = data[(imageWidth * imageHeight) + (y * imageWidth)
+	                    + (x - 1)];
+	            i--;
+	        }
+	    }
+	    return yuv;
+	}
+
+  
+  	@Override
+  	public LuminanceSource rotateCounterClockwise() {
+  		yuvData = rotateYUV420Degree90( yuvData, dataWidth, dataHeight ); 
+  		int tmp = dataWidth;
+  		dataWidth = dataHeight;
+  		dataHeight = tmp;
+  		
+  		return this;
+  	}
+
+	@Override
+  	public boolean isRotateSupported() {
+  		return true;
+  	}
+
+	@Override
+	public boolean isCropSupported() {
+		return true;
+	}
 
   public int getDataWidth() {
     return dataWidth;
@@ -137,30 +177,33 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource {
       inputOffset += dataWidth;
     }
 
-    Matrix rotateMatrix = new Matrix();
-    rotateMatrix.postRotate(90);
+    //Matrix rotateMatrix = new Matrix();
+    //rotateMatrix.postRotate(90);
     
     Bitmap bitmap = Bitmap.createBitmap( width, height, Bitmap.Config.ARGB_8888);
     bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
-    //return bitmap;
-    
+    return bitmap;
+    /*
     Bitmap sideInversionImg = Bitmap.createBitmap(bitmap, 0, 0,
             bitmap.getWidth(), bitmap.getHeight(), rotateMatrix, false);
 	bitmap = null;
     return sideInversionImg;
+    */
     
   }
 
-  private void reverseHorizontal(int width, int height) {
-    byte[] yuvData = this.yuvData;
-    for (int y = 0, rowStart = top * dataWidth + left; y < height; y++, rowStart += dataWidth) {
-      int middle = rowStart + width / 2;
-      for (int x1 = rowStart, x2 = rowStart + width - 1; x1 < middle; x1++, x2--) {
-        byte temp = yuvData[x1];
-        yuvData[x1] = yuvData[x2];
-        yuvData[x2] = temp;
-      }
-    }
-  }
+	private void reverseHorizontal(int width, int height) {
+		byte[] yuvData = this.yuvData;
+
+		for (int y = 0, rowStart = top * dataWidth + left; y < height; y++, rowStart += dataWidth) {
+			int middle = rowStart + width / 2;
+			
+			for (int x1 = rowStart, x2 = rowStart + width - 1; x1 < middle; x1++, x2--) {
+				byte temp = yuvData[x1];
+				yuvData[x1] = yuvData[x2];
+				yuvData[x2] = temp;
+			}
+		}
+	}
 
 }

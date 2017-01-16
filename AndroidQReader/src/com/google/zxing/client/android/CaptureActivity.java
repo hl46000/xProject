@@ -82,7 +82,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 	protected boolean hasSurface;
 	protected boolean copyToClipboard;
 	protected Source source;
-	protected Vector<BarcodeFormat> decodeFormats;
+	protected Vector<BarcodeFormat> decodeFormats = null;
 	protected String characterSet;
 	protected InactivityTimer inactivityTimer;
 	protected Handler byPassHandler = null;
@@ -129,8 +129,9 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     }
 
     source = Source.NATIVE_APP_INTENT;
-    decodeFormats = DecodeFormatManager.parseDecodeFormats(new Intent());
-    characterSet = null;//intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+    //decodeFormats = DecodeFormatManager.parseDecodeFormats(new Intent());
+    //decodeFormats = DecodeFormatManager.allDecodeFormats();
+    characterSet = "UTF-8";//intent.getStringExtra(Intents.Scan.CHARACTER_SET);
     /*
     Intent intent = getIntent();
     String action = intent == null ? null : intent.getAction();

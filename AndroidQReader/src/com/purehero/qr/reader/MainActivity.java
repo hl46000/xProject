@@ -22,7 +22,7 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.main_activity);
 		
 	    viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 	    resultView = findViewById(R.id.result_view);
@@ -38,6 +38,17 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 		
 		this.byPassHandler = result_handler;
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if( requestCode == 100 ) {
+			resetStatusView();
+		}
+	}
+
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -63,19 +74,24 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 	 */
 	private Handler result_handler = new Handler() {
 		public void handleMessage(Message message) {
-		    switch (message.what) {
+			Intent intent = new Intent( MainActivity.this, ResultActivity.class );
+			
+			switch (message.what) {
 		    case R.id.return_scan_result:
 		    	Intent data = (Intent) message.obj;
-		    	String contents = data.getStringExtra("SCAN_RESULT");
-	            Toast.makeText( MainActivity.this,contents,Toast.LENGTH_LONG).show();
+		    	intent.putExtra( "title", "TEXT" );
+		    	intent.putExtra( "content", data.getStringExtra("SCAN_RESULT"));
+		    	intent.putExtra( "format", data.getStringExtra( "SCAN_RESULT_FORMAT") );
 		    	break;
 		    case R.id.launch_product_query:
-		    	String url = (String) message.obj;
-		    	Toast.makeText( MainActivity.this, url,Toast.LENGTH_LONG).show();
+		    	intent.putExtra( "title", "URI" );
+		    	intent.putExtra( "content", (String) message.obj );		    	
 		    	break;
 		    }
+			
+			
+			MainActivity.this.startActivityForResult( intent, 100 );
 		    
-		    resetStatusView();
 		}
 	};
 	

@@ -18,6 +18,8 @@ package com.google.zxing.client.android;
 
 import java.util.Hashtable;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,6 +29,7 @@ import android.util.Log;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
@@ -59,6 +62,12 @@ final class DecodeHandler extends Handler {
     }
   }
 
+  public static Bitmap RotateBitmap(Bitmap source, float angle){
+	    Matrix matrix = new Matrix();
+	    matrix.postRotate(angle);
+	    return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+	}
+  
   /**
    * Decode the data within the viewfinder rectangle, and time how long it took. For efficiency,
    * reuse the same reader objects from one decode to the next.
@@ -67,32 +76,39 @@ final class DecodeHandler extends Handler {
    * @param width  The width of the preview frame.
    * @param height The height of the preview frame.
    */
-  private void decode(byte[] data, int width, int height) {
-    long start = System.currentTimeMillis();
-    Result rawResult = null;
-    PlanarYUVLuminanceSource source = CameraManager.get().buildLuminanceSource(data, width, height);
-    BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-    try {
-      rawResult = multiFormatReader.decodeWithState(bitmap);
-    } catch (ReaderException re) {
-      // continue
-    } finally {
-      multiFormatReader.reset();
-    }
-
-    if (rawResult != null) {
-      long end = System.currentTimeMillis();
-      Log.d(TAG, "Found barcode (" + (end - start) + " ms):\n" + rawResult.toString());
-      Message message = Message.obtain(activity.getHandler(), R.id.decode_succeeded, rawResult);
-      Bundle bundle = new Bundle();
-      bundle.putParcelable(DecodeThread.BARCODE_BITMAP, source.renderCroppedGreyscaleBitmap());
-      message.setData(bundle);
-      //Log.d(TAG, "Sending decode succeeded message...");
-      message.sendToTarget();
-    } else {
-      Message message = Message.obtain(activity.getHandler(), R.id.decode_failed);
-      message.sendToTarget();
-    }
-  }
-
+	private void decode(byte[] data, int width, int height) {
+	    long start = System.currentTimeMillis();
+	    Result rawResult = null;
+	    PlanarYUVLuminanceSource source = CameraManager.get().buildLuminanceSource(data, width, height, false );
+	    BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+	    
+	    try {
+			rawResult = multiFormatReader.decodeWithState(bitmap);
+	    } catch (ReaderException re) {
+	    	if ( bitmap.isRotateSupported()) {
+	    		Log.d( "QReader", "bitmap.isRotateSupported()" );
+	    		try {
+					rawResult = multiFormatReader.decodeWithState(bitmap.rotateCounterClockwise());
+				} catch (NotFoundException e) {
+				}
+	    	}
+	    } finally {
+	    	multiFormatReader.reset();
+	    }
+	
+		if (rawResult != null) {
+			long end = System.currentTimeMillis();
+			Log.d(TAG, "Found barcode (" + (end - start) + " ms):\n" + rawResult.toString());
+	      
+			Message message = Message.obtain(activity.getHandler(), R.id.decode_succeeded, rawResult);
+			Bundle bundle = new Bundle();
+			bundle.putParcelable(DecodeThread.BARCODE_BITMAP, source.renderCroppedGreyscaleBitmap());
+			message.setData(bundle);
+			//Log.d(TAG, "Sending decode succeeded message...");
+			message.sendToTarget();
+	    } else {
+	    	Message message = Message.obtain(activity.getHandler(), R.id.decode_failed);
+	    	message.sendToTarget();
+	    }
+  	}
 }

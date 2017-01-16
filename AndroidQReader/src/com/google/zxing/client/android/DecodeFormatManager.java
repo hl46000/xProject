@@ -54,6 +54,15 @@ final class DecodeFormatManager {
 
   private DecodeFormatManager() {}
 
+  static Vector<BarcodeFormat> allDecodeFormats() {
+	  Vector<BarcodeFormat> formats = new Vector<BarcodeFormat>();
+	  formats.addAll(PRODUCT_FORMATS);
+	  formats.addAll(ONE_D_FORMATS);
+	  formats.addAll(QR_CODE_FORMATS);
+	  formats.addAll(DATA_MATRIX_FORMATS);
+	  return formats;
+  }
+  
   static Vector<BarcodeFormat> parseDecodeFormats(Intent intent) {
     List<String> scanFormats = null;
     String scanFormatsString = intent.getStringExtra(Intents.Scan.SCAN_FORMATS);
