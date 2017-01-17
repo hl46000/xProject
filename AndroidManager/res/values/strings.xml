@@ -2,7 +2,10 @@
 <resources>
 
     <string name="app_name">APK Manager</string>
-    
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
+	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
+	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
+	
     <string name="apk_list_item_icon_description">icon</string>
     <string name="splash_image_description">Loading</string>
     
@@ -24,9 +27,7 @@
 	<string name="delete_all_items">Delete All Items</string>
 	<string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
 			
-	<string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
-	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
-	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
+	
 	
 	<string name="file_list_sub_title_folder_format">%d item</string>
 	<string name="AM">AM</string>

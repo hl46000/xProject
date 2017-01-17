@@ -37520,10 +37520,16 @@ com.purehero.root.checker.DeviceInfoFragment -> com.purehero.root.checker.Device
 com.purehero.root.checker.DeviceInfoListAdapter -> com.purehero.root.checker.DeviceInfoListAdapter:
     android.content.Context context -> a
     java.util.List listDatas -> b
+    java.util.Comparator ALPHA_COMPARATOR -> c
     int getCount() -> getCount
     java.lang.Object getItem(int) -> getItem
     long getItemId(int) -> getItemId
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
+com.purehero.root.checker.DeviceInfoListAdapter$1 -> com.purehero.root.checker.DeviceInfoListAdapter$1:
+    java.text.Collator collator -> b
+    com.purehero.root.checker.DeviceInfoListAdapter this$0 -> a
+    int compare(com.purehero.root.checker.DeviceInfoListData,com.purehero.root.checker.DeviceInfoListData) -> a
+    int compare(java.lang.Object,java.lang.Object) -> compare
 com.purehero.root.checker.DeviceInfoListAdapter$ViewHolder -> com.purehero.root.checker.DeviceInfoListAdapter$ViewHolder:
     android.widget.TextView name -> a
     android.widget.TextView value -> b
