@@ -28249,6 +28249,7 @@ com.purehero.root.checker.CheckRootFragment$1$1
 com.purehero.root.checker.CheckRootFragment$1$2
 com.purehero.root.checker.DeviceInfoFragment
 com.purehero.root.checker.DeviceInfoListAdapter
+com.purehero.root.checker.DeviceInfoListAdapter$1
 com.purehero.root.checker.DeviceInfoListAdapter$ViewHolder
 com.purehero.root.checker.DeviceInfoListData
 com.purehero.root.checker.MainActivity
