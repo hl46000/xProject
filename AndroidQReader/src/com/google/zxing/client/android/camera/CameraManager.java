@@ -137,10 +137,12 @@ public final class CameraManager {
       }
       configManager.setDesiredCameraParameters(camera);
 
+      /*
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
       if (prefs.getBoolean(PreferencesActivity.KEY_FRONT_LIGHT, false)) {
     	  FlashlightManager.enableFlashlight();
       }
+      */
   }
 
   /**

@@ -86,7 +86,6 @@ final class DecodeHandler extends Handler {
 			rawResult = multiFormatReader.decodeWithState(bitmap);
 	    } catch (ReaderException re) {
 	    	if ( bitmap.isRotateSupported()) {
-	    		Log.d( "QReader", "bitmap.isRotateSupported()" );
 	    		try {
 					rawResult = multiFormatReader.decodeWithState(bitmap.rotateCounterClockwise());
 				} catch (NotFoundException e) {

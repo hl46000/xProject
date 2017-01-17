@@ -19,6 +19,7 @@
 
         <TextView
             android:id="@+id/textTitle"
+            style="@style/myTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -46,25 +47,64 @@
             android:layout_margin="10dp" >
 
             <Button
-                android:id="@+id/btnCopy"
+                android:id="@+id/btn1"
+                style="@style/myBtnStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/copy_clipboard" />
-
+                android:layout_margin="3dp"
+                android:visibility="gone" />
+			<Button
+                android:id="@+id/btn2"
+                style="@style/myBtnStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="3dp"
+                android:visibility="gone" />
             <Button
-                android:id="@+id/btnOpenLink"
+                android:id="@+id/btn3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/open_link" />
+                android:layout_margin="3dp"
+                style="@style/myBtnStyle"
+                android:visibility="gone" />
+			<Button
+                android:id="@+id/btn4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="3dp"
+                style="@style/myBtnStyle"
+                android:visibility="gone" />
+			<Button
+                android:id="@+id/btn5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="3dp"
+                style="@style/myBtnStyle"
+                android:text="@string/close"
+                android:visibility="gone" />
+			<Button
+                android:id="@+id/btn6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_margin="3dp"
+                style="@style/myBtnStyle"
+                android:text="@string/close"
+                android:visibility="gone" />
 
-            <Button
-                android:id="@+id/btnClose"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/close" />
+			<Button
+			    android:id="@+id/btnClose"
+			    style="@style/myBtnStyle"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:layout_margin="3dp"
+			    android:layout_weight="1"
+			    android:text="@string/close" />
 
         </LinearLayout>
 

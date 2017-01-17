@@ -45,6 +45,8 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.result.ResultHandler;
+import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.purehero.qr.reader.R;
 
 /**
@@ -79,6 +81,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 	protected TextView statusView;
 	protected View resultView;
 	protected Result lastResult;
+	protected ResultHandler resultHandler ;
 	protected boolean hasSurface;
 	protected boolean copyToClipboard;
 	protected Source source;
@@ -93,6 +96,10 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 
 	public Handler getHandler() {
 		return handler;
+	}
+	
+	public ResultHandler getResultHandler() {
+		return resultHandler;
 	}
 
 	@Override
@@ -223,13 +230,15 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 	  
 		inactivityTimer.onActivity();
 		lastResult = rawResult;
+		resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
+		
 		if (barcode == null) {
 			// This is from history -- no saved barcode
-			handleDecodeInternally(rawResult, null);
+			handleDecodeInternally(rawResult, resultHandler, null);
 			
 		} else {
 			//drawResultPoints(barcode, rawResult);
-			handleDecodeExternally(rawResult, barcode);
+			handleDecodeExternally(rawResult, resultHandler, barcode);
 			/*
 			switch (source) {
 			case NATIVE_APP_INTENT:
@@ -248,6 +257,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
    *
    * @param barcode   A bitmap of the captured image.
    * @param rawResult The decoded results which contains the points to draw.
+ * @param resultHandler 
    */
   /*private void drawResultPoints(Bitmap barcode, Result rawResult) {
     ResultPoint[] points = rawResult.getResultPoints();
@@ -284,7 +294,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   }*/
 
   // Put up our own UI for how to handle the decoded contents.
-  private void handleDecodeInternally(Result rawResult, Bitmap barcode) {
+  private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
     statusView.setVisibility(View.GONE);
     viewfinderView.setVisibility(View.GONE);
     resultView.setVisibility(View.VISIBLE);
@@ -299,7 +309,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   }
 
   // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
-  private void handleDecodeExternally(Result rawResult, Bitmap barcode) {
+  private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
     //viewfinderView.drawResultBitmap(barcode);
 
     // Since this message will only be shown for a second, just tell the user what kind of
@@ -321,6 +331,8 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
       // the deprecated intent is retired.
       Intent intent = new Intent(getIntent().getAction());
       //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+      intent.putExtra("TITLE", CaptureActivity.this.getString( resultHandler.getDisplayTitle()));
+      intent.putExtra("CONTENTS", resultHandler.getDisplayContents());
       intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
       intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
       byte[] rawBytes = rawResult.getRawBytes();
@@ -365,6 +377,13 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   		builder.show();
   	}
 
+  	public void restartPreviewAfterDelay(long delayMS) {
+  	    if (handler != null) {
+  	      handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
+  	    }
+  	    resetStatusView();
+  	  }
+  	
 	protected void resetStatusView() {
   		resultView.setVisibility(View.GONE);
   		statusView.setText("사각형 영역을 바코드에 맞추면 자동으로 인식합니다");

@@ -16,13 +16,9 @@
 
 package com.google.zxing.client.android.result;
 
-import java.text.DateFormat;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,13 +27,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.zxing.Result;
+import com.google.zxing.client.android.Contents;
 import com.google.zxing.client.android.LocaleManager;
 import com.google.zxing.client.android.PreferencesActivity;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ParsedResultType;
+import com.google.zxing.client.result.ResultParser;
+import com.purehero.qr.reader.R;
 
 /**
  * A base class for the Android-specific barcode handlers. These allow the app to polymorphically
@@ -48,19 +48,33 @@ import com.google.zxing.client.result.ParsedResultType;
  * instance is needed to launch an intent.
  *
  * @author dswitkin@google.com (Daniel Switkin)
+ * @author Sean Owen
  */
 public abstract class ResultHandler {
 
   private static final String TAG = ResultHandler.class.getSimpleName();
 
-  private static final DateFormat DATE_FORMAT;
-  static {
-    DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
-    // For dates without a time, for purposes of interacting with Android, the resulting timestamp needs to
-    // be midnight of that day in GMT (http://code.google.com/p/android/issues/detail?id=8330)
-    DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-  }
-  private static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+  private static final String[] EMAIL_TYPE_STRINGS = {"home", "work", "mobile"};
+  private static final String[] PHONE_TYPE_STRINGS = {"home", "work", "mobile", "fax", "pager", "main"};
+  private static final String[] ADDRESS_TYPE_STRINGS = {"home", "work"};
+  private static final int[] EMAIL_TYPE_VALUES = {
+      ContactsContract.CommonDataKinds.Email.TYPE_HOME,
+      ContactsContract.CommonDataKinds.Email.TYPE_WORK,
+      ContactsContract.CommonDataKinds.Email.TYPE_MOBILE,
+  };
+  private static final int[] PHONE_TYPE_VALUES = {
+      ContactsContract.CommonDataKinds.Phone.TYPE_HOME,
+      ContactsContract.CommonDataKinds.Phone.TYPE_WORK,
+      ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+      ContactsContract.CommonDataKinds.Phone.TYPE_FAX_WORK,
+      ContactsContract.CommonDataKinds.Phone.TYPE_PAGER,
+      ContactsContract.CommonDataKinds.Phone.TYPE_MAIN,
+  };
+  private static final int[] ADDRESS_TYPE_VALUES = {
+      ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME,
+      ContactsContract.CommonDataKinds.StructuredPostal.TYPE_WORK,
+  };
+  private static final int NO_TYPE = -1;
 
   public static final int MAX_BUTTON_COUNT = 4;
 
@@ -80,12 +94,16 @@ public abstract class ResultHandler {
     this.customProductSearch = parseCustomSearchURL();
   }
 
-  public ParsedResult getResult() {
+  public final ParsedResult getResult() {
     return result;
   }
 
-  boolean hasCustomProductSearch() {
+  final boolean hasCustomProductSearch() {
     return customProductSearch != null;
+  }
+
+  final Activity getActivity() {
+    return activity;
   }
 
   /**
@@ -103,6 +121,9 @@ public abstract class ResultHandler {
    */
   public abstract int getButtonText(int index);
 
+  public Integer getDefaultButtonID() {
+    return null;
+  }
 
   /**
    * Execute the action which corresponds to the nth button.
@@ -110,6 +131,16 @@ public abstract class ResultHandler {
    * @param index The button that was clicked.
    */
   public abstract void handleButtonPress(int index);
+
+  /**
+   * Some barcode contents are considered secure, and should not be saved to history, copied to
+   * the clipboard, or otherwise persisted.
+   *
+   * @return If true, do not create any permanent record of these contents.
+   */
+  public boolean areContentsSecure() {
+    return false;
+  }
 
   /**
    * Create a possibly styled string for the contents of the current barcode.
@@ -137,99 +168,234 @@ public abstract class ResultHandler {
     return result.getType();
   }
 
-  /**
-   * Sends an intent to create a new calendar event by prepopulating the Add Event UI. Older
-   * versions of the system have a bug where the event title will not be filled out.
-   *
-   * @param summary A description of the event
-   * @param start   The start time as yyyyMMdd or yyyyMMdd'T'HHmmss or yyyyMMdd'T'HHmmss'Z'
-   * @param end     The end time as yyyyMMdd or yyyyMMdd'T'HHmmss or yyyyMMdd'T'HHmmss'Z'
-   * @param location a text description of the event location
-   * @param description a text description of the event itself
-   */
-  final void addCalendarEvent(String summary,
-                              String start,
-                              String end,
-                              String location,
-                              String description) {
-    Intent intent = new Intent(Intent.ACTION_EDIT);
-    intent.setType("vnd.android.cursor.item/event");
-    intent.putExtra("beginTime", calculateMilliseconds(start));
-    boolean allDay = start.length() == 8;
-    if (allDay) {
-      intent.putExtra("allDay", true);
-    } else {
-      if (end == null) {
-        end = start;
+  final void addPhoneOnlyContact(String[] phoneNumbers,String[] phoneTypes) {
+    addContact(null, null, null, phoneNumbers, phoneTypes, null, null, null, null, null, null, null, null, null, null, null);
+  }
+
+  final void addEmailOnlyContact(String[] emails, String[] emailTypes) {
+    addContact(null, null, null, null, null, emails, emailTypes, null, null, null, null, null, null, null, null, null);
+  }
+
+  final void addContact(String[] names,
+                        String[] nicknames,
+                        String pronunciation,
+                        String[] phoneNumbers,
+                        String[] phoneTypes,
+                        String[] emails,
+                        String[] emailTypes,
+                        String note,
+                        String instantMessenger,
+                        String address,
+                        String addressType,
+                        String org,
+                        String title,
+                        String[] urls,
+                        String birthday,
+                        String[] geo) {
+
+    // Only use the first name in the array, if present.
+    Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT, ContactsContract.Contacts.CONTENT_URI);
+    intent.setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE);
+    putExtra(intent, ContactsContract.Intents.Insert.NAME, names != null ? names[0] : null);
+
+    putExtra(intent, ContactsContract.Intents.Insert.PHONETIC_NAME, pronunciation);
+
+    int phoneCount = Math.min(phoneNumbers != null ? phoneNumbers.length : 0, Contents.PHONE_KEYS.length);
+    for (int x = 0; x < phoneCount; x++) {
+      putExtra(intent, Contents.PHONE_KEYS[x], phoneNumbers[x]);
+      if (phoneTypes != null && x < phoneTypes.length) {
+        int type = toPhoneContractType(phoneTypes[x]);
+        if (type >= 0) {
+          intent.putExtra(Contents.PHONE_TYPE_KEYS[x], type);
+        }
       }
-      long endMilliseconds = calculateMilliseconds(end);
-      intent.putExtra("endTime", endMilliseconds);
     }
-    intent.putExtra("title", summary);
-    intent.putExtra("eventLocation", location);
-    intent.putExtra("description", description);
+
+    int emailCount = Math.min(emails != null ? emails.length : 0, Contents.EMAIL_KEYS.length);
+    for (int x = 0; x < emailCount; x++) {
+      putExtra(intent, Contents.EMAIL_KEYS[x], emails[x]);
+      if (emailTypes != null && x < emailTypes.length) {
+        int type = toEmailContractType(emailTypes[x]);
+        if (type >= 0) {
+          intent.putExtra(Contents.EMAIL_TYPE_KEYS[x], type);
+        }
+      }
+    }
+
+    // No field for URL, birthday; use notes
+    StringBuilder aggregatedNotes = new StringBuilder();
+    if (urls != null) {
+      for (String url : urls) {
+        if (url != null && !url.isEmpty()) {
+          aggregatedNotes.append('\n').append(url);
+        }
+      }
+    }
+    for (String aNote : new String[] { birthday, note }) {
+      if (aNote != null) {
+        aggregatedNotes.append('\n').append(aNote);
+      }
+    }
+    if (nicknames != null) {
+      for (String nickname : nicknames) {
+        if (nickname != null && !nickname.isEmpty()) {
+          aggregatedNotes.append('\n').append(nickname);
+        }
+      }
+    }
+    if (geo != null) {
+      aggregatedNotes.append('\n').append(geo[0]).append(',').append(geo[1]);
+    }
+
+    if (aggregatedNotes.length() > 0) {
+      // Remove extra leading '\n'
+      putExtra(intent, ContactsContract.Intents.Insert.NOTES, aggregatedNotes.substring(1));
+    }
+    
+    putExtra(intent, ContactsContract.Intents.Insert.IM_HANDLE, instantMessenger);
+    putExtra(intent, ContactsContract.Intents.Insert.POSTAL, address);
+    if (addressType != null) {
+      int type = toAddressContractType(addressType);
+      if (type >= 0) {
+        intent.putExtra(ContactsContract.Intents.Insert.POSTAL_TYPE, type);
+      }
+    }
+    putExtra(intent, ContactsContract.Intents.Insert.COMPANY, org);
+    putExtra(intent, ContactsContract.Intents.Insert.JOB_TITLE, title);
     launchIntent(intent);
   }
 
-  private static long calculateMilliseconds(String when) {
-    if (when.length() == 8) {
-      // Only contains year/month/day
-      Date date;
-      synchronized (DATE_FORMAT) {
-        date = DATE_FORMAT.parse(when, new ParsePosition(0));
-      }
-      // Note this will be relative to GMT, not the local time zone
-      return date.getTime();
-    } else {
-      // The when string can be local time, or UTC if it ends with a Z
-      Date date;
-      synchronized (DATE_TIME_FORMAT) {
-       date = DATE_TIME_FORMAT.parse(when.substring(0, 15), new ParsePosition(0));
-      }
-      long milliseconds = date.getTime();
-      if (when.length() == 16 && when.charAt(15) == 'Z') {
-        Calendar calendar = new GregorianCalendar();
-        int offset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
-        milliseconds += offset;
-      }
-      return milliseconds;
+  private static int toEmailContractType(String typeString) {
+    return doToContractType(typeString, EMAIL_TYPE_STRINGS, EMAIL_TYPE_VALUES);
+  }
+
+  private static int toPhoneContractType(String typeString) {
+    return doToContractType(typeString, PHONE_TYPE_STRINGS, PHONE_TYPE_VALUES);
+  }
+
+  private static int toAddressContractType(String typeString) {
+    return doToContractType(typeString, ADDRESS_TYPE_STRINGS, ADDRESS_TYPE_VALUES);
+  }
+
+  private static int doToContractType(String typeString, String[] types, int[] values) {
+    if (typeString == null) {
+      return NO_TYPE;
     }
+    for (int i = 0; i < types.length; i++) {
+      String type = types[i];
+      if (typeString.startsWith(type) || typeString.startsWith(type.toUpperCase(Locale.ENGLISH))) {
+        return values[i];
+      }
+    }
+    return NO_TYPE;
+  }
+
+  final void shareByEmail(String contents) {
+    sendEmailFromUri("mailto:", null, null, contents);
+  }
+
+  final void sendEmail(String address, String subject, String body) {
+    sendEmailFromUri("mailto:" + address, address, subject, body);
+  }
+
+  // Use public Intent fields rather than private GMail app fields to specify subject and body.
+  final void sendEmailFromUri(String uri, String email, String subject, String body) {
+    Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(uri));
+    if (email != null) {
+      intent.putExtra(Intent.EXTRA_EMAIL, new String[] {email});
+    }
+    putExtra(intent, Intent.EXTRA_SUBJECT, subject);
+    putExtra(intent, Intent.EXTRA_TEXT, body);
+    intent.setType("text/plain");
+    launchIntent(intent);
+  }
+
+  final void shareBySMS(String contents) {
+    sendSMSFromUri("smsto:", contents);
+  }
+
+  final void sendSMS(String phoneNumber, String body) {
+    sendSMSFromUri("smsto:" + phoneNumber, body);
+  }
+
+  final void sendSMSFromUri(String uri, String body) {
+    Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(uri));
+    putExtra(intent, "sms_body", body);
+    // Exit the app once the SMS is sent
+    intent.putExtra("compose_mode", true);
+    launchIntent(intent);
+  }
+
+  final void sendMMS(String phoneNumber, String subject, String body) {
+    sendMMSFromUri("mmsto:" + phoneNumber, subject, body);
+  }
+
+  final void sendMMSFromUri(String uri, String subject, String body) {
+    Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(uri));
+    // The Messaging app needs to see a valid subject or else it will treat this an an SMS.
+    if (subject == null || subject.isEmpty()) {
+      putExtra(intent, "subject", activity.getString(R.string.msg_default_mms_subject));
+    } else {
+      putExtra(intent, "subject", subject);
+    }
+    putExtra(intent, "sms_body", body);
+    intent.putExtra("compose_mode", true);
+    launchIntent(intent);
+  }
+
+  final void dialPhone(String phoneNumber) {
+    launchIntent(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phoneNumber)));
+  }
+
+  final void dialPhoneFromUri(String uri) {
+    launchIntent(new Intent(Intent.ACTION_DIAL, Uri.parse(uri)));
+  }
+
+  final void openMap(String geoURI) {
+    launchIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(geoURI)));
   }
 
   /**
    * Do a geo search using the address as the query.
    *
    * @param address The address to find
-   * @param title An optional title, e.g. the name of the business at this address
    */
-  final void searchMap(String address, String title) {
-    String query = address;
-    if (title != null && title.length() > 0) {
-      query = query + " (" + title + ')';
-    }
-    launchIntent(new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + Uri.encode(query))));
+  final void searchMap(String address) {
+    launchIntent(new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + Uri.encode(address))));
   }
 
   final void getDirections(double latitude, double longitude) {
     launchIntent(new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google." +
-        LocaleManager.getCountryTLD() + "/maps?f=d&daddr=" + latitude + ',' + longitude)));
+        LocaleManager.getCountryTLD(activity) + "/maps?f=d&daddr=" + latitude + ',' + longitude)));
   }
 
   // Uses the mobile-specific version of Product Search, which is formatted for small screens.
   final void openProductSearch(String upc) {
-    Uri uri = Uri.parse("http://www.google." + LocaleManager.getProductSearchCountryTLD() +
+    Uri uri = Uri.parse("http://www.google." + LocaleManager.getProductSearchCountryTLD(activity) +
         "/m/products?q=" + upc + "&source=zxing");
     launchIntent(new Intent(Intent.ACTION_VIEW, uri));
   }
 
   final void openBookSearch(String isbn) {
-    Uri uri = Uri.parse("http://books.google." + LocaleManager.getBookSearchCountryTLD() +
+    Uri uri = Uri.parse("http://books.google." + LocaleManager.getBookSearchCountryTLD(activity) +
         "/books?vid=isbn" + isbn);
     launchIntent(new Intent(Intent.ACTION_VIEW, uri));
   }
 
   final void openURL(String url) {
-    launchIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+    // Strangely, some Android browsers don't seem to register to handle HTTP:// or HTTPS://.
+    // Lower-case these as it should always be OK to lower-case these schemes.
+    if (url.startsWith("HTTP://")) {
+      url = "http" + url.substring(4);
+    } else if (url.startsWith("HTTPS://")) {
+      url = "https" + url.substring(5);
+    }
+    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+    try {
+      launchIntent(intent);
+    } catch (ActivityNotFoundException ignored) {
+      Log.w(TAG, "Nothing available to handle " + intent);
+    }
   }
 
   final void webSearch(String query) {
@@ -238,57 +404,72 @@ public abstract class ResultHandler {
     launchIntent(intent);
   }
 
-  void launchIntent(Intent intent) {
+  /**
+   * Like {@link #launchIntent(Intent)} but will tell you if it is not handle-able
+   * via {@link ActivityNotFoundException}.
+   *
+   * @throws ActivityNotFoundException
+   */
+  final void rawLaunchIntent(Intent intent) {
     if (intent != null) {
       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
       Log.d(TAG, "Launching intent: " + intent + " with extras: " + intent.getExtras());
-      try {
-        activity.startActivity(intent);
-      } catch (ActivityNotFoundException e) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage("바코드 인식을 실패하였습니다");
-        builder.setPositiveButton("확인", null);
-        builder.show();
-      }
+      activity.startActivity(intent);
     }
   }
 
-  @SuppressWarnings("unused")
-private static void putExtra(Intent intent, String key, String value) {
-    if (value != null && value.length() > 0) {
-      intent.putExtra(key, value);
-    }
-  }
-
-  protected void showNotOurResults(int index, AlertDialog.OnClickListener proceedListener) {
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-    if (prefs.getBoolean(PreferencesActivity.KEY_NOT_OUR_RESULTS_SHOWN, false)) {
-      // already seen it, just proceed
-      proceedListener.onClick(null, index);
-    } else {
-      // note the user has seen it
-      prefs.edit().putBoolean(PreferencesActivity.KEY_NOT_OUR_RESULTS_SHOWN, true).commit();
+  /**
+   * Like {@link #rawLaunchIntent(Intent)} but will show a user dialog if nothing is available to handle.
+   */
+  final void launchIntent(Intent intent) {
+    try {
+      rawLaunchIntent(intent);
+    } catch (ActivityNotFoundException ignored) {
       AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-      builder.setMessage("바코드 인식을 실패하였습니다");
-      builder.setPositiveButton("확인", proceedListener);
+      builder.setTitle(R.string.app_name);
+      builder.setMessage(R.string.msg_intent_failed);
+      builder.setPositiveButton(R.string.button_ok, null);
       builder.show();
+    }
+  }
+
+  private static void putExtra(Intent intent, String key, String value) {
+    if (value != null && !value.isEmpty()) {
+      intent.putExtra(key, value);
     }
   }
 
   private String parseCustomSearchURL() {
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-    String customProductSearch = prefs.getString(PreferencesActivity.KEY_CUSTOM_PRODUCT_SEARCH, null);
-    if (customProductSearch != null && customProductSearch.trim().length() == 0) {
+    String customProductSearch = prefs.getString(PreferencesActivity.KEY_CUSTOM_PRODUCT_SEARCH,
+        null);
+    if (customProductSearch != null && customProductSearch.trim().isEmpty()) {
       return null;
     }
     return customProductSearch;
   }
 
-  String fillInCustomSearchURL(String text) {
-    String url = customProductSearch.replace("%s", text);
-    if (rawResult != null) {
-      url = url.replace("%f", rawResult.getBarcodeFormat().toString());
+  final String fillInCustomSearchURL(String text) {
+    if (customProductSearch == null) {
+      return text; // ?
     }
+    try {
+      text = URLEncoder.encode(text, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      // can't happen; UTF-8 is always supported. Continue, I guess, without encoding      
+    }
+    String url = text;
+    if (rawResult != null) {
+      // Replace %f but only if it doesn't seem to be a hex escape sequence. This remains
+      // problematic but avoids the more surprising problem of breaking escapes
+      url = url.replace("%f(?![0-9a-f])", rawResult.getBarcodeFormat().toString());
+      if (url.contains("%t")) {
+        ParsedResult parsedResultAgain = ResultParser.parseResult(rawResult);
+        url = url.replace("%t", parsedResultAgain.getType().toString());
+      }
+    }
+    // Replace %s last as it might contain itself %f or %t
+    url = customProductSearch.replace("%s", url);
     return url;
   }
 

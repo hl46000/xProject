@@ -16,6 +16,7 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.zxing.client.android.ViewfinderView;
 
 public class MainActivity extends com.google.zxing.client.android.CaptureActivity {
+    public static MainActivity instance = null;
     
 	private InterstitialAd interstitialAd	= null;	// Àü¸é ±¤°í
 	
@@ -37,6 +38,8 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 		}
 		
 		this.byPassHandler = result_handler;
+		
+		instance = this;
 	}
 
 	@Override
@@ -79,8 +82,9 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 			switch (message.what) {
 		    case R.id.return_scan_result:
 		    	Intent data = (Intent) message.obj;
-		    	intent.putExtra( "title", "TEXT" );
-		    	intent.putExtra( "content", data.getStringExtra("SCAN_RESULT"));
+		    	intent.putExtra( "title", data.getStringExtra("TITLE") );
+		    	//intent.putExtra( "content", data.getStringExtra("SCAN_RESULT"));
+		    	intent.putExtra( "content", data.getStringExtra("CONTENTS"));
 		    	intent.putExtra( "format", data.getStringExtra( "SCAN_RESULT_FORMAT") );
 		    	break;
 		    case R.id.launch_product_query:

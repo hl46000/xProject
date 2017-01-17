@@ -1,29 +1,40 @@
 package com.purehero.qr.reader;
 
-import java.util.Set;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class ResultActivity extends Activity implements OnClickListener {
+import com.google.zxing.client.android.result.ResultHandler;
 
+public class ResultActivity extends Activity implements OnClickListener {
+	
+	private ResultHandler resultHandler = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.result_activity);
-
-		int IDs[] = { R.id.btnCopy, R.id.btnOpenLink, R.id.btnClose };
-		for( int id : IDs ) {
-			Button btn = ( Button ) findViewById( id );
+		
+		final int IDs[] = { R.id.btn1,R.id.btn2,R.id.btn3,R.id.btn4,R.id.btn5,R.id.btn6 };
+		
+		resultHandler = MainActivity.instance.getResultHandler();
+		int btnCount = resultHandler.getButtonCount();
+		for( int i = 0; i < btnCount; i++ ) {
+			Button btn = ( Button ) findViewById( IDs[i] );
 			if( btn != null ) {
+				btn.setVisibility( View.VISIBLE );
+				btn.setText( getString( resultHandler.getButtonText(i)) );
 				btn.setOnClickListener( this );
 			}
+		}
+		
+		Button btn = ( Button ) findViewById( R.id.btnClose );
+		if( btn != null ) {
+			btn.setOnClickListener( this );
 		}
 		
 		Intent intent = getIntent();
@@ -39,28 +50,19 @@ public class ResultActivity extends Activity implements OnClickListener {
 		if( tvContent != null ) {
 			tvContent.setText( intent.getStringExtra("content") );
 		}
-		
-		String format = intent.getStringExtra( "format" );
-		if( format != null ) {
-			Log.d( "QReader" , "format : " + format );
-		}
-		Set<String> keys = intent.getExtras().keySet();
-		for( String key : keys ) {
-			Log.d( "QReader" , "key : " + key );
-		}
 	}
 
 	@Override
 	public void onClick(View arg0) {
 		switch( arg0.getId()) {
-		case R.id.btnCopy :
-		case R.id.btnOpenLink :
-		case R.id.btnClose :
-			this.setResult( 200 );
-			this.finish();
-			break;
+		case R.id.btn1 : resultHandler.handleButtonPress( 0 ); finish(); break;
+		case R.id.btn2 : resultHandler.handleButtonPress( 1 ); finish(); break;
+		case R.id.btn3 : resultHandler.handleButtonPress( 2 ); finish(); break;
+		case R.id.btn4 : resultHandler.handleButtonPress( 3 ); finish(); break;
+		case R.id.btn5 : resultHandler.handleButtonPress( 4 ); finish(); break;
+		case R.id.btn6 : resultHandler.handleButtonPress( 5 ); finish(); break;
+		case R.id.btnClose : this.finish(); break;
 		}
-		
 	}
 
 }
