@@ -331,7 +331,8 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
       // the deprecated intent is retired.
       Intent intent = new Intent(getIntent().getAction());
       //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-      intent.putExtra("TITLE", CaptureActivity.this.getString( resultHandler.getDisplayTitle()));
+      int title_resid = resultHandler.getDisplayTitle();
+      intent.putExtra("TITLE", CaptureActivity.this.getString( title_resid == 0 ? R.string.contents_text : title_resid ));
       intent.putExtra("CONTENTS", resultHandler.getDisplayContents());
       intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
       intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());

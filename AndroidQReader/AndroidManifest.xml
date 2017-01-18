@@ -38,9 +38,8 @@
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
         </activity>
-        <activity 
-            android:name=".ResultActivity" 
-            android:theme="@android:style/Theme.Translucent" />
+        <activity android:name="com.google.zxing.client.android.PreferencesActivity"  />        
+        <activity android:name="com.purehero.qr.reader.ResultActivity" android:theme="@android:style/Theme.Translucent" />
         <activity 
             android:name="com.google.android.gms.ads.AdActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
