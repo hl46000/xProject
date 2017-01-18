@@ -183,6 +183,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     super.onDestroy();
   }
 
+  /*
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
     if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -203,6 +204,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     }
     return super.onKeyDown(keyCode, event);
   }
+  */
 
   public void surfaceCreated(SurfaceHolder holder) {
     if (!hasSurface) {

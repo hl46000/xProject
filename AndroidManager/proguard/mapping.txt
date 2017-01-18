@@ -37749,10 +37749,11 @@ com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     java.util.List fragmentList -> r
     java.util.List fragmentName -> s
     com.google.android.gms.ads.InterstitialAd interstitialAd -> t
-    boolean activity_result -> u
-    int resume_cnt -> v
-    int BACK_PRESSED_TIME_INTERVAL -> w
-    long backPressedTime -> x
+    com.google.android.gms.ads.AdView bannerAdView -> u
+    boolean activity_result -> v
+    int resume_cnt -> w
+    int BACK_PRESSED_TIME_INTERVAL -> x
+    long backPressedTime -> y
     void onCreate(android.os.Bundle) -> onCreate
     void onResume() -> onResume
     void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
@@ -37768,11 +37769,15 @@ com.purehero.apk.manager.MainActivity -> com.purehero.apk.manager.MainActivity:
     java.util.List access$0(com.purehero.apk.manager.MainActivity) -> a
     java.util.List access$1(com.purehero.apk.manager.MainActivity) -> b
     it.neokree.materialtabs.MaterialTabHost access$2(com.purehero.apk.manager.MainActivity) -> c
-    com.google.android.gms.ads.InterstitialAd access$3(com.purehero.apk.manager.MainActivity) -> d
+    com.google.android.gms.ads.AdView access$3(com.purehero.apk.manager.MainActivity) -> d
+    com.google.android.gms.ads.InterstitialAd access$4(com.purehero.apk.manager.MainActivity) -> e
 com.purehero.apk.manager.MainActivity$1 -> com.purehero.apk.manager.MainActivity$1:
     com.purehero.apk.manager.MainActivity this$0 -> a
     void onPageSelected(int) -> onPageSelected
 com.purehero.apk.manager.MainActivity$2 -> com.purehero.apk.manager.MainActivity$2:
+    com.purehero.apk.manager.MainActivity this$0 -> a
+    void onAdLoaded() -> onAdLoaded
+com.purehero.apk.manager.MainActivity$3 -> com.purehero.apk.manager.MainActivity$3:
     com.purehero.apk.manager.MainActivity this$0 -> a
     void onAdFailedToLoad(int) -> onAdFailedToLoad
     void onAdLoaded() -> onAdLoaded

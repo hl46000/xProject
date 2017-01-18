@@ -28256,6 +28256,7 @@ com.purehero.root.checker.MainActivity
 com.purehero.root.checker.MainActivity: MainActivity()
 com.purehero.root.checker.MainActivity$1
 com.purehero.root.checker.MainActivity$2
+com.purehero.root.checker.MainActivity$3
 com.purehero.root.checker.MainActivity$ViewPagerAdapter
 com.purehero.root.checker.MainApplication
 com.purehero.root.checker.R

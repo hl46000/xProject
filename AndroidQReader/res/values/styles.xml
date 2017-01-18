@@ -16,7 +16,6 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
     <style name="myTextStyle">
         <item name="android:textSize">22sp</item>
         <item name="android:textColor">#ffffff</item>

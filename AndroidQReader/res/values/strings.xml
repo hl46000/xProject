@@ -30,7 +30,7 @@
 	<string name="button_search_book_contents">Search contents</string>
 	<string name="button_share_app">Application</string>
 	<string name="button_share_bookmark">Bookmark</string>
-	<string name="button_share_by_email">Share via email</string>
+	<string name="button_share_by_email">Share</string>
 	<string name="button_share_by_sms">Share via SMS</string>
 	<string name="button_share_clipboard">Clipboard</string>
 	<string name="button_share_contact">Contact</string>

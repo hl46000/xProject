@@ -37548,8 +37548,9 @@ com.purehero.root.checker.MainActivity -> com.purehero.root.checker.MainActivity
     java.util.List fragmentList -> s
     java.util.List fragmentName -> t
     com.google.android.gms.ads.InterstitialAd interstitialAd -> u
-    int BACK_PRESSED_TIME_INTERVAL -> v
-    long backPressedTime -> w
+    com.google.android.gms.ads.AdView bannerAdView -> v
+    int BACK_PRESSED_TIME_INTERVAL -> w
+    long backPressedTime -> x
     void onCreate(android.os.Bundle) -> onCreate
     void onResume() -> onResume
     void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
@@ -37561,11 +37562,15 @@ com.purehero.root.checker.MainActivity -> com.purehero.root.checker.MainActivity
     java.util.List access$0(com.purehero.root.checker.MainActivity) -> a
     java.util.List access$1(com.purehero.root.checker.MainActivity) -> b
     it.neokree.materialtabs.MaterialTabHost access$2(com.purehero.root.checker.MainActivity) -> c
-    com.google.android.gms.ads.InterstitialAd access$3(com.purehero.root.checker.MainActivity) -> d
+    com.google.android.gms.ads.AdView access$3(com.purehero.root.checker.MainActivity) -> d
+    com.google.android.gms.ads.InterstitialAd access$4(com.purehero.root.checker.MainActivity) -> e
 com.purehero.root.checker.MainActivity$1 -> com.purehero.root.checker.MainActivity$1:
     com.purehero.root.checker.MainActivity this$0 -> a
     void onPageSelected(int) -> onPageSelected
 com.purehero.root.checker.MainActivity$2 -> com.purehero.root.checker.MainActivity$2:
+    com.purehero.root.checker.MainActivity this$0 -> a
+    void onAdLoaded() -> onAdLoaded
+com.purehero.root.checker.MainActivity$3 -> com.purehero.root.checker.MainActivity$3:
     com.purehero.root.checker.MainActivity this$0 -> a
     void onAdFailedToLoad(int) -> onAdFailedToLoad
     void onAdLoaded() -> onAdLoaded

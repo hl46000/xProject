@@ -96,16 +96,6 @@
                 style="@style/myBtnStyle"
                 android:text="@string/close"
                 android:visibility="gone" />
-
-			<Button
-			    android:id="@+id/btnClose"
-			    style="@style/myBtnStyle"
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:layout_margin="3dp"
-			    android:layout_weight="1"
-			    android:text="@string/close" />
-
         </LinearLayout>
 
 	</RelativeLayout>

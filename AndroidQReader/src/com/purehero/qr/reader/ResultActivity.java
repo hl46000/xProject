@@ -31,15 +31,10 @@ public class ResultActivity extends Activity implements OnClickListener {
 				btn.setOnClickListener( this );
 			}
 		}
-		
-		Button btn = ( Button ) findViewById( R.id.btnClose );
-		if( btn != null ) {
-			btn.setOnClickListener( this );
-		}
+		setResult( 100 );
 		
 		Intent intent = getIntent();
 		if( intent == null ) {
-			setResult( 100 );
 			finish();
 		}
 		
@@ -49,14 +44,12 @@ public class ResultActivity extends Activity implements OnClickListener {
 		}
 		TextView tvContent 	= ( TextView ) findViewById( R.id.textContents );
 		if( tvContent != null ) {
-			tvContent.setText( intent.getStringExtra("content") );
+			tvContent.setText( resultHandler.getDisplayContents() );			
 		}
 	}
 
 	@Override
 	public void onClick(View arg0) {
-		setResult( 100 );
-		
 		switch( arg0.getId()) {
 		case R.id.btn1 : resultHandler.handleButtonPress( 0 ); finish(); break;
 		case R.id.btn2 : resultHandler.handleButtonPress( 1 ); finish(); break;
@@ -64,7 +57,6 @@ public class ResultActivity extends Activity implements OnClickListener {
 		case R.id.btn4 : resultHandler.handleButtonPress( 3 ); finish(); break;
 		case R.id.btn5 : resultHandler.handleButtonPress( 4 ); finish(); break;
 		case R.id.btn6 : resultHandler.handleButtonPress( 5 ); finish(); break;
-		case R.id.btnClose : this.finish(); break;
 		}
 	}
 

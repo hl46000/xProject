@@ -28407,9 +28407,11 @@ com.purehero.apk.manager.MainActivity: void showFullAd()
 com.purehero.apk.manager.MainActivity$1
 com.purehero.apk.manager.MainActivity$1: void onPageSelected(int)
 com.purehero.apk.manager.MainActivity$2
-com.purehero.apk.manager.MainActivity$2: void onAdFailedToLoad(int)
 com.purehero.apk.manager.MainActivity$2: void onAdLoaded()
-com.purehero.apk.manager.MainActivity$2: void onAdClosed()
+com.purehero.apk.manager.MainActivity$3
+com.purehero.apk.manager.MainActivity$3: void onAdFailedToLoad(int)
+com.purehero.apk.manager.MainActivity$3: void onAdLoaded()
+com.purehero.apk.manager.MainActivity$3: void onAdClosed()
 com.purehero.apk.manager.MainActivity$ViewPagerAdapter
 com.purehero.apk.manager.MainActivity$ViewPagerAdapter: MainActivity$ViewPagerAdapter(com.purehero.apk.manager.MainActivity,android.support.v4.app.FragmentManager)
 com.purehero.apk.manager.MainActivity$ViewPagerAdapter: android.support.v4.app.Fragment getItem(int)
