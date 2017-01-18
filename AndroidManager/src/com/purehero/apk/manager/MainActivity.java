@@ -17,6 +17,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -34,6 +35,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     private List<String>   fragmentName = new ArrayList<String>();
     
     private InterstitialAd interstitialAd	= null;	// 전면 광고
+    private AdView bannerAdView = null;
     private boolean activity_result = false;
 	private int resume_cnt = 0;
 	
@@ -72,9 +74,20 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
         }
 		
-		AdView mAdView = (AdView) findViewById(R.id.adView);
-		AdRequest adRequest = new AdRequest.Builder().build();
-		mAdView.loadAd(adRequest);
+        bannerAdView = (AdView) findViewById(R.id.adView);
+        if( bannerAdView != null ) {
+			bannerAdView.setVisibility( View.GONE );
+			
+			AdRequest adRequest = new AdRequest.Builder().build();
+			bannerAdView.setAdListener( new AdListener(){
+				@Override
+				public void onAdLoaded() {
+					super.onAdLoaded();
+					bannerAdView.setVisibility( View.VISIBLE );
+				}});
+			
+			bannerAdView.loadAd(adRequest);
+		}
 	}
 
 	@Override

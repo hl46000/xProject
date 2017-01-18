@@ -39,6 +39,7 @@ public class ResultActivity extends Activity implements OnClickListener {
 		
 		Intent intent = getIntent();
 		if( intent == null ) {
+			setResult( 100 );
 			finish();
 		}
 		
@@ -54,6 +55,8 @@ public class ResultActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View arg0) {
+		setResult( 100 );
+		
 		switch( arg0.getId()) {
 		case R.id.btn1 : resultHandler.handleButtonPress( 0 ); finish(); break;
 		case R.id.btn2 : resultHandler.handleButtonPress( 1 ); finish(); break;

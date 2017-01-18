@@ -315,7 +315,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     // Since this message will only be shown for a second, just tell the user what kind of
     // barcode was found (e.g. contact info) rather than the full contents, which they won't
     // have time to read.
-    statusView.setText("바코드 인식 완료");
+    statusView.setText( R.string.completed_decoding );
     CameraManager.get().stopPreview();
     
     /*
@@ -371,8 +371,8 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   	private void displayFrameworkBugMessageAndExit() {
   		AlertDialog.Builder builder = new AlertDialog.Builder(this);
   		builder.setTitle(getString(R.string.app_name));
-  		builder.setMessage("카메라 인식에 문제가 발생하였습니다. 디바이스를 재시작하여 주십시오");
-  		builder.setPositiveButton("확인", new FinishListener(this));
+  		builder.setMessage( R.string.camera_error );
+  		builder.setPositiveButton( R.string.confirm, new FinishListener(this));
   		builder.setOnCancelListener(new FinishListener(this));
   		builder.show();
   	}
@@ -386,7 +386,7 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   	
 	protected void resetStatusView() {
   		resultView.setVisibility(View.GONE);
-  		statusView.setText("사각형 영역을 바코드에 맞추면 자동으로 인식합니다");
+  		statusView.setText( R.string.scan_info );
   		statusView.setVisibility(View.VISIBLE);
   		viewfinderView.setVisibility(View.VISIBLE);
   		lastResult = null;

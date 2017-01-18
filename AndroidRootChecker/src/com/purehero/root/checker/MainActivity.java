@@ -1,11 +1,12 @@
 package com.purehero.root.checker;
 
-import it.neokree.materialtabs.MaterialTab;
-import it.neokree.materialtabs.MaterialTabHost;
-import it.neokree.materialtabs.MaterialTabListener;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -15,12 +16,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+import it.neokree.materialtabs.MaterialTab;
+import it.neokree.materialtabs.MaterialTabHost;
+import it.neokree.materialtabs.MaterialTabListener;
 
 public class MainActivity extends ActionBarActivity implements MaterialTabListener {
 	private final String LOG_TAG = "RootChecker";
@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
     private List<String>   fragmentName = new ArrayList<String>();
 	
     private InterstitialAd interstitialAd	= null;	// 전면 광고
+    private AdView bannerAdView = null;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +70,20 @@ public class MainActivity extends ActionBarActivity implements MaterialTabListen
 
         }
 		
-		AdView mAdView = (AdView) findViewById(R.id.adView);
-		AdRequest adRequest = new AdRequest.Builder().build();
-		mAdView.loadAd(adRequest);
+		bannerAdView = (AdView) findViewById(R.id.adView);
+        if( bannerAdView != null ) {
+			bannerAdView.setVisibility( View.GONE );
+			
+			AdRequest adRequest = new AdRequest.Builder().build();
+			bannerAdView.setAdListener( new AdListener(){
+				@Override
+				public void onAdLoaded() {
+					super.onAdLoaded();
+					bannerAdView.setVisibility( View.VISIBLE );
+				}});
+			
+			bannerAdView.loadAd(adRequest);
+		}
 	}
 	
 	@Override

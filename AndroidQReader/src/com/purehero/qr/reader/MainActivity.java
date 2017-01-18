@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
     public static MainActivity instance = null;
     
 	private InterstitialAd interstitialAd	= null;	// 전면 광고
+	private AdView bannerAdView = null;
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,12 +31,19 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 	    resultView = findViewById(R.id.result_view);
 	    statusView = (TextView) findViewById(R.id.status_view);
 	    
-	    // FIXME : 앱을 배포하기 전까진 풀지 말것
-	    AdView mAdView = (AdView) findViewById(R.id.adView);
-	    //AdView mAdView = null; 
-		if( mAdView != null ) {
+	    bannerAdView = (AdView) findViewById(R.id.adView);
+		if( bannerAdView != null ) {
+			bannerAdView.setVisibility( View.GONE );
+			
 			AdRequest adRequest = new AdRequest.Builder().build();
-			mAdView.loadAd(adRequest);
+			bannerAdView.setAdListener( new AdListener(){
+				@Override
+				public void onAdLoaded() {
+					super.onAdLoaded();
+					bannerAdView.setVisibility( View.VISIBLE );
+				}});
+			
+			bannerAdView.loadAd(adRequest);
 		}
 		
 		this.byPassHandler = result_handler;
@@ -46,9 +55,11 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		
-		if( requestCode == 100 ) {
+		if( requestCode == 100 || resultCode == 100 ) {
 			resetStatusView();
 		}
+		
+		showFullAd();
 	}
 
 
@@ -114,11 +125,9 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 	}
 	
 	public void showFullAd() {
-		//Log.d( LOG_TAG, "showFullAd" );
-		
 		if( interstitialAd != null ) {
 			if( interstitialAd.isLoaded()) {
-				if( System.currentTimeMillis() % 10 < 2 ) 
+				if( System.currentTimeMillis() % 10 < 3 ) 
 				{
 					interstitialAd.show();
 				}
