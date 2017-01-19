@@ -20,36 +20,35 @@ import android.app.Activity;
 
 import com.google.zxing.Result;
 import com.google.zxing.client.result.ParsedResult;
+import com.purehero.qr.reader.R;
 
-/**
- * This class handles TextParsedResult as well as unknown formats. It's the fallback handler.
- *
- * @author dswitkin@google.com (Daniel Switkin)
- */
 public final class TextResultHandler extends ResultHandler {
+	public TextResultHandler(Activity activity, ParsedResult result, Result rawResult) {
+		super(activity, result, rawResult);
+	}
 
-  public TextResultHandler(Activity activity, ParsedResult result, Result rawResult) {
-    super(activity, result, rawResult);
-  }
-
-  @Override
-  public int getButtonCount() {
-    return 0;
-  }
-
-  @Override
-  public int getButtonText(int index) {
-    return 0;
-  }
-
-  @Override
-  public int getDisplayTitle() {
-    return 0;
-  }
+	private static final int[] buttons = {
+			R.string.button_dial,
+			R.string.button_add_contact
+	};
+	
+	@Override
+	public int getButtonCount() {
+		return buttons.length;
+	}
 
 	@Override
-	public void handleButtonPress(int index)
-	{
-		
+	public int getButtonText(int index) {
+		return buttons[index];
+	}
+
+	@Override
+	public int getDisplayTitle() {
+		return R.string.result_text;
+	}
+
+	@Override
+	public void handleButtonPress(int index) {
+		getActivity().finish();
 	}
 }

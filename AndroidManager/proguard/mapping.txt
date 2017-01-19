@@ -37529,12 +37529,13 @@ com.purehero.apk.manager.ApkListAdapter$ViewHolder -> com.purehero.apk.manager.A
     android.widget.ImageView icon -> icon
     android.widget.TextView appName -> appName
     android.widget.TextView packageName -> packageName
+    android.widget.TextView versionName -> versionName
     com.purehero.apk.manager.ApkListAdapter this$0 -> a
 com.purehero.apk.manager.ApkListData -> com.purehero.apk.manager.ApkListData:
     android.graphics.drawable.Drawable icon -> a
     java.lang.String appName -> b
     java.lang.String packageName -> c
-    java.lang.String activityName -> d
+    java.lang.String versionName -> d
     java.lang.String apkPath -> e
     java.io.File clickCountFile -> f
     int clickCount -> g
@@ -37543,8 +37544,8 @@ com.purehero.apk.manager.ApkListData -> com.purehero.apk.manager.ApkListData:
     android.graphics.drawable.Drawable getIcon() -> getIcon
     java.lang.String getAppName() -> getAppName
     java.lang.String getPackageName() -> getPackageName
-    java.lang.String getLauncherActivityName() -> getLauncherActivityName
     java.lang.String getApkFilepath() -> getApkFilepath
+    java.lang.String getVersionName() -> getVersionName
     void setIndex(int) -> setIndex
     int getIndex() -> getIndex
     void setClickCount(int) -> setClickCount
@@ -38191,6 +38192,7 @@ com.purehero.apk.manager.R$id -> com.purehero.apk.manager.R$id:
     int apk_list_view_item_app_name -> apk_list_view_item_app_name
     int apk_list_view_item_icon -> apk_list_view_item_icon
     int apk_list_view_item_package_name -> apk_list_view_item_package_name
+    int apk_list_view_item_version_name -> apk_list_view_item_version_name
     int back -> back
     int beginning -> beginning
     int book_now -> book_now

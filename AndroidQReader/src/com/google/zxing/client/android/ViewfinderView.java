@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.camera.CameraManager;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -29,9 +32,6 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.camera.CameraManager;
-
 /**
  * This view is overlaid on top of the camera preview. It adds the viewfinder rectangle and partial
  * transparency outside it, as well as the laser scanner animation and result points.
@@ -40,8 +40,8 @@ import com.google.zxing.client.android.camera.CameraManager;
  */
 public final class ViewfinderView extends View {
 
-  private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
-  private static final long ANIMATION_DELAY = 80L;
+  //private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
+  //private static final long ANIMATION_DELAY = 80L;
   private static final int CURRENT_POINT_OPACITY = 0xA0;
   private static final int MAX_RESULT_POINTS = 0;
 
@@ -50,11 +50,11 @@ public final class ViewfinderView extends View {
   private final int maskColor;
   private final int resultColor;
   private final int frameColor;
-  private final int laserColor;
-  private final int resultPointColor;
-  private int scannerAlpha;
+  //private final int laserColor;
+  //private final int resultPointColor;
+  //private int scannerAlpha;
   private final AtomicReference<List<ResultPoint>> possibleResultPoints;
-  private final AtomicReference<List<ResultPoint>> lastPossibleResultPoints;
+  //private final AtomicReference<List<ResultPoint>> lastPossibleResultPoints;
 
   // This constructor is used when the class is built from an XML resource.
   public ViewfinderView(Context context, AttributeSet attrs) {
@@ -65,11 +65,11 @@ public final class ViewfinderView extends View {
     maskColor = Color.parseColor("#60000000");
     resultColor = Color.parseColor("#b0000000");
     frameColor = Color.parseColor("#ff000000");
-    laserColor = Color.parseColor("#ffff0000");
-    resultPointColor = Color.parseColor("#c0ffff00");
-    scannerAlpha = 0;
+    //laserColor = Color.parseColor("#ffff0000");
+    //resultPointColor = Color.parseColor("#c0ffff00");
+    //scannerAlpha = 0;
     possibleResultPoints = new AtomicReference<List<ResultPoint>>();
-    lastPossibleResultPoints = new AtomicReference<List<ResultPoint>>();
+    //lastPossibleResultPoints = new AtomicReference<List<ResultPoint>>();
     possibleResultPoints.set(new ArrayList<ResultPoint>(5));
   }
 
@@ -80,8 +80,8 @@ public final class ViewfinderView extends View {
   			return;
   		}
   		
-  		int width = canvas.getWidth();
-  		int height = canvas.getHeight();
+  		//int width = canvas.getWidth();
+  		//int height = canvas.getHeight();
 
   		// Draw the exterior (i.e. outside the framing rect) darkened
   		paint.setColor(resultBitmap != null ? resultColor : maskColor);

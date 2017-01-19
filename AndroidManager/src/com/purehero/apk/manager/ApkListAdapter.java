@@ -7,8 +7,8 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,18 +31,23 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		PackageManager pm =  context.getPackageManager();
 	    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
 	    homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-		    
-	    List<ResolveInfo> launcherActivitys = pm.queryIntentActivities(homeIntent, PackageManager.GET_ACTIVITIES);
-	    
+		
 	    listData.clear();
 	    filteredData.clear();
 	    
+	    List<PackageInfo> packageInfoList =          context.getPackageManager().getInstalledPackages(0);
+	    for( PackageInfo pi : packageInfoList ) {
+	    	ApkListData apkData = new ApkListData( context, pi, pm );
+	    	filteredData.add( apkData );
+	    }
+	    
+	    /*
+	    List<ResolveInfo> launcherActivitys = pm.queryIntentActivities(homeIntent, PackageManager.GET_ACTIVITIES);
 	    for( ResolveInfo act : launcherActivitys ) {
 	    	ApkListData apkData = new ApkListData( context, act, pm );
-	    	
-	    	listData.add( apkData );
 	    	filteredData.add( apkData );
-	    }	    
+	    }
+	    */	    
 	}
 	
 	public void remove( int index ) {
@@ -92,7 +97,7 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apk_list_view_item_icon );
 			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apk_list_view_item_app_name );
 			viewHolder.packageName 	= (TextView)  convertView.findViewById( R.id.apk_list_view_item_package_name );
-			
+			viewHolder.versionName	= (TextView)  convertView.findViewById( R.id.apk_list_view_item_version_name );
 			convertView.setTag( viewHolder );
 		} else {
 			viewHolder = ( ViewHolder ) convertView.getTag();
@@ -106,7 +111,19 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		} else {
 			viewHolder.appName.setText( String.format( "%s(%d)", data.getAppName(), data.getClickCount()));
 		}
+		viewHolder.appName.setSelected( true );
+		
 		viewHolder.packageName.setText( data.getPackageName());
+		viewHolder.packageName.setSelected( true );
+		
+		String versionName = data.getVersionName();
+		if( versionName == null ) {
+			viewHolder.versionName.setVisibility( View.GONE );
+		} else {
+			viewHolder.versionName.setVisibility( View.VISIBLE );
+			viewHolder.versionName.setText( versionName );
+			viewHolder.versionName.setSelected( true );
+		}
 		
 		return convertView;
 	}
@@ -116,6 +133,7 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		public ImageView icon;
 		public TextView appName;
 		public TextView packageName;
+		public TextView versionName;
 	}
 
 	@Override

@@ -21,6 +21,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Result;
+import com.google.zxing.ResultMetadataType;
+import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.result.ResultHandler;
+import com.google.zxing.client.android.result.ResultHandlerFactory;
+import com.purehero.qr.reader.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -32,7 +40,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -40,14 +47,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.Result;
-import com.google.zxing.ResultMetadataType;
-import com.google.zxing.client.android.camera.CameraManager;
-import com.google.zxing.client.android.result.ResultHandler;
-import com.google.zxing.client.android.result.ResultHandlerFactory;
-import com.purehero.qr.reader.R;
 
 /**
  * The barcode reader activity itself. This is loosely based on the CameraPreview
@@ -295,58 +294,60 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
   }*/
 
-  // Put up our own UI for how to handle the decoded contents.
-  private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-    statusView.setVisibility(View.GONE);
-    viewfinderView.setVisibility(View.GONE);
-    resultView.setVisibility(View.VISIBLE);
+	// Put up our own UI for how to handle the decoded contents.
+	private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
+		statusView.setVisibility(View.GONE);
+		viewfinderView.setVisibility(View.GONE);
+		resultView.setVisibility(View.VISIBLE);
 
-    ImageView barcodeImageView = (ImageView) findViewById(R.id.barcode_image_view);
-    if (barcode == null) {
-      barcodeImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(),
-          R.drawable.ic_launcher));
-    } else {
-      barcodeImageView.setImageBitmap(barcode);
-    }
-  }
+		ImageView barcodeImageView = (ImageView) findViewById(R.id.barcode_image_view);
+		
+		if (barcode == null) {
+			barcodeImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+			
+		} else {
+			barcodeImageView.setImageBitmap(barcode);
+		}
+	}
 
-  // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
-  private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-    //viewfinderView.drawResultBitmap(barcode);
-
-    // Since this message will only be shown for a second, just tell the user what kind of
-    // barcode was found (e.g. contact info) rather than the full contents, which they won't
-    // have time to read.
-    statusView.setText( R.string.completed_decoding );
-    CameraManager.get().stopPreview();
-    
-    /*
-    ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
-    if (copyToClipboard) {
-      ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-      clipboard.setText(resultHandler.getDisplayContents());
-    }
-    */
-
-    if (source == Source.NATIVE_APP_INTENT) {
-      // Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
-      // the deprecated intent is retired.
-      Intent intent = new Intent(getIntent().getAction());
-      //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-      int title_resid = resultHandler.getDisplayTitle();
-      intent.putExtra("TITLE", CaptureActivity.this.getString( title_resid == 0 ? R.string.contents_text : title_resid ));
-      intent.putExtra("CONTENTS", resultHandler.getDisplayContents());
-      intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
-      intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
-      byte[] rawBytes = rawResult.getRawBytes();
-      if (rawBytes != null && rawBytes.length > 0) {
-        intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
-      }
-      Message message = Message.obtain(handler, R.id.return_scan_result);
-      message.obj = intent;
-      handler.sendMessageDelayed(message, INTENT_RESULT_DURATION);
-    }
-  }
+  	// Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
+	private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
+	    //viewfinderView.drawResultBitmap(barcode);
+	
+	    // Since this message will only be shown for a second, just tell the user what kind of
+	    // barcode was found (e.g. contact info) rather than the full contents, which they won't
+	    // have time to read.
+	    statusView.setText( R.string.completed_decoding );
+	    CameraManager.get().stopPreview();
+	    
+	    /*
+	    ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
+	    if (copyToClipboard) {
+	      ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+	      clipboard.setText(resultHandler.getDisplayContents());
+	    }
+	    */
+	
+	    if (source == Source.NATIVE_APP_INTENT) {
+	    	// Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
+	    	// the deprecated intent is retired.
+	    	Intent intent = new Intent(getIntent().getAction());
+	    	//intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+	    	intent.putExtra("TITLE", CaptureActivity.this.getString( resultHandler.getDisplayTitle()));
+	    	intent.putExtra("CONTENTS", resultHandler.getDisplayContents());
+	    	intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
+	    	intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
+	      
+	    	byte[] rawBytes = rawResult.getRawBytes();
+	    	if (rawBytes != null && rawBytes.length > 0) {
+	    		intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
+	    	}
+	      
+	    	Message message = Message.obtain(handler, R.id.return_scan_result);
+	    	message.obj = intent;
+	    	handler.sendMessageDelayed(message, INTENT_RESULT_DURATION);
+	    }
+	}
 
   private void initCamera(SurfaceHolder surfaceHolder, ViewfinderView viewfinderView ) {
 	  try {
@@ -382,10 +383,11 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 
   	public void restartPreviewAfterDelay(long delayMS) {
   	    if (handler != null) {
-  	      handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
+  	    	handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
   	    }
+  	    
   	    resetStatusView();
-  	  }
+	}
   	
 	protected void resetStatusView() {
   		resultView.setVisibility(View.GONE);

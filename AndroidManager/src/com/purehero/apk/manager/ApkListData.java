@@ -5,6 +5,7 @@ import java.text.Collator;
 import java.util.Comparator;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.BitmapDrawable;
@@ -21,7 +22,7 @@ public class ApkListData {
 	private Drawable icon 	= null;
 	private final String appName;
 	private final String packageName;
-	private final String activityName;
+	private final String versionName;
 	private final String apkPath;
 	private File clickCountFile = null;
 	private int clickCount;
@@ -36,7 +37,7 @@ public class ApkListData {
 	public ApkListData( Context context, ResolveInfo info, PackageManager pm ) {
 		packageName 	= info.activityInfo.packageName;
 		appName 		= (String) info.loadLabel(pm);
-		activityName	= info.activityInfo.name;
+		versionName		= null;
 		apkPath			= info.activityInfo.applicationInfo.sourceDir;
 		
 		File base_folder 	= new File( context.getCacheDir(), "package" );
@@ -67,6 +68,40 @@ public class ApkListData {
 		G.writeFile( new File( folder, "app_name"), appName );
 	}
 	
+	public ApkListData(Context context, PackageInfo pi, PackageManager pm) {
+		packageName 	= pi.packageName;
+		appName 		= pi.applicationInfo.loadLabel(pm).toString();
+		versionName		= pi.versionName;
+		apkPath			= pi.applicationInfo.sourceDir;
+		
+		File base_folder 	= new File( context.getCacheDir(), "package" );
+		File folder			= new File( base_folder, packageName );
+		if( !folder.exists()) {
+			folder.mkdirs();
+		}
+		clickCountFile	= new File( folder, "count" );
+		File iconFile	= new File( folder, "icon" );
+		try {
+			icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
+			if( icon == null ) {
+				icon		= pi.applicationInfo.loadIcon(pm);
+				
+				if( icon != null ) {
+					new SaveIconToFileThread( icon, iconFile ).start();					
+				}
+			}
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+		
+		if( clickCountFile.exists()) {
+			try {
+				clickCount = Integer.valueOf( G.readFile( clickCountFile ));
+			} catch( Exception e ) {}
+		}
+		G.writeFile( new File( folder, "app_name"), appName );
+	}
+
 	/**
 	 * @author MY
 	 * 불러온 아이콘 파일을 파일로 기록하는 Thread 을 생성한다. 
@@ -118,21 +153,16 @@ public class ApkListData {
 	}
 	
 	/**
-	 * APK의 Launcher Activity class 의 이름을 반환한다. 
-	 * 
-	 * @return
-	 */
-	public String getLauncherActivityName() {
-		return activityName;
-	}
-	
-	/**
 	 * APK 파일의 경로를 반환한다.
 	 * 
 	 * @return
 	 */
 	public String getApkFilepath() {
 		return apkPath;
+	}
+	
+	public String getVersionName() {
+		return versionName.split("-")[0].trim();
 	}
 	
 	/**

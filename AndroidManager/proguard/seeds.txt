@@ -28280,14 +28280,16 @@ com.purehero.apk.manager.ApkListAdapter$ViewHolder
 com.purehero.apk.manager.ApkListAdapter$ViewHolder: android.widget.ImageView icon
 com.purehero.apk.manager.ApkListAdapter$ViewHolder: android.widget.TextView appName
 com.purehero.apk.manager.ApkListAdapter$ViewHolder: android.widget.TextView packageName
+com.purehero.apk.manager.ApkListAdapter$ViewHolder: android.widget.TextView versionName
 com.purehero.apk.manager.ApkListData
 com.purehero.apk.manager.ApkListData: java.util.Comparator ALPHA_COMPARATOR
 com.purehero.apk.manager.ApkListData: ApkListData(android.content.Context,android.content.pm.ResolveInfo,android.content.pm.PackageManager)
+com.purehero.apk.manager.ApkListData: ApkListData(android.content.Context,android.content.pm.PackageInfo,android.content.pm.PackageManager)
 com.purehero.apk.manager.ApkListData: android.graphics.drawable.Drawable getIcon()
 com.purehero.apk.manager.ApkListData: java.lang.String getAppName()
 com.purehero.apk.manager.ApkListData: java.lang.String getPackageName()
-com.purehero.apk.manager.ApkListData: java.lang.String getLauncherActivityName()
 com.purehero.apk.manager.ApkListData: java.lang.String getApkFilepath()
+com.purehero.apk.manager.ApkListData: java.lang.String getVersionName()
 com.purehero.apk.manager.ApkListData: void setIndex(int)
 com.purehero.apk.manager.ApkListData: int getIndex()
 com.purehero.apk.manager.ApkListData: void setClickCount(int)
@@ -28829,6 +28831,7 @@ com.purehero.apk.manager.R$id: int apk_history_view_item_icon
 com.purehero.apk.manager.R$id: int apk_list_view_item_app_name
 com.purehero.apk.manager.R$id: int apk_list_view_item_icon
 com.purehero.apk.manager.R$id: int apk_list_view_item_package_name
+com.purehero.apk.manager.R$id: int apk_list_view_item_version_name
 com.purehero.apk.manager.R$id: int back
 com.purehero.apk.manager.R$id: int beginning
 com.purehero.apk.manager.R$id: int book_now
