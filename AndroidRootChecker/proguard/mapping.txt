@@ -38132,7 +38132,6 @@ com.purehero.root.checker.R$string -> com.purehero.root.checker.R$string:
     int create_calendar_message -> create_calendar_message
     int create_calendar_title -> create_calendar_title
     int decline -> decline
-    int hello_world -> hello_world
     int store_picture_message -> store_picture_message
     int store_picture_title -> store_picture_title
     int two_back_touch_exit_app -> two_back_touch_exit_app

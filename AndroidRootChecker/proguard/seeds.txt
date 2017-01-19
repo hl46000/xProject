@@ -28809,7 +28809,6 @@ com.purehero.root.checker.R$string: int common_signin_button_text_long
 com.purehero.root.checker.R$string: int create_calendar_message
 com.purehero.root.checker.R$string: int create_calendar_title
 com.purehero.root.checker.R$string: int decline
-com.purehero.root.checker.R$string: int hello_world
 com.purehero.root.checker.R$string: int store_picture_message
 com.purehero.root.checker.R$string: int store_picture_title
 com.purehero.root.checker.R$string: int two_back_touch_exit_app

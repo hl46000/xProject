@@ -37798,6 +37798,8 @@ com.purehero.apk.manager.R$anim -> com.purehero.apk.manager.R$anim:
     int abc_slide_in_top -> abc_slide_in_top
     int abc_slide_out_bottom -> abc_slide_out_bottom
     int abc_slide_out_top -> abc_slide_out_top
+com.purehero.apk.manager.R$array -> com.purehero.apk.manager.R$array:
+    int apk_type -> apk_type
 com.purehero.apk.manager.R$attr -> com.purehero.apk.manager.R$attr:
     int accentColor -> accentColor
     int actionBarDivider -> actionBarDivider
