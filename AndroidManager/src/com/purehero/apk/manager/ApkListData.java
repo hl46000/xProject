@@ -54,6 +54,7 @@ public class ApkListData {
 				
 				if( icon != null ) {
 					new SaveIconToFileThread( icon, iconFile ).start();					
+					//new SaveIconToFileThread( icon, iconFile ).run();
 				}
 			}
 		} catch( Exception e ) {
@@ -162,7 +163,7 @@ public class ApkListData {
 	}
 	
 	public String getVersionName() {
-		return versionName.split("-")[0].trim();
+		return versionName == null ? versionName : versionName.split("-")[0].trim();
 	}
 	
 	/**

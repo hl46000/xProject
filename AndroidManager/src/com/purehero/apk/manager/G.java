@@ -192,6 +192,8 @@ public class G {
 	 * @return
 	 */
 	public static boolean saveBitmapToFile( Bitmap bmp, File file ) {
+		if( bmp == null ) return false;
+		
 		FileOutputStream outStream = null;
 		try {
 			outStream = new FileOutputStream(file);
@@ -203,6 +205,9 @@ public class G {
 			e.printStackTrace();
 			
 		} catch (IOException e) {
+			e.printStackTrace();
+		
+		} catch ( Exception e ) {
 			e.printStackTrace();
 			
 		} finally {

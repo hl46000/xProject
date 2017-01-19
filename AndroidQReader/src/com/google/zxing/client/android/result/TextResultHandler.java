@@ -28,8 +28,7 @@ public final class TextResultHandler extends ResultHandler {
 	}
 
 	private static final int[] buttons = {
-			R.string.button_dial,
-			R.string.button_add_contact
+			R.string.button_ok
 	};
 	
 	@Override
@@ -48,7 +47,6 @@ public final class TextResultHandler extends ResultHandler {
 	}
 
 	@Override
-	public void handleButtonPress(int index) {
-		getActivity().finish();
+	public void handleButtonPress(int index) {		
 	}
 }
