@@ -7,6 +7,7 @@ import java.util.Comparator;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -22,7 +23,7 @@ public class ApkListData {
 	private Drawable icon 	= null;
 	private final String appName;
 	private final String packageName;
-	private final String versionName;
+	private String versionName;
 	private final String apkPath;
 	private File clickCountFile = null;
 	private int clickCount;
@@ -36,8 +37,15 @@ public class ApkListData {
 	 */
 	public ApkListData( Context context, ResolveInfo info, PackageManager pm ) {
 		packageName 	= info.activityInfo.packageName;
+		
+		try {
+			PackageInfo pi	= pm.getPackageInfo( packageName, PackageManager.GET_META_DATA);
+			versionName		= pi.versionName;
+		} catch (NameNotFoundException e1) {
+			versionName		= null;
+		}
+		
 		appName 		= (String) info.loadLabel(pm);
-		versionName		= null;
 		apkPath			= info.activityInfo.applicationInfo.sourceDir;
 		
 		File base_folder 	= new File( context.getCacheDir(), "package" );

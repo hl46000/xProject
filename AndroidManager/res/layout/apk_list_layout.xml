@@ -13,23 +13,26 @@
 		android:layout_gravity="center_vertical|center_horizontal" />
 	
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	android:orientation="vertical" android:layout_width="match_parent"
-    	android:layout_height="match_parent">
-	
-        <EditText
-		    android:id="@+id/txt_search"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:layout_margin="5dp"		    
-		    android:hint="@string/search_text"
-		    android:textSize="12sp"
-		    android:singleLine="true" />
-        
+    	android:orientation="vertical" 
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content">
+
+		<EditText
+            android:id="@+id/txt_search"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_alignParentBottom="true"
+            android:ems="10"
+            android:hint="@string/search_text"
+            android:singleLine="true"
+            android:textSize="12sp" />
+
 		<ListView
 	        android:id="@+id/apkListView"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:visibility="invisible" />
+
 	</LinearLayout>
 </FrameLayout>	  
 

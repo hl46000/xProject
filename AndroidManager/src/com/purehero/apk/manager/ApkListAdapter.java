@@ -36,22 +36,21 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 	    listData.clear();
 	    filteredData.clear();
 	    
-	       List<PackageInfo> packageInfoList =          context.getPackageManager().getInstalledPackages(0);
+	    /*
+	    List<PackageInfo> packageInfoList =          context.getPackageManager().getInstalledPackages(0);
 	    for( PackageInfo pi : packageInfoList ) {
 	    	ApkListData apkData = new ApkListData( context, pi, pm );
 	    	filteredData.add( apkData );
 	    	listData.add( apkData );
 	    }
+	    */
 	    
-	    	    
-	    /*
 	    List<ResolveInfo> launcherActivitys = pm.queryIntentActivities(homeIntent, PackageManager.GET_ACTIVITIES);
 	    for( ResolveInfo act : launcherActivitys ) {
 	    	ApkListData apkData = new ApkListData( context, act, pm );
 	    	listData.add( apkData );
 	    	filteredData.add( apkData );
-	    }
-	    */	    	    
+	    }	    	    	    
 	}
 	
 	public void remove( int index ) {

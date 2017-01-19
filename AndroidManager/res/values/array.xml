@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="apk_type">
+        <item>Installed APK</item>
+        <item>System APK</item>        
+    </string-array>
+</resources>

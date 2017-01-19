@@ -19,16 +19,14 @@
 	<string name="execute">Execute</string>
 	<string name="cancel">Cancel</string>
 	<string name="ok">OK</string>
-	<string name="search_text">Search</string>
-	
+	<string name="search_text">Search( App name or Package name )</string>
+		
 	<string name="change_sdcard_path">Change SD Card Path</string>
 	<string name="app_info">App Info</string>
 	<string name="file_delete_confirm">Do you want to Delete</string>
 	<string name="delete_all_items">Delete All Items</string>
 	<string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
 			
-	
-	
 	<string name="file_list_sub_title_folder_format">%d item</string>
 	<string name="AM">AM</string>
 	<string name="PM">PM</string>
