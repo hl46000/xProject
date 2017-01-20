@@ -2,7 +2,6 @@ package com.purehero.qr.reader;
 
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,8 +9,6 @@ import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,20 +17,20 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.zxing.client.android.ViewfinderView;
-import com.google.zxing.client.android.camera.FlashlightManager;
 
-public class MainActivity extends com.google.zxing.client.android.CaptureActivity implements OnClickListener {
+public class MainActivity extends com.google.zxing.client.android.CaptureActivity {
     public static MainActivity instance = null;
     
 	private InterstitialAd interstitialAd	= null;	// Àü¸é ±¤°í
 	private AdView bannerAdView = null;
+	private boolean flash = false;
 	
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 		
-	    viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 	    resultView = findViewById(R.id.result_view);
 	    statusView = (TextView) findViewById(R.id.status_view);
 	    
@@ -54,11 +51,6 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 		
 		this.byPassHandler = result_handler;
 		instance = this;
-		
-		Button btn = (Button) findViewById( R.id.btnFlash );
-		if( btn != null ) {
-			btn.setOnClickListener( this );
-		}
 	}
 
 	@Override
@@ -77,7 +69,7 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		//getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -87,12 +79,20 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		
-		/*
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_flash) {
+			flash = !flash;
+			
+			item.setIcon( flash ? R.drawable.flashon : R.drawable.flashoff );
+			CameraManager camManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+			try {
+				camManager.setTorchMode( camManager.getCameraIdList()[0], flash );
+			} catch ( Exception e ) {
+				com.google.zxing.client.android.camera.CameraManager.get().setFlashMode( flash );
+			}
 			return true;
 		}
-		*/
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -168,25 +168,5 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 				interstitialAd.loadAd(adRequest);
 			}
 		});
-	}
-
-	boolean flash = false;
-	@Override
-	public void onClick(View arg0) {
-		switch( arg0.getId()) {
-		case R.id.btnFlash :
-			flash = !flash;
-			
-			CameraManager camManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-			try {
-				camManager.setTorchMode( camManager.getCameraIdList()[0], flash );
-			} catch ( Exception e ) {
-				com.google.zxing.client.android.camera.CameraManager.get().setFlashMode( flash );
-				//e.printStackTrace();
-			}
-			
-			break;
-		}
-		
 	}
 }
