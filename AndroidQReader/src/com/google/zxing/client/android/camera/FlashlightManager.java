@@ -34,8 +34,8 @@ import java.lang.reflect.Method;
  * http://code.google.com/p/droidled/source/browse/trunk/src/com/droidled/demo/DroidLED.java</a>.
  * Thanks to Ryan Alford for pointing out the availability of this class.
  */
-final class FlashlightManager {
-	private static final String TAG = FlashlightManager.class.getSimpleName();
+public class FlashlightManager {
+	private static final String TAG = "QReader";
 
 	private static final Object iHardwareService;
 	private static final Method setFlashEnabledMethod;
@@ -45,10 +45,10 @@ final class FlashlightManager {
 		setFlashEnabledMethod = getSetFlashEnabledMethod(iHardwareService);
     
 		if (iHardwareService == null) {
-			Log.v(TAG, "This device does supports control of a flashlight");
+			Log.d(TAG, "This device does supports control of a flashlight");
 		
 		} else {
-			Log.v(TAG, "This device does not support control of a flashlight");
+			Log.d(TAG, "This device does not support control of a flashlight");
 		}
 	}
 
@@ -138,7 +138,7 @@ final class FlashlightManager {
 		setFlashlight(false);
 	}
 
-	private static void setFlashlight(boolean active) {
+	public static void setFlashlight(boolean active) {
 		if (iHardwareService != null) {
 			invoke(setFlashEnabledMethod, iHardwareService, active);
 		}

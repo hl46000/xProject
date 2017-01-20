@@ -83,6 +83,12 @@
 			android:text="사각형 영역을 바코드에 맞추면 자동으로 인식합니다"
 			android:textColor="#ffffffff"
 			android:textSize="14sp"/>
-	
+		
+		<Button 
+		    android:id="@+id/btnFlash"
+		    android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="On"
+		    />
 	</FrameLayout>
 </RelativeLayout>

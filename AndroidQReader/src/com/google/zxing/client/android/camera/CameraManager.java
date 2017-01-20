@@ -24,6 +24,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -136,7 +137,8 @@ public final class CameraManager {
     	  configManager.initFromCameraParameters(camera, viewfinderView);
       }
       configManager.setDesiredCameraParameters(camera);
-
+      FlashlightManager.enableFlashlight();
+      
       /*
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
       if (prefs.getBoolean(PreferencesActivity.KEY_FRONT_LIGHT, false)) {
@@ -156,6 +158,14 @@ public final class CameraManager {
     }
   }
 
+  public void setFlashMode( boolean bOnOff ) {
+	  camera.stopPreview();
+	  Parameters p = camera.getParameters();
+	  p.setFlashMode( bOnOff ? Parameters.FLASH_MODE_TORCH : Parameters.FLASH_MODE_OFF);
+	  camera.setParameters(p); 
+	  camera.startPreview();
+  }
+  
   /**
    * Asks the camera hardware to begin drawing preview frames to the screen.
    */

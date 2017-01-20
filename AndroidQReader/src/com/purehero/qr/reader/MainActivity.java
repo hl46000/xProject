@@ -1,12 +1,17 @@
 package com.purehero.qr.reader;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,8 +20,9 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.zxing.client.android.ViewfinderView;
+import com.google.zxing.client.android.camera.FlashlightManager;
 
-public class MainActivity extends com.google.zxing.client.android.CaptureActivity {
+public class MainActivity extends com.google.zxing.client.android.CaptureActivity implements OnClickListener {
     public static MainActivity instance = null;
     
 	private InterstitialAd interstitialAd	= null;	// Àü¸é ±¤°í
@@ -47,8 +53,12 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 		}
 		
 		this.byPassHandler = result_handler;
-		
 		instance = this;
+		
+		Button btn = (Button) findViewById( R.id.btnFlash );
+		if( btn != null ) {
+			btn.setOnClickListener( this );
+		}
 	}
 
 	@Override
@@ -158,5 +168,25 @@ public class MainActivity extends com.google.zxing.client.android.CaptureActivit
 				interstitialAd.loadAd(adRequest);
 			}
 		});
+	}
+
+	boolean flash = false;
+	@Override
+	public void onClick(View arg0) {
+		switch( arg0.getId()) {
+		case R.id.btnFlash :
+			flash = !flash;
+			
+			CameraManager camManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+			try {
+				camManager.setTorchMode( camManager.getCameraIdList()[0], flash );
+			} catch ( Exception e ) {
+				com.google.zxing.client.android.camera.CameraManager.get().setFlashMode( flash );
+				//e.printStackTrace();
+			}
+			
+			break;
+		}
+		
 	}
 }
