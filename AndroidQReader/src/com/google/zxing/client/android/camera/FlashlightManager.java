@@ -130,11 +130,11 @@ final class FlashlightManager {
 		}
 	}
 
-	static void enableFlashlight() {
+	public static void enableFlashlight() {
 		setFlashlight(true);
 	}
 
-	static void disableFlashlight() {
+	public static void disableFlashlight() {
 		setFlashlight(false);
 	}
 

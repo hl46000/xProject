@@ -21,12 +21,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 public class ApkListFragment extends Fragment {
 	private ListView apkListView 			= null;
@@ -115,12 +112,10 @@ public class ApkListFragment extends Fragment {
 			apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		        @Override
 		        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		        	ApkListData data = ( ApkListData ) apkListAdapter.getItem(position);
+		        	ApkListData data = ( ApkListData ) apkListAdapter.getItem( position );
 		        	apk_running( data );
 		        	
 		    		data.setClickCount( data.getClickCount() + 1 );
-		    		
-		        	//apkListView.showContextMenuForChild(view);
 		        }
 		    });
 			
@@ -162,22 +157,25 @@ public class ApkListFragment extends Fragment {
 	// 메뉴 클릭 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		boolean ret = false;
+		
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		ApkListData data = ( ApkListData ) apkListAdapter.getItem( info.position );
+				
 		data.setIndex( info.position );
 		data.setClickCount( data.getClickCount() + 1 );
 		
 		switch( item.getItemId()) {
-		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		break;
-		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	break;
-		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	break;
-		case R.id.APK_MENU_SHARE		: apk_share( data ); break;
-		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); break;
-		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); break;
+		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		ret=true; break;
+		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	ret=true; break;
+		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	ret=true; break;
+		case R.id.APK_MENU_SHARE		: apk_share( data ); ret=true; break;
+		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); ret=true; break;
+		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); ret=true; break;
 		}
 					
-		return false;
+		return ret;
 	}
 
 	final int R_ID_APK_MENU_RUNNING		= 1000;

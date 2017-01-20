@@ -130,6 +130,7 @@ public class FileListFragment extends Fragment {
 	public boolean onContextItemSelected(MenuItem item) {
 		G.log( "onContextItemSelected" );
 		
+		boolean ret = false;
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		FileListData data = ( FileListData ) fileListAdapter.getItem( info.position );
@@ -137,12 +138,23 @@ public class FileListFragment extends Fragment {
 		G.log( "onContextItemSelected index : " + info.position );
 		
 		switch( item.getItemId()) {
-		case R.id.FILE_MENU_RUNNING		: file_running( data ); 		break;
-		case R.id.FILE_MENU_DELETE 		: file_delete( data, info.position ); 	break;
-		case R.id.FILE_MENU_SHARE		: file_share( data ); break;
+		case R.id.FILE_MENU_RUNNING		: 
+			file_running( data ); 
+			ret = true; 
+			break;
+			
+		case R.id.FILE_MENU_DELETE 		: 
+			file_delete( data, info.position ); 
+			ret = true; 
+			break;
+			
+		case R.id.FILE_MENU_SHARE		: 
+			file_share( data ); 
+			ret = true; 
+			break;
 		}
 							
-		return false;
+		return ret;
 	}
 	final int R_ID_FILE_MENU_RUNNING		= 1000;
 	final int R_ID_FILE_MENU_DELETE 		= 1002;
