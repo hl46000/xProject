@@ -44,12 +44,38 @@
 	        android:background="@drawable/light_off"
 	        android:text="" />
 
+        <TextView
+            android:id="@+id/tvSlow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:text="slow"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        
+        <TextView
+            android:id="@+id/tvFast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:text="fast"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        
         <SeekBar
-            android:id="@+id/seekBar1"
+            android:id="@+id/speedBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true" />
+            android:layout_above="@id/tvSlow"
+             />
 
+        <TextView
+            android:id="@+id/tvBlankSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/speedBar"
+            android:layout_centerHorizontal="true"
+            android:text="Flashing speed" />
+        
 	</RelativeLayout>
 </RelativeLayout>
