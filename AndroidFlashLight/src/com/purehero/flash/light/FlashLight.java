@@ -7,7 +7,7 @@ import android.hardware.Camera.Parameters;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 
-public class FlashLight {
+public class FlashLight implements FlashLightInterface {
 	protected final Context context;
 	private Camera camera = null;
 	

@@ -15,7 +15,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Size;
 import android.view.Surface;
 
-public class FlashLight2 {
+public class FlashLight2 implements FlashLightInterface {
 	protected final Context context;
 	
 	protected CameraCaptureSession mSession;

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +19,7 @@ import com.google.android.gms.ads.AdView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-	private FlashLight2 flashLight = null;
+	private FlashLightInterface flashLight = null;
 	private AdView bannerAdView = null;
 	
 	@Override
@@ -34,7 +35,11 @@ public class MainActivity extends Activity implements OnClickListener {
 			}
 		}
 		
-		flashLight = new FlashLight2( this );
+		if( Build.VERSION.SDK_INT >= 21 ) {
+			flashLight = new FlashLight2( this );
+		} else {
+			flashLight = new FlashLight( this );
+		}
 		if( !flashLight.init()) {
 			AlertDialog alert = new AlertDialog.Builder(MainActivity.this).create();
             alert.setTitle("Error");
