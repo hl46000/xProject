@@ -46,40 +46,43 @@
 
         <TextView
             android:id="@+id/tvSlow"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:text="slow"
+            android:layout_alignParentRight="true"
+            android:text="@string/slow"
+            android:textColor="#a0a0a0"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         
         <TextView
             android:id="@+id/tvFast"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:text="fast"
+            android:text="@string/fast"
+            android:textColor="#a0a0a0"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         
         <SeekBar
             android:id="@+id/speedBar"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/tvSlow"
              />
 
         <TextView
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/tvBlankSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@id/speedBar"
             android:layout_centerHorizontal="true"
-            android:text="Flashing speed" />
+            android:text="@string/flashing_speed"
+            android:textColor="#a0a0a0" />
         
 	</RelativeLayout>
 </RelativeLayout>

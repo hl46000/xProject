@@ -2,5 +2,9 @@
 <resources>
     <string name="app_name">휴대폰 손전등</string>
     
+    <string name="fast">빠름</string>
+	<string name="slow">느림</string>
+	<string name="flashing_speed">깜박이는 속도</string>
+    
     <string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
 </resources>

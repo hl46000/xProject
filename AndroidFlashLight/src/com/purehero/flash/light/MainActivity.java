@@ -1,5 +1,9 @@
 package com.purehero.flash.light;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -11,13 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity implements OnClickListener, OnSeekBarChangeListener {
 
 	private FlashLightInterface flashLight = null;
 	private AdView bannerAdView = null;
@@ -27,6 +29,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 				
+		SeekBar speedBar = ( SeekBar ) findViewById( R.id.speedBar );
+		if( speedBar != null ) {
+			speedBar.setMax(1000);
+			speedBar.setOnSeekBarChangeListener( this );
+		}
+		
 		int btnIDs [] = new int[]{ R.id.btnFlash };
 		for( int id : btnIDs ) {
 			Button btn = ( Button ) findViewById( id );
@@ -68,6 +76,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			
 			bannerAdView.loadAd(adRequest);
 		}
+        
+        new Thread( flashing_thread ).start();
 	}
 
 	@Override
@@ -133,4 +143,38 @@ public class MainActivity extends Activity implements OnClickListener {
 			Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
 		}
 	}
+
+	int flashingSpeedValue = 0;
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser ) {
+		if( seekBar.getId() != R.id.speedBar ) return;
+		flashingSpeedValue = progress;
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {}
+	
+	
+	Runnable flashing_thread = new Runnable() {
+		@Override
+		public void run() {
+			while( true ) {
+				try {
+					Thread.sleep( 10 + flashingSpeedValue );
+				} catch (InterruptedException e) {}
+
+				if( flashingSpeedValue > 0 && flash ) {				
+					MainActivity.this.runOnUiThread( new Runnable(){
+						@Override
+						public void run() {
+							flashLight.toggleFlashLight();
+						}});
+				}
+			}
+		}
+	};
 }

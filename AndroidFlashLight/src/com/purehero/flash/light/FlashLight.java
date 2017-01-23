@@ -10,6 +10,7 @@ import android.hardware.camera2.CameraManager;
 public class FlashLight implements FlashLightInterface {
 	protected final Context context;
 	private Camera camera = null;
+	private boolean flashOn = false;
 	
 	public FlashLight( Context context ) {
 		this.context = context;
@@ -26,10 +27,11 @@ public class FlashLight implements FlashLightInterface {
 	
 	public void setFlashLight( boolean onOff ) {
 		if( camera == null ) return;
+		flashOn = onOff;
 		
 		try {
 			Parameters p = camera.getParameters();
-			p.setFlashMode( onOff ? Parameters.FLASH_MODE_TORCH : Parameters.FLASH_MODE_OFF);
+			p.setFlashMode( flashOn ? Parameters.FLASH_MODE_TORCH : Parameters.FLASH_MODE_OFF);
 			camera.setParameters(p);
 			
 			if( onOff ) {
@@ -38,17 +40,16 @@ public class FlashLight implements FlashLightInterface {
 				camera.stopPreview();
 			}
 		} catch( Exception e ) {
-			CameraManager camManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-			try {
-				camManager.setTorchMode( camManager.getCameraIdList()[0], onOff );
-			} catch (CameraAccessException e1) {
-				e1.printStackTrace();
-			}
 		}
 	}
 	
 	public void release() {
 		if( camera == null ) return;
 		camera.release();
+	}
+
+	@Override
+	public void toggleFlashLight() {
+		setFlashLight( !flashOn );		
 	}
 }

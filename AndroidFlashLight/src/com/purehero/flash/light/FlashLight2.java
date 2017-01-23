@@ -24,6 +24,7 @@ public class FlashLight2 implements FlashLightInterface {
 	protected CameraManager mCameraManager;
 	protected SurfaceTexture mSurfaceTexture = new SurfaceTexture(1);
 	
+	protected boolean flashOn = false;
 	protected boolean flashAvailable = false;
 	
 	public FlashLight2( Context context ) {
@@ -48,9 +49,10 @@ public class FlashLight2 implements FlashLightInterface {
 	
 	public void setFlashLight( boolean onOff ) {
 		if( !flashAvailable ) return;
+		flashOn = onOff;
 		
 		try {
-            mBuilder.set(CaptureRequest.FLASH_MODE, onOff ? CameraMetadata.FLASH_MODE_TORCH : CameraMetadata.FLASH_MODE_OFF );
+            mBuilder.set(CaptureRequest.FLASH_MODE, flashOn ? CameraMetadata.FLASH_MODE_TORCH : CameraMetadata.FLASH_MODE_OFF );
             mSession.setRepeatingRequest(mBuilder.build(), null, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -149,4 +151,9 @@ public class FlashLight2 implements FlashLightInterface {
 
         }
     }
+
+	@Override
+	public void toggleFlashLight() {
+		setFlashLight( !flashOn );	
+	}
 }
