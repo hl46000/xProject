@@ -46,6 +46,7 @@
 
         <TextView
             android:id="@+id/tvSlow"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -55,6 +56,7 @@
         
         <TextView
             android:id="@+id/tvFast"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -64,12 +66,14 @@
         
         <SeekBar
             android:id="@+id/speedBar"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/tvSlow"
              />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/tvBlankSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
