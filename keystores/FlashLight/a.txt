@@ -1,0 +1,22 @@
+﻿휴대폰 손전등
+
+
+안드로이드 단말기를 손전등으로 사용합니다.
+
+안드로이드 단말기의 Flash Ligth 을 이용한 손전등 입니다. 
+
+손전등 기능에 무슨 설명이 필요할까요?
+그냥 손전등 입니다.
+
+- 시간 표시
+- 깜박임 기능 추가( 속도 조절 가능 )
+
+
+Flash Light
+
+Use your Android phone as a flashlight.
+
+This app allows you to use your Android device as a flashlight.
+
+What do I need to explain to the flashlight function?
+Just a flashlight.

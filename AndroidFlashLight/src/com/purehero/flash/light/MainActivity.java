@@ -156,7 +156,13 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 	public void onStartTrackingTouch(SeekBar seekBar) {}
 
 	@Override
-	public void onStopTrackingTouch(SeekBar seekBar) {}
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		flashingSpeedValue = seekBar.getProgress(); 
+		
+		if( flashingSpeedValue == 0 ) {
+			flashLight.setFlashLight( flash );
+		}
+	}
 	
 	
 	Runnable flashing_thread = new Runnable() {
@@ -164,15 +170,19 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 		public void run() {
 			while( true ) {
 				try {
-					Thread.sleep( 10 + flashingSpeedValue );
+					Thread.sleep( 100 + flashingSpeedValue );
 				} catch (InterruptedException e) {}
 
 				if( flashingSpeedValue > 0 && flash ) {				
+					flashLight.toggleFlashLight();
+					
+					/*
 					MainActivity.this.runOnUiThread( new Runnable(){
 						@Override
 						public void run() {
 							flashLight.toggleFlashLight();
 						}});
+						*/
 				}
 			}
 		}
