@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.purehero.lotto.scan.MainActivity" >
+    
+    <item android:id="@+id/btnScan" 
+	    android:title="@string/scan_text"
+	    app:showAsAction="always"
+    	android:showAsAction="always" />
+	
+</menu>
