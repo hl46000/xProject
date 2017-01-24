@@ -13,6 +13,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -23,11 +25,7 @@
         <activity
             android:name="com.example.apk.extractor.ApkExtractorActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            
         </activity>
         
         <service android:exported="false" android:name="com.example.service.AppSealingService" android:process=":report_service" android:stopWithTask="true" />
@@ -36,6 +34,14 @@
         <activity android:name="com.example.service.AppSealingNoticeActivity" />
         <activity android:name=".SecondActivity" />
         
-                
+        <activity android:name="com.example.bluetooth.BlueToothActivity"
+            android:label="Bluetooth Test" >
+        	<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        
 	</application>	
 </manifest>
