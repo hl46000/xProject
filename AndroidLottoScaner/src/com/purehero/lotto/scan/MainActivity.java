@@ -1,25 +1,32 @@
 package com.purehero.lotto.scan;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
-import android.widget.Toast;
-
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.zxing.client.android.CaptureActivity;
 
-public class MainActivity extends ActionBarActivity {
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+public class MainActivity extends ActionBarActivity implements OnClickListener {
 	
-	private AdView bannerAdView = null;
+	private AdView bannerAdView 			= null; // 하단 배너 광고
+	private InterstitialAd interstitialAd	= null;	// 전면 광고
 	
 	private ProgressBar progressBar = null;
 	private WebView webView = null;
@@ -30,7 +37,15 @@ public class MainActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 		
 		progressBar = ( ProgressBar ) 	findViewById( R.id.progressBar );
-		webView 	= ( WebView ) 		findViewById( R.id.webView );
+		
+		int btnIDs [] = new int[]{ R.id.btnMenu01, R.id.btnMenu02, R.id.btnMenu03 };
+		for( int id : btnIDs ) {
+			Button btn = ( Button ) findViewById( id );
+			if( btn != null ) {
+				btn.setOnClickListener( this );
+			}
+		}
+		
 		
 		// 하단 배너 광고 표시
  		bannerAdView = (AdView) findViewById(R.id.adView);
@@ -47,44 +62,66 @@ public class MainActivity extends ActionBarActivity {
  			
  			bannerAdView.loadAd(adRequest);
  		}
- 		
- 		
- 		if( webView != null ) {
- 			WebSettings webSettings = webView.getSettings();
-		    webSettings.setJavaScriptEnabled(true);
-		    
- 			webView.setWebViewClient(new WebViewClient() {
-				public boolean shouldOverrideUrlLoading(WebView view, String url) {
-					view.loadUrl(url);
-					return true;
-				};
-				
-				public void onPageStarted(WebView view, String url,
-						android.graphics.Bitmap favicon) {
-					super.onPageStarted(view, url, favicon);
-					progressBar.setVisibility(View.VISIBLE);
-				};
-
-				public void onPageFinished(WebView view, String url) {
-					super.onPageFinished(view, url);
-					progressBar.setVisibility(View.INVISIBLE);
-				};
-
-				public void onReceivedError(WebView view, int errorCode,
-						String description, String failingUrl) {
-					super.onReceivedError(view, errorCode, description, failingUrl);
-					Toast.makeText(MainActivity.this, "로딩오류" + description,
-							Toast.LENGTH_SHORT).show();
-				};
-				
-			});
-						 
-		    
- 		}
-	 
+ 		 		
+ 		init_webview();
  		openUrl( "http://m.nlotto.co.kr/" );	    
 	}
 
+	
+	
+	@Override
+	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
+		super.onActivityResult(arg0, arg1, arg2);
+		
+		if( arg2 != null ) {
+			String contents = arg2.getStringExtra( "CONTENTS" );
+			if( contents == null ) {
+				Log.d( "LottoScaner", String.format( "Activity Result NULL" ));
+			} else {
+				// 번호 확인 URL로 시작하는 데이터 이면
+				// openUrl( ) 함수를 이용해서 화면에 표시 해 준다.
+				Log.d( "LottoScaner", String.format( "Activity Result : %s", contents ));
+			}
+		}
+		
+		showFullAd();
+	}
+
+
+	private void init_webview() {
+		webView 	= ( WebView ) 		findViewById( R.id.webView );
+		if( webView == null ) return;
+		
+		WebSettings webSettings = webView.getSettings();
+	    webSettings.setJavaScriptEnabled(true);
+	    
+		webView.setWebViewClient(new WebViewClient() {
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				view.loadUrl(url);
+				return true;
+			};
+			
+			public void onPageStarted(WebView view, String url,
+					android.graphics.Bitmap favicon) {
+				super.onPageStarted(view, url, favicon);
+				progressBar.setVisibility(View.VISIBLE);
+			};
+
+			public void onPageFinished(WebView view, String url) {
+				super.onPageFinished(view, url);
+				progressBar.setVisibility(View.INVISIBLE);
+			};
+			
+			@Override
+			public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+				Toast.makeText(MainActivity.this, "로딩오류" + error.getDescription(),
+						Toast.LENGTH_SHORT).show();
+				
+				super.onReceivedError(view, request, error);
+			}
+		});
+	}
+	
 	private void openUrl(String url ) {
 		if( webView == null ) return;
 		
@@ -129,6 +166,50 @@ public class MainActivity extends ActionBarActivity {
 		} else {
 			backPressedTime = System.currentTimeMillis();
 			Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+		}
+	}
+	
+	public void showFullAd() {
+		if( interstitialAd != null ) {
+			if( interstitialAd.isLoaded()) {
+				if( System.currentTimeMillis() % 10 < 3 ) 
+				{
+					interstitialAd.show();
+				}
+			}
+			return;
+		}
+		
+		interstitialAd = new InterstitialAd( this );
+		interstitialAd.setAdUnitId( getResources().getString(R.string.ad_unit_id) );
+		AdRequest adRequest = new AdRequest.Builder().build();
+		interstitialAd.loadAd(adRequest);
+		interstitialAd.setAdListener( new AdListener(){
+			
+			@Override
+			public void onAdFailedToLoad(int errorCode) {
+			}
+
+			@Override
+			public void onAdLoaded() {
+			}
+
+			@Override
+			public void onAdClosed() {
+				AdRequest adRequest = new AdRequest.Builder().build();
+				interstitialAd.loadAd(adRequest);
+			}
+		});
+	}
+
+
+
+	@Override
+	public void onClick(View arg0) {
+		switch( arg0.getId()) {
+		case R.id.btnMenu01 : webView.loadUrl( "http://m.nlotto.co.kr/gameResult.do?method=byWin" ); break; 
+		case R.id.btnMenu02 : webView.loadUrl( "http://m.nlotto.co.kr/store.do?method=topStore&pageGubun=L645" ); break; 
+		case R.id.btnMenu03 : webView.loadUrl( "http://m.nlotto.co.kr/gameResult.do?method=statByNumber" ); break;	 
 		}
 	}
 }
