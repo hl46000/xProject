@@ -47,9 +47,11 @@ public final class URIResultHandler extends ResultHandler {
   public URIResultHandler(Activity activity, ParsedResult result) {
     super(activity, result);
     
+    /*
     URIParsedResult uriResult = (URIParsedResult) getResult();
     String uri = uriResult.getURI();
     openURL(uri);
+    */
   }
 
   @Override

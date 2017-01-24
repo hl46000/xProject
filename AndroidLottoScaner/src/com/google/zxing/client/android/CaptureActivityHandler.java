@@ -113,10 +113,14 @@ public final class CaptureActivityHandler extends Handler {
         if( byPassHandler != null ) {
         	byPassHandler.handleMessage( message );
         } else {
-	        String url = (String) message.obj;
+        	activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
+        	activity.finish();
+        	/*
+        	String url = (String) message.obj;
 	        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 	        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 	        activity.startActivity(intent);
+	        */
         }
         break;
     }

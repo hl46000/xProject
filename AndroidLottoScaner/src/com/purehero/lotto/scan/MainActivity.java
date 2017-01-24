@@ -1,11 +1,5 @@
 package com.purehero.lotto.scan;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.zxing.client.android.CaptureActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -14,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.WebBackForwardList;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -23,13 +18,19 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.zxing.client.android.CaptureActivity;
+
 public class MainActivity extends ActionBarActivity implements OnClickListener {
 	
 	private AdView bannerAdView 			= null; // 하단 배너 광고
 	private InterstitialAd interstitialAd	= null;	// 전면 광고
 	
 	private ProgressBar progressBar = null;
-	private WebView webView = null;
+	private WebView mWebView = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 				Log.d( "LottoScaner", String.format( "Activity Result NULL" ));
 			} else {
 				// 번호 확인 URL로 시작하는 데이터 이면
-				// openUrl( ) 함수를 이용해서 화면에 표시 해 준다.
+				openUrl( contents );// 함수를 이용해서 화면에 표시 해 준다.
 				Log.d( "LottoScaner", String.format( "Activity Result : %s", contents ));
 			}
 		}
@@ -89,17 +90,19 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 
 
 	private void init_webview() {
-		webView 	= ( WebView ) 		findViewById( R.id.webView );
-		if( webView == null ) return;
+		mWebView 	= ( WebView ) 		findViewById( R.id.webView );
+		if( mWebView == null ) return;
 		
-		WebSettings webSettings = webView.getSettings();
+		WebSettings webSettings = mWebView.getSettings();
 	    webSettings.setJavaScriptEnabled(true);
 	    
-		webView.setWebViewClient(new WebViewClient() {
-			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	    mWebView.setWebViewClient(new WebViewClient() {
+			/*
+	    	public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				view.loadUrl(url);
 				return true;
 			};
+			*/
 			
 			public void onPageStarted(WebView view, String url,
 					android.graphics.Bitmap favicon) {
@@ -123,13 +126,13 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 	}
 	
 	private void openUrl(String url ) {
-		if( webView == null ) return;
+		if( mWebView == null ) return;
 		
 		if( progressBar != null ) {
 			progressBar.setVisibility( View.VISIBLE );
 		}
 		
-		webView.loadUrl( url );
+		mWebView.loadUrl( url );
 	}
 
 	@Override
@@ -158,14 +161,20 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 	private long backPressedTime = 0;
 		
 	@Override
-	public void onBackPressed() 
-	{
-		if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
-			super.onBackPressed();
+	public void onBackPressed() {
+		WebBackForwardList list = mWebView.copyBackForwardList();
+		
+		if( list.getCurrentIndex() > 0 && mWebView.canGoBack()) {
+			mWebView.goBackOrForward( -1 );
 			
-		} else {
-			backPressedTime = System.currentTimeMillis();
-			Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+		} else {		
+			if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+				super.onBackPressed();
+				
+			} else {
+				backPressedTime = System.currentTimeMillis();
+				Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+			}
 		}
 	}
 	
@@ -207,9 +216,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 	@Override
 	public void onClick(View arg0) {
 		switch( arg0.getId()) {
-		case R.id.btnMenu01 : webView.loadUrl( "http://m.nlotto.co.kr/gameResult.do?method=byWin" ); break; 
-		case R.id.btnMenu02 : webView.loadUrl( "http://m.nlotto.co.kr/store.do?method=topStore&pageGubun=L645" ); break; 
-		case R.id.btnMenu03 : webView.loadUrl( "http://m.nlotto.co.kr/gameResult.do?method=statByNumber" ); break;	 
+		case R.id.btnMenu01 : openUrl( "http://m.nlotto.co.kr/gameResult.do?method=byWin" ); break; 
+		case R.id.btnMenu02 : openUrl( "http://m.nlotto.co.kr/store.do?method=topStore&pageGubun=L645" ); break; 
+		case R.id.btnMenu03 : openUrl( "http://m.nlotto.co.kr/gameResult.do?method=statByNumber" ); break;	 
 		}
 	}
 }
