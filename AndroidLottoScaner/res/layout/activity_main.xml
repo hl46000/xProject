@@ -6,54 +6,79 @@
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context="com.purehero.lotto.scan.MainActivity" >
 	
+    <LinearLayout 
+        android:id="@+id/btnArea"
+        android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnMenu01"
+            android:background="@drawable/button_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+          	android:layout_marginTop="2dp"
+          	android:layout_marginLeft="2dp"
+          	android:layout_marginBottom="2dp"
+          	android:layout_marginRight="1dp"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#000000"
+            android:shadowRadius="3.0"
+            android:text="@string/btn_menu_01" />
+        
+        <Button
+            android:id="@+id/btnMenu02"
+            android:background="@drawable/button_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginTop="2dp"
+          	android:layout_marginLeft="1dp"
+          	android:layout_marginBottom="2dp"
+          	android:layout_marginRight="1dp"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#000000"
+            android:shadowRadius="3.0"
+            android:text="@string/btn_menu_02" />
+        
+        <Button
+            android:id="@+id/btnMenu03"
+            android:background="@drawable/button_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginTop="2dp"
+          	android:layout_marginLeft="1dp"
+          	android:layout_marginBottom="2dp"
+          	android:layout_marginRight="1dp"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#000000"
+            android:shadowRadius="3.0"
+            android:text="@string/btn_menu_03" />
+        
+    </LinearLayout>
+    
     <com.google.android.gms.ads.AdView
 		android:id="@+id/adView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_above="@id/btnArea"
 		android:layout_centerHorizontal="true"
 		android:layout_alignParentBottom="true"
 		android:visibility="gone"
 		ads:adSize="BANNER"
 		ads:adUnitId="@string/banner_ad_unit_id">
 	</com.google.android.gms.ads.AdView>
-
-    <LinearLayout 
-        android:id="@+id/btnArea"
-        android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_above="@id/adView" 
-		android:layout_alignParentBottom="true"
-		android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnMenu01"
-            android:theme="@style/Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_menu_01" />
-        
-        <Button
-            android:id="@+id/btnMenu02"
-            android:theme="@style/Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_menu_02" />
-        
-        <Button
-            android:id="@+id/btnMenu03"
-            android:theme="@style/Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_menu_03" />
-        
-    </LinearLayout>
+	
     <FrameLayout 
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_above="@id/btnArea" >
+		android:layout_above="@id/adView" >
 
         <WebView
             android:id="@+id/webView"

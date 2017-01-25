@@ -14,9 +14,9 @@
 	<string name="ad_unit_id">ca-app-pub-9674501681746717/6156140986</string>
 	<string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
 	
-	<string name="btn_menu_01">당첨결과</string>
-	<string name="btn_menu_02">판매점</string>
-	<string name="btn_menu_03">번호통계</string>
+	<string name="btn_menu_01">회차별 당첨 결과</string>
+	<string name="btn_menu_02">당첨 판매점</string>
+	<string name="btn_menu_03">당첨번호 통계</string>
 	
 	<string name="copy_clipboard">Copy ClipBoard</string>
 	<string name="open_link">Open Link</string>

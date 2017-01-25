@@ -51,8 +51,6 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		// 하단 배너 광고 표시
  		bannerAdView = (AdView) findViewById(R.id.adView);
  		if( bannerAdView != null ) {
- 			bannerAdView.setVisibility( View.GONE );
- 			
  			AdRequest adRequest = new AdRequest.Builder().build();
  			bannerAdView.setAdListener( new AdListener(){
  				@Override
