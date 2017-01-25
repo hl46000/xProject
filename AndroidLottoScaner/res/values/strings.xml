@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">로또 당첨결과 스캐너</string>
+	<string name="app_name">로또 QR코드 스캐너</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
