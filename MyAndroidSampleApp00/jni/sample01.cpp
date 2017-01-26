@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <android/log.h>
-#include "jstr2str.h"
 
 #define  LOG_TAG	"TEST01"
 #define  LOGV(...)  __android_log_print(ANDROID_LOG_VERBOSE,LOG_TAG,__VA_ARGS__)
@@ -13,14 +12,6 @@
 #define  LOGT()		__android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,"%s:%s",__FILE__,__func__ )
 
 void init( JNIEnv * env, jobject, jobject appContext );
-
-__attribute__((constructor))
-void JNI_OnPreLoad()
-{
-	LOGT();
-}
-
-
 
 // JNI_OnLoad
 jint JNI_OnLoad( JavaVM* vm, void* )
@@ -59,34 +50,19 @@ jint JNI_OnLoad( JavaVM* vm, void* )
 
 
 #include <string>
-#include <vector>
-#include <memory>
-
-/*
- * 문자열이 ELF 구조에서 노출되지 않게 하기위한 함수
- *
- * */
-const char * compose_string( std::initializer_list<char> l, std::string & tmp_str )
-{
-	tmp_str.assign( l.begin(), l.end() );
-	return tmp_str.c_str();
-}
-
 /*
  * Android 의 Build 정보를 획득하기 위한 함수
  *
  * */
 int getDeviceField( JNIEnv* env, const char* name, std::string & ret_value )
 {
-	std::string tmp_str;
-
-	jclass cls_context = env->FindClass(compose_string({ 'a', 'n', 'd', 'r', 'o', 'i', 'd', '/', 'o', 's', '/', 'B', 'u', 'i', 'l', 'd' }, tmp_str ));
+	jclass cls_context = env->FindClass( "android/os/Build" );
 	if ( cls_context == 0  ) {
 		LOGE( "ERROR: env->FindClass failed" );
 		return -1;
 	}
 
-	jfieldID field = env->GetStaticFieldID( cls_context, name, compose_string({ 'L','j','a','v','a','/','l','a','n','g','/','S','t','r','i','n','g',';' }, tmp_str ) );
+	jfieldID field = env->GetStaticFieldID( cls_context, name, "Ljava/lang/String;" );
 	if ( field == 0 ) {
 		LOGE( "ERROR: env->GetStaticFieldID" );
 		return -1;
@@ -98,8 +74,9 @@ int getDeviceField( JNIEnv* env, const char* name, std::string & ret_value )
 		return -1;
 	}
 
-	jstr2str jstring( env, str_value );
-	ret_value.assign( jstring.c_str());
+	const char * pStr = ( char * ) env->GetStringUTFChars( str_value, NULL );
+	ret_value.assign( pStr );
+	env->ReleaseStringUTFChars( str_value, pStr );
 
 	LOGD( "getDeviceField : %s => %s", name, ret_value.c_str());
 
@@ -117,7 +94,7 @@ int getDeviceField( JNIEnv* env, const char* name, std::string & ret_value )
 #include <unistd.h>
 bool file_exist( const char * filepath )
 {
-	return access( filepath, F_OK ) == 0;
+	return access( filepath, 0 ) == 0;
 }
 
 /*
@@ -128,32 +105,29 @@ bool file_exist( const char * filepath )
 bool check_vm( JNIEnv * env )
 {
 	LOGT();
-	std::string tmp_str;	// compose_string 을 사용하기 위한 임시 객체
 
 	// 해당 파일이 존재하면 VM 으로 판단
-	if( file_exist( compose_string({'/','s','y','s','/','d','e','v','i','c','e','s','/','p','l','a','t','f','o','r','m','/','h','d','_','p','o','w','e','r'}, tmp_str ) )) {
+	if( file_exist( "/sys/devices/platform/hd_power" )) {
 		return true;
 	}
-	if( file_exist( compose_string({'/','s','y','s','/','b','u','s','/','a','c','9','7'}, tmp_str ) )) {
+	if( file_exist( "/sys/bus/ac97" )) {
 		return true;
 	}
 
 	// 해당 파일이 존재하지 않으면 VM으로 판단.
 
 	// 해당 파일이 특정 문자열이 존재하면 VM으로 판다.
-	std::unique_ptr<char> line ( new char[2048] );
+	char line[2048];
 
 	bool bFound = false;
 	FILE * fp = NULL;
 
-	fp = fopen( compose_string({'/', 'p', 'r', 'o', 'c', '/', 'p', 'a', 'r', 't', 'i', 't', 'i', 'o', 'n', 's'}, tmp_str ), "r");
+	fp = fopen( "/proc/partitions", "r");
 	if( fp != NULL ) {
 
-		std::string strSDA = compose_string({'s', 'd', 'a'}, tmp_str );	// 찾을 문자열
-		while( fgets( line.get(), 2047, fp ) != NULL ) {
-			const char * pLine = line.get();
-
-			if( strstr( pLine, strSDA.c_str() ) != NULL ) {
+		const char * findString = "sda";	// 찾을 문자열
+		while( fgets( line, 2047, fp ) != NULL ) {
+			if( strstr( line, findString ) != NULL ) {
 				bFound = true;
 				break;
 			}
@@ -163,23 +137,23 @@ bool check_vm( JNIEnv * env )
 	if( bFound ) return true;
 
 	bFound = false;
-	fp = fopen( compose_string({'/','p','r','o','c','/','m','o','d','u','l','e','s'}, tmp_str), "r");
+	fp = fopen( "/proc/modules", "r");
 	if( fp != NULL ) {
-		std::vector<std::string> check_list;	// 찾을 문자열 들
-		check_list.push_back(compose_string({'b','s','t','m','o','u','s','e'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','t','o','u','c','h'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','k','b','d'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','g','p','s'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','c','m','d'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','c','a','m','e','r','a'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','v','i','d','e','o'}, tmp_str));
-		check_list.push_back(compose_string({'b','s','t','a','u','d','i','o'}, tmp_str));
+		const char * check_list[] = { 	// 찾을 문자열 들
+			"bstmouse",
+			"bsttouch",
+			"bstkbd",
+			"bstgps",
+			"bstcmd",
+			"bstcamera",
+			"bstvideo",
+			"bstaudio",
+			NULL
+		};
 
-		while( fgets( line.get(), 2047, fp ) != NULL ) {
-			const char * pLine = line.get();
-
-			for( auto it = check_list.begin(); it != check_list.end(); ++it ) {
-				if( strstr( pLine, it->c_str()) != NULL ) {
+		while( fgets( line, 2047, fp ) != NULL ) {
+			for( int i = 0; check_list[i] != NULL; i++ ) {
+				if( strstr( line, check_list[i] ) != NULL ) {
 					bFound = true;
 					break;
 				}
@@ -191,53 +165,57 @@ bool check_vm( JNIEnv * env )
 
 	// Device 의 Build 정보 획득
 	std::string cpu, device, hardware, product;
-	getDeviceField( env, compose_string({ 'C', 'P', 'U', '_', 'A', 'B', 'I' }, tmp_str), cpu );
-	getDeviceField( env, compose_string({ 'D', 'E', 'V', 'I', 'C', 'E' }, tmp_str), device );
-	getDeviceField( env, compose_string({ 'H', 'A', 'R', 'D', 'W', 'A', 'R', 'E' }, tmp_str), hardware );
-	getDeviceField( env, compose_string({ 'P', 'R', 'O', 'D', 'U', 'C', 'T' }, tmp_str), product );
+	getDeviceField( env, "CPU_ABI", cpu );
+	getDeviceField( env, "DEVICE", device );
+	getDeviceField( env, "HARDWARE", hardware );
+	getDeviceField( env, "PRODUCT", product );
 
 	// check ( cpu && hardware && device && product )
-	std::vector<std::vector<std::string>> ck_datas;
-	ck_datas.push_back( { compose_string({ 'x' }, tmp_str), 		compose_string({ 'g','o','l','d','f','i','s','h' }, tmp_str), 	compose_string({ 'g','e','n','e','r','i','c' }, tmp_str), 					compose_string({ 's','d','k' }, tmp_str)} ) ;
-	ck_datas.push_back( { compose_string({ 'x','8','6' }, tmp_str), compose_string({ 'g','o','l','d','f','i','s','h' }, tmp_str), 	compose_string({ 'g','e','n','e','r','i','c','_','x','8','6' }, tmp_str), 	compose_string({ 's','d','k','_','x','8','6' }, tmp_str)} ) ;
-	ck_datas.push_back( { compose_string({ 'x','8','6' }, tmp_str), compose_string({ 'a','n','d','y' }, tmp_str), 					compose_string({ 's','a','n','t','o','s' }, tmp_str), 						compose_string({ 's','a','n','t','o','s' }, tmp_str)} ) ;
-	ck_datas.push_back( { compose_string({ 'x','8','6' }, tmp_str), compose_string({ 'd','u','o','s' }, tmp_str), 					compose_string({ 'n','a','t','i','v','e' }, tmp_str), 						compose_string({ 'd','u','o','s' }, tmp_str)} ) ;
+	const char * ck_datas[5][4] = {
+		{ "x", 	"goldfish", "generic",		"sdk" },
+		{ "x86","goldfish",	"generic_x86",	"sdk_x86" },
+		{ "x86","andy",		"santos",		"santos" },
+		{ "x86","duos",		"native",		"duos" },
+		{ NULL,NULL,NULL,NULL }
+	};
 
 	bFound = false;
-	for( auto it = ck_datas.begin(); it != ck_datas.end(); ++it ) {
-		std::string & _cpu 		= (*it)[0];
-		std::string & _hardware	= (*it)[1];
-		std::string & _device	= (*it)[2];
-		std::string & _product	= (*it)[3];
+	for( int i = 0; ck_datas[i][0] != NULL; i++ ) {
+		const char * _cpu 		= ck_datas[i][0];
+		const char * _hardware	= ck_datas[i][1];
+		const char * _device	= ck_datas[i][2];
+		const char * _product	= ck_datas[i][3];
 
-		if (( _cpu.length() 	 < 2 ? true : _cpu.compare( cpu ) == 0 ) 			&&
-			( _hardware.length() < 2 ? true : _hardware.compare( hardware ) == 0 ) 	&&
-			( _device.length() 	 < 2 ? true : _device.compare( device ) == 0 ) 		&&
-			( _product.length()  < 2 ? true : _product.compare( product ) == 0 )) {
+		if (( strlen(_cpu) 	 	< 2 ? true : cpu.compare( _cpu ) == 0 ) 			&&
+			( strlen(_hardware) < 2 ? true : hardware.compare( _hardware ) == 0 ) 	&&
+			( strlen(_device) 	< 2 ? true : device.compare( _device ) == 0 ) 		&&
+			( strlen(_product)  < 2 ? true : product.compare( _product ) == 0 )) {
 
-			LOGD( "check VM : cpu(%s) && hardware(%s) && device(%s) && product(%s)", _cpu.c_str(), _hardware.c_str(), _device.c_str(), _product.c_str());
+			LOGD( "check VM : cpu(%s) && hardware(%s) && device(%s) && product(%s)", _cpu, _hardware, _device, _product );
 			return true;
 		}
 	}
 
 	// check (cpu && ( hardware || device || product ))
-	std::vector<std::vector<std::string>> ck_datas2;
-	ck_datas2.push_back( { compose_string({ 'x','8','6' }, tmp_str), compose_string({ 'v','b','o','x','8','6' }, tmp_str), compose_string({ 'v','b','o','x','8','6' }, tmp_str), compose_string({ 'v','b','o','x','8','6' }, tmp_str)} ) ;
+	const char * ck_datas2[2][4] = {
+		{ "x86","vbox86","vbox86","vbox86" },
+		{ NULL,NULL,NULL,NULL }
+	};
 
 	bFound = false;
-	for( auto it = ck_datas.begin(); it != ck_datas.end(); ++it ) {
-		std::string & _cpu 		= (*it)[0];
-		std::string & _hardware	= (*it)[1];
-		std::string & _device	= (*it)[2];
-		std::string & _product	= (*it)[3];
+	for( int i = 0; ck_datas2[i][0] != NULL; i++ ) {
+		const char * _cpu 		= ck_datas2[i][0];
+		const char * _hardware	= ck_datas2[i][1];
+		const char * _device	= ck_datas2[i][2];
+		const char * _product	= ck_datas2[i][3];
 
-		if (( _cpu.length() 	 	 < 2 ? true : _cpu.compare( cpu ) == 0 ) &&
-			( 	( _hardware.length() < 2 ? true : _hardware.compare( hardware ) == 0 ) 	||
-				( _device.length() 	 < 2 ? true : _device.compare( device ) == 0 ) 		||
-				( _product.length()  < 2 ? true : _product.compare( product ) == 0 ))
+		if (( strlen(_cpu) 	 	 	< 2 ? true : cpu.compare( _cpu ) == 0 ) &&
+			( 	( strlen(_hardware) < 2 ? true : hardware.compare( _hardware ) == 0 ) 	||
+				( strlen(_device) 	< 2 ? true : device.compare( _device ) == 0 ) 		||
+				( strlen(_product)  < 2 ? true : product.compare( _product ) == 0 ))
 			) {
 
-			LOGD( "check VM : cpu(%s) && ( hardware(%s) || device(%s) || product(%s))", _cpu.c_str(), _hardware.c_str(), _device.c_str(), _product.c_str());
+			LOGD( "check VM : cpu(%s) && ( hardware(%s) || device(%s) || product(%s))", _cpu, _hardware, _device, _product );
 			return true;
 		}
 	}
