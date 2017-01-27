@@ -1,20 +1,20 @@
-#include <jni.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <android/log.h>
-#include "jstr2str.h"
 
-#define  LOG_TAG	"TEST_Native"
-#define  LOGV(...)  __android_log_print(ANDROID_LOG_VERBOSE,LOG_TAG,__VA_ARGS__)
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
-#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
-#define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
-#define  LOGT()		__android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,"%s:%s",__FILE__,__func__ )
+#include "alog.h"
+#include "jstr2str.h"
+#include "maps_reader.h"
+
+#include <sys/types.h>
+#include <unistd.h>
 
 void init( JNIEnv * env, jobject, jobject appContext )
 {
 	LOGT();
+
+	maps_reader maps( getpid() );
+	LOGD( "sizeof(mapsInfo) : %d", maps.read());
+	maps.print( NULL );
 
 	jclass jc_appContext = env->GetObjectClass(appContext);
 	if(jc_appContext == NULL) {
