@@ -28,6 +28,8 @@ public class BluetoothCommunication {
 	    
 	    mOutputStream = mSocket.getOutputStream();
 	    mInputStream = mSocket.getInputStream();
+	    
+	    new DataReceiver().start();
 	}
 
 	public void setDataReceiver( IFBluetoothDataReceiver receiver ) {
@@ -50,6 +52,10 @@ public class BluetoothCommunication {
 		if( mSocket != null ) {
 			try { mSocket.close(); } catch (IOException e) {}
 		}
+		
+		if( receiver != null ) {
+			receiver.OnDisconnected();
+		}
 	}
 	
 	public String getName() {
@@ -66,6 +72,7 @@ public class BluetoothCommunication {
 				mOutputStream.write( buff, 0, size );
 			} catch (IOException e) {
 				e.printStackTrace();
+				release();
 			}
 		}
 	}
@@ -85,11 +92,14 @@ public class BluetoothCommunication {
 						receiver.OnDateReceived(data, readBytes);
 					}
 				} catch ( Exception e ) {
+					e.printStackTrace();
 					break;
 				}
 			}
-			
+						
 			G.Log( "'%s' End data receive", getName());
+			
+			release();
 		}
 	};
 }

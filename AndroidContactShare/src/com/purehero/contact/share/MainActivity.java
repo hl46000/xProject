@@ -1,6 +1,9 @@
 package com.purehero.contact.share;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
@@ -11,7 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +31,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 	
 	BluetoothCommunication btComm = null;
 	
+	ListView listView = null;
+	ArrayAdapter <String> adapter = null;
+	List<String> listDatas = new ArrayList<String>();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,12 +42,17 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		
 		BluetoothManager.getInstance().initialize( this );
 		
-		int btnIDs[] = { R.id.btnDeviceList, R.id.btnAccept };
+		int btnIDs[] = { R.id.btnDeviceList, R.id.btnAccept, R.id.btnSend };
 		for( int id : btnIDs ) {
 			Button btn = ( Button ) findViewById(id);
 			if( btn != null ) {
 				btn.setOnClickListener( this );
 			}
+		}
+		listView = ( ListView ) findViewById( R.id.listView );
+		if( listView != null ) {
+			adapter = new ArrayAdapter <String> (this, android.R.layout.simple_list_item_1, listDatas );
+			listView.setAdapter( adapter );
 		}
 		
 		G.Log( "MainActivity" );
@@ -52,9 +67,26 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		super.onDestroy();
 	}
 
+	Runnable listViewReflash = new Runnable(){
+		@Override
+		public void run() {
+			adapter.notifyDataSetChanged();
+		}
+	};
 	IFBluetoothDataReceiver bluetoothDataReceiver = new IFBluetoothDataReceiver() {
 		@Override
 		public void OnDateReceived( byte[] data, int size ) {
+			String msg = new String( data, 0, size );
+			listDatas.add(msg);
+			
+			MainActivity.this.runOnUiThread( listViewReflash );
+			
+			G.Log( "Received message : %s", msg );
+		}
+
+		@Override
+		public void OnDisconnected() {
+			G.Log( "Disconnected" );
 		}
 	};
 	
@@ -164,6 +196,21 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 				BluetoothManager.getInstance().discoverableDevice( 300 );				
 			} else {
 				BluetoothManager.getInstance().requestEnable();
+			}
+			break;
+			
+		case R.id.btnSend :
+			EditText editText = (EditText) findViewById( R.id.editText );
+			if( editText != null ) {
+				String msg = editText.getText().toString();
+				G.Log( "message : %s", msg );
+				
+				if( btComm != null ) {
+					byte [] msg_bytes = msg.getBytes(Charset.forName("UTF-8"));
+					
+					G.Log( "Send message : %s", msg );
+					btComm.write( msg_bytes, msg_bytes.length );
+				}
 			}
 			break;
 		}
