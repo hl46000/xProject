@@ -6,14 +6,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.purehero.bluetooth.share.G;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.DialogInterface;
 import android.content.Intent;
+
+import com.purehero.bluetooth.share.G;
 
 public class BluetoothManager {
 	// Unique UUID for this application
@@ -32,6 +33,13 @@ public class BluetoothManager {
 	private Activity activity = null;
 	private Set<BluetoothDevice> bluetoothDevices = new HashSet<BluetoothDevice>();
 	
+	BluetoothCommunication 	btComm = null;
+	SocketListenServer  	socketListenServer 			= null;
+	SocketListenServer  	socketListenInsecureServer 	= null;
+	BluetoothServerSocket 	mServerSocket 			= null;
+	BluetoothServerSocket 		mInsecureServerSocket 	= null;
+	IFBluetoothEventListener 	bluetoothEventListener 	= null;
+	
 	private static BluetoothManager instance = null;
 	public static BluetoothManager getInstance() {
 		if( instance == null ) {
@@ -47,6 +55,10 @@ public class BluetoothManager {
 	
 	public void release() {
 		stopReceiveClient();
+		
+		if( btComm != null ) {
+			btComm.release();
+		}
 	}
 	
 	public void addDevice( BluetoothDevice device ) {
@@ -59,6 +71,8 @@ public class BluetoothManager {
 	 * @param duration
 	 */
 	public void discoverableDevice( int duration ) {
+		G.Log("discoverableDevice");
+		
 		// 감지 권한을 요구하는 인텐트 작성
 		Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration);
@@ -84,9 +98,11 @@ public class BluetoothManager {
 		}
 	}
 	
-	public void searchDevices() { 
-		Intent serverIntent = new Intent( activity, DeviceListActivity.class); 
-		activity.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE); 
+	public void openDeviceList( Activity act ) { 
+		G.Log("openDeviceList");
+		
+		Intent serverIntent = new Intent( act, BluetoothDeviceListActivity.class); 
+		act.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE); 
 	}
 
 	public boolean createBond(BluetoothDevice device) throws Exception { 
@@ -108,25 +124,70 @@ public class BluetoothManager {
 	 * @throws IOException
 	 */
 	public BluetoothCommunication connectDevice( BluetoothDevice btDevice, boolean secure ) throws IOException {
-		BluetoothCommunication ret = null;
-		
 		if( secure ) {
-			ret = new BluetoothCommunication( btDevice.createRfcommSocketToServiceRecord( MY_UUID_SECURE ));
+			btComm = new BluetoothCommunication( btDevice.createRfcommSocketToServiceRecord( MY_UUID_SECURE ));
 		} else {
-			ret = new BluetoothCommunication( btDevice.createInsecureRfcommSocketToServiceRecord( MY_UUID_INSECURE ));
+			btComm = new BluetoothCommunication( btDevice.createInsecureRfcommSocketToServiceRecord( MY_UUID_INSECURE ));
 		}
-		if( ret != null ) {
+		if( btComm != null ) {
 			try {
 				createBond( btDevice );
 			} catch( Exception e ) {}
 		}
-		return ret;
+		
+		if( bluetoothEventListener != null ) {
+			bluetoothEventListener.OnConnected( btComm );
+		}
+		activity.finish();
+		
+		return btComm;
 	}
 	
-	SocketListenServer  	socketListenServer 			= null;
-	SocketListenServer  	socketListenInsecureServer 	= null;
-	BluetoothServerSocket 	mServerSocket 			= null;
-	BluetoothServerSocket 	mInsecureServerSocket 	= null;
+	IFBluetoothEventListener btEventListener = new IFBluetoothEventListener() {
+		@Override
+		public void OnDateReceived(byte[] data, int size) {}
+
+		@Override
+		public void OnConnected(BluetoothCommunication newComm ) {
+			G.Log( "receivedConnection" );
+			if( btComm != null && btComm.isConnected()) { 
+				newComm.release();
+				return;
+			} 
+			btComm = newComm;
+			G.confirmDialog( activity, "연결요청 확인", btComm.getName() + " 으로부터 연청 요청을 받았습니다.\n연결하시겠습니까?", 0, dialogOnClickListener );
+		}
+
+		@Override
+		public void OnDisconnected() {}
+	};
+	
+	public void SetBluetoothEventListener( IFBluetoothEventListener bluetoothEventListener ) {
+		this.bluetoothEventListener = bluetoothEventListener;
+	}
+	
+	DialogInterface.OnClickListener dialogOnClickListener = new DialogInterface.OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int id ) {
+			switch( id ) {
+			case G.DIALOG_BUTTON_ID_YES :
+				G.Log( "Dialog onClickListener : YES" );
+				btComm.setEventListener( bluetoothEventListener );
+				
+				if( bluetoothEventListener != null ) {
+					bluetoothEventListener.OnConnected( btComm );
+				}
+				activity.finish();
+				
+				break;
+			case G.DIALOG_BUTTON_ID_NO 	:
+				G.Log( "Dialog onClickListener : NO" );
+				btComm.release();
+				break;
+			}
+		}
+	};
+	
 	/**
 	 * 현 장치에 새로운 연결이 들어오기를 기다린다.
 	 * <br>새로운 장치와 연결이 되면 BluetoothConnection interface 을 통해 연결된 객체를 전달하고 
@@ -136,17 +197,20 @@ public class BluetoothManager {
 	 * @param bc
 	 * @throws IOException
 	 */
-	public void startReceiveClient( String serverName, IFBluetoothConnectionReceiver bc ) throws IOException {
+	public void startReceiveClient() throws IOException {
+		G.Log( "startReceiveClient" );
 		stopReceiveClient();
+		
+		String serverName = "BluetoothShare";
 		
 		mServerSocket = btAdapter.listenUsingRfcommWithServiceRecord( serverName, MY_UUID_SECURE );
 		if( mServerSocket != null ) {
-			socketListenServer = new SocketListenServer( mServerSocket, bc );
+			socketListenServer = new SocketListenServer( mServerSocket, btEventListener );
 			socketListenServer.start();
 		}
 		mInsecureServerSocket = btAdapter.listenUsingInsecureRfcommWithServiceRecord( serverName, MY_UUID_INSECURE );
 		if( mInsecureServerSocket != null ) {
-			socketListenInsecureServer = new SocketListenServer( mInsecureServerSocket, bc );
+			socketListenInsecureServer = new SocketListenServer( mInsecureServerSocket, btEventListener );
 			socketListenInsecureServer.start();
 		}
 	}
@@ -155,6 +219,8 @@ public class BluetoothManager {
 	 * 새로운 장치의 연결을 기다리는 작업을 정지 시킨다. 
 	 */
 	public void stopReceiveClient() {
+		G.Log( "stopReceiveClient" );
+		
 		if( mServerSocket != null ) {
 			try { mServerSocket.close(); } catch (IOException e1) {}
 		}
@@ -176,10 +242,10 @@ public class BluetoothManager {
 	}
 	
 	class SocketListenServer extends Thread implements Runnable{
-		final IFBluetoothConnectionReceiver bc;
+		final IFBluetoothEventListener listener;
 		final BluetoothServerSocket ss;
-		public SocketListenServer( BluetoothServerSocket serverSocket, IFBluetoothConnectionReceiver bc ) {
-			this.bc = bc;
+		public SocketListenServer( BluetoothServerSocket serverSocket, IFBluetoothEventListener listener ) {
+			this.listener = listener;
 			this.ss = serverSocket;
 		}
 		
@@ -200,8 +266,9 @@ public class BluetoothManager {
 					BluetoothDevice bd = bs.getRemoteDevice();
 					G.Log( "Accepted : %s(%s)", bd.getName(), bd.getAddress() );
 					
-					if( bc != null ) {
-						bc.receivedConnection( new BluetoothCommunication( bs ));
+					BluetoothCommunication newConnection = new BluetoothCommunication( bs ); 
+					if( listener != null ) {
+						listener.OnConnected( newConnection );
 					} else {
 						bs.close();
 					}
@@ -222,5 +289,11 @@ public class BluetoothManager {
 	 */
 	public BluetoothDevice getDevice(String address) {
 		return btAdapter.getRemoteDevice( address );
+	}
+
+	public void write(byte[] msg_bytes, int length) {
+		if( btComm != null ) {
+			btComm.write( msg_bytes, length );
+		}
 	}
 }

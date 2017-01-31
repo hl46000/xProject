@@ -17,4 +17,7 @@
     <string name="button_cancel">찾기 취소</string>
     <string name="change_device_name">디바이스 이름 변경</string>
     
+    <string name="yes">예</string>
+    <string name="no">아니요</string>
+    
 </resources>

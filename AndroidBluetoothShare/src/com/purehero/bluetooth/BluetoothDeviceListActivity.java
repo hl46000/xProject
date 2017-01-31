@@ -16,6 +16,7 @@
 
 package com.purehero.bluetooth;
 
+import java.io.IOException;
 import java.util.Set;
 
 import android.app.Activity;
@@ -38,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.R;
@@ -48,7 +50,7 @@ import com.purehero.bluetooth.share.R;
  * by the user, the MAC address of the device is sent back to the parent
  * Activity in the result Intent.
  */
-public class DeviceListActivity extends ActionBarActivity {
+public class BluetoothDeviceListActivity extends ActionBarActivity implements OnClickListener {
     
     // Return Intent extra
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
@@ -62,6 +64,8 @@ public class DeviceListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        BluetoothManager.getInstance().initialize( this );
+        
         // Setup the window
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.device_list);
@@ -70,18 +74,14 @@ public class DeviceListActivity extends ActionBarActivity {
         setResult(Activity.RESULT_CANCELED);
 
         // Initialize the button to perform device discovery
-        final Button scanButton = (Button) findViewById(R.id.button_scan);
-        scanButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if( mBtAdapter.isDiscovering()) {
-                	cancelDiscovery();
-                	scanButton.setText( R.string.button_scan );
-                } else {
-                	doDiscovery();                	
-                	scanButton.setText( R.string.button_cancel );
-                }
-            }
-        });
+        int btnIDs[] = { R.id.button_scan, R.id.btnDiscoverable };
+        for( int id : btnIDs ) {
+        	Button button = (Button) findViewById( id );
+        	if( button == null ) continue;
+        	
+        	button.setOnClickListener( this );
+        }
+        
 
         // Initialize array adapters. One for already paired devices and
         // one for newly discovered devices
@@ -133,6 +133,9 @@ public class DeviceListActivity extends ActionBarActivity {
         	myDeviceContent.setText( mBtAdapter.getName() + "\n" + mBtAdapter.getAddress());
         }
         
+        if( !BluetoothManager.getInstance().enableDevice()) {
+			BluetoothManager.getInstance().requestEnable();
+		}
     }
 
     @Override
@@ -214,13 +217,15 @@ public class DeviceListActivity extends ActionBarActivity {
             String info = ((TextView) v).getText().toString();
             String address = info.substring(info.length() - 17);
 
-            // Create the result Intent and include the MAC address
-            Intent intent = new Intent();
-            intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
-
-            // Set result and finish this Activity
-            setResult(Activity.RESULT_OK, intent);
-            finish();
+            BluetoothDevice device = BluetoothManager.getInstance().getDevice( address );
+			if( device != null ) {
+				try {
+					BluetoothManager.getInstance().connectDevice( device, true );
+				} catch (IOException e) {
+					e.printStackTrace();
+					Toast.makeText( BluetoothDeviceListActivity.this, "연결 실패", Toast.LENGTH_LONG ).show();
+				}
+			}	
         }
     };
 
@@ -265,4 +270,69 @@ public class DeviceListActivity extends ActionBarActivity {
         }
     };
 
+	@Override
+	public void onClick(View view) {
+		Button button = null;
+		
+		switch( view.getId()) {
+		case R.id.button_scan :
+			button = ( Button ) view;
+			if( mBtAdapter.isDiscovering()) {
+            	cancelDiscovery();
+            	button.setText( R.string.button_scan );
+            } else {
+            	doDiscovery();                	
+            	button.setText( R.string.button_cancel );
+            }
+			break;
+			
+		case R.id.btnDiscoverable :
+			G.Log("click btnDiscoverable");
+			
+			button = ( Button ) view;
+			
+			if( BluetoothManager.getInstance().enableDevice()) {
+				BluetoothManager.getInstance().discoverableDevice( 300 );				
+			} else {
+				BluetoothManager.getInstance().requestEnable();
+			}
+			
+			break;
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) { 
+		case BluetoothManager.REQUEST_ENABLE_BT: // When the request to enable Bluetooth returns 
+			if (resultCode == Activity.RESULT_OK) { // 확인 눌렀을 때 //Next Step 
+				try {
+					BluetoothManager.getInstance().startReceiveClient();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+			} else { // 취소 눌렀을 때 
+				Toast.makeText( this, "블루투스가 활성화되지 않아서 앱을 종료 합니다.", Toast.LENGTH_LONG ).show();
+				this.finish();
+			} 
+			break;
+		case BluetoothManager.REQUEST_DISCOVERABLE_DEVICE :
+			G.Log("REQUEST_DISCOVERABLE_DEVICE %d", resultCode );
+			
+			if( resultCode != 0 ) {
+				int duration = resultCode;
+				new DiscoverableDeviceThread( BluetoothDeviceListActivity.this, (Button) findViewById(R.id.btnDiscoverable ), duration ).start();
+				
+				try {
+					BluetoothManager.getInstance().startReceiveClient();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		}
+	}
+	
+	
 }

@@ -19,4 +19,7 @@
     <string name="button_cancel">Cancel</string>
     <string name="change_device_name">Change Device Name</string>
     
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    
 </resources>

@@ -25,16 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="다른 장치에 연결" />
-
-        <Button
-	        android:id="@+id/btnAccept"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/tvHello"
-	        android:layout_alignRight="@+id/btnDeviceList"
-	        android:layout_below="@+id/btnDeviceList"
-	        android:text="다른 장치의 연결 허용" />
+            android:text="Bluetooth연결" />
     </RelativeLayout>
     
     <RelativeLayout 

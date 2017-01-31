@@ -14,7 +14,7 @@ public class BluetoothCommunication {
 	InputStream		mInputStream 	= null;
 	OutputStream	mOutputStream 	= null;
 	
-	private IFBluetoothDataReceiver receiver = null;
+	private IFBluetoothEventListener bluetoothEventListenerreceiver = null;
 	
 	public BluetoothCommunication( BluetoothSocket mSocket ) throws IOException {
 	    this.mSocket = mSocket;
@@ -32,10 +32,6 @@ public class BluetoothCommunication {
 	    new DataReceiver().start();
 	}
 
-	public void setDataReceiver( IFBluetoothDataReceiver receiver ) {
-		this.receiver = receiver;
-	}
-	
 	public boolean isConnected() {
 		return mSocket == null ? false : mSocket.isConnected();
 	}
@@ -53,8 +49,8 @@ public class BluetoothCommunication {
 			try { mSocket.close(); } catch (IOException e) {}
 		}
 		
-		if( receiver != null ) {
-			receiver.OnDisconnected();
+		if( bluetoothEventListenerreceiver != null ) {
+			bluetoothEventListenerreceiver.OnDisconnected();
 		}
 	}
 	
@@ -88,8 +84,8 @@ public class BluetoothCommunication {
 			while( true ) {
 				try {
 					readBytes = mInputStream.read( data, 0, buffer_size );
-					if( receiver != null ) {
-						receiver.OnDateReceived(data, readBytes);
+					if( bluetoothEventListenerreceiver != null ) {
+						bluetoothEventListenerreceiver.OnDateReceived(data, readBytes);
 					}
 				} catch ( Exception e ) {
 					e.printStackTrace();
@@ -101,5 +97,9 @@ public class BluetoothCommunication {
 			
 			release();
 		}
+	}
+
+	public void setEventListener(IFBluetoothEventListener bluetoothEventListenerreceiver) {
+		this.bluetoothEventListenerreceiver = bluetoothEventListenerreceiver;
 	};
 }
