@@ -4,7 +4,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := AppSealingExternalExecutor
-LOCAL_SRC_FILES := AppSealingExternalExecutor.cpp util/maps_reader.cpp
+LOCAL_SRC_FILES := AppSealingExternalExecutor.cpp util/maps_reader.cpp util/util.cpp util/jstr2str.cpp
 
 LOCAL_CFLAGS	+= -I./ -I../
 LOCAL_LDLIBS	+= -llog -ldl -lz

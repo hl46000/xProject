@@ -7,10 +7,12 @@
 
 #include "maps_reader.h"
 #include <string.h>
-#include "alog.h"
+
+#include <memory>
+#include "../jni_helper.h"
 
 maps_reader::maps_reader( int _pid ) : pid( _pid ) {
-	LOGD( "mapsInfo size : %d", sizeof(mapsInfo));
+	LOGD( "mapsInfo struct size : %d", sizeof(mapsInfo));
 }
 
 maps_reader::~maps_reader() {
@@ -18,24 +20,25 @@ maps_reader::~maps_reader() {
 
 
 int maps_reader::read() {
-	char strTemp[2048];
-	sprintf( strTemp, "/proc/%d/maps", pid );
+	//char strTemp[2048];
+	std::unique_ptr<char[]> strTemp( new char[2048]);
+	sprintf( strTemp.get(), "/proc/%d/maps", pid );
 
-	LOGD( "maps_reader => file open '%s'", strTemp );
+	LOGD( "maps_reader => file open '%s'", strTemp.get() );
 
 	maps_infos.clear();
 
-	FILE * mapsFp = fopen ( strTemp, "rb" );
+	FILE * mapsFp = fopen ( strTemp.get(), "rb" );
 	if( mapsFp != NULL ) {
 		unsigned long unknown1;
 		char unknown2[6];
 		int unknown3;
 
 		mapsInfo info;
-		while( fgets( strTemp, sizeof(strTemp), mapsFp ) != NULL ){
+		while( fgets( strTemp.get(), 2048, mapsFp ) != NULL ){
 			memset( &info, sizeof(mapsInfo), 0 );
 
-			sscanf( strTemp, "%08lx-%08lx %s %08lx %s %d %s", &info.startAddr, &info.endAddr,(char*)&info.permission,&unknown1,(char*)&unknown2,&unknown3,(char*)&info.filename);
+			sscanf( strTemp.get(), "%08lx-%08lx %s %08lx %s %d %s", &info.startAddr, &info.endAddr,(char*)&info.permission,&unknown1,(char*)&unknown2,&unknown3,(char*)&info.filename);
 			maps_infos.push_back( info );
 		}
 		fclose(mapsFp);

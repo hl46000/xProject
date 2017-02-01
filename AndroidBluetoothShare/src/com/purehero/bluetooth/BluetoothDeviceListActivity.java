@@ -41,8 +41,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.R;
+import com.purehero.common.G;
 
 /**
  * This Activity appears as a dialog. It lists any paired devices and

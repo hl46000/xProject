@@ -17,9 +17,9 @@ public:
 
 	const char * c_str();
 private :
-	const JNIEnv * pEnv;
+	JNIEnv * pEnv;
 	const jstring jstr;
-	char * pStr;
+	const char * pStr;
 };
 
 #endif /* JSTR2STR_H_ */

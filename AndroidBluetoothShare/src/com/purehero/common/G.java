@@ -1,4 +1,7 @@
-package com.purehero.bluetooth.share;
+package com.purehero.common;
+
+import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.share.R.string;
 
 import android.app.Activity;
 import android.app.AlertDialog;

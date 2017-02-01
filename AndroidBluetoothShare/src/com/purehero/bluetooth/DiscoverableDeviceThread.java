@@ -1,6 +1,6 @@
 package com.purehero.bluetooth;
 
-import com.purehero.bluetooth.share.G;
+import com.purehero.common.G;
 
 import android.app.Activity;
 import android.widget.Button;

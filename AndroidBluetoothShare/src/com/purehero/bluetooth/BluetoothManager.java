@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.purehero.common.G;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -13,8 +15,6 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
-
-import com.purehero.bluetooth.share.G;
 
 public class BluetoothManager {
 	// Unique UUID for this application
@@ -135,7 +135,8 @@ public class BluetoothManager {
 			} catch( Exception e ) {}
 		}
 		
-		if( bluetoothEventListener != null ) {
+		btComm.setEventListener( bluetoothEventListener );
+		if( bluetoothEventListener != null ) {			
 			bluetoothEventListener.OnConnected( btComm );
 		}
 		activity.finish();
@@ -163,18 +164,22 @@ public class BluetoothManager {
 	};
 	
 	public void SetBluetoothEventListener( IFBluetoothEventListener bluetoothEventListener ) {
+		G.Log( "SetBluetoothEventListener %s", bluetoothEventListener == null ? "null" : "not null" );
 		this.bluetoothEventListener = bluetoothEventListener;
 	}
 	
 	DialogInterface.OnClickListener dialogOnClickListener = new DialogInterface.OnClickListener() {
 		@Override
 		public void onClick(DialogInterface dialog, int id ) {
+			G.Log( "Dialog onClickListener : %d", id );
+			
 			switch( id ) {
 			case G.DIALOG_BUTTON_ID_YES :
 				G.Log( "Dialog onClickListener : YES" );
 				btComm.setEventListener( bluetoothEventListener );
 				
 				if( bluetoothEventListener != null ) {
+					G.Log( "Set bluetooth event listener" );
 					bluetoothEventListener.OnConnected( btComm );
 				}
 				activity.finish();

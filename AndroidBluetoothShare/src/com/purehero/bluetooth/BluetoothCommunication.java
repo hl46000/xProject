@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.purehero.bluetooth.share.G;
+import com.purehero.common.G;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -84,6 +84,7 @@ public class BluetoothCommunication {
 			while( true ) {
 				try {
 					readBytes = mInputStream.read( data, 0, buffer_size );
+					
 					if( bluetoothEventListenerreceiver != null ) {
 						bluetoothEventListenerreceiver.OnDateReceived(data, readBytes);
 					}

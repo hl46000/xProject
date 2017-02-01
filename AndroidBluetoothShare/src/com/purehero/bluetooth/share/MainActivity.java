@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.purehero.bluetooth.BluetoothCommunication;
 import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.common.G;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
 	ListView listView = null;
@@ -42,6 +43,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 			adapter = new ArrayAdapter <String> (this, android.R.layout.simple_list_item_1, listDatas );
 			listView.setAdapter( adapter );
 		}
+		
 		
 		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
 		
