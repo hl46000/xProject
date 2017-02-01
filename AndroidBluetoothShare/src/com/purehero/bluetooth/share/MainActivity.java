@@ -4,8 +4,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,9 +48,31 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		
 		
 		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
+	
+		G.textInputDialog( this, "title", "message", "hint", 0, dialogOnClickListener );
 		
 		G.Log("onCreate");
 	}
+	
+	DialogInterface.OnKeyListener dialogOnKeyListener = new DialogInterface.OnKeyListener() {
+
+		@Override
+		public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+			return false;
+		}
+	};
+	
+	DialogInterface.OnClickListener dialogOnClickListener = new DialogInterface.OnClickListener() {
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			switch( which ) {
+			case G.DIALOG_BUTTON_ID_YES : 
+				G.Log( "input dialog result : %s", G.getTextInputDialogResult());
+				break;
+			}
+		}
+	};
 	
 	@Override
 	protected void onDestroy() {
