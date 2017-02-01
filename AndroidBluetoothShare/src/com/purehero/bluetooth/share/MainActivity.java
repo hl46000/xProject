@@ -7,7 +7,6 @@ import java.util.List;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,7 +32,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		int btnIDs[] = { R.id.btnDeviceList, R.id.btnSend };
+		G.init( this );
+		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
+		
+		int btnIDs[] = { R.id.btnSend };
 		for( int id : btnIDs ) {
 			Button btn = ( Button ) findViewById(id);
 			if( btn != null ) {
@@ -45,22 +47,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 			adapter = new ArrayAdapter <String> (this, android.R.layout.simple_list_item_1, listDatas );
 			listView.setAdapter( adapter );
 		}
-		
-		
-		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
-	
-		G.textInputDialog( this, "title", "message", "hint", 0, dialogOnClickListener );
-		
-		G.Log("onCreate");
 	}
-	
-	DialogInterface.OnKeyListener dialogOnKeyListener = new DialogInterface.OnKeyListener() {
-
-		@Override
-		public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-			return false;
-		}
-	};
 	
 	DialogInterface.OnClickListener dialogOnClickListener = new DialogInterface.OnClickListener() {
 
@@ -110,7 +97,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 			MainActivity.this.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
-					TextView tv = ( TextView ) findViewById( R.id.tvHello );
+					TextView tv = ( TextView ) findViewById( R.id.tvStatue );
 					tv.setText( btComm.getName() );
 				}});
 		}
@@ -129,7 +116,8 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.btConnect) {
+			BluetoothManager.getInstance().openDeviceList( this );
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -140,12 +128,6 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 	@Override
 	public void onClick(View arg0) {
 		switch( arg0.getId()) {
-		case R.id.btnDeviceList :
-			G.Log("click btnDeviceList");
-			
-			BluetoothManager.getInstance().openDeviceList( this );
-			break;
-			
 		case R.id.btnSend :
 			EditText editText = (EditText) findViewById( R.id.editText );
 			if( editText != null ) {

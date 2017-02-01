@@ -1,25 +1,56 @@
 package com.purehero.common;
 
-import com.purehero.bluetooth.share.R;
-import com.purehero.bluetooth.share.R.string;
-
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import android.widget.EditText;
+
+import com.purehero.bluetooth.share.R;
 
 public class G {
 	public static final int DIALOG_BUTTON_ID_YES 	= -1;
 	public static final int DIALOG_BUTTON_ID_NO 	= -2;
 	
+	private static boolean debuggable = false;
+	public static void init( Context context ) {
+		PackageManager pm = context.getPackageManager();
+		try {
+			ApplicationInfo appinfo = pm.getApplicationInfo(context.getPackageName(), 0);
+			debuggable = (0 != (appinfo.flags & ApplicationInfo.FLAG_DEBUGGABLE));
+		} catch (NameNotFoundException e) {
+			/* debuggable variable will remain false */
+		}
+	}
+	
 	private static String TAG = "BluetoothShare";
 	public static void Log( String format, Object ... args ) {
-		Log.d( TAG, String.format( format, args ));
+		if( !debuggable ) return;
+		Log.d( TAG, buildLogMsg( String.format( format, args )));
 	}
 	public static void Log( String msg ) {
-		Log.d( TAG, msg );
+		if( !debuggable ) return;
+		Log.d( TAG, buildLogMsg( msg ));
 	}
+	private static String buildLogMsg(String message) { 
+		StackTraceElement ste = Thread.currentThread().getStackTrace()[4]; 
+		StringBuilder sb = new StringBuilder(); 
+		sb.append("["); 
+		sb.append(ste.getFileName().replace(".java", "")); 
+		sb.append("::"); 
+		sb.append(ste.getMethodName()); 
+		sb.append("]"); 
+		sb.append(message); 
+		return sb.toString(); 
+	}
+
+	
+	
+	
 	
 	/**
 	 * 확인 용 Dialog 을 띄워준다. 

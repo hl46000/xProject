@@ -31,13 +31,22 @@
         android:layout_height="wrap_content"
         android:text="@string/title_my_device"
         android:paddingLeft="5dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceLarge"
     />
 
     <Button
         android:id="@+id/btnDiscoverable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_selector"
+        android:textSize="14sp"
+		android:layout_marginTop="2dp"
+       	android:layout_marginLeft="1dp"
+       	android:layout_marginBottom="2dp"
+       	android:layout_marginRight="1dp"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#000000"
+        android:shadowRadius="3.0"
         android:text="다른 장치의 연결 허용" />
 
     <TextView android:id="@+id/title_paired_devices"
@@ -70,6 +79,15 @@
     <Button android:id="@+id/button_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_selector"
+        android:textSize="14sp"
+		android:layout_marginTop="2dp"
+       	android:layout_marginLeft="1dp"
+       	android:layout_marginBottom="2dp"
+       	android:layout_marginRight="1dp"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#000000"
+        android:shadowRadius="3.0"
         android:text="@string/button_scan"
     />
 </LinearLayout>
