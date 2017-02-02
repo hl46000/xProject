@@ -2,11 +2,13 @@
 <resources>
 
     <string name="app_name">블루투스 공유</string>
-    <string name="action_settings">설정</string>
+    <string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
 
     <!--  DeviceListActivity -->
     <string name="bluetooth">블루투스</string>
     <string name="scanning">찾는 중...</string>
+    <string name="bluetooth_connect">블루투스 연결</string>    
+    <string name="no_connected">연결된 디바이스가 없음</string>
     <string name="select_device">연결할 디바이스를 선택하세요</string>
     <string name="none_paired">등록된 디바이스가 없습니다</string>
     <string name="none_found">연결 가능한 디바이스를 찾을 수 없습니다.</string>
@@ -20,4 +22,7 @@
     <string name="yes">예</string>
     <string name="no">아니요</string>
     
+    <string name="contact">연락처</string>
+    <string name="chat">문자전송</string>
+    <string name="search_text">검색( 이름 or 연락처 )</string>
 </resources>

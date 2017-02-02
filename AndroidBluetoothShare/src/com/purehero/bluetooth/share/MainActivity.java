@@ -1,52 +1,33 @@
 package com.purehero.bluetooth.share;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.purehero.bluetooth.BluetoothCommunication;
 import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.common.BaseTabMainActivity;
+import com.purehero.common.FragmentText;
 import com.purehero.common.G;
+import com.purehero.common.ViewPagerAdapter;
 
-public class MainActivity extends ActionBarActivity implements OnClickListener {
-	ListView listView = null;
-	ArrayAdapter <String> adapter = null;
-	List<String> listDatas = new ArrayList<String>();
-	
+public class MainActivity extends BaseTabMainActivity {
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 		
 		G.init( this );
 		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
-		
-		int btnIDs[] = { R.id.btnSend };
-		for( int id : btnIDs ) {
-			Button btn = ( Button ) findViewById(id);
-			if( btn != null ) {
-				btn.setOnClickListener( this );
-			}
-		}
-		listView = ( ListView ) findViewById( R.id.listView );
-		if( listView != null ) {
-			adapter = new ArrayAdapter <String> (this, android.R.layout.simple_list_item_1, listDatas );
-			listView.setAdapter( adapter );
-		}
+	}
+	
+	@Override
+	public void addTabItems(ViewPagerAdapter adapter) {
+		adapter.addItem( new ContactFragment( this ), getString( R.string.contact ));
+		adapter.addItem( new BluetoothChatFragment( this ), getString( R.string.chat ));
 	}
 	
 	DialogInterface.OnClickListener dialogOnClickListener = new DialogInterface.OnClickListener() {
@@ -67,21 +48,10 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		super.onDestroy();
 	}
 
-	Runnable listViewReflash = new Runnable(){
-		@Override
-		public void run() {
-			adapter.notifyDataSetChanged();
-		}
-	};
-	
 	IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
 		@Override
 		public void OnDateReceived( byte[] data, int size ) {
 			String msg = new String( data, 0, size );
-			listDatas.add(msg);
-			
-			MainActivity.this.runOnUiThread( listViewReflash );
-			
 			G.Log( "Received message : %s", msg );
 		}
 
@@ -121,26 +91,5 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-
-
-	@Override
-	public void onClick(View arg0) {
-		switch( arg0.getId()) {
-		case R.id.btnSend :
-			EditText editText = (EditText) findViewById( R.id.editText );
-			if( editText != null ) {
-				String msg = editText.getText().toString();
-				G.Log( "message : %s", msg );
-				
-				
-				byte [] msg_bytes = msg.getBytes(Charset.forName("UTF-8"));
-					
-				G.Log( "Send message : %s", msg );
-				BluetoothManager.getInstance().write( msg_bytes, msg_bytes.length );
-			}
-			break;
-		}
 	}
 }
