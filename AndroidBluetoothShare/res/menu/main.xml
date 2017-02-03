@@ -4,8 +4,7 @@
     tools:context="com.purehero.contact.share.MainActivity" >
 
     <item android:id="@+id/btConnect"
-          android:icon="@drawable/flashon"
-          android:title="@string/action_settings"
+          android:title="@string/bluetooth_connect"
           android:showAsAction="always" />
 
 </menu>
