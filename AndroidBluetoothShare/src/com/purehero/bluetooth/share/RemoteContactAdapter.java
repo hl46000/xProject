@@ -1,11 +1,10 @@
 package com.purehero.bluetooth.share;
 
-import android.content.ContentResolver;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,28 +12,23 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ContactAdapter extends BaseAdapter {
+public class RemoteContactAdapter extends BaseAdapter {
 	
 	private final Context context;
-	private Cursor cursor = null;
+	private List<ContactData> listDatas = new ArrayList<ContactData>();
 	
-	public ContactAdapter( Context context ) {
+	public RemoteContactAdapter( Context context ) {
 		this.context = context;
 	}
 	
 	@Override
 	public int getCount() {
-		return cursor == null ? 0 : cursor.getCount();
+		return listDatas.size();
 	}
 
 	@Override
 	public Object getItem(int index) {
-		if( cursor == null ) return null;
-		cursor.moveToFirst();
-		if( cursor.move( index )) {
-			return cursor;
-		}
-		return null;
+		return listDatas.get(index);
 	}
 
 	@Override
@@ -49,7 +43,7 @@ public class ContactAdapter extends BaseAdapter {
 			viewHolder = new ViewHolder();
 			
 			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-			convertView  = inflater.inflate( R.layout.contact_list_cell, null );
+			convertView  = inflater.inflate( R.layout.remote_contact_list_cell, null );
 			
 			viewHolder.icon	= (ImageView) convertView.findViewById( R.id.contact_icon );
 			viewHolder.name	= (TextView)  convertView.findViewById( R.id.contact_name );
@@ -59,9 +53,9 @@ public class ContactAdapter extends BaseAdapter {
 			viewHolder = ( ViewHolder ) convertView.getTag();
 		}
 		
-		Cursor data = ( Cursor ) getItem( position );
+		ContactData data = ( ContactData ) getItem( position );
 		if( data != null ) {
-			Drawable icon = getIcon( data );
+			Drawable icon = data.getIcon();
 			if( icon == null ) {
 				viewHolder.icon.setImageResource( R.drawable.ic_contact );
 			} else {
@@ -69,7 +63,7 @@ public class ContactAdapter extends BaseAdapter {
 			}
 			
 			viewHolder.name.setVisibility( View.VISIBLE );
-			viewHolder.name.setText( getName( data ));
+			viewHolder.name.setText( data.getDisplayName());
 			
 		} else {
 			viewHolder.icon.setVisibility( View.INVISIBLE );
@@ -78,24 +72,9 @@ public class ContactAdapter extends BaseAdapter {
 		
 		return convertView;
 	}
-
-	private String getName(Cursor data) {
-		return cursor.getString(cursor.getColumnIndex( ContactsContract.Contacts.DISPLAY_NAME ));		
-	}
-
-	private Drawable getIcon(Cursor data) {
-		return null;
-	}
-
+	
 	class ViewHolder {
 		public ImageView icon;
 		public TextView name;		
-	}
-	
-	public void getContactDatas() {
-		final Uri CONTACT_URI = ContactsContract.Contacts.CONTENT_URI;
-		
-		ContentResolver contentResolver = context.getContentResolver();
-        cursor = contentResolver.query( CONTACT_URI, null, null, null, null );
 	}
 }

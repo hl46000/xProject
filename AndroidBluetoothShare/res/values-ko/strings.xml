@@ -24,5 +24,6 @@
     
     <string name="contact">연락처</string>
     <string name="chat">문자전송</string>
+    <string name="remote">원격장치</string>
     <string name="search_text">검색( 이름 or 연락처 )</string>
 </resources>

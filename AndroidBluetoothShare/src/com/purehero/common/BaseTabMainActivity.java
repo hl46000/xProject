@@ -33,19 +33,12 @@ abstract public class BaseTabMainActivity extends ActionBarActivity implements M
         pager = (ViewPager) this.findViewById(R.id.pager );
         
      // init view pager
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
         
         addTabItems( adapter );
         
         pager.setAdapter(adapter);
-        pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // when user do a swipe the selected tab change
-                tabHost.setSelectedNavigationItem(position);
-
-            }
-        });
+        pager.setOnPageChangeListener( adapter.listener );
 
         // insert all tabs from pagerAdapter data
         for (int i = 0; i < adapter.getCount(); i++) {

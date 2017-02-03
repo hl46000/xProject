@@ -28,5 +28,6 @@
     
     <string name="contact">Contact</string>
     <string name="chat">Chatting</string>
+    <string name="remote">Remote</string>    
     <string name="search_text">Search( Name or Number )</string>
 </resources>

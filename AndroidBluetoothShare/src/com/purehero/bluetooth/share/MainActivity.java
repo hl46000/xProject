@@ -1,18 +1,17 @@
 package com.purehero.bluetooth.share;
 
+import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.common.BaseTabMainActivity;
+import com.purehero.common.G;
+import com.purehero.common.ViewPagerAdapter;
+
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
-import com.purehero.bluetooth.BluetoothCommunication;
-import com.purehero.bluetooth.BluetoothManager;
-import com.purehero.bluetooth.IFBluetoothEventListener;
-import com.purehero.common.BaseTabMainActivity;
-import com.purehero.common.FragmentText;
-import com.purehero.common.G;
-import com.purehero.common.ViewPagerAdapter;
 
 public class MainActivity extends BaseTabMainActivity {
 
@@ -27,6 +26,7 @@ public class MainActivity extends BaseTabMainActivity {
 	@Override
 	public void addTabItems(ViewPagerAdapter adapter) {
 		adapter.addItem( new ContactFragment( this ), getString( R.string.contact ));
+		adapter.addItem( new RemoteContactFragment( this ), getString( R.string.remote ));
 		adapter.addItem( new BluetoothChatFragment( this ), getString( R.string.chat ));
 	}
 	
@@ -48,7 +48,7 @@ public class MainActivity extends BaseTabMainActivity {
 		super.onDestroy();
 	}
 
-	IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
+	public IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
 		@Override
 		public void OnDateReceived( byte[] data, int size ) {
 			String msg = new String( data, 0, size );

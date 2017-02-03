@@ -4,8 +4,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.purehero.bluetooth.BluetoothCommunication;
 import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.bluetooth.IFBluetoothEventListener;
 import com.purehero.common.G;
+
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -68,5 +71,23 @@ public class BluetoothChatFragment extends Fragment implements OnClickListener {
 			break;
 		}
 	}
-	
+
+	IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
+		@Override
+		public void OnDateReceived( byte[] data, int size ) {
+			String msg = new String( data, 0, size );
+			G.Log( "Received message : %s", msg );
+		}
+
+		@Override
+		public void OnDisconnected() {
+			G.Log( "Disconnected" );
+		}
+
+		@Override
+		public void OnConnected( final BluetoothCommunication btComm) {
+			G.Log( "OnConnected" );
+			
+		}
+	};	
 }
