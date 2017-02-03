@@ -1,27 +1,31 @@
 package com.purehero.bluetooth.share;
 
-import com.purehero.common.G;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-public class ContactFragment extends Fragment {
+import com.purehero.common.G;
+
+public class ContactFragment extends Fragment implements OnItemClickListener, OnItemLongClickListener {
 	private final MainActivity context;
 	private View layout = null;
 
 	private ListView listView = null;
 	private ProgressBar progressBar = null;
-	private final ContactAdapter adapter;
+	private ContactAdapter adapter;
 	
 	public ContactFragment(MainActivity mainActivity) {
 		context = mainActivity;
-		adapter = new ContactAdapter( context );
-		
 	}
 	
 	@Override
@@ -30,8 +34,10 @@ public class ContactFragment extends Fragment {
 		
 		layout 		= inflater.inflate( R.layout.contact_list, container, false);
 		listView	= ( ListView ) layout.findViewById( R.id.listView );
+		listView.setOnItemClickListener( this );
+		listView.setOnItemLongClickListener( this );
+		
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
-		listView.setAdapter( adapter );
 		
 		new Thread( getContactRunnable ).start();
 		
@@ -42,15 +48,47 @@ public class ContactFragment extends Fragment {
 		@Override
 		public void run() {
 			G.Log( "run" );			
-			adapter.getContactDatas();
-
+			if( adapter == null ) {
+				adapter = new ContactAdapter( context );
+				adapter.getContactDatas();
+			}
+			
 			context.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
 					G.Log( "runOnUiThread run" );
+					listView.setAdapter( adapter );
+					
 					adapter.notifyDataSetChanged();
 					progressBar.setVisibility( View.INVISIBLE );
+					
+					// 검색
+					EditText apk_search = (EditText) layout.findViewById( R.id.txt_search );
+					if( apk_search != null ) {
+						apk_search.addTextChangedListener(new TextWatcher() {
+					        @Override
+					        public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+					        	adapter.getFilter().filter(cs);
+					        }
+					        @Override
+					        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+					        @Override
+					        public void afterTextChanged(Editable arg0) { }
+					    });
+					}
 				}});
 		}
 	};
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		ContactData data = ( ContactData ) adapter.getItem( position );
+		data.openDetailView( context );
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		adapter.setShowCheckBox( !adapter.isShowCheckBox() );
+		return true;
+	}
 }

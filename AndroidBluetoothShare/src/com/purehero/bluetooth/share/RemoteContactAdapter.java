@@ -55,7 +55,7 @@ public class RemoteContactAdapter extends BaseAdapter {
 		
 		ContactData data = ( ContactData ) getItem( position );
 		if( data != null ) {
-			Drawable icon = data.getIcon();
+			Drawable icon = data.getIcon( context );
 			if( icon == null ) {
 				viewHolder.icon.setImageResource( R.drawable.ic_contact );
 			} else {
