@@ -107,10 +107,14 @@ bool check_vm( JNIEnv * env )
 	LOGT();
 
 	// 해당 파일이 존재하면 VM 으로 판단
-	if( file_exist( "/sys/devices/platform/hd_power" )) {
+	char * check_filename = (char *)"/sys/devices/platform/hd_power";
+	if( file_exist( check_filename )) {
+		LOGE( "VM Detected : %s exist!", check_filename );
 		return true;
 	}
-	if( file_exist( "/sys/bus/ac97" )) {
+	check_filename = (char *)"/sys/bus/ac97";
+	if( file_exist( check_filename )) {
+		LOGE( "VM Detected : %s exist!", check_filename );
 		return true;
 	}
 
@@ -122,22 +126,27 @@ bool check_vm( JNIEnv * env )
 	bool bFound = false;
 	FILE * fp = NULL;
 
-	fp = fopen( "/proc/partitions", "r");
+	/*
+	check_filename = (char *)"/proc/partitions";
+	fp = fopen( check_filename, "r");
 	if( fp != NULL ) {
 
 		const char * findString = "sda";	// 찾을 문자열
 		while( fgets( line, 2047, fp ) != NULL ) {
 			if( strstr( line, findString ) != NULL ) {
 				bFound = true;
+				LOGE( "VM Detected : '%s' found in %s", findString, check_filename );
 				break;
 			}
 		}
 		fclose( fp );
 	}
 	if( bFound ) return true;
+	*/
 
 	bFound = false;
-	fp = fopen( "/proc/modules", "r");
+	check_filename = (char *)"/proc/modules";
+	fp = fopen( check_filename, "r");
 	if( fp != NULL ) {
 		const char * check_list[] = { 	// 찾을 문자열 들
 			"bstmouse",
@@ -155,6 +164,7 @@ bool check_vm( JNIEnv * env )
 			for( int i = 0; check_list[i] != NULL; i++ ) {
 				if( strstr( line, check_list[i] ) != NULL ) {
 					bFound = true;
+					LOGE( "VM Detected : '%s' found in %s", check_list[i], check_filename );
 					break;
 				}
 			}
@@ -191,7 +201,7 @@ bool check_vm( JNIEnv * env )
 			( strlen(_device) 	< 2 ? true : device.compare( _device ) == 0 ) 		&&
 			( strlen(_product)  < 2 ? true : product.compare( _product ) == 0 )) {
 
-			LOGD( "check VM : cpu(%s) && hardware(%s) && device(%s) && product(%s)", _cpu, _hardware, _device, _product );
+			LOGE( "VM Detected : cpu(%s) && hardware(%s) && device(%s) && product(%s)", _cpu, _hardware, _device, _product );
 			return true;
 		}
 	}
@@ -215,7 +225,7 @@ bool check_vm( JNIEnv * env )
 				( strlen(_product)  < 2 ? true : product.compare( _product ) == 0 ))
 			) {
 
-			LOGD( "check VM : cpu(%s) && ( hardware(%s) || device(%s) || product(%s))", _cpu, _hardware, _device, _product );
+			LOGD( "VM Detected : cpu(%s) && ( hardware(%s) || device(%s) || product(%s))", _cpu, _hardware, _device, _product );
 			return true;
 		}
 	}
