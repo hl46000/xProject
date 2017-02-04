@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.json.JSONException;
 
-import com.purehero.common.G;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -77,7 +75,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, OnChecked
 		
 		ContactData data = ( ContactData ) getItem( position );
 		if( data != null ) {
-			Drawable icon = data.getIcon( context );
+			Drawable icon = data.getIcon();
 			if( icon == null ) {
 				viewHolder.icon.setImageResource( R.drawable.ic_contact );
 			} else {
@@ -112,7 +110,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, OnChecked
         Cursor cursor = contentResolver.query( CONTACT_URI, null, null, null, null );
         while( cursor.moveToNext()) {
         	try {
-        		ContactData data = new ContactData( contactToString( context, cursor ));
+        		ContactData data = new ContactData( ContactUtils.contactToString( context, cursor ));
 				listDatas.add( data );
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -175,65 +173,28 @@ public class ContactAdapter extends BaseAdapter implements Filterable, OnChecked
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             filteredData = (List<ContactData>) results.values;
-            ContactAdapter.this.notifyDataSetChanged();
+            notifyDataSetChanged();
         }
     }
 	
-	private String contactToString( Context context, Cursor cursor ) {
-		final String _ID 				= ContactsContract.Contacts._ID;
-		final String DISPLAY_NAME 		= ContactsContract.Contacts.DISPLAY_NAME;
-				
-		final Uri PhoneCONTENT_URI 		= ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-		final String Phone_CONTACT_ID 	= ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
-		final String NUMBER 			= ContactsContract.CommonDataKinds.Phone.NUMBER;
-		
-		final Uri EmailCONTENT_URI 		=  ContactsContract.CommonDataKinds.Email.CONTENT_URI;
-		final String EmailCONTACT_ID 	= ContactsContract.CommonDataKinds.Email.CONTACT_ID;
-		final String DATA 				= ContactsContract.CommonDataKinds.Email.DATA;
-
-		final ContentResolver contentResolver = context.getContentResolver();
-		String contact_id = cursor.getString(cursor.getColumnIndex( _ID ));
-		
-		StringBuilder ret = new StringBuilder("{");
-		ret.append( String.format( "\"CONTACT_ID\":\"%s\"", contact_id ));
-		ret.append( String.format( ",\"DISPLAY_NAME\":\"%s\"", cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ))));
-				
-		// Query and loop for every phone number of the contact
-		Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { contact_id }, null);
-		if( phoneCursor.getCount() > 0 ) {
-			ret.append( ",\"PHONE_NUMBER\":[" ); 
-			while (phoneCursor.moveToNext()) {
-				ret.append( String.format( "\"%s\"", phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER))));
-				if( !phoneCursor.isLast()) {
-					ret.append( "," );
-				}
-			}
-			ret.append( "]" );
-		}
-		phoneCursor.close();
-		
-		// Query and loop for every email of the contact
-		Cursor emailCursor = contentResolver.query(EmailCONTENT_URI, null, EmailCONTACT_ID+ " = ?", new String[] { contact_id }, null);
-		if( emailCursor.getCount() > 0 ) {
-			ret.append( ",\"EMAIL\":[" );
-			while (emailCursor.moveToNext()) {
-				ret.append( String.format( "\"%s\"", emailCursor.getString(emailCursor.getColumnIndex(DATA))));
-				if( !emailCursor.isLast()) {
-					ret.append( "," );
-				}
-			}
-			ret.append( "]" );
-		}
-		emailCursor.close();
-		
-		ret.append( "}" );
-		return ret.toString();
-	}
-
 	@Override
 	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 		ContactData data = filteredData.get( arg0.getId());
 		data.setSelected( arg1 );
-		G.Log( data.toString());
+		//G.Log( data.toString());
+	}
+
+	public int getCheckedCount() {
+		int ret = 0;
+		for( ContactData data : filteredData ) {
+			if( data.isSelected()) ++ret;
+		}
+		return ret;
+	}
+	
+	public void setAllChecked( boolean checked ) {
+		for( ContactData data : filteredData ) {
+			data.setSelected( checked );
+		}
 	}
 }

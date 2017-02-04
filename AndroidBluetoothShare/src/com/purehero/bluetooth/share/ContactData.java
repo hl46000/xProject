@@ -7,14 +7,16 @@ import java.util.Comparator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Base64;
 
+import com.purehero.common.G;
 import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
+import com.purehero.common.Utils;
 
 public class ContactData {
 
@@ -22,27 +24,34 @@ public class ContactData {
 	public ContactData( String json_string ) throws JSONException {
 		jobj = new JSONObject( json_string );
 		
-		//G.Log( json_string );
+		G.Log( "%s : %d byte", getDisplayName(), json_string.getBytes().length );
 	}
 	
 	
 	
 	@Override
 	public String toString() {
-		return String.format( "%s : %s", getDisplayName(), isSelected() ? "selected" : "");
+		return String.format( 
+				"%s : %s", 
+				getDisplayName(),
+				isSelected() ? "selected" : "");
 	}
 
 
 
 	private Drawable icon = null;
-	public Drawable getIcon( Context context ) {
+	public Drawable getIcon() {
 		if( icon != null ) return icon;
 		
 		InputStream inputStream = null;
 		try {
-            inputStream = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
-                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, new Long(getContactID())));
- 
+			if( jobj.has( "ICON" )) {
+				String b64IconString = jobj.getString("ICON");
+				byte compressed_icon_bytes [] = Base64.decode( b64IconString, Base64.DEFAULT );
+				byte icon_bytes [] = Utils.decompress( compressed_icon_bytes );
+				inputStream = Utils.byteArrayToInputStream( icon_bytes );
+			}
+			
             if (inputStream != null) {
             	icon = Drawable.createFromStream( inputStream, "icon"); 
             }

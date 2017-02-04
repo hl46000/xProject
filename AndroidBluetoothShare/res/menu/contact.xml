@@ -1,0 +1,48 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.purehero.contact.share.MainActivity" >
+
+    <item
+        android:id="@+id/menu_send_to_remote"
+        android:orderInCategory="100"
+        android:title="@string/send_to_remote_device"
+        app:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_send_to_my"
+        android:orderInCategory="100"
+        android:title="@string/send_to_my_device"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_select_all"
+        android:orderInCategory="100"
+        android:title="@string/selecte_all"
+        app:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_clear_all"
+        android:orderInCategory="100"
+        android:title="@string/clear_all"
+        app:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_backup_selected_contacts"
+        android:orderInCategory="100"
+        android:title="@string/backup_selected_contacts"
+        app:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_delete"
+        android:orderInCategory="100"
+        android:title="@string/delete"
+        app:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_cancel"
+        android:orderInCategory="100"
+        android:title="@string/cancel"
+        app:showAsAction="never"/>
+    
+</menu>
