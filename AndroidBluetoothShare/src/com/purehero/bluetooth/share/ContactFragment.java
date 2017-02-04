@@ -18,6 +18,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.purehero.common.G;
+import com.purehero.contact.ContactAdapter;
+import com.purehero.contact.ContactData;
 
 public class ContactFragment extends Fragment implements OnItemClickListener, OnItemLongClickListener {
 	private final MainActivity context;

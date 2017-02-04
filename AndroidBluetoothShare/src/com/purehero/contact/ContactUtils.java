@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share;
+package com.purehero.contact;
 
 import java.io.IOException;
 import java.io.InputStream;

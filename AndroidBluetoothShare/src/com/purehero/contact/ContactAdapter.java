@@ -1,10 +1,15 @@
-package com.purehero.bluetooth.share;
+package com.purehero.contact;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONException;
+
+import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.share.R.drawable;
+import com.purehero.bluetooth.share.R.id;
+import com.purehero.bluetooth.share.R.layout;
 
 import android.content.ContentResolver;
 import android.content.Context;

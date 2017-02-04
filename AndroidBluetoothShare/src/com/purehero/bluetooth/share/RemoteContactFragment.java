@@ -1,6 +1,7 @@
 package com.purehero.bluetooth.share;
 
 import com.purehero.common.G;
+import com.purehero.contact.ContactData;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

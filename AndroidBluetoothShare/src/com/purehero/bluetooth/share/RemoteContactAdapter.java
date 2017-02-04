@@ -3,6 +3,8 @@ package com.purehero.bluetooth.share;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.purehero.contact.ContactData;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
