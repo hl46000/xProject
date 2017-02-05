@@ -7,27 +7,172 @@ import java.util.Comparator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.support.v4.content.Loader;
+import android.support.v4.content.Loader.OnLoadCompleteListener;
 import android.util.Base64;
 
 import com.purehero.common.G;
 import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
 import com.purehero.common.Utils;
 
-public class ContactData {
-
-	private final JSONObject jobj;
-	public ContactData( String json_string ) throws JSONException {
-		jobj = new JSONObject( json_string );
-		
-		G.Log( "%s : %d byte", getDisplayName(), json_string.getBytes().length );
+public class ContactData implements OnLoadCompleteListener<Cursor> {
+	private static final String _ID 				= ContactsContract.Contacts._ID;
+	private static final String DISPLAY_NAME 		= ContactsContract.Contacts.DISPLAY_NAME;
+			
+	private static final Uri PhoneCONTENT_URI 		= ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+	private static final String Phone_CONTACT_ID 	= ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
+	private static final String NUMBER 				= ContactsContract.CommonDataKinds.Phone.NUMBER;
+	
+	private static final Uri EmailCONTENT_URI 		= ContactsContract.CommonDataKinds.Email.CONTENT_URI;
+	private static final String EmailCONTACT_ID 	= ContactsContract.CommonDataKinds.Email.CONTACT_ID;
+	private static final String DATA 				= ContactsContract.CommonDataKinds.Email.DATA;
+	
+	class ContactDataSource {
+		final String name;
+		final Uri uri;
+		final String data;
+		public ContactDataSource( String name, Uri uri, String data ) {
+			this.name = name;
+			this.uri  = uri;
+			this.data = data;
+		}
+		public Uri getUri() { return uri; }
+		public String getData(){ return data; };
 	}
 	
+	private final JSONObject jobj;
+	public ContactData( Context context, Cursor cursor ) throws JSONException {
+		final ContentResolver contentResolver = context.getContentResolver();
+		contact_id = cursor.getLong(cursor.getColumnIndex( _ID ));
+		
+		StringBuilder ret = new StringBuilder("{");
+		ret.append( String.format( "\"CONTACT_ID\":\"%d\"", contact_id ));
+		ret.append( String.format( ",\"DISPLAY_NAME\":\"%s\"", cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ))));
+				
+		String phoneNumbers = readPhoneNumbers( contentResolver, contact_id );
+		if( phoneNumbers != null ) {
+			ret.append( "," );
+			ret.append( phoneNumbers );
+		}
+		
+		String emails = readEmails( contentResolver, contact_id );
+		if( emails != null ) {
+			ret.append( "," );
+			ret.append( emails );
+		}
+		
+		InputStream is = null;
+		try {
+			is = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contact_id)));
+ 
+            if (is != null) {
+            	byte icon_bytes[] = Utils.inputStreamToByteArray( is );
+            	is.close();
+            	
+            	byte compressed_icon_bytes [] = Utils.compress( icon_bytes );
+            	String base64IconString = Base64.encodeToString( compressed_icon_bytes, Base64.DEFAULT );
+            	
+            	ret.append( ",\"ICON\":" );
+            	ret.append( String.format( "\"%s\"", base64IconString ));
+            	
+            	is = Utils.byteArrayToInputStream( icon_bytes );
+            	icon = Drawable.createFromStream( is, "icon");
+            }
+        } catch (Exception e) {
+        } finally {
+        	if( is != null ) {
+        		try {
+        			is.close();
+				} catch (IOException e) {
+				}
+        	}
+        }
+		
+		ret.append( "}" );
+		String ret_value = ret.toString();
+		
+		jobj = new JSONObject( ret_value );
+		G.Log( "%s : %d byte", getDisplayName(), ret_value.getBytes().length );
+	}
 	
+	private String readEmails( ContentResolver contentResolver, long contactID ) {
+		StringBuilder ret = null;
+		// Query and loop for every email of the contact
+		Cursor emailCursor = contentResolver.query(EmailCONTENT_URI, null, EmailCONTACT_ID+ " = ?", new String[] { String.valueOf( contact_id )}, null);
+		if( emailCursor.getCount() > 0 ) {
+			ret = new StringBuilder( "\"EMAIL\":[" ); 
+			while (emailCursor.moveToNext()) {
+				String emailAddress = emailCursor.getString(emailCursor.getColumnIndex(DATA));
+				int emailType = emailCursor.getInt(emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE ));
+				switch( emailType ) {
+				case ContactsContract.CommonDataKinds.Email.TYPE_HOME 	:
+					ret.append( String.format( "\"HOME:%s\"", emailAddress)); 
+					break;
+				case ContactsContract.CommonDataKinds.Email.TYPE_MOBILE :
+					ret.append( String.format( "\"MOBILE:%s\"", emailAddress));
+					break;
+				case ContactsContract.CommonDataKinds.Email.TYPE_WORK :
+					ret.append( String.format( "\"WORK:%s\"", emailAddress));
+					break;
+				case ContactsContract.CommonDataKinds.Email.TYPE_OTHER :
+				default :
+					ret.append( String.format( "\"OTHER:%s\"", emailAddress));
+					break;
+				}				
+				if( !emailCursor.isLast()) {
+					ret.append( "," );
+				}
+			}
+			ret.append( "]" );
+		}
+		emailCursor.close();
+		return ret == null ? null : ret.toString(); 
+	}
+	
+	private String readPhoneNumbers( ContentResolver contentResolver, long contactID ) {
+		StringBuilder ret = null;
+		// Query and loop for every phone number of the contact
+		Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { String.valueOf( contact_id )}, null);
+		if( phoneCursor.getCount() > 0 ) {
+			ret = new StringBuilder( "\"PHONE_NUMBER\":[" ); 
+			while (phoneCursor.moveToNext()) {
+				int phoneType = phoneCursor.getInt(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+				String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
+				switch (phoneType) {
+                case Phone.TYPE_MOBILE:
+                	ret.append( String.format( "\"MOBILE:%s\"", phoneNumber));
+                	break;
+                case Phone.TYPE_HOME:
+                	ret.append( String.format( "\"HOME:%s\"", phoneNumber));
+                    break;
+                case Phone.TYPE_WORK:
+                	ret.append( String.format( "\"WORK:%s\"", phoneNumber));
+                    break;
+                case Phone.TYPE_OTHER:
+                default:
+                	ret.append( String.format( "\"OTHER:%s\"", phoneNumber));
+                    break;
+				}
+				
+				if( !phoneCursor.isLast()) {
+					ret.append( "," );
+				}
+			}
+			ret.append( "]" );
+		}
+		phoneCursor.close();
+		return ret == null ? null : ret.toString(); 
+	}
 	
 	@Override
 	public String toString() {
@@ -69,15 +214,15 @@ public class ContactData {
 		return icon;
 	}
 
-	private int contect_id = -1;
-	public int getContactID() {
-		if( contect_id != -1 ) return contect_id;
+	private long contact_id = -1;
+	public long getContactID() {
+		if( contact_id != -1 ) return contact_id;
 		try {
-			contect_id = jobj.getInt( "CONTACT_ID" );
+			contact_id = jobj.getLong( "CONTACT_ID" );
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} 
-		return contect_id;
+		return contact_id;
 	}
 	
 	private boolean selected = false;
@@ -148,4 +293,11 @@ public class ContactData {
 			return OrderingByKoreanEnglishNumbuerSpecial.compare( arg0.getDisplayName(), arg1.getDisplayName());
 		}
 	};
+	
+	@Override
+	public void onLoadComplete( Loader<Cursor> loader, Cursor cursor ) {
+		switch (loader.getId()) {
+		
+		}
+	}
 }

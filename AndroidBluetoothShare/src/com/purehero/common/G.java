@@ -28,6 +28,9 @@ public class G {
 	}
 	
 	private static String TAG = "BluetoothShare";
+	public static void Log() { 
+		Log("");
+	}
 	public static void Log( String format, Object ... args ) {
 		if( !debuggable ) return;
 		Log.d( TAG, buildLogMsg( String.format( format, args )));

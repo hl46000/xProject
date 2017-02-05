@@ -6,11 +6,6 @@ import java.util.List;
 
 import org.json.JSONException;
 
-import com.purehero.bluetooth.share.R;
-import com.purehero.bluetooth.share.R.drawable;
-import com.purehero.bluetooth.share.R.id;
-import com.purehero.bluetooth.share.R.layout;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -29,10 +24,14 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ContactAdapter extends BaseAdapter implements Filterable, OnCheckedChangeListener {
+import com.purehero.bluetooth.share.R;
+
+public class ContactAdapter extends BaseAdapter 
+	implements Filterable, OnCheckedChangeListener
+{
 	
 	private final Context context;
-	private List<ContactData> listDatas = new ArrayList<ContactData>();
+	private List<ContactData> listDatas 	= new ArrayList<ContactData>();
 	private List<ContactData> filteredData 	= new ArrayList<ContactData>();
 	private boolean showCheckBox = false;
 	
@@ -112,14 +111,25 @@ public class ContactAdapter extends BaseAdapter implements Filterable, OnChecked
 		listDatas.clear();
 		
 		ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query( CONTACT_URI, null, null, null, null );
-        while( cursor.moveToNext()) {
-        	try {
-        		ContactData data = new ContactData( ContactUtils.contactToString( context, cursor ));
-				listDatas.add( data );
-			} catch (JSONException e) {
-				e.printStackTrace();
+		//ContentProviderClient client = contentResolver.acquireContentProviderClient( CONTACT_URI );
+		
+		Cursor cursor = contentResolver.query( CONTACT_URI, null, null, null, null );
+        if( cursor.getCount() > 0 ) {
+			/*
+        	String names[] = cursor.getColumnNames();
+			for( String name : names ) {
+				G.Log( "getColumnNames : %s", name );
 			}
+			*/
+        	while( cursor.moveToNext()) {
+	        	ContactUtils.contactToStringEx(context, cursor);
+	        	try {
+	        		ContactData data = new ContactData( context, cursor );
+					listDatas.add( data );
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+	        }
         }
         
         Collections.sort( listDatas, ContactData.ALPHA_COMPARATOR );
