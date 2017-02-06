@@ -15,6 +15,7 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 
 public class BluetoothManager {
 	// Unique UUID for this application
@@ -98,6 +99,12 @@ public class BluetoothManager {
 		}
 	}
 	
+	public void openDeviceList( Fragment act ) {
+		G.Log("openDeviceList");
+		
+		Intent serverIntent = new Intent( act.getActivity(), BluetoothDeviceListActivity.class); 
+		act.startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+	}
 	public void openDeviceList( Activity act ) { 
 		G.Log("openDeviceList");
 		

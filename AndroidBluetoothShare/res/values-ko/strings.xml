@@ -26,6 +26,8 @@
     <string name="contact">연락처</string>
     <string name="chat">문자전송</string>
     <string name="remote">원격단말기</string>
+    <string name="connect">연결하기</string>
+    <string name="get_contact_list">연락처 정보 가져오기</string>
     <string name="search_text">검색( 이름 or 연락처 or 이메일 )</string>
     <string name="send_to_remote_device">원격 단말기로 전송</string>
     <string name="send_to_my_device">내 단말기로 전송</string>

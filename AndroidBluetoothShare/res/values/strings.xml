@@ -30,8 +30,11 @@
     <string name="contact">Contact</string>
     <string name="chat">Chatting</string>
     <string name="remote">Remote</string>    
+    <string name="connect">Connect</string>
+    <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
     <string name="send_to_remote_device">Send to remote device</string>
+    
     <string name="send_to_my_device">Send to my device</string>
     <string name="delete">Delete</string>
     <string name="selecte_all">Selecte ALL</string>

@@ -57,7 +57,8 @@ public class BluetoothCommunication {
 	public String getName() {
 		BluetoothDevice device = mSocket.getRemoteDevice();
 		if( device != null ) {
-			return device.getName() + "\n" + device.getAddress();
+			//return device.getName() + "\n" + device.getAddress();
+			return device.getName();
 		}
 		return "";
 	}

@@ -11,50 +11,69 @@
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical|center_horizontal" />
-	
-    <LinearLayout
-    	android:orientation="vertical" 
-    	android:layout_width="match_parent"
-    	android:layout_height="match_parent">
 
-        <LinearLayout 
-            android:layout_width="match_parent"
-    		android:layout_height="wrap_content">
-        	
-            <EditText
-	            android:id="@+id/txt_search"
-	            android:layout_width="match_parent"
-	            android:layout_height="45dp"
-	            android:layout_alignParentBottom="true"
-	            android:ems="10"
-	            android:hint="@string/search_text"
-	            android:singleLine="true"
-	            android:layout_weight="1"
-	            android:textSize="12sp" />
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+    	android:layout_height="match_parent" >
 
-            <Button
-                android:id="@+id/button1"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_weight="4"
-                android:background="@drawable/button_selector"
-		        android:textSize="14sp"
-				android:layout_marginTop="2dp"
-		       	android:layout_marginLeft="1dp"
-		       	android:layout_marginBottom="2dp"
-		       	android:layout_marginRight="1dp"
-		        android:textColor="#FFFFFF"
-		        android:shadowColor="#000000"
-		        android:shadowRadius="3.0"
-                android:text="갱신" />
-            
-        </LinearLayout>
-		<ListView
-	        android:id="@+id/listView"
+        <TextView
+	        android:id="@+id/tvStatue"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        />
-
-	</LinearLayout>
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignParentLeft="false"
+	        android:background="#666"
+	        android:textColor="#fff"
+	        android:text="@string/no_connected" />
+	    	
+	    <LinearLayout
+	    	android:orientation="vertical" 
+	    	android:layout_width="match_parent"
+	    	android:layout_height="match_parent"
+	    	android:layout_above="@id/tvStatue" >
+	
+	        <LinearLayout 
+	            android:layout_width="match_parent"
+	    		android:layout_height="wrap_content">
+	        	
+	            <EditText
+		            android:id="@+id/txt_search"
+		            android:layout_width="match_parent"
+		            android:layout_height="45dp"
+		            android:layout_alignParentBottom="true"
+		            android:ems="10"
+		            android:hint="@string/search_text"
+		            android:singleLine="true"
+		            android:layout_weight="1"
+		            android:textSize="12sp" />
+	
+	            <Button
+	                android:id="@+id/btnRemoteDevice"
+	                android:layout_width="match_parent"
+	                android:layout_height="43dp"
+	                android:layout_weight="4"
+	                android:background="@drawable/button_selector"
+			        android:textSize="14sp"
+					android:layout_marginTop="2dp"
+			       	android:layout_marginLeft="1dp"
+			       	android:layout_marginBottom="2dp"
+			       	android:layout_marginRight="1dp"
+			        android:textColor="#FFFFFF"
+			        android:shadowColor="#000000"
+			        android:shadowRadius="3.0"
+	                android:text="@string/connect" />
+	            
+	        </LinearLayout>
+			<ListView
+		        android:id="@+id/listView"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        />
+	
+		</LinearLayout>
+        
+    </RelativeLayout> 
+    
 </FrameLayout>	  
 

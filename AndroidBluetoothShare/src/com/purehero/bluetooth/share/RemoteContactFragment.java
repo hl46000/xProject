@@ -1,36 +1,92 @@
 package com.purehero.bluetooth.share;
 
-import com.purehero.common.G;
-import com.purehero.contact.ContactData;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
-public class RemoteContactFragment extends Fragment {
+import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.common.G;
+import com.purehero.contact.ContactData;
+
+public class RemoteContactFragment extends Fragment implements OnClickListener {
 	private final MainActivity context;
 	private View layout = null;
 
 	private ListView listView = null;
 	private ProgressBar progressBar = null;
 	private final RemoteContactAdapter adapter;
+	private BluetoothCommunication btComm = null;
 	
 	public RemoteContactFragment(MainActivity mainActivity) {
 		context = mainActivity;
 		adapter = new RemoteContactAdapter( context );
+		
+		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
 	}
 	
+	public IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
+		@Override
+		public void OnDateReceived( byte[] data, int size ) {
+			String msg = new String( data, 0, size );
+			G.Log( "Received message : %s", msg );
+		}
+
+		@Override
+		public void OnDisconnected() {
+			btComm = null;
+			
+			context.runOnUiThread( new Runnable(){
+				@Override
+				public void run() {
+					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
+					tv.setText( R.string.no_connected );
+					
+					Button btn = ( Button ) layout.findViewById( R.id.btnRemoteDevice );
+					if( btn != null ) {
+						btn.setText( R.string.connect);
+					}
+				}}
+			);
+			
+			G.Log( "Disconnected" );
+		}
+
+		@Override
+		public void OnConnected( final BluetoothCommunication _btComm) {
+			G.Log( "OnConnected" );
+			btComm = _btComm;
+			
+			context.runOnUiThread( new Runnable(){
+				@Override
+				public void run() {
+					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
+					tv.setText( btComm.getName() );
+					
+					Button btn = ( Button ) layout.findViewById( R.id.btnRemoteDevice );
+					if( btn != null ) {
+						btn.setText( R.string.get_contact_list);
+					}
+				}}
+			);
+		}
+	};
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		G.Log( "onCreateView" );
@@ -39,6 +95,14 @@ public class RemoteContactFragment extends Fragment {
 		listView	= ( ListView ) layout.findViewById( R.id.listView );
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
 		listView.setAdapter( adapter );
+		
+		int btnIDs [] = { R.id.btnRemoteDevice };
+		for( int id : btnIDs ) {
+			Button btn = ( Button ) layout.findViewById(id);
+			if( btn != null ) {
+				btn.setOnClickListener( this );
+			}
+		}
 		
 		new Thread( getContactRunnable ).start();
 		
@@ -136,5 +200,23 @@ public class RemoteContactFragment extends Fragment {
 		}
 							
 		return ret;
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		switch( arg0.getId()) {
+		case R.id.btnRemoteDevice :
+			Button btn = ( Button ) arg0;
+			if( getString( R.string.get_contact_list ).compareTo( btn.getText().toString() ) == 0 ) {
+				if( btComm != null && btComm.isConnected() ) {
+					byte data [] = "get_contact_list".getBytes();
+					btComm.write( data, data.length );
+				}
+			} else {
+				BluetoothManager.getInstance().openDeviceList( this );
+			}
+						
+			break;
+		}
 	}
 }

@@ -6,11 +6,6 @@ import java.io.InputStream;
 import java.util.Comparator;
 
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.purehero.common.G;
-import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
-import com.purehero.common.Utils;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -22,11 +17,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.support.v4.content.Loader;
-import android.support.v4.content.Loader.OnLoadCompleteListener;
-import android.util.Base64;
 
-public class ContactData implements OnLoadCompleteListener<Cursor> {
+import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
+import com.purehero.common.Utils;
+
+public class ContactData {
 	private static final String _ID 				= ContactsContract.Contacts._ID;
 	private static final String DISPLAY_NAME 		= ContactsContract.Contacts.DISPLAY_NAME;
 			
@@ -42,93 +37,30 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 	private static final String AddressCONTACT_ID 	= ContactsContract.CommonDataKinds.StructuredPostal.CONTACT_ID;
 	private static final String ADDRESS				= ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS;
 	
-	class ContactDataSource {
-		final String name;
-		final Uri uri;
-		final String data;
-		public ContactDataSource( String name, Uri uri, String data ) {
-			this.name = name;
-			this.uri  = uri;
-			this.data = data;
-		}
-		public Uri getUri() { return uri; }
-		public String getData(){ return data; };
-	}
+	private final ContentResolver contentResolver;
+	private final long contact_id;
+	private final String lookupKey;
+	private final String display_name;
+	private String phoneNumbers;
+	private String emails;
+	private String address;
 	
-	private final JSONObject jobj;
 	public ContactData( Context context, Cursor cursor ) throws JSONException {
-		final ContentResolver contentResolver = context.getContentResolver();
-		contact_id = cursor.getLong(cursor.getColumnIndex( _ID ));
-		
-		StringBuilder ret = new StringBuilder("{");
-		ret.append( String.format( "\"CONTACT_ID\":\"%d\"", contact_id ));
-		ret.append( String.format( ",\"DISPLAY_NAME\":\"%s\"", cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ))));
-				
-		String phoneNumbers = readPhoneNumbers( contentResolver, contact_id );
-		if( phoneNumbers != null ) {
-			ret.append( "," );
-			ret.append( phoneNumbers );
-		}
-		
-		String emails = readEmails( contentResolver, contact_id );
-		if( emails != null ) {
-			ret.append( "," );
-			ret.append( emails );
-		}
-		
-		String address = readAddress( contentResolver, contact_id );
-		if( address != null ) {
-			ret.append( "," );
-			ret.append( address );
-		}
-		
-		String vcardString = readVCardString( contentResolver, cursor );
-		if( vcardString != null ) {
-			G.Log( "[vcfString] %s", vcardString );
-		}
-				
-		InputStream is = null;
-		try {
-			is = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
-                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contact_id)));
- 
-            if (is != null) {
-            	byte icon_bytes[] = Utils.inputStreamToByteArray( is );
-            	is.close();
-            	
-            	byte compressed_icon_bytes [] = Utils.compress( icon_bytes );
-            	String base64IconString = Base64.encodeToString( compressed_icon_bytes, Base64.DEFAULT );
-            	
-            	ret.append( ",\"ICON\":" );
-            	ret.append( String.format( "\"%s\"", base64IconString ));
-            	
-            	is = Utils.byteArrayToInputStream( icon_bytes );
-            	icon = Drawable.createFromStream( is, "icon");
-            }
-        } catch (Exception e) {
-        } finally {
-        	if( is != null ) {
-        		try {
-        			is.close();
-				} catch (IOException e) {
-				}
-        	}
-        }
-		
-		ret.append( "}" );
-		String ret_value = ret.toString();
-		
-		jobj = new JSONObject( ret_value );
-		G.Log( "%s : %d byte", getDisplayName(), ret_value.getBytes().length );
-		//G.Log( ret_value ); 
+		contentResolver = context.getContentResolver();
+		contact_id 		= cursor.getLong(cursor.getColumnIndex( _ID ));
+		lookupKey 		= cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+		display_name	= cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ));
+		phoneNumbers 	= "";
+		emails 			= "";
+		address 		= "";
 	}
 	
-	private String readEmails( ContentResolver contentResolver, long contactID ) {
+	private String readEmails() {
 		StringBuilder ret = null;
 		// Query and loop for every email of the contact
 		Cursor emailCursor = contentResolver.query(EmailCONTENT_URI, null, EmailCONTACT_ID+ " = ?", new String[] { String.valueOf( contact_id )}, null);
 		if( emailCursor.getCount() > 0 ) {
-			ret = new StringBuilder( "\"EMAIL\":[" ); 
+			ret = new StringBuilder(); 
 			while (emailCursor.moveToNext()) {
 				String emailAddress = emailCursor.getString(emailCursor.getColumnIndex(DATA));
 				int emailType = emailCursor.getInt(emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE ));
@@ -151,18 +83,17 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 					ret.append( "," );
 				}
 			}
-			ret.append( "]" );
 		}
 		emailCursor.close();
-		return ret == null ? null : ret.toString(); 
+		return ret == null ? "" : ret.toString(); 
 	}
 	
-	private String readPhoneNumbers( ContentResolver contentResolver, long contactID ) {
+	private String readPhoneNumbers() {
 		StringBuilder ret = null;
 		// Query and loop for every phone number of the contact
 		Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { String.valueOf( contact_id )}, null);
 		if( phoneCursor.getCount() > 0 ) {
-			ret = new StringBuilder( "\"PHONE_NUMBER\":[" ); 
+			ret = new StringBuilder(); 
 			while (phoneCursor.moveToNext()) {
 				int phoneType = phoneCursor.getInt(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
 				String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
@@ -186,19 +117,18 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 					ret.append( "," );
 				}
 			}
-			ret.append( "]" );
 		}
 		phoneCursor.close();
-		return ret == null ? null : ret.toString(); 
+		return ret == null ? "" : ret.toString(); 
 	}
 	
 	
-	private String readAddress( ContentResolver contentResolver, long contactID ) {
+	private String readAddress() {
 		StringBuilder ret = null;
 		// Query and loop for every phone number of the contact
 		Cursor addressCursor = contentResolver.query(AddressCONTENT_URI, null, AddressCONTACT_ID + " = ?", new String[] { String.valueOf( contact_id )}, null);
 		if( addressCursor.getCount() > 0 ) {
-			ret = new StringBuilder( "\"ADDRESS\":[" ); 
+			ret = new StringBuilder(); 
 			while (addressCursor.moveToNext()) {
 				int phoneType = addressCursor.getInt(addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.TYPE));
 				String phoneNumber = addressCursor.getString(addressCursor.getColumnIndex(ADDRESS));
@@ -219,15 +149,14 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 					ret.append( "," );
 				}
 			}
-			ret.append( "]" );
 		}
 		addressCursor.close();
-		return ret == null ? null : ret.toString(); 
+		return ret == null ? "" : ret.toString(); 
 	}
 	
-	private String readVCardString( ContentResolver contentResolver, Cursor cursor ) {
-		String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
-        Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
+	public String readVCardString() {
+		StringBuilder ret = new StringBuilder();
+		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey );
         
         AssetFileDescriptor fd;
         FileInputStream fis = null;
@@ -236,7 +165,7 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
             fis = fd.createInputStream();
             
             byte [] buffer = Utils.inputStreamToByteArray( fis );
-            return new String( buffer );
+            ret.append( new String( buffer ));
             
     	} catch( Exception e ) {
     		if( fis != null ) {
@@ -247,8 +176,7 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 				}
     		}
     	}
-        
-		return null;
+		return ret.toString();
 	}
 	
 	@Override
@@ -260,20 +188,23 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 	}
 
 
-
 	private Drawable icon = null;
-	public Drawable getIcon() {
-		if( icon != null ) return icon;
+	public Drawable getIcon( Context context ) {
+		return icon;
+	}
+	
+	public boolean loadData( Context context ) {
+		if( icon != null ) return false;
+		
+		phoneNumbers 	= readPhoneNumbers();
+		emails 			= readEmails();
+		address 		= readAddress();
 		
 		InputStream inputStream = null;
 		try {
-			if( jobj.has( "ICON" )) {
-				String b64IconString = jobj.getString("ICON");
-				byte compressed_icon_bytes [] = Base64.decode( b64IconString, Base64.DEFAULT );
-				byte icon_bytes [] = Utils.decompress( compressed_icon_bytes );
-				inputStream = Utils.byteArrayToInputStream( icon_bytes );
-			}
-			
+			inputStream = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contact_id)));
+ 
             if (inputStream != null) {
             	icon = Drawable.createFromStream( inputStream, "icon"); 
             }
@@ -288,71 +219,19 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 				}
         	}
         }
-		return icon;
+		return true;
 	}
 
-	private long contact_id = -1;
-	public long getContactID() {
-		if( contact_id != -1 ) return contact_id;
-		try {
-			contact_id = jobj.getLong( "CONTACT_ID" );
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} 
-		return contact_id;
-	}
+	
+	public long 	getContactID() 	 	{ return contact_id; }
+	public String 	getDisplayName() 	{ return display_name; }
+	public String 	getPhoneNumbers() 	{ return phoneNumbers; }
+	public String 	getEmails() 		{ return emails; }
+	public String	getAddress()		{ return address; }
 	
 	private boolean selected = false;
-	public boolean isSelected() {
-		return selected;
-	}
-	public void setSelected( boolean selected ) {
-		this.selected = selected;
-	}
-	
-	private String display_name = null;
-	public String getDisplayName() {
-		if( display_name != null ) return display_name;
-		try {
-			display_name = jobj.getString( "DISPLAY_NAME" );
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} 
-		return display_name;
-	}
-	
-	private String phone_numbers = null;
-	public String getPhoneNumbers() {
-		if( phone_numbers != null ) return phone_numbers;
-		
-		if( jobj.has( "PHONE_NUMBER" )) {
-			try {
-				phone_numbers = jobj.getString( "PHONE_NUMBER" );
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		} else {
-			phone_numbers = "";
-		}
-		 
-		return phone_numbers;
-	}
-	
-	private String emails = null;
-	public String getEmails() {
-		if( emails != null ) return emails;
-		if( jobj.has( "EMAIL" )) {
-			try {
-				emails = jobj.getString( "EMAIL" );
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		} else {
-			emails = "";
-		}
-		 
-		return emails;
-	}
+	public boolean isSelected() { return selected; }
+	public void setSelected( boolean selected ) { this.selected = selected; }
 	
 	public void openDetailView( Context context ) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -370,11 +249,4 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 			return OrderingByKoreanEnglishNumbuerSpecial.compare( arg0.getDisplayName(), arg1.getDisplayName());
 		}
 	};
-	
-	@Override
-	public void onLoadComplete( Loader<Cursor> loader, Cursor cursor ) {
-		switch (loader.getId()) {
-		
-		}
-	}
 }

@@ -6,11 +6,14 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +33,12 @@ public class ContactAdapter extends BaseAdapter
 	implements Filterable, OnCheckedChangeListener
 {
 	
-	private final Context context;
+	private final Activity context;
 	private List<ContactData> listDatas 	= new ArrayList<ContactData>();
 	private List<ContactData> filteredData 	= new ArrayList<ContactData>();
 	private boolean showCheckBox = false;
 	
-	public ContactAdapter( Context context ) {
+	public ContactAdapter( Activity context ) {
 		this.context = context;
 	}
 	
@@ -79,7 +82,7 @@ public class ContactAdapter extends BaseAdapter
 		
 		ContactData data = ( ContactData ) getItem( position );
 		if( data != null ) {
-			Drawable icon = data.getIcon();
+			Drawable icon = data.getIcon( context );
 			if( icon == null ) {
 				viewHolder.icon.setImageResource( R.drawable.ic_contact );
 			} else {
@@ -111,18 +114,9 @@ public class ContactAdapter extends BaseAdapter
 		listDatas.clear();
 		
 		ContentResolver contentResolver = context.getContentResolver();
-		//ContentProviderClient client = contentResolver.acquireContentProviderClient( CONTACT_URI );
-		
 		Cursor cursor = contentResolver.query( CONTACT_URI, null, null, null, null );
         if( cursor.getCount() > 0 ) {
-			/*
-        	String names[] = cursor.getColumnNames();
-			for( String name : names ) {
-				G.Log( "getColumnNames : %s", name );
-			}
-			*/
         	while( cursor.moveToNext()) {
-	        	ContactUtils.contactToStringEx(context, cursor);
 	        	try {
 	        		ContactData data = new ContactData( context, cursor );
 					listDatas.add( data );
@@ -136,6 +130,20 @@ public class ContactAdapter extends BaseAdapter
         
         filteredData.clear();
         filteredData.addAll( listDatas );
+        
+        new Thread( new Runnable(){
+			@Override
+			public void run() {
+				for( ContactData data : listDatas ) {
+					if( data.loadData( context )) {
+						context.runOnUiThread( new Runnable(){
+							@Override
+							public void run() {
+								ContactAdapter.this.notifyDataSetChanged();
+							}});						
+					}
+				}
+			}}).start();
 	}
 	
 	public boolean isShowCheckBox() {

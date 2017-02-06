@@ -1,17 +1,14 @@
 package com.purehero.bluetooth.share;
 
-import com.purehero.bluetooth.BluetoothCommunication;
-import com.purehero.bluetooth.BluetoothManager;
-import com.purehero.bluetooth.IFBluetoothEventListener;
-import com.purehero.common.BaseTabMainActivity;
-import com.purehero.common.G;
-import com.purehero.common.ViewPagerAdapter;
-
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+
+import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.common.BaseTabMainActivity;
+import com.purehero.common.G;
+import com.purehero.common.ViewPagerAdapter;
 
 public class MainActivity extends BaseTabMainActivity {
 
@@ -20,7 +17,6 @@ public class MainActivity extends BaseTabMainActivity {
 		super.onCreate(savedInstanceState);
 		
 		G.init( this );
-		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
 	}
 	
 	@Override
@@ -48,30 +44,7 @@ public class MainActivity extends BaseTabMainActivity {
 		super.onDestroy();
 	}
 
-	public IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
-		@Override
-		public void OnDateReceived( byte[] data, int size ) {
-			String msg = new String( data, 0, size );
-			G.Log( "Received message : %s", msg );
-		}
-
-		@Override
-		public void OnDisconnected() {
-			G.Log( "Disconnected" );
-		}
-
-		@Override
-		public void OnConnected( final BluetoothCommunication btComm) {
-			G.Log( "OnConnected" );
-			
-			MainActivity.this.runOnUiThread( new Runnable(){
-				@Override
-				public void run() {
-					TextView tv = ( TextView ) findViewById( R.id.tvStatue );
-					tv.setText( btComm.getName() );
-				}});
-		}
-	};
+	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
