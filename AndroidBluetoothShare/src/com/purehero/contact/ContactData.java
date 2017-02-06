@@ -1,5 +1,6 @@
 package com.purehero.contact;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -7,10 +8,15 @@ import java.util.Comparator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.purehero.common.G;
+import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
+import com.purehero.common.Utils;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -19,10 +25,6 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.support.v4.content.Loader;
 import android.support.v4.content.Loader.OnLoadCompleteListener;
 import android.util.Base64;
-
-import com.purehero.common.G;
-import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
-import com.purehero.common.Utils;
 
 public class ContactData implements OnLoadCompleteListener<Cursor> {
 	private static final String _ID 				= ContactsContract.Contacts._ID;
@@ -35,6 +37,10 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 	private static final Uri EmailCONTENT_URI 		= ContactsContract.CommonDataKinds.Email.CONTENT_URI;
 	private static final String EmailCONTACT_ID 	= ContactsContract.CommonDataKinds.Email.CONTACT_ID;
 	private static final String DATA 				= ContactsContract.CommonDataKinds.Email.DATA;
+	
+	private static final Uri AddressCONTENT_URI 	= ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI;
+	private static final String AddressCONTACT_ID 	= ContactsContract.CommonDataKinds.StructuredPostal.CONTACT_ID;
+	private static final String ADDRESS				= ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS;
 	
 	class ContactDataSource {
 		final String name;
@@ -70,6 +76,17 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 			ret.append( emails );
 		}
 		
+		String address = readAddress( contentResolver, contact_id );
+		if( address != null ) {
+			ret.append( "," );
+			ret.append( address );
+		}
+		
+		String vcardString = readVCardString( contentResolver, cursor );
+		if( vcardString != null ) {
+			G.Log( "[vcfString] %s", vcardString );
+		}
+				
 		InputStream is = null;
 		try {
 			is = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
@@ -103,6 +120,7 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 		
 		jobj = new JSONObject( ret_value );
 		G.Log( "%s : %d byte", getDisplayName(), ret_value.getBytes().length );
+		//G.Log( ret_value ); 
 	}
 	
 	private String readEmails( ContentResolver contentResolver, long contactID ) {
@@ -172,6 +190,65 @@ public class ContactData implements OnLoadCompleteListener<Cursor> {
 		}
 		phoneCursor.close();
 		return ret == null ? null : ret.toString(); 
+	}
+	
+	
+	private String readAddress( ContentResolver contentResolver, long contactID ) {
+		StringBuilder ret = null;
+		// Query and loop for every phone number of the contact
+		Cursor addressCursor = contentResolver.query(AddressCONTENT_URI, null, AddressCONTACT_ID + " = ?", new String[] { String.valueOf( contact_id )}, null);
+		if( addressCursor.getCount() > 0 ) {
+			ret = new StringBuilder( "\"ADDRESS\":[" ); 
+			while (addressCursor.moveToNext()) {
+				int phoneType = addressCursor.getInt(addressCursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.TYPE));
+				String phoneNumber = addressCursor.getString(addressCursor.getColumnIndex(ADDRESS));
+				switch (phoneType) {
+                case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME:
+                	ret.append( String.format( "\"HOME:%s\"", phoneNumber));
+                	break;
+                case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_WORK:
+                	ret.append( String.format( "\"WORK:%s\"", phoneNumber));
+                    break;
+                case ContactsContract.CommonDataKinds.StructuredPostal.TYPE_OTHER:
+                default:
+                	ret.append( String.format( "\"OTHER:%s\"", phoneNumber));
+                    break;
+				}
+				
+				if( !addressCursor.isLast()) {
+					ret.append( "," );
+				}
+			}
+			ret.append( "]" );
+		}
+		addressCursor.close();
+		return ret == null ? null : ret.toString(); 
+	}
+	
+	private String readVCardString( ContentResolver contentResolver, Cursor cursor ) {
+		String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+        Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
+        
+        AssetFileDescriptor fd;
+        FileInputStream fis = null;
+    	try {
+            fd = contentResolver.openAssetFileDescriptor(uri, "r");
+            fis = fd.createInputStream();
+            
+            byte [] buffer = Utils.inputStreamToByteArray( fis );
+            return new String( buffer );
+            
+    	} catch( Exception e ) {
+    		if( fis != null ) {
+    			try {
+					fis.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+    		}
+    	}
+        
+		return null;
 	}
 	
 	@Override
