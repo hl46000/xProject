@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -33,6 +35,25 @@ public class Utils {
 	public static InputStream byteArrayToInputStream(byte[] srcBytes) {
 	    return new ByteArrayInputStream(srcBytes);
 	}
+	
+	/**
+     * byte 배열을 구분자/공백 없는 16진수 문자열로 변환
+     * 
+     * @param array
+     * @return 16진수 스트링
+     */
+    public static String byteArrayToHexString(byte[] array) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < array.length; i++) {
+            sb.append(Integer.toHexString(0x0100 + (array[i] & 0x00FF)).substring(1).toUpperCase());
+            if ((i+1) % 16 == 0 && i != 0) {
+                sb.append("\n");
+            } else {
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
+    }
 	
 	public static byte[] compress(byte[] data) throws IOException {  
 		Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
@@ -71,5 +92,38 @@ public class Utils {
 		G.Log("Decompressed: " + output.length+ " byte");  
 		   
 		return output;  
-	}  
+	}
+	
+	/**
+	 * int형을 byte배열로 바꿈<br>
+	 * @param integer
+	 * @param order
+	 * @return
+	 */
+	public static byte[] intTobyte(int integer ) {
+ 		ByteBuffer buff = ByteBuffer.allocate(Integer.SIZE/8);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+ 
+		// 인수로 넘어온 integer을 putInt로설정
+		buff.putInt(integer);
+		return buff.array();
+	}
+ 
+	/**
+	 * byte배열을 int형로 바꿈<br>
+	 * @param bytes
+	 * @param order
+	 * @return
+	 */
+	public static int byteToInt( byte[] bytes ) {
+ 		ByteBuffer buff = ByteBuffer.allocate(Integer.SIZE/8);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+ 
+		// buff사이즈는 4인 상태임
+		// bytes를 put하면 position과 limit는 같은 위치가 됨.
+		buff.put(bytes);
+		// flip()가 실행 되면 position은 0에 위치 하게 됨.
+		buff.flip();
+		return buff.getInt(); // position위치(0)에서 부터 4바이트를 int로 변경하여 반환
+	}
 }

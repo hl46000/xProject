@@ -66,7 +66,7 @@ public class BluetoothChatFragment extends Fragment implements OnClickListener {
 				byte [] msg_bytes = msg.getBytes(Charset.forName("UTF-8"));
 					
 				G.Log( "Send message : %s", msg );
-				BluetoothManager.getInstance().write( msg_bytes, msg_bytes.length );
+				BluetoothManager.getInstance().write( msg_bytes );
 			}
 			break;
 		}
@@ -74,7 +74,7 @@ public class BluetoothChatFragment extends Fragment implements OnClickListener {
 
 	IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
 		@Override
-		public void OnDateReceived( byte[] data, int size ) {
+		public void OnDataReceived( byte[] data, int size ) {
 			String msg = new String( data, 0, size );
 			G.Log( "Received message : %s", msg );
 		}

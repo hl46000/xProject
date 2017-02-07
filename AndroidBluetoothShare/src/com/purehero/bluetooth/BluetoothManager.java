@@ -153,7 +153,7 @@ public class BluetoothManager {
 	
 	IFBluetoothEventListener btEventListener = new IFBluetoothEventListener() {
 		@Override
-		public void OnDateReceived(byte[] data, int size) {}
+		public void OnDataReceived(byte[] data, int size) {}
 
 		@Override
 		public void OnConnected(BluetoothCommunication newComm ) {
@@ -303,9 +303,9 @@ public class BluetoothManager {
 		return btAdapter.getRemoteDevice( address );
 	}
 
-	public void write(byte[] msg_bytes, int length) {
+	public void write(byte[] msg_bytes) {
 		if( btComm != null ) {
-			btComm.write( msg_bytes, length );
+			btComm.write( msg_bytes );
 		}
 	}
 }

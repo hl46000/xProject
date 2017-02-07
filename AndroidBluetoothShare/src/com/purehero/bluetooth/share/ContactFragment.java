@@ -57,6 +57,8 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 			if( adapter == null ) {
 				adapter = new ContactAdapter( context );
 				adapter.getContactDatas();
+				
+				context.setContactAdapter( adapter );
 			}
 			
 			context.runOnUiThread( new Runnable(){
@@ -134,7 +136,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		G.Log( "onContextItemSelected index : " + info.position );
 		
-		ContactData data = ( ContactData ) adapter.getItem( info.position );
+		//ContactData data = ( ContactData ) adapter.getItem( info.position );
 		
 		switch( item.getItemId()) {
 		case R.id.menu_send_to_remote : 

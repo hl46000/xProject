@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import com.purehero.bluetooth.share.R;
+
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +26,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.purehero.bluetooth.share.R;
 
 public class ContactAdapter extends BaseAdapter 
 	implements Filterable, OnCheckedChangeListener
@@ -42,6 +40,9 @@ public class ContactAdapter extends BaseAdapter
 		this.context = context;
 	}
 	
+	/* 
+	 * 필터링된( 검색어가 적용된 ) Contact의 개수를 반환한다. 
+	 */
 	@Override
 	public int getCount() {
 		return filteredData.size();
@@ -219,5 +220,26 @@ public class ContactAdapter extends BaseAdapter
 		for( ContactData data : filteredData ) {
 			data.setSelected( checked );
 		}
+	}
+
+	/**
+	 * 모든 Contact 을 표시할 수 있는 리스트 정보를 반환한다. ( 아이콘은 제외 )
+	 * 
+	 * @return
+	 */
+	public String getContactListDataALL() {
+		StringBuilder ret = new StringBuilder("{\"CONTACTS\":[");
+		
+		long contact_id = 0;
+		String display_name = "";
+		
+		for( ContactData data : listDatas ) {
+			contact_id 	 = data.getContactID();
+			display_name = data.getDisplayName();
+			
+			ret.append( String.format( "", contact_id, display_name ));
+		}
+		ret.append("]");
+		return ret.toString();
 	}
 }

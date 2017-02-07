@@ -63,10 +63,10 @@ public class BluetoothCommunication {
 		return "";
 	}
 	
-	public void write( byte [] buff, int size ) {
+	public void write( byte [] buff ) {
 		if( mOutputStream != null ) {
 			try {
-				mOutputStream.write( buff, 0, size );
+				mOutputStream.write( buff );
 			} catch (IOException e) {
 				e.printStackTrace();
 				release();
@@ -87,7 +87,7 @@ public class BluetoothCommunication {
 					readBytes = mInputStream.read( data, 0, buffer_size );
 					
 					if( bluetoothEventListenerreceiver != null ) {
-						bluetoothEventListenerreceiver.OnDateReceived(data, readBytes);
+						bluetoothEventListenerreceiver.OnDataReceived(data, readBytes);
 					}
 				} catch ( Exception e ) {
 					e.printStackTrace();

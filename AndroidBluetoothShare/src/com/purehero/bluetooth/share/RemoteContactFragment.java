@@ -1,5 +1,10 @@
 package com.purehero.bluetooth.share;
 
+import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.common.G;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -18,12 +23,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.purehero.bluetooth.BluetoothCommunication;
-import com.purehero.bluetooth.BluetoothManager;
-import com.purehero.bluetooth.IFBluetoothEventListener;
-import com.purehero.common.G;
-import com.purehero.contact.ContactData;
-
 public class RemoteContactFragment extends Fragment implements OnClickListener {
 	private final MainActivity context;
 	private View layout = null;
@@ -31,7 +30,6 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 	private ListView listView = null;
 	private ProgressBar progressBar = null;
 	private final RemoteContactAdapter adapter;
-	private BluetoothCommunication btComm = null;
 	
 	public RemoteContactFragment(MainActivity mainActivity) {
 		context = mainActivity;
@@ -42,14 +40,13 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 	
 	public IFBluetoothEventListener bluetoothEventListenerreceiver = new IFBluetoothEventListener() {
 		@Override
-		public void OnDateReceived( byte[] data, int size ) {
-			String msg = new String( data, 0, size );
-			G.Log( "Received message : %s", msg );
+		public void OnDataReceived( byte[] data, int size ) {
+			adapter.dataReceived( data, size );
 		}
 
 		@Override
 		public void OnDisconnected() {
-			btComm = null;
+			adapter.disconnected();
 			
 			context.runOnUiThread( new Runnable(){
 				@Override
@@ -69,14 +66,13 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 
 		@Override
 		public void OnConnected( final BluetoothCommunication _btComm) {
-			G.Log( "OnConnected" );
-			btComm = _btComm;
+			adapter.connected( _btComm, context.getContactAdapter() );
 			
 			context.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
 					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
-					tv.setText( btComm.getName() );
+					tv.setText( _btComm.getName() );
 					
 					Button btn = ( Button ) layout.findViewById( R.id.btnRemoteDevice );
 					if( btn != null ) {
@@ -104,12 +100,12 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 			}
 		}
 		
-		new Thread( getContactRunnable ).start();
+		new Thread( init_view_thread ).start();
 		
 		return layout;
 	}
 	
-	Runnable getContactRunnable = new Runnable() {
+	Runnable init_view_thread = new Runnable() {
 		@Override
 		public void run() {
 			G.Log( "run" );			
@@ -166,7 +162,7 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		G.Log( "onContextItemSelected index : " + info.position );
 		
-		ContactData data = ( ContactData ) adapter.getItem( info.position );
+		//ContactData data = ( ContactData ) adapter.getItem( info.position );
 		
 		switch( item.getItemId()) {
 		case R.id.menu_send_to_remote : 
@@ -208,10 +204,8 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 		case R.id.btnRemoteDevice :
 			Button btn = ( Button ) arg0;
 			if( getString( R.string.get_contact_list ).compareTo( btn.getText().toString() ) == 0 ) {
-				if( btComm != null && btComm.isConnected() ) {
-					byte data [] = "get_contact_list".getBytes();
-					btComm.write( data, data.length );
-				}
+				adapter.requestContactList();
+				
 			} else {
 				BluetoothManager.getInstance().openDeviceList( this );
 			}
@@ -219,4 +213,5 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 			break;
 		}
 	}
+
 }

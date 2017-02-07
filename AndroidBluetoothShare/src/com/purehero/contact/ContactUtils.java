@@ -30,7 +30,7 @@ public class ContactUtils {
 	    String[] mSelectionArgs = { mContactKey };
 		
 	    // Defines a string that specifies a sort order of MIME type
-	    final String SORT_ORDER = Data.MIMETYPE;
+	    //final String SORT_ORDER = Data.MIMETYPE;
 	    
 	    //mContactUri = ContactsContract.Contacts.CONTENT_URI;
 	    //SELECTION = "contact_id = ?";

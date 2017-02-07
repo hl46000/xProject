@@ -9,9 +9,11 @@ import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.common.BaseTabMainActivity;
 import com.purehero.common.G;
 import com.purehero.common.ViewPagerAdapter;
+import com.purehero.contact.ContactAdapter;
 
 public class MainActivity extends BaseTabMainActivity {
-
+	private ContactAdapter contactAdapter = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,5 +66,13 @@ public class MainActivity extends BaseTabMainActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void setContactAdapter( ContactAdapter adapter ) {
+		contactAdapter = adapter;
+	}
+	
+	public ContactAdapter getContactAdapter() {
+		return contactAdapter;
 	}
 }
