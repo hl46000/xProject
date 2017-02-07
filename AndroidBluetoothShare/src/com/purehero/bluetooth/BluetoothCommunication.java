@@ -63,6 +63,15 @@ public class BluetoothCommunication {
 		return "";
 	}
 	
+	public void flush() {
+		if( mOutputStream != null ) {
+			try {
+				mOutputStream.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	public void write( byte [] buff ) {
 		if( mOutputStream != null ) {
 			try {

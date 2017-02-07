@@ -36,6 +36,10 @@ public class Utils {
 	    return new ByteArrayInputStream(srcBytes);
 	}
 	
+	public static InputStream byteArrayToInputStream(byte[] srcBytes, int offset, int length ) {
+	    return new ByteArrayInputStream(srcBytes, offset, length );
+	}
+	
 	/**
      * byte 배열을 구분자/공백 없는 16진수 문자열로 변환
      * 
@@ -108,6 +112,15 @@ public class Utils {
 		buff.putInt(integer);
 		return buff.array();
 	}
+	
+	public static byte[] longTobyte( long l ) {
+ 		ByteBuffer buff = ByteBuffer.allocate(Long.SIZE/8);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+ 
+		// 인수로 넘어온 integer을 putInt로설정
+		buff.putLong(l);
+		return buff.array();
+	}
  
 	/**
 	 * byte배열을 int형로 바꿈<br>
@@ -125,5 +138,17 @@ public class Utils {
 		// flip()가 실행 되면 position은 0에 위치 하게 됨.
 		buff.flip();
 		return buff.getInt(); // position위치(0)에서 부터 4바이트를 int로 변경하여 반환
+	}
+	
+	public static long byteToLong( byte[] bytes ) {
+ 		ByteBuffer buff = ByteBuffer.allocate(Long.SIZE/8);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+ 
+		// buff사이즈는 4인 상태임
+		// bytes를 put하면 position과 limit는 같은 위치가 됨.
+		buff.put(bytes);
+		// flip()가 실행 되면 position은 0에 위치 하게 됨.
+		buff.flip();
+		return buff.getLong(); // position위치(0)에서 부터 8바이트를 long로 변경하여 반환
 	}
 }

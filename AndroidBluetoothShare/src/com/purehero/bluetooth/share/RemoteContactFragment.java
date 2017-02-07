@@ -114,9 +114,9 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 				@Override
 				public void run() {
 					G.Log( "runOnUiThread run" );
-					adapter.notifyDataSetChanged();
+
 					progressBar.setVisibility( View.INVISIBLE );
-					
+					listView.setVisibility( View.VISIBLE );
 					// 검색
 					EditText search = (EditText) layout.findViewById( R.id.txt_search );
 					if( search != null ) {

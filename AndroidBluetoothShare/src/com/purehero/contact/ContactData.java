@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.widget.Toast;
 
 import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
 import com.purehero.common.Utils;
@@ -55,7 +56,19 @@ public class ContactData {
 		address 		= "";
 	}
 	
+	public ContactData( Context context, long id, String name ) {
+		contentResolver = null;
+		contact_id 		= id;
+		lookupKey 		= "";
+		display_name	= name;
+		phoneNumbers 	= "";
+		emails 			= "";
+		address 		= "";
+	}
+	
 	private String readEmails() {
+		if( contentResolver == null ) return "";
+		
 		StringBuilder ret = null;
 		// Query and loop for every email of the contact
 		Cursor emailCursor = contentResolver.query(EmailCONTENT_URI, null, EmailCONTACT_ID+ " = ?", new String[] { String.valueOf( contact_id )}, null);
@@ -89,6 +102,8 @@ public class ContactData {
 	}
 	
 	private String readPhoneNumbers() {
+		if( contentResolver == null ) return "";
+		
 		StringBuilder ret = null;
 		// Query and loop for every phone number of the contact
 		Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { String.valueOf( contact_id )}, null);
@@ -124,6 +139,8 @@ public class ContactData {
 	
 	
 	private String readAddress() {
+		if( contentResolver == null ) return "";
+		
 		StringBuilder ret = null;
 		// Query and loop for every phone number of the contact
 		Cursor addressCursor = contentResolver.query(AddressCONTENT_URI, null, AddressCONTACT_ID + " = ?", new String[] { String.valueOf( contact_id )}, null);
@@ -155,6 +172,8 @@ public class ContactData {
 	}
 	
 	public String readVCardString() {
+		if( contentResolver == null ) return "";
+		
 		StringBuilder ret = new StringBuilder();
 		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey );
         
@@ -192,8 +211,11 @@ public class ContactData {
 	public Drawable getIcon( Context context ) {
 		return icon;
 	}
-	
+	public void setIcon(Drawable icon2) {
+		icon = icon2;
+	}
 	public boolean loadData( Context context ) {
+		if( contentResolver == null ) return false;
 		if( icon != null ) return false;
 		
 		phoneNumbers 	= readPhoneNumbers();
@@ -234,6 +256,10 @@ public class ContactData {
 	public void setSelected( boolean selected ) { this.selected = selected; }
 	
 	public void openDetailView( Context context ) {
+		if( contentResolver == null ) {
+			Toast.makeText(context, "Remote contact", Toast.LENGTH_LONG).show();
+			return;
+		}
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactID()));
 		intent.setData(uri);

@@ -1,5 +1,7 @@
 package com.purehero.contact;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,9 +9,11 @@ import java.util.List;
 import org.json.JSONException;
 
 import com.purehero.bluetooth.share.R;
+import com.purehero.common.Utils;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -233,13 +237,43 @@ public class ContactAdapter extends BaseAdapter
 		long contact_id = 0;
 		String display_name = "";
 		
-		for( ContactData data : listDatas ) {
+		int i, len = listDatas.size() - 1;
+		for( i = 0; i < len; i++ ) {
+			ContactData data = listDatas.get(i);
 			contact_id 	 = data.getContactID();
 			display_name = data.getDisplayName();
 			
-			ret.append( String.format( "", contact_id, display_name ));
+			ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\"},", contact_id, display_name ));
 		}
-		ret.append("]");
+		
+		ContactData data = listDatas.get(i);
+		contact_id 	 = data.getContactID();
+		display_name = data.getDisplayName();
+		
+		ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\"}]}", contact_id, display_name ));
 		return ret.toString();
+	}
+
+	public byte[] getIconBytes(long contact_id) {
+		InputStream is = null;
+		try {
+			is = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contact_id)));
+ 
+            byte is_bytes [] = Utils.inputStreamToByteArray( is ); 
+			return is_bytes;
+			
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        } finally {
+        	if( is != null ) {
+        		try {
+        			is.close();
+				} catch (IOException e) {
+				}
+        	}
+        }
+		return null;
 	}
 }
