@@ -46,9 +46,12 @@ public class Utils {
      * @param array
      * @return 16진수 스트링
      */
-    public static String byteArrayToHexString(byte[] array) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < array.length; i++) {
+    public static String byteArrayToHexString(byte[] array, int len ) {
+        if( len > array.length ) {
+        	len = array.length;
+        }
+    	StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < len; i++) {
             sb.append(Integer.toHexString(0x0100 + (array[i] & 0x00FF)).substring(1).toUpperCase());
             if ((i+1) % 16 == 0 && i != 0) {
                 sb.append("\n");

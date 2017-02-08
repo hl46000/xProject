@@ -201,14 +201,15 @@ public class ContactData {
 	@Override
 	public String toString() {
 		return String.format( 
-				"%s : %s", 
+				"[%d]%s : %s", 
+				getContactID(),
 				getDisplayName(),
 				isSelected() ? "selected" : "");
 	}
 
 
 	private Drawable icon = null;
-	public Drawable getIcon( Context context ) {
+	public Drawable getIcon() {
 		return icon;
 	}
 	public void setIcon(Drawable icon2) {

@@ -87,7 +87,7 @@ public class ContactAdapter extends BaseAdapter
 		
 		ContactData data = ( ContactData ) getItem( position );
 		if( data != null ) {
-			Drawable icon = data.getIcon( context );
+			Drawable icon = data.getIcon();
 			if( icon == null ) {
 				viewHolder.icon.setImageResource( R.drawable.ic_contact );
 			} else {
@@ -243,14 +243,14 @@ public class ContactAdapter extends BaseAdapter
 			contact_id 	 = data.getContactID();
 			display_name = data.getDisplayName();
 			
-			ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\"},", contact_id, display_name ));
+			ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"},", contact_id, display_name, data.getIcon()==null?"false":"true" ));
 		}
 		
 		ContactData data = listDatas.get(i);
 		contact_id 	 = data.getContactID();
 		display_name = data.getDisplayName();
 		
-		ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\"}]}", contact_id, display_name ));
+		ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"}]}", contact_id, display_name, data.getIcon()==null?"false":"true" ));
 		return ret.toString();
 	}
 
