@@ -8,3 +8,6 @@
 /AndroidTouchMacroV3/.metadata
 /AndroidTouchMacroV3/.recommenders
 *.apk
+MyAndroidSampleApp00/libs/armeabi/libsample01.so
+AppSealingExternalExecutor/libs/armeabi/libAppSealingExternalExecutor.so
+MyAndroidSampleApp00/libs/armeabi/libsample00.so
