@@ -7,20 +7,18 @@ import java.util.Comparator;
 
 import org.json.JSONException;
 
+import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
+import com.purehero.common.Utils;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.widget.Toast;
-
-import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
-import com.purehero.common.Utils;
 
 public class ContactData {
 	private static final String _ID 				= ContactsContract.Contacts._ID;
@@ -64,6 +62,11 @@ public class ContactData {
 		phoneNumbers 	= "";
 		emails 			= "";
 		address 		= "";
+	}
+	
+	public void delete() {
+		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
+		contentResolver.delete( uri, null, null );
 	}
 	
 	private String readEmails() {
@@ -256,16 +259,7 @@ public class ContactData {
 	public boolean isSelected() { return selected; }
 	public void setSelected( boolean selected ) { this.selected = selected; }
 	
-	public void openDetailView( Context context ) {
-		if( contentResolver == null ) {
-			Toast.makeText(context, "Remote contact", Toast.LENGTH_LONG).show();
-			return;
-		}
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactID()));
-		intent.setData(uri);
-		context.startActivity(intent);
-	}
+	
 	
 	/**
 	 * ContactData 의 list 을 정렬에 필요한 비교자

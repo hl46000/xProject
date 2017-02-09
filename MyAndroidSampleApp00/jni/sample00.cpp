@@ -8,9 +8,35 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <dlfcn.h>
+void test_so_filepath()
+{
+	LOGT();
+
+	char path[1024];
+	sprintf( path, "%s", "libattach.so");
+
+	void* handle = dlopen( "libsample01.so", RTLD_LAZY );
+	const char* errmsg=dlerror();
+	if( handle == NULL )
+	{
+		if( errmsg != NULL ) {
+			LOGE( "%s", errmsg );
+		} else {
+			LOGE( "errmsg is NULL" );
+		}
+	} else {
+		memcpy( path, handle, 127 );
+		LOGE( "success dlopen %s", path );
+		dlclose( handle );
+	}
+}
+
 void init( JNIEnv * env, jobject, jobject appContext )
 {
 	LOGT();
+
+	test_so_filepath();
 
 	maps_reader maps( getpid() );
 	LOGD( "sizeof(mapsInfo) : %d", maps.read());
@@ -153,5 +179,8 @@ jint JNI_OnLoad( JavaVM* vm, void* )
 		return -1;
 	}
 #endif
+
+	test_so_filepath();
+
 	return JNI_VERSION_1_4;
 }

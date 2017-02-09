@@ -1,9 +1,15 @@
 package com.purehero.contact;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.purehero.common.G;
+import com.purehero.common.Utils;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -58,5 +64,47 @@ public class ContactUtils {
 			}
 	    	detailCursor.close();
 	    }
+	}
+	
+	/**
+	 * 연락처의 ICON을 byte array 로 반환한다. 
+	 * 
+	 * @param context		
+	 * @param contact_id	연락처 ID값
+	 * @return				연락처 ICON의 Byte Array, 오류 발생 시 null 반환
+	 */
+	public static byte[] getIconBytes( Context context, long contact_id ) {
+		InputStream is = null;
+		try {
+			is = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contact_id)));
+ 
+            byte is_bytes [] = Utils.inputStreamToByteArray( is ); 
+			return is_bytes;
+			
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        } finally {
+        	if( is != null ) {
+        		try {
+        			is.close();
+				} catch (IOException e) {}
+        	}
+        }
+		return null;
+	}
+	
+	/**
+	 * 연락처의 상세보기 화면을 띄워준다. 
+	 * 
+	 * @param context
+	 * @param contact_id	연락처 ID값
+	 */
+	public static void openDetailView( Context context, long contact_id ) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf( contact_id ));
+		intent.setData(uri);
+		context.startActivity(intent);
 	}
 }

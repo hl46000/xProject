@@ -28,6 +28,7 @@ import com.purehero.common.G;
 import com.purehero.common.Utils;
 import com.purehero.contact.ContactAdapter;
 import com.purehero.contact.ContactData;
+import com.purehero.contact.ContactUtils;
 
 public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	
@@ -187,16 +188,18 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		byte temp_value [] = new byte[4];
 		System.arraycopy( data, 0, temp_value, 0, temp_value.length );
 		if( Arrays.equals( temp_value, DEF_MAGIC_VALUE )) {
+			// MAGIC_VALUE 로 시작하는 Packet 은 명령어를 포함하고 있다고 판단한다.  
 			G.Log( "command" );
 			
 			int index = temp_value.length;
-			// 새로운 명령어로 인식한다.
+			// 명령어 코드를 판단한다. 
 			received_op_code = data[index++];
 			G.Log( "received_op_code 0x%x", received_op_code );
-			
+						
 			System.arraycopy( data, index, temp_value, 0, temp_value.length );
 			index += temp_value.length;
 			
+			// 명령어의 파라메터로 전달한 데이터를 추출한다. 
 			remnant_size = Utils.byteToInt( temp_value );
 			G.Log( "remnant_size = %d", remnant_size );
 			
@@ -204,23 +207,28 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				dataReceivedStream.write( data, index, data_length - index );
 				remnant_size -= ( data_length - index );
 			}
-			G.Log( "data_length = %d", data_length );
-			G.Log( "index = %d", index );
-			G.Log( "remnant_size -= ( data_length - index ) = %d", remnant_size );
+			//G.Log( "data_length = %d", data_length );
+			//G.Log( "index = %d", index );
+			//G.Log( "remnant_size -= ( data_length - index ) = %d", remnant_size );
 			
 		} else {
-			G.Log( "division" );
-			
+			// 분할 Packet 으로 인식
+			// G.Log( "division" );
 			dataReceivedStream.write( data, 0, data_length );
 			remnant_size -= data_length;
 		}
 		
 		if( remnant_size <= 0 ) {
+			// 전달한 데이터를 모두 수신한 경우, 수신한 명령을 수행한다.  
+			
 			G.Log( "received_op_code : 0x%x", received_op_code );
 			byte received_datas [] = dataReceivedStream.toByteArray();
 			int  data_offset = 0;
 			
 			if(( OPCODE_MASK_REQUEST & received_op_code ) > 0 ) {
+				// 데이터 요청 명령어
+				btComm.setEnableSending( false );	// 원격으로부터 요청이 들어 온 경우, 요청에 대한 응답을 모두 보낼때 까지 송신을 차단한다. 
+				
 				switch( received_op_code ) {
 				case OPCODE_REQUEST_CONTACT_LIST :
 					G.Log( "OPCODE_REQUEST_CONTACT_LIST" );
@@ -236,8 +244,12 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 					responseContactIcon( contact_id );
 					break;
 				}
+				btComm.setEnableSending( false );	// 원격으로부터 들어온 요청에 대한 응답을 모두 보냈으니 송신을 허용한다. 
 				
 			} else {
+				// 데이터 요청에 대한 응답
+				btComm.setEnableSending( true );	// 요청에 대한 응답이 도착하였으니 다른 요청을 보낼 수 있도록 허용한다.
+				
 				switch( received_op_code ) {
 				case OPCODE_RESPONSE_CONTACT_LIST :
 					G.Log( "OPCODE_RESPONSE_CONTACT_LIST" );
@@ -380,7 +392,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	}
 	
 	private void requestRemoteDevice( byte op_code, byte [] data ) {
-		if( btComm != null && btComm.isConnected()) {
+		if( btComm != null && btComm.isConnected() && btComm.isEnableSending()) {
 			G.Log( "requestRemoteDevice" );
 			
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
@@ -399,6 +411,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				
 				btComm.write( outputStream.toByteArray() );
 				btComm.flush();
+				btComm.setEnableSending( false );	// 요청을 전달 하였으면 응답이 올때까지 다른 요청은 전달되지 않게 막는다. 
 				
 			} catch( Exception e ) {
 				e.printStackTrace();
@@ -462,7 +475,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			outputStream.write( Utils.longTobyte( contact_id ));
-			outputStream.write( contactAdapter.getIconBytes( contact_id ));
+			outputStream.write( ContactUtils.getIconBytes( context, contact_id ));
 			
 			responseRemoteDevice( OPCODE_RESPONSE_CONTACT_ICON, outputStream.toByteArray());
 			

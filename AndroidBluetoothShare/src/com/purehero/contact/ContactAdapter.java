@@ -1,7 +1,5 @@
 package com.purehero.contact;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,11 +7,9 @@ import java.util.List;
 import org.json.JSONException;
 
 import com.purehero.bluetooth.share.R;
-import com.purehero.common.Utils;
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
@@ -252,28 +248,5 @@ public class ContactAdapter extends BaseAdapter
 		
 		ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"}]}", contact_id, display_name, data.getIcon()==null?"false":"true" ));
 		return ret.toString();
-	}
-
-	public byte[] getIconBytes(long contact_id) {
-		InputStream is = null;
-		try {
-			is = ContactsContract.Contacts.openContactPhotoInputStream(context.getContentResolver(),
-                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, Long.valueOf(contact_id)));
- 
-            byte is_bytes [] = Utils.inputStreamToByteArray( is ); 
-			return is_bytes;
-			
-        } catch (Exception e) {
-            e.printStackTrace();
-            
-        } finally {
-        	if( is != null ) {
-        		try {
-        			is.close();
-				} catch (IOException e) {
-				}
-        	}
-        }
-		return null;
 	}
 }

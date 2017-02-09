@@ -15,6 +15,7 @@ public class BluetoothCommunication {
 	OutputStream	mOutputStream 	= null;
 	
 	private IFBluetoothEventListener bluetoothEventListenerreceiver = null;
+	private boolean isEnableSending = true;
 	
 	public BluetoothCommunication( BluetoothSocket mSocket ) throws IOException {
 	    this.mSocket = mSocket;
@@ -29,6 +30,7 @@ public class BluetoothCommunication {
 	    mOutputStream = mSocket.getOutputStream();
 	    mInputStream = mSocket.getInputStream();
 	    
+	    isEnableSending = true;
 	    new DataReceiver().start();
 	}
 
@@ -72,15 +74,39 @@ public class BluetoothCommunication {
 			}
 		}
 	}
-	public void write( byte [] buff ) {
+	
+	/**
+	 * 연결된 socket 으로 데이터 전송 허용 여부를 설정한다. 
+	 * 
+	 * @param enable	전송 허용 여부, true : 허용, false : 차단
+	 */
+	public void setEnableSending( boolean enable ) {
+		isEnableSending = enable;
+	}
+	public boolean isEnableSending() {
+		return isEnableSending;
+	}
+	
+	/**
+	 * 연결된 Socket 으로 데이터를 기록한다. 
+	 * 
+	 * @param buff	socket으로 전송할 데이터
+	 * @return		전송된 데이터의 byte 수, 오류 발생 시 -1반환, 전송이 허용되지 않은 경우는 0 반환
+	 */
+	public int write( byte [] buff ) {
 		if( mOutputStream != null ) {
+			if( !isEnableSending ) return 0;
 			try {
 				mOutputStream.write( buff );
+				return buff.length;
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 				release();
 			}
 		}
+		
+		return -1;
 	}
 	
 	class DataReceiver extends Thread implements Runnable {

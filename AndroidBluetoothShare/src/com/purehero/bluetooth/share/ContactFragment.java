@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import com.purehero.common.G;
 import com.purehero.contact.ContactAdapter;
 import com.purehero.contact.ContactData;
+import com.purehero.contact.ContactUtils;
 
 public class ContactFragment extends Fragment implements OnItemClickListener, OnItemLongClickListener {
 	private final MainActivity context;
@@ -96,7 +97,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 			data.setSelected( !data.isSelected() );
 			adapter.notifyDataSetChanged();
 		} else {		
-			data.openDetailView( context );
+			ContactUtils.openDetailView( context, data.getContactID() );
 		}
 	}
 
