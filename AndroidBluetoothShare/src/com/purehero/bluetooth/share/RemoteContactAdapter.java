@@ -1,6 +1,8 @@
 package com.purehero.bluetooth.share;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -13,7 +15,9 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +41,14 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	
 	private static final byte OPCODE_CONTACT_LIST	= (byte) 0x01;
 	private static final byte OPCODE_CONTACT_ICON	= (byte) 0x02;
+	private static final byte OPCODE_CONTACT_DATAS	= (byte) 0x03;
 	
 	private static final byte OPCODE_REQUEST_CONTACT_LIST 	= OPCODE_MASK_REQUEST | OPCODE_CONTACT_LIST;
 	private static final byte OPCODE_RESPONSE_CONTACT_LIST	= OPCODE_MASK_RESPONSE | OPCODE_CONTACT_LIST;
 	private static final byte OPCODE_REQUEST_CONTACT_ICON 	= OPCODE_MASK_REQUEST | OPCODE_CONTACT_ICON;
 	private static final byte OPCODE_RESPONSE_CONTACT_ICON	= OPCODE_MASK_RESPONSE | OPCODE_CONTACT_ICON;
+	private static final byte OPCODE_REQUEST_CONTACT_DATAS 	= OPCODE_MASK_REQUEST | OPCODE_CONTACT_DATAS;
+	private static final byte OPCODE_RESPONSE_CONTACT_DATAS	= OPCODE_MASK_RESPONSE | OPCODE_CONTACT_DATAS;
 	
 	private final Activity context;
 	private List<ContactData> listDatas = new ArrayList<ContactData>();
@@ -221,95 +228,178 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		if( remnant_size <= 0 ) {
 			// 전달한 데이터를 모두 수신한 경우, 수신한 명령을 수행한다.  
 			
-			G.Log( "received_op_code : 0x%x", received_op_code );
 			byte received_datas [] = dataReceivedStream.toByteArray();
 			int  data_offset = 0;
 			
+			G.Log( "received_op_code : 0x%x %dbytes", received_op_code, received_datas.length );
+			
+			byte contact_id_bytes [] = new byte[ Long.SIZE / 8 ];
+			long contact_id = 0;
+			List<Long> contactIDs = new ArrayList<Long>();
+			
 			if(( OPCODE_MASK_REQUEST & received_op_code ) > 0 ) {
 				// 데이터 요청 명령어
-				btComm.setEnableSending( false );	// 원격으로부터 요청이 들어 온 경우, 요청에 대한 응답을 모두 보낼때 까지 송신을 차단한다. 
-				
 				switch( received_op_code ) {
 				case OPCODE_REQUEST_CONTACT_LIST :
-					G.Log( "OPCODE_REQUEST_CONTACT_LIST" );
-					responseContactList();
+					G.Log( "REQUEST_CONTACT_LIST" );	// 연락처 전체를 요청
+					sendResponseContactList();
 					break;
-				case OPCODE_REQUEST_CONTACT_ICON :
-					G.Log( "OPCODE_REQUEST_CONTACT_ICON" );
-					byte contact_id_bytes [] = new byte[ Long.SIZE / 8 ];
-					System.arraycopy( received_datas, data_offset, contact_id_bytes, 0, contact_id_bytes.length );
-					long contact_id = Utils.byteToLong( contact_id_bytes );
-					data_offset += contact_id_bytes.length;
 					
-					responseContactIcon( contact_id );
+				case OPCODE_REQUEST_CONTACT_ICON :
+					G.Log( "REQUEST_CONTACT_ICON" );	// 특정 연락처의 아이콘 데이터 요청
+					while( data_offset < received_datas.length ) {
+						System.arraycopy( received_datas, data_offset, contact_id_bytes, 0, contact_id_bytes.length );
+						contact_id = Utils.byteToLong( contact_id_bytes );
+						data_offset += contact_id_bytes.length;
+					
+						contactIDs.add( contact_id );
+					}
+					
+					sendResponseContactIcon( contactIDs );
+					break;
+					
+				case OPCODE_REQUEST_CONTACT_DATAS :			// 특정 연락처들의 연락처 데이터 요청
+					G.Log( "REQUEST_CONTACT_DATAS" );
+					
+					while( data_offset < received_datas.length ) {
+						System.arraycopy( received_datas, data_offset, contact_id_bytes, 0, contact_id_bytes.length );
+						contact_id = Utils.byteToLong( contact_id_bytes );
+						data_offset += contact_id_bytes.length;
+					
+						contactIDs.add( contact_id );
+					}
+					
+					sendResponseContactDatas( contactIDs );
 					break;
 				}
-				btComm.setEnableSending( false );	// 원격으로부터 들어온 요청에 대한 응답을 모두 보냈으니 송신을 허용한다. 
+				 
 				
 			} else {
-				// 데이터 요청에 대한 응답
-				btComm.setEnableSending( true );	// 요청에 대한 응답이 도착하였으니 다른 요청을 보낼 수 있도록 허용한다.
-				
+								
 				switch( received_op_code ) {
 				case OPCODE_RESPONSE_CONTACT_LIST :
-					G.Log( "OPCODE_RESPONSE_CONTACT_LIST" );
-					addContactDataFromRemoteJsonString( received_datas );
+					G.Log( "RESPONSE_CONTACT_LIST" );
+					processContactListData( received_datas );
 					break;
+					
 				case OPCODE_RESPONSE_CONTACT_ICON :
-					G.Log( "OPCODE_RESPONSE_CONTACT_ICON" );
-					insertContactIcon( received_datas );
+					G.Log( "RESPONSE_CONTACT_ICON" );
+					processContactIconData( received_datas );
+					break;
+					
+				case OPCODE_RESPONSE_CONTACT_DATAS :
+					G.Log( "RESPONSE_CONTACT_DATAS" );
+					processContactsData( received_datas );
 					break;
 				}
 			}
 			
 			dataReceivedStream.reset();
 			received_op_code = 0;
+			
+			btComm.setEnableRequest( true );	// 원격으로부터 들어온 요청에 대한 응답을 모두 보냈으니 송신을 허용한다.
 		}
 	}
 
-	private void insertContactIcon(byte[] received_datas) {
-		G.Log( "insertContactIcon" );
-		G.Log( "%s", Utils.byteArrayToHexString( received_datas, 16 ));
+	/**
+	 * 응답으로 받은 연락처 데이터를 내 단말기의 연락처에 추가한다.
+	 * 
+	 * @param received_datas
+	 */
+	private void processContactsData(byte[] received_datas) {
+		G.Log( "processContactsData" );
 		
-		byte contact_id_bytes [] = new byte[ Long.SIZE / 8 ];
-		System.arraycopy( received_datas, 0, contact_id_bytes, 0, contact_id_bytes.length );
-		long contact_id = Utils.byteToLong( contact_id_bytes );
-		
-		InputStream is = Utils.byteArrayToInputStream(received_datas, contact_id_bytes.length, received_datas.length-contact_id_bytes.length);
+		File vcf_file = null;
+		FileOutputStream fos = null;
 		try {
-			G.Log( "inputStream : %d", contact_id );
-			Drawable icon = Drawable.createFromStream( is, "icon");
-			if( icon != null ) {
-				G.Log( "get icon" );
-				
-				for( ContactData data : listDatas ) {
-					if( data.getContactID() == contact_id ) {
-						data.setIcon(icon);
-						G.Log( "set icon" );
-						
-						context.runOnUiThread( new Runnable(){
-							@Override
-							public void run() {
-								notifyDataSetChanged();
-							}}
-						);
-						break;
-					}
-				}
-			}					
-		} catch( Exception e ) {
+			vcf_file = File.createTempFile( "tmp", ".vcf", context.getCacheDir() );
+			fos = new FileOutputStream( vcf_file );
+			fos.write( received_datas );
+			fos.close();
+			fos = null;
+			
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+	        intent.setDataAndType(Uri.fromFile( vcf_file ), "text/x-vcard");
+	        context.startActivity(intent);
+	        
+		} catch ( Exception e) {
 			e.printStackTrace();
 			
 		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if( fos != null ) {
+				try { fos.close(); } catch (IOException e) {}
+			}
+			if( vcf_file != null && vcf_file.exists()) {
+				vcf_file.delete();
 			}
 		}
 	}
 
-	private void addContactDataFromRemoteJsonString( byte [] received_datas ) {
+	/**
+	 * 응답으로 받은 연락처의 아이콘 데이터를 ContactData 객체에 추가한다.  
+	 * 
+	 * @param received_datas
+	 */
+	private void processContactIconData(byte[] received_datas) {
+		G.Log( "insertContactIcon" );
+		G.Log( "%s", Utils.byteArrayToHexString( received_datas, 16 ));
+		
+		int offset = 0;
+		
+		byte contact_id_bytes [] = new byte[ Long.SIZE / 8 ];
+		byte icon_size_bytes [] = new byte[ Integer.SIZE / 8 ];
+		
+		while( offset < received_datas.length ) {
+			System.arraycopy( received_datas, offset, contact_id_bytes, 0, contact_id_bytes.length );
+			offset += contact_id_bytes.length;
+			
+			long contact_id = Utils.byteToLong( contact_id_bytes );
+			
+			
+			System.arraycopy( received_datas, offset, icon_size_bytes, 0, icon_size_bytes.length );
+			offset += icon_size_bytes.length;
+			
+			int icon_size = Utils.byteToInt( icon_size_bytes );
+			
+			InputStream is = Utils.byteArrayToInputStream(received_datas, offset, icon_size );
+			offset += icon_size;
+			try {
+				G.Log( "inputStream : %d", contact_id );
+				Drawable icon = Drawable.createFromStream( is, "icon");
+				if( icon != null ) {
+					G.Log( "get icon" );
+					
+					for( ContactData data : listDatas ) {
+						if( data.getContactID() == contact_id ) {
+							data.setIcon(icon);
+							G.Log( "set icon" );
+	
+							context.runOnUiThread( new Runnable(){
+								@Override
+								public void run() {
+									notifyDataSetChanged();
+								}}
+							);
+							break;
+						}
+					}
+				}					
+			} catch( Exception e ) {
+				e.printStackTrace();
+				
+			} finally {
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+	}
+
+	private void processContactListData( byte [] received_datas ) {
 		G.Log( "addContactDataFromRemoteJsonString" );
 		
 		String json_string = new String( received_datas );
@@ -317,8 +407,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		listDatas.clear();
 		filteredData.clear();
 		
-		List<ContactData> request_icon_data = new ArrayList<ContactData>();
-		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			JSONObject jobj = new JSONObject( json_string );
 			JSONArray array = jobj.getJSONArray( "CONTACTS" );
@@ -328,7 +417,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				    
 				    long id 		= Long.valueOf( jsonobject.getString("ID"));
 				    String name 	= jsonobject.getString("NAME");
-				    boolean hasIcon = Boolean.valueOf( jsonobject.getString("HAS_ICON"));
+				    boolean hasIcon = jsonobject.getString("HAS_ICON").compareTo("true") == 0;
 				    
 				    ContactData data = new ContactData( context, id, name );
 				    //G.Log( data.toString() ); 
@@ -336,7 +425,11 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				    listDatas.add( data );
 				    filteredData.add( data );
 				    if( hasIcon ) {
-				    	request_icon_data.add( data );
+				    	try {
+							baos.write( Utils.longTobyte( id ));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 				    }
 				}
 			}
@@ -351,8 +444,11 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				notifyDataSetChanged();
 			}});
 		
-		if( request_icon_data.size() > 0 ) {
-			new ReqeustIconDataThread( request_icon_data ).start();
+		btComm.setEnableRequest( true );
+		sendRequestContactIcon( baos.toByteArray());
+		try {
+			baos.close();
+		} catch (IOException e) {
 		}
 	}
 
@@ -365,14 +461,8 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		public void run() {
 			G.Log( "ReqeustIconDataThread Start" );
 			
-			for( ContactData data : datas ) {
-				requestContactIcon( data );
-				try {
-					Thread.sleep( 100 );
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}				
-			}
+			
+			
 			
 			G.Log( "ReqeustIconDataThread End" );
 		}
@@ -387,13 +477,14 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	}
 
 	public void connected( BluetoothCommunication btComm, ContactAdapter adapter ) {
-		this.btComm = btComm;		
+		this.btComm = btComm;
+		this.btComm.setEnableRequest( true );
 		contactAdapter = adapter;
 	}
 	
-	private void requestRemoteDevice( byte op_code, byte [] data ) {
-		if( btComm != null && btComm.isConnected() && btComm.isEnableSending()) {
-			G.Log( "requestRemoteDevice" );
+	private void sendRequestRemoteDevice( byte op_code, byte [] data ) {
+		if( btComm != null && btComm.isConnected() && btComm.isEnableRequest()) {
+			G.Log( "requestRemoteDevice : 0x%x %dbytes", op_code, data == null ? 0 : data.length );
 			
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
 			try {
@@ -411,7 +502,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				
 				btComm.write( outputStream.toByteArray() );
 				btComm.flush();
-				btComm.setEnableSending( false );	// 요청을 전달 하였으면 응답이 올때까지 다른 요청은 전달되지 않게 막는다. 
+				btComm.setEnableRequest( false );	// 요청을 전달 하였으면 응답이 올때까지 다른 요청은 전달되지 않게 막는다. 
 				
 			} catch( Exception e ) {
 				e.printStackTrace();
@@ -426,11 +517,11 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		}
 	}
 	
-	private void responseRemoteDevice( byte op_code,  byte [] data ) {
+	private void sendResponseRemoteDevice( byte op_code,  byte [] data ) {
 		if( btComm == null ) return;
 		if( !btComm.isConnected()) return;
 		
-		G.Log( "responseRemoteDevice : 0x%x %d bytes", op_code, data.length );
+		G.Log( "sendResponseRemoteDevice : 0x%x %d bytes", op_code, data.length );
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			outputStream.write( DEF_MAGIC_VALUE );
@@ -445,7 +536,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				outputStream.write( data );
 			}
 			
-			btComm.write( outputStream.toByteArray() );
+			btComm.write( outputStream.toByteArray(), true );
 			btComm.flush();
 			
 		} catch( Exception e ) {
@@ -457,27 +548,68 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
+		}	
 	}
 	
-	public void requestContactList() {
-		G.Log( "requestContactList" );
-		requestRemoteDevice( OPCODE_REQUEST_CONTACT_LIST, null );
-	}
-	public void requestContactIcon( ContactData data ) {
-		G.Log( "requestContactIcon" );
-		G.Log( data.toString() );
-		requestRemoteDevice( OPCODE_REQUEST_CONTACT_ICON, Utils.longTobyte( data.getContactID() ));			
+	public void sendRequestContactList() {
+		G.Log( "sendRequestContactList" );
+		sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_LIST, null );
 	}
 	
-	private void responseContactIcon( long contact_id ) {
-		G.Log( "responseContactIcon %d", contact_id );
+	/**
+	 * 원격 단말에서 contact_id 에 해당하는 ICON 데이터를 요청한다. 
+	 * 
+	 * @param bs
+	 */
+	public void sendRequestContactIcon( byte[] contact_id_bytes ) {
+		G.Log( "sendRequestContactIcon %dbytes", contact_id_bytes.length );
+		sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_ICON, contact_id_bytes );			
+	}
+	
+	/**
+	 * 리스트에서 선택된 연락처에 대한 정보를 원격단말기에 요청한다. 
+	 * <br> 원격 단말기로부터 응답을 받으면 해당 연락처의 정보를 내 단말기의 연락처에 추가 한다. 
+	 */
+	public void sendRequestContactDatas() {
+		G.Log( "sendRequestContactDatas" );
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
-			outputStream.write( Utils.longTobyte( contact_id ));
-			outputStream.write( ContactUtils.getIconBytes( context, contact_id ));
+			for( ContactData data : listDatas ) {
+				if( data.isSelected()) {
+					outputStream.write( Utils.longTobyte( data.getContactID() ) );
+				}
+			}
+			sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_DATAS, outputStream.toByteArray() );
 			
-			responseRemoteDevice( OPCODE_RESPONSE_CONTACT_ICON, outputStream.toByteArray());
+		} catch( Exception e ) {
+			e.printStackTrace();
+			
+		} finally {
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+
+	public void sendDeleteContacts() {
+		G.Log( "sendDeleteContacts" );
+		
+	}
+	
+	
+	private void sendResponseContactIcon( List<Long> contact_ids ) {
+		G.Log( "sendResponseContactIcon contact count : %d", contact_ids.size() );
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			for( long contact_id : contact_ids ) {
+				outputStream.write( Utils.longTobyte( contact_id ));
+				byte icon_bytes [] = ContactUtils.getIconBytes( context, contact_id );
+				outputStream.write( Utils.intTobyte( icon_bytes.length ));
+				outputStream.write( icon_bytes );
+			}
+			sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_ICON, outputStream.toByteArray());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -491,12 +623,36 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		}
 	}
 	
-	private void responseContactList() {
-		G.Log( "responseContactIcon" );
+	private void sendResponseContactList() {
+		G.Log( "sendResponseContactList" );
 		
 		String contactDatas = contactAdapter.getContactListDataALL();
 		byte [] contact_bytes = contactDatas.getBytes();
 		
-		responseRemoteDevice( OPCODE_RESPONSE_CONTACT_LIST, contact_bytes );
+		sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_LIST, contact_bytes );
+	}
+	
+	private void sendResponseContactDatas(List<Long> contact_ids) {
+		G.Log( "sendResponseContactDatas" );
+		
+		
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			for( long contact_id : contact_ids ) {
+				ContactData data = contactAdapter.getItemByContactID( contact_id );
+				outputStream.write( data.readVCardString().getBytes() );				
+			}
+			sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_DATAS, outputStream.toByteArray() );
+			
+		} catch( Exception e ) {
+			e.printStackTrace();
+			
+		} finally {
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

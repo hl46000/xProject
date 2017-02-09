@@ -169,9 +169,11 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 			ret = true;
 			break;
 		case R.id.menu_send_to_my : 
+			adapter.sendRequestContactDatas();
 			ret = true;
 			break;
 		case R.id.menu_delete : 
+			adapter.sendDeleteContacts();
 			ret = true;
 			break;
 		case R.id.menu_select_all : 
@@ -204,7 +206,7 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 		case R.id.btnRemoteDevice :
 			Button btn = ( Button ) arg0;
 			if( getString( R.string.get_contact_list ).compareTo( btn.getText().toString() ) == 0 ) {
-				adapter.requestContactList();
+				adapter.sendRequestContactList();
 				
 			} else {
 				BluetoothManager.getInstance().openDeviceList( this );

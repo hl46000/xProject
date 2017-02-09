@@ -15,7 +15,7 @@ public class BluetoothCommunication {
 	OutputStream	mOutputStream 	= null;
 	
 	private IFBluetoothEventListener bluetoothEventListenerreceiver = null;
-	private boolean isEnableSending = true;
+	private boolean isEnableRequest = true;
 	
 	public BluetoothCommunication( BluetoothSocket mSocket ) throws IOException {
 	    this.mSocket = mSocket;
@@ -30,7 +30,7 @@ public class BluetoothCommunication {
 	    mOutputStream = mSocket.getOutputStream();
 	    mInputStream = mSocket.getInputStream();
 	    
-	    isEnableSending = true;
+	    isEnableRequest = true;
 	    new DataReceiver().start();
 	}
 
@@ -80,11 +80,11 @@ public class BluetoothCommunication {
 	 * 
 	 * @param enable	전송 허용 여부, true : 허용, false : 차단
 	 */
-	public void setEnableSending( boolean enable ) {
-		isEnableSending = enable;
+	public void setEnableRequest( boolean enable ) {
+		isEnableRequest = enable;
 	}
-	public boolean isEnableSending() {
-		return isEnableSending;
+	public boolean isEnableRequest() {
+		return isEnableRequest;
 	}
 	
 	/**
@@ -94,8 +94,12 @@ public class BluetoothCommunication {
 	 * @return		전송된 데이터의 byte 수, 오류 발생 시 -1반환, 전송이 허용되지 않은 경우는 0 반환
 	 */
 	public int write( byte [] buff ) {
+		return write( buff, false );
+	}
+	
+	public int write( byte [] buff, boolean force ) {
 		if( mOutputStream != null ) {
-			if( !isEnableSending ) return 0;
+			if( !isEnableRequest && !force ) return 0;
 			try {
 				mOutputStream.write( buff );
 				return buff.length;

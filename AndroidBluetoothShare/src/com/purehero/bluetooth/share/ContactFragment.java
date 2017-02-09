@@ -1,5 +1,6 @@
 package com.purehero.bluetooth.share;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -146,7 +147,17 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 		case R.id.menu_send_to_my : 
 			ret = true;
 			break;
-		case R.id.menu_delete : 
+		case R.id.menu_delete :
+			G.confirmDialog( context, "삭제 확인", String.format( "선택된 %d개의 연락처를 삭제하시겠습니까?", adapter.getCheckedCount()), 0, new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					switch( arg1 ) {
+					case G.DIALOG_BUTTON_ID_YES :
+						adapter.deleteCheckedItems();
+						adapter.notifyDataSetChanged();
+						break;
+					}
+				}});			
 			ret = true;
 			break;
 		case R.id.menu_select_all : 
@@ -156,7 +167,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 			break;
 		case R.id.menu_clear_all : 
 			adapter.setAllChecked( false );
-			adapter.notifyDataSetChanged();
+			adapter.notifyDataSetChanged();	
 			ret = true;
 			break;
 		case R.id.menu_backup_selected_contacts :

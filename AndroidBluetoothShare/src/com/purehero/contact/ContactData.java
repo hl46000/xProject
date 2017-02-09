@@ -180,9 +180,9 @@ public class ContactData {
 		StringBuilder ret = new StringBuilder();
 		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey );
         
-        AssetFileDescriptor fd;
+        AssetFileDescriptor fd = null;
         FileInputStream fis = null;
-    	try {
+    	try {    		
             fd = contentResolver.openAssetFileDescriptor(uri, "r");
             fis = fd.createInputStream();
             
@@ -194,7 +194,12 @@ public class ContactData {
     			try {
 					fis.close();
 				} catch (IOException e1) {
-					e1.printStackTrace();
+				}
+    		}
+    		if( fd != null ) {
+    			try {
+					fd.close();
+				} catch (IOException e1) {
 				}
     		}
     	}

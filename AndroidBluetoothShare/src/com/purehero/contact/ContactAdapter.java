@@ -57,6 +57,21 @@ public class ContactAdapter extends BaseAdapter
 	public long getItemId(int position) {
 		return position;
 	}
+	
+	/**
+	 * Contact_id 값에 해당하는  ContactData 객체를 반환한다. 
+	 * 
+	 * @param contact_id
+	 * @return
+	 */
+	public ContactData getItemByContactID(long contact_id) {
+		for( ContactData data : listDatas ) {
+			if( data.getContactID() == contact_id ) {
+				return data;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -248,5 +263,18 @@ public class ContactAdapter extends BaseAdapter
 		
 		ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"}]}", contact_id, display_name, data.getIcon()==null?"false":"true" ));
 		return ret.toString();
+	}
+
+	public void deleteCheckedItems() {
+		List<ContactData> deleteDatas 	= new ArrayList<ContactData>();
+		for( ContactData data : listDatas ) {
+			if( data.isSelected()) {
+				deleteDatas.add( data );
+				data.delete();
+			}
+		}
+		
+		listDatas.removeAll( deleteDatas );
+		filteredData.removeAll( deleteDatas );
 	}
 }
