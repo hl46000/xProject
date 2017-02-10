@@ -459,6 +459,9 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		remoteComm.setBluetoothCommunication( null );		
 	}
 
+	public synchronized boolean isConnected() {
+		return remoteComm.isConnected();
+	}
 	public synchronized void connected( BluetoothCommunication btComm, ContactAdapter adapter ) {
 		remoteComm.setBluetoothCommunication( btComm );
 		contactAdapter = adapter;

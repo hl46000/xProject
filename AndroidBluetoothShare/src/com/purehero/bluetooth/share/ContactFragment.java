@@ -2,7 +2,6 @@ package com.purehero.bluetooth.share;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
@@ -18,12 +17,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 import com.purehero.contact.ContactAdapter;
 import com.purehero.contact.ContactData;
 import com.purehero.contact.ContactUtils;
 
-public class ContactFragment extends Fragment implements OnItemClickListener, OnItemLongClickListener {
+public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener {
 	private final MainActivity context;
 	private View layout = null;
 
@@ -90,6 +90,18 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 		}
 	};
 
+	
+	
+	@Override
+	public boolean onBackPressed() {
+		if( adapter.isShowCheckBox()) {
+			adapter.setShowCheckBox( false );
+			return true;
+		}
+		
+		return super.onBackPressed();
+	}
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		ContactData data = ( ContactData ) adapter.getItem( position );
@@ -116,10 +128,11 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v.getId() == R.id.listView ) {
 			context.getMenuInflater().inflate(R.menu.contact, menu);
-			
+
+			int selected_count = adapter.getCheckedCount();
 			menu.findItem( R.id.menu_send_to_my ).setVisible( false );
-			if( adapter.getCheckedCount() == 0 ) {
-				menu.findItem( R.id.menu_send_to_remote ).setVisible( false );
+			menu.findItem( R.id.menu_send_to_remote ).setVisible( context.getRemoteContactAdapter().isConnected() && selected_count > 0 );
+			if( selected_count == 0 ) {				
 				menu.findItem( R.id.menu_delete ).setVisible( false );
 				menu.findItem( R.id.menu_clear_all ).setVisible( false );
 				menu.findItem( R.id.menu_backup_selected_contacts ).setVisible( false );
@@ -171,13 +184,19 @@ public class ContactFragment extends Fragment implements OnItemClickListener, On
 			ret = true;
 			break;
 		case R.id.menu_backup_selected_contacts :
+			G.textInputDialog( context, "BACKUP", 
+					String.format( "%d 개의 연락처를 백업합니다.", adapter.getCheckedCount()), 
+					"백업명을 입력하여 주세요", 0, new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					switch( arg1 ) {
+					case G.DIALOG_BUTTON_ID_YES :
+						adapter.backupCheckedItems( G.getTextInputDialogResult() );
+						break;
+					}
+				}});
+			
 			ret = true;	
-			break;
-		case R.id.menu_cancel : 
-			adapter.setAllChecked( false );
-			adapter.setShowCheckBox( false );
-			adapter.notifyDataSetChanged();
-			ret = true;
 			break;
 		}
 							

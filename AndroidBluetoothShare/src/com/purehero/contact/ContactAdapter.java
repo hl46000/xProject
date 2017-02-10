@@ -1,12 +1,13 @@
 package com.purehero.contact;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONException;
-
-import com.purehero.bluetooth.share.R;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -26,6 +27,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.purehero.bluetooth.share.R;
 
 public class ContactAdapter extends BaseAdapter 
 	implements Filterable, OnCheckedChangeListener
@@ -276,5 +280,56 @@ public class ContactAdapter extends BaseAdapter
 		
 		listDatas.removeAll( deleteDatas );
 		filteredData.removeAll( deleteDatas );
+	}
+
+	public void backupCheckedItems(String backupName ) {
+		if( backupName.length() < 1 ) {
+			Toast.makeText( context, context.getString(R.string.no_input_backup_name), Toast.LENGTH_LONG ).show();
+			return;
+		}
+		
+		File backup_folder = new File( "/mnt/sdcard/BTShareContacts" );
+		if( !backup_folder.exists()) {
+			backup_folder.mkdirs();
+		}
+		File backup_file = new File( backup_folder, backupName + ".vcf" );
+		FileOutputStream fos = null;
+		
+		try {
+			fos = new FileOutputStream( backup_file );
+			
+			int count = 0;
+			for( ContactData data : listDatas ) {
+				if( data.isSelected()) {
+					fos.write( data.readVCardString().getBytes() );
+					++ count;
+				}
+			}
+			
+			String backup_result = context.getString( R.string.backup_result );
+			backup_result = backup_result.replace( "xxxxx", String.valueOf(count));
+			backup_result = backup_result.replace( "yyyyy", backupName );
+			Toast.makeText( context, backup_result, Toast.LENGTH_LONG ).show();
+			
+			context.runOnUiThread( 
+				new Runnable(){
+					@Override
+					public void run() {
+						setAllChecked( false );
+						setShowCheckBox( false );					
+					}
+				}
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText( context, String.format("'%s' 오류가 발생하였습니다.", e.getMessage()), Toast.LENGTH_LONG ).show();
+			
+		} finally {
+			if( fos != null ) {
+				try {
+					fos.close();
+				} catch (IOException e) {}
+			}
+		}
 	}
 }

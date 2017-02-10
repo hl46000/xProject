@@ -1,12 +1,6 @@
 package com.purehero.bluetooth.share;
 
-import com.purehero.bluetooth.BluetoothCommunication;
-import com.purehero.bluetooth.BluetoothManager;
-import com.purehero.bluetooth.IFBluetoothEventListener;
-import com.purehero.common.G;
-
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
@@ -23,7 +17,13 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class RemoteContactFragment extends Fragment implements OnClickListener {
+import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.common.FragmentEx;
+import com.purehero.common.G;
+
+public class RemoteContactFragment extends FragmentEx implements OnClickListener {
 	private final MainActivity context;
 	private View layout = null;
 
@@ -34,6 +34,7 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 	public RemoteContactFragment(MainActivity mainActivity) {
 		context = mainActivity;
 		adapter = new RemoteContactAdapter( context );
+		context.setRemoteContactAdapter( adapter );
 		
 		BluetoothManager.getInstance().SetBluetoothEventListener( bluetoothEventListenerreceiver );
 	}
@@ -135,6 +136,16 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 		}
 	};
 	
+	@Override
+	public boolean onBackPressed() {
+		if( adapter.isShowCheckBox()) {
+			adapter.setShowCheckBox( false );
+			return true;
+		}
+		
+		return super.onBackPressed();
+	}
+	
 	// 메뉴 생성
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -188,12 +199,6 @@ public class RemoteContactFragment extends Fragment implements OnClickListener {
 			break;
 		case R.id.menu_backup_selected_contacts :
 			ret = true;	
-			break;
-		case R.id.menu_cancel : 
-			adapter.setAllChecked( false );
-			adapter.setShowCheckBox( false );
-			adapter.notifyDataSetChanged();
-			ret = true;
 			break;
 		}
 							

@@ -27,6 +27,7 @@
     <string name="chat">문자전송</string>
     <string name="remote">원격단말기</string>
     <string name="connect">연결하기</string>
+    <string name="backup">백업</string>
     <string name="get_contact_list">연락처 정보 가져오기</string>
     <string name="search_text">검색( 이름 or 연락처 or 이메일 )</string>
     <string name="send_to_remote_device">원격 단말기로 전송</string>
@@ -36,4 +37,6 @@
     <string name="clear_all">전체 선택해제</string>
     <string name="backup_selected_contacts">선택된 연락처 백업</string>
     
+    <string name="no_input_backup_name">백업명을 입력해 주세요.</string>
+    <string name="backup_result">xxxxx 개의 연락처를 yyyyy 이름으로 백업하였습니다.</string>
 </resources>

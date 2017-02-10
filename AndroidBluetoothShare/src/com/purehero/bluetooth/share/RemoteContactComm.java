@@ -18,6 +18,10 @@ public class RemoteContactComm {
 		this.btComm.setEnableRequest( true );
 	}
 
+	public boolean isConnected() {
+		if( btComm == null ) return false;
+		return btComm.isConnected();
+	}
 	
 	/**
 	 * 수신된 데이터가 Command 용 데이터 인지를 확인한다. 

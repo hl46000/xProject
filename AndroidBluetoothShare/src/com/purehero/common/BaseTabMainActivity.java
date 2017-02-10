@@ -113,6 +113,10 @@ abstract public class BaseTabMainActivity extends ActionBarActivity implements M
 		
 	@Override
 	public void onBackPressed() {
+		if( adapter.onBackPressed( pager.getCurrentItem())) {
+			return;
+		}
+		
 		if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
 			super.onBackPressed();
 			

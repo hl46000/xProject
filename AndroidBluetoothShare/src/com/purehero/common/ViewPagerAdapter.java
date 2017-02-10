@@ -44,4 +44,14 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 			tabHost.setSelectedNavigationItem(position);
 		}
     };
+    
+    /**
+     * back 버튼 클릭 시 각 fragment 에서 처리 할수 있도록 함수를 호출한다.
+     * 
+     * @param index
+     * @return
+     */
+    public boolean onBackPressed( int index ) {
+    	return ((FragmentEx)fragmentList.get(index)).onBackPressed();
+    }
 }

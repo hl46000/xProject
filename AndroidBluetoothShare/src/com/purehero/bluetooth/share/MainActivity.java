@@ -12,8 +12,8 @@ import com.purehero.common.ViewPagerAdapter;
 import com.purehero.contact.ContactAdapter;
 
 public class MainActivity extends BaseTabMainActivity {
-	private ContactAdapter contactAdapter = null;
-	
+	private ContactAdapter 			contactAdapter = null;
+	private RemoteContactAdapter	remoteContactAdapter = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,7 +25,7 @@ public class MainActivity extends BaseTabMainActivity {
 	public void addTabItems(ViewPagerAdapter adapter) {
 		adapter.addItem( new ContactFragment( this ), getString( R.string.contact ));
 		adapter.addItem( new RemoteContactFragment( this ), getString( R.string.remote ));
-		adapter.addItem( new BluetoothChatFragment( this ), getString( R.string.chat ));
+		adapter.addItem( new ContactBackupFragment( this ), getString( R.string.backup ));
 	}
 	
 	DialogInterface.OnClickListener dialogOnClickListener = new DialogInterface.OnClickListener() {
@@ -74,5 +74,13 @@ public class MainActivity extends BaseTabMainActivity {
 	
 	public ContactAdapter getContactAdapter() {
 		return contactAdapter;
+	}
+	
+	public void setRemoteContactAdapter( RemoteContactAdapter adapter ) {
+		remoteContactAdapter = adapter;
+	}
+	
+	public RemoteContactAdapter getRemoteContactAdapter() {
+		return remoteContactAdapter;
 	}
 }

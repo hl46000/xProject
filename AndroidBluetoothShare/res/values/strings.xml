@@ -31,6 +31,8 @@
     <string name="chat">Chatting</string>
     <string name="remote">Remote</string>    
     <string name="connect">Connect</string>
+    <string name="backup">Backup</string>
+
     <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
     <string name="send_to_remote_device">Send to remote device</string>
@@ -40,5 +42,9 @@
     <string name="selecte_all">Selecte ALL</string>
     <string name="clear_all">Clear ALL</string>
     <string name="backup_selected_contacts">Backup selected contacts</string>
-        
+       
+    <string name="no_input_backup_name">Please enter backup name</string>
+    <string name="backup_result">backed up xxxxx contacts with the name yyyyy</string>
+    
+    
 </resources>
