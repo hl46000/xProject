@@ -6,12 +6,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.common.G;
+import com.purehero.common.Utils;
+import com.purehero.contact.ContactAdapter;
+import com.purehero.contact.ContactData;
+import com.purehero.contact.ContactUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,13 +32,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.purehero.bluetooth.BluetoothCommunication;
-import com.purehero.common.G;
-import com.purehero.common.Utils;
-import com.purehero.contact.ContactAdapter;
-import com.purehero.contact.ContactData;
-import com.purehero.contact.ContactUtils;
 
 public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	
@@ -54,30 +53,31 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	private List<ContactData> listDatas = new ArrayList<ContactData>();
 	private List<ContactData> filteredData = new ArrayList<ContactData>();
 	
-	private BluetoothCommunication btComm = null;
-	private ContactAdapter contactAdapter = null;
+	//private BluetoothCommunication btComm 	= null;
+	private ContactAdapter contactAdapter 	= null;
+	private RemoteContactComm remoteComm	= new RemoteContactComm();
 	
 	public RemoteContactAdapter( Activity context ) {
-		this.context = context;
+		this.context = context;		
 	}
 	
 	@Override
-	public int getCount() {
+	public synchronized int getCount() {
 		return filteredData.size();
 	}
 
 	@Override
-	public Object getItem(int index) {
+	public synchronized Object getItem(int index) {
 		return filteredData.get(index);
 	}
 
 	@Override
-	public long getItemId(int position) {
+	public synchronized long getItemId(int position) {
 		return position;
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public synchronized View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder viewHolder;
 		if( convertView == null ) {
 			viewHolder = new ViewHolder();
@@ -127,7 +127,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		notifyDataSetChanged();
 	}
 	
-	public int getCheckedCount() {
+	public synchronized int getCheckedCount() {
 		int ret = 0;
 		for( ContactData data : listDatas ) {
 			if( data.isSelected()) ++ret;
@@ -135,7 +135,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		return ret;
 	}
 	
-	public void setAllChecked( boolean checked ) {
+	public synchronized void setAllChecked( boolean checked ) {
 		for( ContactData data : listDatas ) {
 			data.setSelected( checked );
 		}
@@ -187,14 +187,13 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
         }
     }
 
-	final byte DEF_MAGIC_VALUE [] = { (byte)0x81, (byte)0x92, (byte)0x29, (byte)0x18 };
+	
 	public void dataReceived( byte[] data, int data_length ) {
 		G.Log( "dataReceived %dbytes", data_length );
 		G.Log( "%s", Utils.byteArrayToHexString( data, 16 ));
 		
-		byte temp_value [] = new byte[4];
-		System.arraycopy( data, 0, temp_value, 0, temp_value.length );
-		if( Arrays.equals( temp_value, DEF_MAGIC_VALUE )) {
+		byte temp_value [] = new byte[4];		
+		if( remoteComm.isCommandData( data )) {
 			// MAGIC_VALUE 로 시작하는 Packet 은 명령어를 포함하고 있다고 판단한다.  
 			G.Log( "command" );
 			
@@ -297,7 +296,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 			dataReceivedStream.reset();
 			received_op_code = 0;
 			
-			btComm.setEnableRequest( true );	// 원격으로부터 들어온 요청에 대한 응답을 모두 보냈으니 송신을 허용한다.
+			remoteComm.setEnableRequest( true );	// 원격으로부터 들어온 요청에 대한 응답을 모두 보냈으니 송신을 허용한다.
 		}
 	}
 
@@ -306,7 +305,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	 * 
 	 * @param received_datas
 	 */
-	private void processContactsData(byte[] received_datas) {
+	private synchronized void processContactsData(byte[] received_datas) {
 		G.Log( "processContactsData" );
 		
 		File vcf_file = null;
@@ -340,7 +339,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	 * 
 	 * @param received_datas
 	 */
-	private void processContactIconData(byte[] received_datas) {
+	private synchronized void processContactIconData(byte[] received_datas) {
 		G.Log( "insertContactIcon" );
 		G.Log( "%s", Utils.byteArrayToHexString( received_datas, 16 ));
 		
@@ -399,7 +398,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		
 	}
 
-	private void processContactListData( byte [] received_datas ) {
+	private synchronized void processContactListData( byte [] received_datas ) {
 		G.Log( "addContactDataFromRemoteJsonString" );
 		
 		String json_string = new String( received_datas );
@@ -444,7 +443,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				notifyDataSetChanged();
 			}});
 		
-		btComm.setEnableRequest( true );
+		remoteComm.setEnableRequest( true );
 		sendRequestContactIcon( baos.toByteArray());
 		try {
 			baos.close();
@@ -452,108 +451,22 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		}
 	}
 
-	class ReqeustIconDataThread extends Thread implements Runnable {
-		final List<ContactData> datas;
-		public ReqeustIconDataThread( List<ContactData> datas ) {
-			this.datas = datas;
-		}
-		@Override
-		public void run() {
-			G.Log( "ReqeustIconDataThread Start" );
-			
-			
-			
-			
-			G.Log( "ReqeustIconDataThread End" );
-		}
-	};
-	
 	byte received_op_code = -1;
 	int remnant_size = 0;
 	ByteArrayOutputStream dataReceivedStream = new ByteArrayOutputStream();
 	
-	public void disconnected() {
-		btComm = null;
+	public synchronized void disconnected() {
+		remoteComm.setBluetoothCommunication( null );		
 	}
 
-	public void connected( BluetoothCommunication btComm, ContactAdapter adapter ) {
-		this.btComm = btComm;
-		this.btComm.setEnableRequest( true );
+	public synchronized void connected( BluetoothCommunication btComm, ContactAdapter adapter ) {
+		remoteComm.setBluetoothCommunication( btComm );
 		contactAdapter = adapter;
 	}
 	
-	private void sendRequestRemoteDevice( byte op_code, byte [] data ) {
-		if( btComm != null && btComm.isConnected() && btComm.isEnableRequest()) {
-			G.Log( "requestRemoteDevice : 0x%x %dbytes", op_code, data == null ? 0 : data.length );
-			
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();  
-			try {
-				outputStream.write( DEF_MAGIC_VALUE );
-				
-				byte op_code_bytes [] = { op_code };
-				outputStream.write( op_code_bytes );
-				
-				byte data_size [] = Utils.intTobyte( data == null ? 0 : data.length );
-				outputStream.write( data_size );
-				
-				if( data != null && data.length > 0 ) {
-					outputStream.write( data );
-				}
-				
-				btComm.write( outputStream.toByteArray() );
-				btComm.flush();
-				btComm.setEnableRequest( false );	// 요청을 전달 하였으면 응답이 올때까지 다른 요청은 전달되지 않게 막는다. 
-				
-			} catch( Exception e ) {
-				e.printStackTrace();
-				
-			} finally {
-				try {
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	private void sendResponseRemoteDevice( byte op_code,  byte [] data ) {
-		if( btComm == null ) return;
-		if( !btComm.isConnected()) return;
-		
-		G.Log( "sendResponseRemoteDevice : 0x%x %d bytes", op_code, data.length );
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try {
-			outputStream.write( DEF_MAGIC_VALUE );
-			
-			byte op_code_bytes [] = { op_code };
-			outputStream.write( op_code_bytes );
-			
-			byte data_size [] = Utils.intTobyte( data == null ? 0 : data.length );
-			outputStream.write( data_size );
-			
-			if( data != null && data.length > 0 ) {
-				outputStream.write( data );
-			}
-			
-			btComm.write( outputStream.toByteArray(), true );
-			btComm.flush();
-			
-		} catch( Exception e ) {
-			e.printStackTrace();
-			
-		} finally {
-			try {
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}	
-	}
-	
-	public void sendRequestContactList() {
+	public synchronized void sendRequestContactList() {
 		G.Log( "sendRequestContactList" );
-		sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_LIST, null );
+		remoteComm.sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_LIST, null );
 	}
 	
 	/**
@@ -561,16 +474,16 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	 * 
 	 * @param bs
 	 */
-	public void sendRequestContactIcon( byte[] contact_id_bytes ) {
+	public synchronized void sendRequestContactIcon( byte[] contact_id_bytes ) {
 		G.Log( "sendRequestContactIcon %dbytes", contact_id_bytes.length );
-		sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_ICON, contact_id_bytes );			
+		remoteComm.sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_ICON, contact_id_bytes );			
 	}
 	
 	/**
 	 * 리스트에서 선택된 연락처에 대한 정보를 원격단말기에 요청한다. 
 	 * <br> 원격 단말기로부터 응답을 받으면 해당 연락처의 정보를 내 단말기의 연락처에 추가 한다. 
 	 */
-	public void sendRequestContactDatas() {
+	public synchronized void sendRequestContactDatas() {
 		G.Log( "sendRequestContactDatas" );
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
@@ -579,7 +492,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 					outputStream.write( Utils.longTobyte( data.getContactID() ) );
 				}
 			}
-			sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_DATAS, outputStream.toByteArray() );
+			remoteComm.sendRequestRemoteDevice( OPCODE_REQUEST_CONTACT_DATAS, outputStream.toByteArray() );
 			
 		} catch( Exception e ) {
 			e.printStackTrace();
@@ -593,13 +506,20 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		}		
 	}
 
-	public void sendDeleteContacts() {
+	public synchronized void sendDeleteContacts() {
 		G.Log( "sendDeleteContacts" );
 		
 	}
 	
 	
-	private void sendResponseContactIcon( List<Long> contact_ids ) {
+	/**
+	 * 연락처 아이콘 데이터 요청에 대한 응답 데이터를 보낸다.<br>
+	 * 요청한 데이터를 전부 보낸다. <br>
+	 * 보내는 데이터의 구조는 CONTACT_ID(long), ICON_DATA_SIZE(int), ICON_DATA(byte array) 이다. 
+	 * 
+	 * @param contact_ids
+	 */
+	private synchronized void sendResponseContactIcon( List<Long> contact_ids ) {
 		G.Log( "sendResponseContactIcon contact count : %d", contact_ids.size() );
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
@@ -609,7 +529,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				outputStream.write( Utils.intTobyte( icon_bytes.length ));
 				outputStream.write( icon_bytes );
 			}
-			sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_ICON, outputStream.toByteArray());
+			remoteComm.sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_ICON, outputStream.toByteArray());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -623,18 +543,27 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		}
 	}
 	
-	private void sendResponseContactList() {
+	/**
+	 * 연락처 리스트 요청에 대한 응답 데이터를 보낸다.<br>
+	 * 응답 데이터에는 리스트에 필요한 'CONTACT_ID','DISPLAY_NAME','HAS_ICON' 등이 포함된다.  
+	 */
+	private synchronized void sendResponseContactList() {
 		G.Log( "sendResponseContactList" );
 		
 		String contactDatas = contactAdapter.getContactListDataALL();
 		byte [] contact_bytes = contactDatas.getBytes();
 		
-		sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_LIST, contact_bytes );
+		remoteComm.sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_LIST, contact_bytes );
 	}
 	
-	private void sendResponseContactDatas(List<Long> contact_ids) {
+	/**
+	 * 연락처 데이터 요청에 대한 응답 데이터를 보낸다. <br>
+	 * 응답 데이터에는 수신 단말기의 연락처에 추가할 수 있도록 VCF 데이터를 보낸다.
+	 *  
+	 * @param contact_ids	
+	 */
+	private synchronized void sendResponseContactDatas(List<Long> contact_ids) {
 		G.Log( "sendResponseContactDatas" );
-		
 		
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
@@ -642,7 +571,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				ContactData data = contactAdapter.getItemByContactID( contact_id );
 				outputStream.write( data.readVCardString().getBytes() );				
 			}
-			sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_DATAS, outputStream.toByteArray() );
+			remoteComm.sendResponseRemoteDevice( OPCODE_RESPONSE_CONTACT_DATAS, outputStream.toByteArray() );
 			
 		} catch( Exception e ) {
 			e.printStackTrace();

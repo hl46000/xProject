@@ -44,17 +44,17 @@ public class ContactAdapter extends BaseAdapter
 	 * 필터링된( 검색어가 적용된 ) Contact의 개수를 반환한다. 
 	 */
 	@Override
-	public int getCount() {
+	public synchronized int getCount() {
 		return filteredData.size();
 	}
 
 	@Override
-	public Object getItem(int index) {
+	public synchronized Object getItem(int index) {
 		return filteredData.get( index );
 	}
 
 	@Override
-	public long getItemId(int position) {
+	public synchronized long getItemId(int position) {
 		return position;
 	}
 	
@@ -64,7 +64,7 @@ public class ContactAdapter extends BaseAdapter
 	 * @param contact_id
 	 * @return
 	 */
-	public ContactData getItemByContactID(long contact_id) {
+	public synchronized ContactData getItemByContactID(long contact_id) {
 		for( ContactData data : listDatas ) {
 			if( data.getContactID() == contact_id ) {
 				return data;
@@ -74,7 +74,7 @@ public class ContactAdapter extends BaseAdapter
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public synchronized View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder viewHolder;
 		if( convertView == null ) {
 			viewHolder = new ViewHolder();
@@ -124,7 +124,7 @@ public class ContactAdapter extends BaseAdapter
 		public TextView name;		
 	}
 	
-	public void getContactDatas() {
+	public synchronized void getContactDatas() {
 		final Uri CONTACT_URI = ContactsContract.Contacts.CONTENT_URI;
 		
 		listDatas.clear();
@@ -223,7 +223,7 @@ public class ContactAdapter extends BaseAdapter
 		//G.Log( data.toString());
 	}
 
-	public int getCheckedCount() {
+	public synchronized int getCheckedCount() {
 		int ret = 0;
 		for( ContactData data : filteredData ) {
 			if( data.isSelected()) ++ret;
@@ -231,7 +231,7 @@ public class ContactAdapter extends BaseAdapter
 		return ret;
 	}
 	
-	public void setAllChecked( boolean checked ) {
+	public synchronized void setAllChecked( boolean checked ) {
 		for( ContactData data : filteredData ) {
 			data.setSelected( checked );
 		}
@@ -242,7 +242,7 @@ public class ContactAdapter extends BaseAdapter
 	 * 
 	 * @return
 	 */
-	public String getContactListDataALL() {
+	public synchronized String getContactListDataALL() {
 		StringBuilder ret = new StringBuilder("{\"CONTACTS\":[");
 		
 		long contact_id = 0;
@@ -265,7 +265,7 @@ public class ContactAdapter extends BaseAdapter
 		return ret.toString();
 	}
 
-	public void deleteCheckedItems() {
+	public synchronized void deleteCheckedItems() {
 		List<ContactData> deleteDatas 	= new ArrayList<ContactData>();
 		for( ContactData data : listDatas ) {
 			if( data.isSelected()) {
