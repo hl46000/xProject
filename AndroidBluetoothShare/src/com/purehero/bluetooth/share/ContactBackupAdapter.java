@@ -1,12 +1,17 @@
 package com.purehero.bluetooth.share;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import com.purehero.common.Utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,20 +19,30 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.purehero.contact.ContactData;
-
 public class ContactBackupAdapter extends BaseAdapter {
 	private final Activity context;
-	private List<ContactBackupData> listDatas = new ArrayList<ContactBackupData>();
+	private List<File> listDatas = new ArrayList<File>();
 	
 	public ContactBackupAdapter( Activity context ) {
 		this.context = context;		
 	}
 	
-	class ContactBackupData {
-		public File file = null;
-		public boolean isSelected = false;
-	};
+	public synchronized void getBackupContactDatas() {
+		listDatas.clear();
+		
+		File backup_folder = new File( context.getString( R.string.backup_folder) );
+		if( backup_folder.exists()) {
+			File files [] = backup_folder.listFiles();
+			for( File file : files ) {
+				if( file.isDirectory()) continue;
+				if( !file.getName().toLowerCase().endsWith(".vcf")) continue;
+				
+				listDatas.add( file );
+			}
+		}
+		
+		notifyDataSetChanged();
+	}
 	
 	@Override
 	public synchronized int getCount() {
@@ -44,6 +59,8 @@ public class ContactBackupAdapter extends BaseAdapter {
 		return position;
 	}
 
+	SimpleDateFormat data_format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+	
 	@Override
 	public synchronized View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder viewHolder;
@@ -63,24 +80,12 @@ public class ContactBackupAdapter extends BaseAdapter {
 			viewHolder = ( ViewHolder ) convertView.getTag();
 		}
 		
-		ContactBackupData data = ( ContactBackupData ) getItem( position );
-		if( data != null ) {
-			Drawable icon = null;// data.getIcon();
-			if( icon == null ) {
-				viewHolder.icon.setImageResource( R.drawable.ic_contact );
-			} else {
-				viewHolder.icon.setImageDrawable( icon );				
-			}
-			
-			viewHolder.name.setVisibility( View.VISIBLE );
-			viewHolder.name.setText( data.file.getName());
-			viewHolder.size.setText( String.valueOf( data.file.length() ));
-			viewHolder.date.setText( data.file.lastModified() ));
-			
-		} else {
-			viewHolder.icon.setVisibility( View.INVISIBLE );
-			viewHolder.name.setText( "" );
-		}
+		File backup_file = ( File ) getItem( position );
+		viewHolder.icon.setImageResource( R.drawable.ic_backup_contact );
+		viewHolder.name.setVisibility( View.VISIBLE );
+		viewHolder.name.setText( Utils.getPureFilename( backup_file ));
+		viewHolder.size.setText( Utils.sizeToFormatString( backup_file.length() ));
+		viewHolder.date.setText( data_format.format( new Date( backup_file.lastModified() )));
 		
 		return convertView;
 	}
@@ -100,18 +105,20 @@ public class ContactBackupAdapter extends BaseAdapter {
 		showCheckBox = show;
 		notifyDataSetChanged();
 	}
-	
-	public synchronized int getCheckedCount() {
-		int ret = 0;
-		for( ContactBackupData data : listDatas ) {
-			if( data.isSelected ) ++ret;
-		}
-		return ret;
+
+	public void remove(int position) {
+		listDatas.get( position ).delete();
+		listDatas.remove( position );
+		this.notifyDataSetChanged();
 	}
-	
-	public synchronized void setAllChecked( boolean checked ) {
-		for( ContactBackupData data : listDatas ) {
-			data.isSelected = checked;
-		}
+
+	public void restore(int position) {
+		File backup_file = listDatas.get( position );
+		Uri uri = Uri.fromFile( backup_file );
+		
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+	    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    intent.setDataAndType( uri,"text/x-vcard");
+	    context.startActivity(intent);
 	}
 }

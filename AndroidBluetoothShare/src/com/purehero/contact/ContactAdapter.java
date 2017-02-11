@@ -280,15 +280,25 @@ public class ContactAdapter extends BaseAdapter
 		
 		listDatas.removeAll( deleteDatas );
 		filteredData.removeAll( deleteDatas );
+		
+		context.runOnUiThread( 
+				new Runnable(){
+					@Override
+					public void run() {
+						setAllChecked( false );
+						setShowCheckBox( false );					
+					}
+				}
+			);
 	}
 
 	public void backupCheckedItems(String backupName ) {
 		if( backupName.length() < 1 ) {
-			Toast.makeText( context, context.getString(R.string.no_input_backup_name), Toast.LENGTH_LONG ).show();
+			Toast.makeText( context, context.getString(R.string.enter_backup_name), Toast.LENGTH_LONG ).show();
 			return;
 		}
 		
-		File backup_folder = new File( "/mnt/sdcard/BTShareContacts" );
+		File backup_folder = new File( context.getString( R.string.backup_folder) );
 		if( !backup_folder.exists()) {
 			backup_folder.mkdirs();
 		}

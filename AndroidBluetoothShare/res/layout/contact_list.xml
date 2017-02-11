@@ -34,5 +34,22 @@
 	        />
 
 	</LinearLayout>
+	<RelativeLayout
+	    android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dip" 
+	    android:background="@android:color/transparent" >
+
+		<Button
+		    android:id="@+id/btnReload"
+		    android:layout_width="50dip"
+		    android:layout_height="50dip"
+		    android:layout_alignParentBottom="true"
+		    android:layout_alignParentRight="true"
+		    android:padding="5dip"
+		    android:background="@drawable/reflash"
+		    android:text="" />
+	    
+	</RelativeLayout>
 </FrameLayout>	  
 

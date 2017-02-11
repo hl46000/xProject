@@ -139,6 +139,7 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 	@Override
 	public boolean onBackPressed() {
 		if( adapter.isShowCheckBox()) {
+			adapter.setAllChecked( false );
 			adapter.setShowCheckBox( false );
 			return true;
 		}
@@ -150,14 +151,12 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v.getId() == R.id.listView ) {
-			context.getMenuInflater().inflate(R.menu.contact, menu);
+			context.getMenuInflater().inflate(R.menu.contact_remote, menu);
 			
-			menu.findItem( R.id.menu_send_to_remote ).setVisible( false );
 			if( adapter.getCheckedCount() == 0 ) {
 				menu.findItem( R.id.menu_send_to_my ).setVisible( false );
-				menu.findItem( R.id.menu_delete ).setVisible( false );
-				menu.findItem( R.id.menu_clear_all ).setVisible( false );
-				menu.findItem( R.id.menu_backup_selected_contacts ).setVisible( false );
+				menu.findItem( R.id.menu_remote_delete ).setVisible( false );
+				menu.findItem( R.id.menu_remote_clear_all ).setVisible( false );				
 			}
 		}
 	}
@@ -176,29 +175,23 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 		//ContactData data = ( ContactData ) adapter.getItem( info.position );
 		
 		switch( item.getItemId()) {
-		case R.id.menu_send_to_remote : 
-			ret = true;
-			break;
 		case R.id.menu_send_to_my : 
 			adapter.sendRequestContactDatas();
 			ret = true;
 			break;
-		case R.id.menu_delete : 
+		case R.id.menu_remote_delete : 
 			adapter.sendDeleteContacts();
 			ret = true;
 			break;
-		case R.id.menu_select_all : 
+		case R.id.menu_remote_select_all : 
 			adapter.setAllChecked( true );
 			adapter.notifyDataSetChanged();
 			ret = true;
 			break;
-		case R.id.menu_clear_all : 
+		case R.id.menu_remote_clear_all : 
 			adapter.setAllChecked( false );
 			adapter.notifyDataSetChanged();
 			ret = true;
-			break;
-		case R.id.menu_backup_selected_contacts :
-			ret = true;	
 			break;
 		}
 							

@@ -7,6 +7,8 @@
 	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
 	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
     
+	<string name="backup_folder">/mnt/sdcard/BTShareContacts</string>
+	
     <!--  DeviceListActivity -->
     <string name="bluetooth">BLUETOOTH</string>
     <string name="scanning">scanning for devices...</string>
@@ -32,6 +34,7 @@
     <string name="remote">Remote</string>    
     <string name="connect">Connect</string>
     <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
 
     <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
@@ -39,11 +42,13 @@
     
     <string name="send_to_my_device">Send to my device</string>
     <string name="delete">Delete</string>
+    <string name="delete_info">Delete the xxxxx selected contacts.</string>
     <string name="selecte_all">Selecte ALL</string>
     <string name="clear_all">Clear ALL</string>
     <string name="backup_selected_contacts">Backup selected contacts</string>
-       
-    <string name="no_input_backup_name">Please enter backup name</string>
+    <string name="backup_info">Backup the xxxxx selected contacts.</string>
+    <string name="enter_backup_name">Please enter backup name</string>
+    
     <string name="backup_result">backed up xxxxx contacts with the name yyyyy</string>
     
     

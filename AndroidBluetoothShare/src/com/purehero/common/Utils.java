@@ -2,6 +2,7 @@ package com.purehero.common;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -153,5 +154,26 @@ public class Utils {
 		// flip()가 실행 되면 position은 0에 위치 하게 됨.
 		buff.flip();
 		return buff.getLong(); // position위치(0)에서 부터 8바이트를 long로 변경하여 반환
+	}
+	
+	/**
+	 * @param size
+	 * @return
+	 */
+	public static String sizeToFormatString( long size ) {
+		if( size < 1024 ) return String.format("%d byte", size );
+		double d_size = ( double ) size / 1024.0;
+		if( d_size < 1024.0 ) return String.format("%.1f KB", d_size );
+		d_size = ( double ) size / 1024.0;
+		if( d_size < 1024.0 ) return String.format("%.1f MB", d_size );
+		d_size = ( double ) size / 1024.0;
+		return String.format("%.2f GB", d_size );
+	}
+	
+	public static String getPureFilename( File file ) {
+		String filename = file.getName();
+		int index = filename.lastIndexOf(".");
+		if( index <= 0 ) return "";
+		return filename.substring( 0, index - 1 );
 	}
 }

@@ -9,10 +9,12 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -23,7 +25,7 @@ import com.purehero.contact.ContactAdapter;
 import com.purehero.contact.ContactData;
 import com.purehero.contact.ContactUtils;
 
-public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener {
+public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 	private final MainActivity context;
 	private View layout = null;
 
@@ -46,8 +48,15 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		registerForContextMenu( listView );
 		
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
-		
 		new Thread( getContactRunnable ).start();
+		
+		int btnIDs [] = { R.id.btnReload };
+		for( int id : btnIDs ) {
+			Button btn = ( Button ) layout.findViewById( id );
+			if( btn != null ) {
+				btn.setOnClickListener( this );
+			}
+		}
 		
 		return layout;
 	}
@@ -95,6 +104,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	@Override
 	public boolean onBackPressed() {
 		if( adapter.isShowCheckBox()) {
+			adapter.setAllChecked( false );
 			adapter.setShowCheckBox( false );
 			return true;
 		}
@@ -130,7 +140,6 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 			context.getMenuInflater().inflate(R.menu.contact, menu);
 
 			int selected_count = adapter.getCheckedCount();
-			menu.findItem( R.id.menu_send_to_my ).setVisible( false );
 			menu.findItem( R.id.menu_send_to_remote ).setVisible( context.getRemoteContactAdapter().isConnected() && selected_count > 0 );
 			if( selected_count == 0 ) {				
 				menu.findItem( R.id.menu_delete ).setVisible( false );
@@ -146,6 +155,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		G.Log( "onContextItemSelected" );
 		
 		boolean ret = false;	// 메뉴의 처리 여부 
+		String strTemp;
 		
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
@@ -157,17 +167,15 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		case R.id.menu_send_to_remote : 
 			ret = true;
 			break;
-		case R.id.menu_send_to_my : 
-			ret = true;
-			break;
 		case R.id.menu_delete :
-			G.confirmDialog( context, "삭제 확인", String.format( "선택된 %d개의 연락처를 삭제하시겠습니까?", adapter.getCheckedCount()), 0, new DialogInterface.OnClickListener(){
+			strTemp = context.getString( R.string.delete_info );
+			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() )); 
+			G.confirmDialog( context, context.getString( R.string.decline ), strTemp, 0, new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					switch( arg1 ) {
 					case G.DIALOG_BUTTON_ID_YES :
 						adapter.deleteCheckedItems();
-						adapter.notifyDataSetChanged();
 						break;
 					}
 				}});			
@@ -184,9 +192,10 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 			ret = true;
 			break;
 		case R.id.menu_backup_selected_contacts :
-			G.textInputDialog( context, "BACKUP", 
-					String.format( "%d 개의 연락처를 백업합니다.", adapter.getCheckedCount()), 
-					"백업명을 입력하여 주세요", 0, new DialogInterface.OnClickListener(){
+			strTemp = context.getString( R.string.backup_info );
+			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() ));
+			G.textInputDialog( context, context.getString( R.string.backup ), strTemp,  
+					context.getString(R.string.enter_backup_name), 0, new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					switch( arg1 ) {
@@ -201,5 +210,15 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		}
 							
 		return ret;
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		switch( arg0.getId()) {
+		case R.id.btnReload :
+			adapter.getContactDatas();
+			adapter.notifyDataSetChanged();
+			break;
+		}
 	}
 }
