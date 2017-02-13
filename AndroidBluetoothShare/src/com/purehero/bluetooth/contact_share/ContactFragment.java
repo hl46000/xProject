@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
@@ -54,7 +55,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
 		new Thread( getContactRunnable ).start();
 		
-		int btnIDs [] = { R.id.btnReload };
+		int btnIDs [] = { R.id.btnReload, R.id.btnBluetooth};
 		for( int id : btnIDs ) {
 			Button btn = ( Button ) layout.findViewById( id );
 			if( btn != null ) {
@@ -133,6 +134,9 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		if( adapter.isShowCheckBox()) {
 			return false;			
 		}
+		ContactData data = ( ContactData ) adapter.getItem( position );
+		data.setSelected( true );
+		
 		adapter.setShowCheckBox( !adapter.isShowCheckBox() );
 		return true;
 	}
@@ -238,6 +242,10 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		case R.id.btnReload :
 			adapter.getContactDatas();
 			adapter.notifyDataSetChanged();
+			break;
+			
+		case R.id.btnBluetooth :
+			BluetoothManager.getInstance().openDeviceList( context );
 			break;
 		}
 	}

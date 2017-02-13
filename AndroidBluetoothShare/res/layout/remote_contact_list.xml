@@ -47,23 +47,6 @@
 		            android:singleLine="true"
 		            android:layout_weight="1"
 		            android:textSize="12sp" />
-	
-	            <Button
-	                android:id="@+id/btnRemoteDevice"
-	                android:layout_width="match_parent"
-	                android:layout_height="43dp"
-	                android:layout_weight="1"
-	                android:background="@drawable/button_selector"
-			        android:textSize="14sp"
-					android:layout_marginTop="2dp"
-			       	android:layout_marginLeft="1dp"
-			       	android:layout_marginBottom="2dp"
-			       	android:layout_marginRight="1dp"
-			        android:textColor="#FFFFFF"
-			        android:shadowColor="#000000"
-			        android:shadowRadius="3.0"
-	                android:text="@string/connect" />
-	            
 	        </LinearLayout>
 			<ListView
 		        android:id="@+id/listView"
@@ -72,8 +55,35 @@
 		        />
 	
 		</LinearLayout>
-        
+        <RelativeLayout
+		    android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:padding="10dip" 
+		    android:background="@android:color/transparent" 
+		    android:layout_above="@id/tvStatue" >
+	
+			<Button
+			    android:id="@+id/btnReload"
+			    android:layout_width="50dip"
+			    android:layout_height="50dip"
+			    android:layout_alignParentBottom="true"
+			    android:layout_alignParentRight="true"
+			    android:padding="5dip"
+			    android:background="@drawable/reflash"
+			    android:text="" />
+		    
+			<Button
+			    android:id="@+id/btnBluetooth"
+			    android:layout_width="50dip"
+			    android:layout_height="50dip"
+			    android:layout_above="@id/btnReload"
+			    android:layout_alignParentRight="true"
+			    android:padding="10dip"
+			    android:layout_marginBottom="5dip"
+			    android:background="@drawable/btn_bluetooth"
+			    android:text="" />
+			
+		</RelativeLayout>
     </RelativeLayout> 
-    
 </FrameLayout>	  
 

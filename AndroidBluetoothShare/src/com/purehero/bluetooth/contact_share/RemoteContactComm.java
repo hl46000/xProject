@@ -15,7 +15,9 @@ public class RemoteContactComm {
 	
 	public void setBluetoothCommunication(BluetoothCommunication btComm) {
 		this.btComm = btComm;
-		this.btComm.setEnableRequest( true );
+		if( btComm != null ) {
+			this.btComm.setEnableRequest( true );
+		}
 	}
 
 	public boolean isConnected() {

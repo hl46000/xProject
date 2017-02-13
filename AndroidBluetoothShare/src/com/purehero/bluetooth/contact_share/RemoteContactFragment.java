@@ -1,6 +1,5 @@
 package com.purehero.bluetooth.contact_share;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +11,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,11 +22,11 @@ import android.widget.TextView;
 import com.purehero.bluetooth.BluetoothCommunication;
 import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.bluetooth.IFBluetoothEventListener;
-import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
+import com.purehero.contact.ContactData;
 
-public class RemoteContactFragment extends FragmentEx implements OnClickListener {
+public class RemoteContactFragment extends FragmentEx implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
 	private final MainActivity context;
 	private View layout = null;
 
@@ -57,10 +58,7 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
 					tv.setText( R.string.no_connected );
 					
-					Button btn = ( Button ) layout.findViewById( R.id.btnRemoteDevice );
-					if( btn != null ) {
-						btn.setText( R.string.connect);
-					}
+					
 				}}
 			);
 			
@@ -76,11 +74,6 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 				public void run() {
 					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
 					tv.setText( _btComm.getName() );
-					
-					Button btn = ( Button ) layout.findViewById( R.id.btnRemoteDevice );
-					if( btn != null ) {
-						btn.setText( R.string.get_contact_list);
-					}
 				}}
 			);
 		}
@@ -94,14 +87,18 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 		listView	= ( ListView ) layout.findViewById( R.id.listView );
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
 		listView.setAdapter( adapter );
+		listView.setOnItemClickListener( this );
+		listView.setOnItemLongClickListener( this );
 		
-		int btnIDs [] = { R.id.btnRemoteDevice };
+		registerForContextMenu( listView );
+		
+		int btnIDs [] = { R.id.btnReload, R.id.btnBluetooth};
 		for( int id : btnIDs ) {
-			Button btn = ( Button ) layout.findViewById(id);
+			Button btn = ( Button ) layout.findViewById( id );
 			if( btn != null ) {
 				btn.setOnClickListener( this );
 			}
-		}
+		}		
 		
 		new Thread( init_view_thread ).start();
 		
@@ -119,7 +116,8 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 					G.Log( "runOnUiThread run" );
 
 					progressBar.setVisibility( View.INVISIBLE );
-					listView.setVisibility( View.VISIBLE );
+					listView.setVisibility( View.VISIBLE );					
+					
 					// 검색
 					EditText search = (EditText) layout.findViewById( R.id.txt_search );
 					if( search != null ) {
@@ -138,22 +136,39 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 		}
 	};
 	
-	
-	
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if( requestCode == 100 ) {
-			adapter.deleteCacheFiles();
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		ContactData data = ( ContactData ) adapter.getItem( position );
+		
+		if( adapter.isShowCheckBox() ) {
+			data.setSelected( !data.isSelected() );
+			adapter.notifyDataSetChanged();		
+		} else {
+			
 		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		if( adapter.isShowCheckBox()) {
+			return false;			
+		}
+		ContactData data = ( ContactData ) adapter.getItem( position );
+		data.setSelected( true );
+		
+		adapter.setShowCheckBox( !adapter.isShowCheckBox() );
+		return true;
+	}
+	
 	@Override
 	public boolean onBackPressed() {
 		if( adapter.isShowCheckBox()) {
 			adapter.setAllChecked( false );
 			adapter.setShowCheckBox( false );
 			return true;
+		}
+		if( adapter != null ){
+			adapter.deleteCacheFiles();
 		}
 		
 		return super.onBackPressed();
@@ -213,15 +228,12 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 	@Override
 	public void onClick(View arg0) {
 		switch( arg0.getId()) {
-		case R.id.btnRemoteDevice :
-			Button btn = ( Button ) arg0;
-			if( getString( R.string.get_contact_list ).compareTo( btn.getText().toString() ) == 0 ) {
-				adapter.sendRequestContactList();
-				
-			} else {
-				BluetoothManager.getInstance().openDeviceList( this );
-			}
-						
+		case R.id.btnReload : 
+			adapter.sendRequestContactList();
+			break;
+			
+		case R.id.btnBluetooth :
+			BluetoothManager.getInstance().openDeviceList( this );
 			break;
 		}
 	}

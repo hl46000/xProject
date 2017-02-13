@@ -1,6 +1,7 @@
 package com.purehero.bluetooth.contact_share;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,20 @@ public class MainActivity extends BaseTabMainActivity {
 		super.onCreate(savedInstanceState);
 		
 		G.init( this );
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		G.Log( "onActivityResult %d %d", requestCode, resultCode );
+		if( requestCode == 100 ) {
+			if( contactAdapter != null ) {
+				contactAdapter.getContactDatas();
+			}
+			if( remoteContactAdapter != null ) {
+				remoteContactAdapter.deleteCacheFiles();
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
 	@Override

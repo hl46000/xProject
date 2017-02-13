@@ -128,9 +128,19 @@ public class ContactAdapter extends BaseAdapter
 		public TextView name;		
 	}
 	
+	Thread IconUpdateThread = null;
+	boolean iconUpdateThreadFlag = true;
 	public synchronized void getContactDatas() {
 		final Uri CONTACT_URI = ContactsContract.Contacts.CONTENT_URI;
 		
+		if( IconUpdateThread != null && IconUpdateThread.isAlive()) {
+			iconUpdateThreadFlag = false;
+			try {
+				IconUpdateThread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		listDatas.clear();
 		
 		ContentResolver contentResolver = context.getContentResolver();
@@ -151,10 +161,12 @@ public class ContactAdapter extends BaseAdapter
         filteredData.clear();
         filteredData.addAll( listDatas );
         
-        new Thread( new Runnable(){
+        IconUpdateThread = new Thread( new Runnable(){
 			@Override
 			public void run() {
-				for( ContactData data : listDatas ) {
+				int len = listDatas.size();
+				for( int i = 0; i < len && iconUpdateThreadFlag; i++ ) {
+					ContactData data = listDatas.get(i);
 					if( data.loadData( context )) {
 						context.runOnUiThread( new Runnable(){
 							@Override
@@ -163,7 +175,9 @@ public class ContactAdapter extends BaseAdapter
 							}});						
 					}
 				}
-			}}).start();
+			}});
+        iconUpdateThreadFlag = true;
+        IconUpdateThread.start();
 	}
 	
 	public boolean isShowCheckBox() {
@@ -253,19 +267,22 @@ public class ContactAdapter extends BaseAdapter
 		String display_name = "";
 		
 		int i, len = listDatas.size() - 1;
-		for( i = 0; i < len; i++ ) {
+		if( len > 0 ) {
+			for( i = 0; i < len; i++ ) {
+				ContactData data = listDatas.get(i);
+				contact_id 	 = data.getContactID();
+				display_name = data.getDisplayName();
+				
+				ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"},", contact_id, display_name, data.getIcon()==null?"false":"true" ));
+			}
+			
 			ContactData data = listDatas.get(i);
 			contact_id 	 = data.getContactID();
 			display_name = data.getDisplayName();
 			
-			ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"},", contact_id, display_name, data.getIcon()==null?"false":"true" ));
+			ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"}", contact_id, display_name, data.getIcon()==null?"false":"true" ));
 		}
-		
-		ContactData data = listDatas.get(i);
-		contact_id 	 = data.getContactID();
-		display_name = data.getDisplayName();
-		
-		ret.append( String.format( "{\"ID\":\"%s\",\"NAME\":\"%s\",\"HAS_ICON\":\"%s\"}]}", contact_id, display_name, data.getIcon()==null?"false":"true" ));
+		ret.append( "]}" );
 		return ret.toString();
 	}
 

@@ -1,10 +1,8 @@
 package com.purehero.contact;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.purehero.common.G;
-import com.purehero.common.Utils;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -15,6 +13,10 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
+import android.webkit.MimeTypeMap;
+
+import com.purehero.common.G;
+import com.purehero.common.Utils;
 
 public class ContactUtils {
 	
@@ -106,5 +108,12 @@ public class ContactUtils {
 		Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf( contact_id ));
 		intent.setData(uri);
 		context.startActivity(intent);
+	}
+	
+	public static void openVCard( Context context, File savedVCard ) {
+        String vcfMimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("vcf");
+        Intent openVcfIntent = new Intent(Intent.ACTION_VIEW);
+        openVcfIntent.setDataAndType(Uri.fromFile(savedVCard), vcfMimeType);
+        context.startActivity(openVcfIntent);
 	}
 }

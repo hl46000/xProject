@@ -12,15 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.purehero.bluetooth.BluetoothCommunication;
-import com.purehero.bluetooth.contact_share.R;
-import com.purehero.common.G;
-import com.purehero.common.Utils;
-import com.purehero.contact.ContactAdapter;
-import com.purehero.contact.ContactData;
-import com.purehero.contact.ContactUtils;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -29,12 +20,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class RemoteContactAdapter extends BaseAdapter implements Filterable {
+import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.common.G;
+import com.purehero.common.Utils;
+import com.purehero.contact.ContactAdapter;
+import com.purehero.contact.ContactData;
+import com.purehero.contact.ContactUtils;
+
+public class RemoteContactAdapter extends BaseAdapter implements Filterable, OnCheckedChangeListener {
 	
 	private static final byte OPCODE_MASK_REQUEST 	= (byte) 0x10;
 	private static final byte OPCODE_MASK_RESPONSE 	= (byte) 0x20;
@@ -86,13 +87,19 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 			convertView  = inflater.inflate( R.layout.remote_contact_list_cell, null );
 			
-			viewHolder.icon	= (ImageView) convertView.findViewById( R.id.contact_icon );
-			viewHolder.name	= (TextView)  convertView.findViewById( R.id.contact_name );
+			viewHolder.checkBox	= (CheckBox)  convertView.findViewById( R.id.check_box );
+			viewHolder.icon		= (ImageView) convertView.findViewById( R.id.contact_icon );
+			viewHolder.name		= (TextView)  convertView.findViewById( R.id.contact_name );
+
+			viewHolder.checkBox.setOnCheckedChangeListener( this );
 			
 			convertView.setTag( viewHolder );
 		} else {
 			viewHolder = ( ViewHolder ) convertView.getTag();
 		}
+		
+		viewHolder.checkBox.setVisibility( showCheckBox ? View.VISIBLE : View.GONE );
+		viewHolder.checkBox.setId( position );
 		
 		ContactData data = ( ContactData ) getItem( position );
 		if( data != null ) {
@@ -105,16 +112,18 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 			
 			viewHolder.name.setVisibility( View.VISIBLE );
 			viewHolder.name.setText( data.getDisplayName());
-			
+			viewHolder.checkBox.setChecked( data.isSelected() );
 		} else {
 			viewHolder.icon.setVisibility( View.INVISIBLE );
 			viewHolder.name.setText( "" );
+			viewHolder.checkBox.setChecked( false );
 		}
 		
 		return convertView;
 	}
 	
 	class ViewHolder {
+		public CheckBox checkBox;
 		public ImageView icon;
 		public TextView name;		
 	}
@@ -312,10 +321,13 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		File vcf_file = null;
 		FileOutputStream fos = null;
 		try {
-			vcf_file = File.createTempFile( "tmp", ".vcf", context.getCacheDir() );
-			if( !vcf_file.getParentFile().exists()) {
-				vcf_file.getParentFile().mkdirs();
+			File backup_folder = new File( context.getString( R.string.backup_folder) );
+			File tmp_folder = new File( backup_folder, "tmp");
+			if( !tmp_folder.exists()) {
+				tmp_folder.mkdirs();
 			}
+			vcf_file = new File( tmp_folder, "Received Contacts" );
+			
 			fos = new FileOutputStream( vcf_file );
 			fos.write( received_datas );
 			fos.close();
@@ -336,11 +348,14 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	}
 
 	public void deleteCacheFiles() {
-		File fileList [] = context.getCacheDir().listFiles();
-		for( File file : fileList ) {
-			if( !file.getName().startsWith("tmp")) continue;
-			if( !file.getName().endsWith( ".vcf")) continue;
-			file.delete();
+		G.Log( "deleteCacheFiles" );
+		File backup_folder = new File( context.getString( R.string.backup_folder) );
+		File tmp_folder = new File( backup_folder, "tmp");
+		if( tmp_folder.exists()) {
+			File fileList [] = tmp_folder.listFiles();
+			for( File file : fileList ) {
+				file.delete();
+			}
 		}
 	}
 	
@@ -466,7 +481,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	ByteArrayOutputStream dataReceivedStream = new ByteArrayOutputStream();
 	
 	public synchronized void disconnected() {
-		remoteComm.setBluetoothCommunication( null );		
+		remoteComm.setBluetoothCommunication( null );
 	}
 
 	public synchronized boolean isConnected() {
@@ -596,5 +611,11 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+		ContactData data = filteredData.get( arg0.getId());
+		data.setSelected( arg1 );
 	}
 }

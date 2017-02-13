@@ -4,10 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.purehero.bluetooth.contact_share.R;
-import com.purehero.common.FragmentEx;
-import com.purehero.common.Utils;
-
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -18,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import com.purehero.common.FragmentEx;
+import com.purehero.common.Utils;
 
 public class ContactBackupFragment extends FragmentEx implements OnItemClickListener {
 	private final MainActivity context;
@@ -59,7 +58,7 @@ public class ContactBackupFragment extends FragmentEx implements OnItemClickList
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
 		listView.showContextMenuForChild(view);
 	}
 	
