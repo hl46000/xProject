@@ -1,5 +1,6 @@
 package com.purehero.bluetooth.contact_share;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -137,6 +138,16 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 		}
 	};
 	
+	
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if( requestCode == 100 ) {
+			adapter.deleteCacheFiles();
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
 	@Override
 	public boolean onBackPressed() {
 		if( adapter.isShowCheckBox()) {

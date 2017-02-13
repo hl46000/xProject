@@ -50,7 +50,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	private static final byte OPCODE_REQUEST_CONTACT_DATAS 	= OPCODE_MASK_REQUEST | OPCODE_CONTACT_DATAS;
 	private static final byte OPCODE_RESPONSE_CONTACT_DATAS	= OPCODE_MASK_RESPONSE | OPCODE_CONTACT_DATAS;
 	
-	private final Activity context;
+	private final MainActivity context;
 	private List<ContactData> listDatas = new ArrayList<ContactData>();
 	private List<ContactData> filteredData = new ArrayList<ContactData>();
 	
@@ -58,7 +58,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	private ContactAdapter contactAdapter 	= null;
 	private RemoteContactComm remoteComm	= new RemoteContactComm();
 	
-	public RemoteContactAdapter( Activity context ) {
+	public RemoteContactAdapter( MainActivity context ) {
 		this.context = context;		
 	}
 	
@@ -313,6 +313,9 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		FileOutputStream fos = null;
 		try {
 			vcf_file = File.createTempFile( "tmp", ".vcf", context.getCacheDir() );
+			if( !vcf_file.getParentFile().exists()) {
+				vcf_file.getParentFile().mkdirs();
+			}
 			fos = new FileOutputStream( vcf_file );
 			fos.write( received_datas );
 			fos.close();
@@ -320,7 +323,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 			
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 	        intent.setDataAndType(Uri.fromFile( vcf_file ), "text/x-vcard");
-	        context.startActivity(intent);
+	        context.startActivityForResult( intent, 100 );
 	        
 		} catch ( Exception e) {
 			e.printStackTrace();
@@ -328,13 +331,19 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 		} finally {
 			if( fos != null ) {
 				try { fos.close(); } catch (IOException e) {}
-			}
-			if( vcf_file != null && vcf_file.exists()) {
-				vcf_file.delete();
-			}
+			}			
 		}
 	}
 
+	public void deleteCacheFiles() {
+		File fileList [] = context.getCacheDir().listFiles();
+		for( File file : fileList ) {
+			if( !file.getName().startsWith("tmp")) continue;
+			if( !file.getName().endsWith( ".vcf")) continue;
+			file.delete();
+		}
+	}
+	
 	/**
 	 * 응답으로 받은 연락처의 아이콘 데이터를 ContactData 객체에 추가한다.  
 	 * 
@@ -566,7 +575,7 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable {
 	 *  
 	 * @param contact_ids	
 	 */
-	private synchronized void sendResponseContactDatas(List<Long> contact_ids) {
+	public synchronized void sendResponseContactDatas(List<Long> contact_ids) {
 		G.Log( "sendResponseContactDatas" );
 		
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

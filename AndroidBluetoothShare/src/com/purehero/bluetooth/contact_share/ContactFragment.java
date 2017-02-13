@@ -19,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
@@ -162,10 +165,26 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		G.Log( "onContextItemSelected index : " + info.position );
 		
-		//ContactData data = ( ContactData ) adapter.getItem( info.position );
-		
 		switch( item.getItemId()) {
 		case R.id.menu_send_to_remote : 
+			strTemp = context.getString( R.string.send_to_remote_device_info );
+			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() )); 
+			G.confirmDialog( context, context.getString( R.string.decline ), strTemp, 0, new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					switch( arg1 ) {
+					case G.DIALOG_BUTTON_ID_YES :
+						List<Long> contact_ids = new ArrayList<Long>();
+						for( int i = 0; i < adapter.getCount(); i++ ) {
+							ContactData data = ( ContactData ) adapter.getItem(i);
+							if( data.isSelected()) {
+								contact_ids.add( data.getContactID());
+							}
+						}
+						context.getRemoteContactAdapter().sendResponseContactDatas( contact_ids );
+						break;
+					}
+				}});
 			ret = true;
 			break;
 		case R.id.menu_delete :

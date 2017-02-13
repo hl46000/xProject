@@ -32,7 +32,9 @@
     <string name="get_contact_list">연락처 정보 가져오기</string>
     <string name="search_text">검색( 이름 or 연락처 or 이메일 )</string>
     <string name="send_to_remote_device">원격 단말기로 전송</string>
+    <string name="send_to_remote_device_info">선택한 xxxxx개의 연락처를 원격 단말기로 전송합니다.</string>
     <string name="send_to_my_device">내 단말기로 전송</string>
+    <string name="send_to_my_device_info">선택한 xxxxx개의 연락처를 내 단말기로 전송합니다.</string>
     <string name="delete">삭제</string>
     <string name="delete_info">선택한 xxxxx 개의 연락처를 삭제합니다.</string>
     <string name="selecte_all">전체 선택</string>

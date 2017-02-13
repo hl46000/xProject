@@ -39,8 +39,9 @@
     <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
     <string name="send_to_remote_device">Send to remote device</string>
-    
+    <string name="send_to_remote_device_info">Send to xxxxx selected contacts to remote device</string>
     <string name="send_to_my_device">Send to my device</string>
+    <string name="send_to_my_device_indo">Send to xxxxx selected contacts to my device</string>
     <string name="delete">Delete</string>
     <string name="delete_info">Delete the xxxxx selected contacts.</string>
     <string name="selecte_all">Selecte ALL</string>
