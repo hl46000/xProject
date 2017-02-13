@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share;
+package com.purehero.bluetooth.contact_share;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.purehero.bluetooth.BluetoothCommunication;
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.G;
 import com.purehero.common.Utils;
 import com.purehero.contact.ContactAdapter;

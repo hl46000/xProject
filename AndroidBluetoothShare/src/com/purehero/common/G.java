@@ -10,7 +10,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import android.widget.EditText;
 
-import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.contact_share.R;
 
 public class G {
 	public static final int DIALOG_BUTTON_ID_YES 	= -1;

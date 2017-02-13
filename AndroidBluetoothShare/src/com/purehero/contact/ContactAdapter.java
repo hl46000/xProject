@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import com.purehero.bluetooth.contact_share.R;
+
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -28,8 +30,6 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.purehero.bluetooth.share.R;
 
 public class ContactAdapter extends BaseAdapter 
 	implements Filterable, OnCheckedChangeListener

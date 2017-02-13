@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share;
+package com.purehero.bluetooth.contact_share;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.purehero.bluetooth.BluetoothCommunication;
 import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.bluetooth.IFBluetoothEventListener;
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 

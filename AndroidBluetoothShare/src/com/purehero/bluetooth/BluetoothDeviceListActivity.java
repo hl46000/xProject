@@ -42,7 +42,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.G;
 
 /**

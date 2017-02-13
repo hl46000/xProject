@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share;
+package com.purehero.bluetooth.contact_share;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.Utils;
 
 import android.app.Activity;

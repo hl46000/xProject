@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share;
+package com.purehero.bluetooth.contact_share;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 import com.purehero.contact.ContactAdapter;

@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share;
+package com.purehero.bluetooth.contact_share;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.purehero.bluetooth.BluetoothManager;
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.BaseTabMainActivity;
 import com.purehero.common.G;
 import com.purehero.common.ViewPagerAdapter;

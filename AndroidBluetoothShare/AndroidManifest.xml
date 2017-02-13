@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.purehero.bluetooth.share"
+    package="com.purehero.bluetooth.contact_share"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -27,7 +27,7 @@
                android:value="@integer/google_play_services_version"/>
         
         <activity
-            android:name="com.purehero.bluetooth.share.MainActivity"
+            android:name="com.purehero.bluetooth.contact_share.MainActivity"
             android:label="@string/app_name" 
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" >
             <intent-filter>
