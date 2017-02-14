@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.purehero.bluetooth.BluetoothCommunication;
 import com.purehero.bluetooth.BluetoothManager;
@@ -55,10 +54,7 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 			context.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
-					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
-					tv.setText( R.string.no_connected );
-					
-					
+					context.setStatusMessage( R.string.no_connected );
 				}}
 			);
 			
@@ -72,8 +68,7 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 			context.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
-					TextView tv = ( TextView ) layout.findViewById( R.id.tvStatue );
-					tv.setText( _btComm.getName() );
+					context.setStatusMessage( _btComm.getName() );					
 				}}
 			);
 		}

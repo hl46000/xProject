@@ -165,12 +165,12 @@ public class BluetoothDeviceListActivity extends ActionBarActivity implements On
 		getMenuInflater().inflate(R.menu.bluetooth, menu);
 		return true;
 	}
-
-	@Override
+    
+    @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		if (id == R.id.action_change_device_name) {
-			G.textInputDialog( this, "디바이스명 변경", "", mBtAdapter.getName(), 0, new DialogInterface.OnClickListener() {
+			G.textInputDialog( this, getString(R.string.change_device_name), "", mBtAdapter.getName(), 0, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					switch( which ) {
@@ -239,7 +239,7 @@ public class BluetoothDeviceListActivity extends ActionBarActivity implements On
 					BluetoothManager.getInstance().connectDevice( device, true );
 				} catch (IOException e) {
 					e.printStackTrace();
-					Toast.makeText( BluetoothDeviceListActivity.this, "연결 실패", Toast.LENGTH_LONG ).show();
+					Toast.makeText( BluetoothDeviceListActivity.this, R.string.connect_failed, Toast.LENGTH_LONG ).show();
 				}
 			}	
         }
@@ -329,7 +329,7 @@ public class BluetoothDeviceListActivity extends ActionBarActivity implements On
 				}
 				
 			} else { // 취소 눌렀을 때 
-				Toast.makeText( this, "블루투스가 활성화되지 않아서 앱을 종료 합니다.", Toast.LENGTH_LONG ).show();
+				Toast.makeText( this, R.string.bluetooth_not_enable, Toast.LENGTH_LONG ).show();
 				this.finish();
 			} 
 			break;

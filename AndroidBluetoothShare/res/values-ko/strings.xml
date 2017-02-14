@@ -15,9 +15,9 @@
     <string name="title_my_device">내 디바이스</string>
     <string name="title_paired_devices">등록된 디바이스</string>
     <string name="title_other_devices">연결 가능한 디바이스</string>
-    <string name="button_scan">찾기</string>
+    <string name="button_allow_search">다른 장치의 연결 허용</string>
+    <string name="button_scan">연결 가능한 단말기 찾기</string>
     <string name="button_cancel">찾기 취소</string>
-    <string name="change_device_name">디바이스 이름 변경</string>
     
     <string name="yes">예</string>
     <string name="no">아니요</string>
@@ -25,10 +25,14 @@
     
     <string name="contact">연락처</string>
     <string name="chat">문자전송</string>
-    <string name="remote">원격단말기</string>
+    <string name="my_device">내 단말기</string>
+    <string name="remote_device">원격단말기</string>
     <string name="connect">연결하기</string>
+    <string name="connect_failed">연결 실패</string>
     <string name="backup">백업</string>
     <string name="restore">복원</string>
+	
+    <string name="change_device_name">단말기 이름 변경</string>
     <string name="get_contact_list">연락처 정보 가져오기</string>
     <string name="search_text">검색( 이름 or 연락처 or 이메일 )</string>
     <string name="send_to_remote_device">원격 단말기로 전송</string>
@@ -43,4 +47,5 @@
     <string name="backup_info">선택된 xxxxx개의 연락처를 백업 합니다.</string>
     <string name="enter_backup_name">백업명을 입력해 주세요.</string>
     <string name="backup_result">xxxxx 개의 연락처를 yyyyy 이름으로 백업하였습니다.</string>
+	<string name="bluetooth_not_enable">블루투스가 활성화되지 않아서 앱을 종료 합니다.</string>
 </resources>

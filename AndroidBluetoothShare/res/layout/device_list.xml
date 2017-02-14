@@ -47,7 +47,7 @@
         android:textColor="#FFFFFF"
         android:shadowColor="#000000"
         android:shadowRadius="3.0"
-        android:text="다른 장치의 연결 허용" />
+        android:text="@string/button_allow_search" />
 
     <TextView android:id="@+id/title_paired_devices"
         android:layout_width="match_parent"

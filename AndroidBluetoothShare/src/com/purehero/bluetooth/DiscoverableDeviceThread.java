@@ -38,7 +38,7 @@ public class DiscoverableDeviceThread extends Thread {
 	Runnable action = new Runnable() {
 		@Override
 		public void run() {
-			btn.setText( duration > 0 ? String.format( "%s(%d초)", orgButtonTitle, duration ) : orgButtonTitle );
+			btn.setText( duration > 0 ? String.format( "%s(%d)", orgButtonTitle, duration ) : orgButtonTitle );
 		}
 	};
 }

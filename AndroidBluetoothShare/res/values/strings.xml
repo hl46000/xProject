@@ -23,6 +23,7 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_allow_search">Allow search on other devices</string>
     <string name="change_device_name">Change Device Name</string>
     
     <string name="yes">Yes</string>
@@ -31,8 +32,10 @@
         
     <string name="contact">Contact</string>
     <string name="chat">Chatting</string>
-    <string name="remote">Remote</string>    
+    <string name="my_device">My Device</string>    
+    <string name="remote_device">Remote Device</string>    
     <string name="connect">Connect</string>
+    <string name="connect_failed">connection failed</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
 
@@ -51,6 +54,6 @@
     <string name="enter_backup_name">Please enter backup name</string>
     
     <string name="backup_result">backed up xxxxx contacts with the name yyyyy</string>
-    
+    <string name="bluetooth_not_enable">Quit the app because Bluetooth is not enabled.</string>
     
 </resources>

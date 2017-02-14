@@ -17,17 +17,7 @@
         android:layout_width="match_parent"
     	android:layout_height="match_parent" >
 
-        <TextView
-	        android:id="@+id/tvStatue"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentBottom="true"
-	        android:layout_alignParentLeft="false"
-	        android:background="#666"
-	        android:textColor="#fff"
-	        android:text="@string/no_connected" />
-	    	
-	    <LinearLayout
+        <LinearLayout
 	    	android:orientation="vertical" 
 	    	android:layout_width="match_parent"
 	    	android:layout_height="match_parent"

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.purehero.bluetooth.BluetoothManager;
 import com.purehero.bluetooth.contact_share.R;
@@ -16,9 +17,14 @@ import com.purehero.contact.ContactAdapter;
 public class MainActivity extends BaseTabMainActivity {
 	private ContactAdapter 			contactAdapter = null;
 	private RemoteContactAdapter	remoteContactAdapter = null;
+	
+	TextView status = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		status = ( TextView ) findViewById( R.id.tvStatue );
 		
 		G.init( this );
 	}
@@ -37,10 +43,21 @@ public class MainActivity extends BaseTabMainActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
+	public void setStatusMessage( int stringResID ) {
+		if( status != null ) {
+			status.setText( stringResID );
+		}
+	}
+	public void setStatusMessage( String message ) {
+		if( status != null ) {
+			status.setText( message );
+		}
+	}
+	
 	@Override
 	public void addTabItems(ViewPagerAdapter adapter) {
-		adapter.addItem( new ContactFragment( this ), getString( R.string.contact ));
-		adapter.addItem( new RemoteContactFragment( this ), getString( R.string.remote ));
+		adapter.addItem( new ContactFragment( this ), getString( R.string.my_device ));
+		adapter.addItem( new RemoteContactFragment( this ), getString( R.string.remote_device ));
 		adapter.addItem( new ContactBackupFragment( this ), getString( R.string.backup ));
 	}
 	
@@ -67,8 +84,9 @@ public class MainActivity extends BaseTabMainActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+		//getMenuInflater().inflate(R.menu.main, menu);
+		//return true;
+		return false;
 	}
 
 	@Override
