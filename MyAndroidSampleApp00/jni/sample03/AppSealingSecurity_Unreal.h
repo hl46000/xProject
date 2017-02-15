@@ -2,12 +2,18 @@
 //#if PLATFORM_ANDROID
 #if 1
 #include <string>
+#ifdef __aarch64__
+#define	POSTFIX		"\n\tldr X0,[sp],#16\n\t"
+#define	OP_MOVE		"\n\tmov X0, "
+#define	BASE_TAG	"str X0,[sp, #-16]!" OP_MOVE "#2" OP_MOVE "#0" OP_MOVE "#6" OP_MOVE "#8" OP_MOVE "#1" OP_MOVE "#5" OP_MOVE "#1" OP_MOVE "#5" OP_MOVE "#7" OP_MOVE
+#else
 #define	POSTFIX		"\n\tpop {R0}\n\t"
-#define	OP_MOVE		"\n\tmov R0, "
+#define	OP_MOVE		"\n\tadd R0, "
 #define	BASE_TAG	"push {R0}" OP_MOVE "#2" OP_MOVE "#0" OP_MOVE "#6" OP_MOVE "#8" OP_MOVE "#1" OP_MOVE "#5" OP_MOVE "#1" OP_MOVE "#5" OP_MOVE "#7" OP_MOVE
+#endif
 #define	DELIMETER	"#"
-#define	LOAD_ADDRESS ___aosc=(unsigned int)&&___________b;___losc=(unsigned int)&&___________e-___aosc+4;
-#define DECLARE		unsigned int ___aosc, ___losc;
+#define	LOAD_ADDRESS ___aosc=(unsigned long)&&___________b;___losc=(unsigned long)&&___________e-___aosc+4;
+#define DECLARE		unsigned long ___aosc, ___losc;
 #define ASM	__asm__
 #define	AS_START_IDENTIFIER	DELIMETER"9"
 #define	AS_END_IDENTIFIER	DELIMETER"11"

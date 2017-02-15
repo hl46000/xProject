@@ -441,34 +441,35 @@ void HookingFunc( __attribute__((unused)) JNIEnv * env, __attribute__((unused)) 
 		//hk.try_hooking( "clock_gettime", (unsigned)hook_clock_gettime );
 		//hk.try_hooking( "gettimeofday", (unsigned)hook_gettimeofday );
 
-		__original_open 	= hk.try_hooking( "open", (unsigned)hook_open );
-		__original_open64 	= hk.try_hooking( "open64", (unsigned)hook_open64 );
-		__original_close 	= hk.try_hooking( "close", (unsigned)hook_close );
-		__original_read 	= hk.try_hooking( "read", (unsigned)hook_read );
-		__original_write	= hk.try_hooking( "write", (unsigned)hook_write );
-		__original_creat	= hk.try_hooking( "creat", (unsigned)hook_creat );
-		__original_creat64	= hk.try_hooking( "creat64", (unsigned)hook_creat64 );
-		__original_fcntl	= hk.try_hooking( "fcntl", (unsigned)hook_fcntl );
-		__original_lseek	= hk.try_hooking( "lseek", (unsigned)hook_lseek );
-		__original_lseek64	= hk.try_hooking( "lseek64", (unsigned)hook_lseek64 );
+		__original_open 	= hk.try_hooking( "open", 		(unsigned)hook_open );
+		__original_open64 	= hk.try_hooking( "open64", 	(unsigned)hook_open64 );
+		__original_close 	= hk.try_hooking( "close", 		(unsigned)hook_close );
+		__original_read 	= hk.try_hooking( "read", 		(unsigned)hook_read );
+		__original_write	= hk.try_hooking( "write", 		(unsigned)hook_write );
+		__original_creat	= hk.try_hooking( "creat", 		(unsigned)hook_creat );
+		__original_creat64	= hk.try_hooking( "creat64", 	(unsigned)hook_creat64 );
+		__original_fcntl	= hk.try_hooking( "fcntl", 		(unsigned)hook_fcntl );
+		__original_lseek	= hk.try_hooking( "lseek", 		(unsigned)hook_lseek );
+		__original_lseek64	= hk.try_hooking( "lseek64", 	(unsigned)hook_lseek64 );
 
-		__original_openat	= hk.try_hooking( "openat", (unsigned)hook_openat );
-		__original_openat64	= hk.try_hooking( "openat64", (unsigned)hook_openat64 );
-		__original_pread	= hk.try_hooking( "pread", (unsigned)hook_pread );
-		__original_pread64	= hk.try_hooking( "pread64", (unsigned)hook_pread64 );
+		__original_openat	= hk.try_hooking( "openat", 	(unsigned)hook_openat );
+		__original_openat64	= hk.try_hooking( "openat64", 	(unsigned)hook_openat64 );
+		__original_pread	= hk.try_hooking( "pread", 		(unsigned)hook_pread );
+		__original_pread64	= hk.try_hooking( "pread64", 	(unsigned)hook_pread64 );
 
-		__original_fopen	= hk.try_hooking( "fopen", (unsigned)hook_fopen );
-		__original_fclose	= hk.try_hooking( "fclose", (unsigned)hook_fclose );
-		__original_fseek	= hk.try_hooking( "fseek", (unsigned)hook_fseek );
-		__original_fread	= hk.try_hooking( "fread", (unsigned)hook_fread );
-		__original_fwrite	= hk.try_hooking( "fwrite", (unsigned)hook_fwrite );
+		__original_fopen	= hk.try_hooking( "fopen", 		(unsigned)hook_fopen );
+		__original_fclose	= hk.try_hooking( "fclose", 	(unsigned)hook_fclose );
+		__original_fseek	= hk.try_hooking( "fseek", 		(unsigned)hook_fseek );
+		__original_fread	= hk.try_hooking( "fread", 		(unsigned)hook_fread );
+		__original_fwrite	= hk.try_hooking( "fwrite", 	(unsigned)hook_fwrite );
 
-		__original_mmap		= hk.try_hooking( "mmap", (unsigned)hook_mmap );
-		__original_mmap64	= hk.try_hooking( "mmap64", (unsigned)hook_mmap64 );
+		__original_mmap		= hk.try_hooking( "mmap", 		(unsigned)hook_mmap );
+		__original_mmap64	= hk.try_hooking( "mmap64", 	(unsigned)hook_mmap64 );
 
-		//__original_dlopen	= hk.try_hooking( "dlopen", (unsigned)hook_dlopen );
-		//__original_dlclose	= hk.try_hooking( "dlclose", (unsigned)hook_dlclose );
-		//__original_dlsym	= hk.try_hooking( "dlsym", (unsigned)hook_dlsym );
+		// libc.so 파일은 hooking 에서 제외 시켜야 아래 함수들을 hooking 할 수 있음
+		__original_dlopen	= hk.try_hooking( "dlopen", (unsigned)hook_dlopen );
+		__original_dlclose	= hk.try_hooking( "dlclose", (unsigned)hook_dlclose );
+		__original_dlsym	= hk.try_hooking( "dlsym", (unsigned)hook_dlsym );
 	}
 }
 

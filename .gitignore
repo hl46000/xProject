@@ -11,3 +11,5 @@
 MyAndroidSampleApp00/libs/armeabi/libsample01.so
 AppSealingExternalExecutor/libs/armeabi/libAppSealingExternalExecutor.so
 MyAndroidSampleApp00/libs/armeabi/libsample00.so
+MyAndroidSampleApp00/libs/arm64-v8a/libsample03.so
+MyAndroidSampleApp00/libs/arm64-v8a/libsample03_1.so

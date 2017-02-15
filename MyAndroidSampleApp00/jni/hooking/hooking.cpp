@@ -46,10 +46,11 @@ int hooking::get_target_module( int pid )
 
 	HOOKING_MAPS_INFO module;
 	while( fgets( buffer, sizeof(buffer), fp ) ) {
+		LOGD( "%s", buffer );
 		sscanf( buffer, "%08lx-%08lx %s %08lx %s %d %s", &startAddr, &endAddr,(char*)&permission,&unknown1,(char*)&unknown2,&unknown3,(char*)&filename);
 
 		if( filename[0] == '[') continue;
-		if( strstr( filename, ".so") == NULL ) continue;
+		//if( strstr( filename, ".so") == NULL ) continue;
 
 		if( permission[0] != 'r' ) continue;
 		if( permission[2] != 'x' ) continue;
@@ -63,6 +64,7 @@ int hooking::get_target_module( int pid )
 		}
 
 		if( strstr( filename, "libhooking.so") != NULL ) continue;
+		if( strstr( filename, "libc.so") != NULL ) continue;
 
 		module.s_add = startAddr;
 		module.e_add = endAddr;
