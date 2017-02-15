@@ -174,6 +174,6 @@ public class Utils {
 		String filename = file.getName();
 		int index = filename.lastIndexOf(".");
 		if( index <= 0 ) return "";
-		return filename.substring( 0, index - 1 );
+		return filename.substring( 0, index );
 	}
 }

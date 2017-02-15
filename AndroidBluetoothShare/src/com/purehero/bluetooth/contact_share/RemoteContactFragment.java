@@ -68,7 +68,8 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 			context.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
-					context.setStatusMessage( _btComm.getName() );					
+					String connected = context.getString( R.string.connected);
+					context.setStatusMessage( connected + " : " + _btComm.getName() );					
 				}}
 			);
 		}

@@ -35,6 +35,7 @@
     <string name="my_device">My Device</string>    
     <string name="remote_device">Remote Device</string>    
     <string name="connect">Connect</string>
+    <string name="connected">Connected</string>
     <string name="connect_failed">connection failed</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>

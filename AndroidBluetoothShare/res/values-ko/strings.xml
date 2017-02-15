@@ -28,6 +28,7 @@
     <string name="my_device">내 단말기</string>
     <string name="remote_device">원격단말기</string>
     <string name="connect">연결하기</string>
+    <string name="connected">연결됨</string>
     <string name="connect_failed">연결 실패</string>
     <string name="backup">백업</string>
     <string name="restore">복원</string>

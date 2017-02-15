@@ -1,65 +1,37 @@
 ﻿블루투스 연락처 공유앱은 두 대의 안드로이드 폰에서 서로의 연락처를 쉽게 교환 또는 전송을 할 수 있는 앱입니다.
 
 두 대의 단말기를 블루투스로 연결하고 
-
 서로의 연락처를 화면 리스트에서 선택하여 보내거나 받을 수 있습니다. 
-
 내 연락처에서 원하는 연락처를 선택하여 백업 파일을 생성할 수 있습니다. 
-
 생성된 백업 파일은 언제든지 복원할 수 있으며, 
-
 또는 다른 단말기로 보내어 다른 단말기에서도 백업된 연락처를 복원 할 수 있습니다.
 
+[내 단말기]
+- 내 단말기의 연락처 정보를 리스트로 보여 줌
+- 리스트에서 연락처 클릭 시 연락처의 상세 화면으로 전환
+- 연락처를 선택하여 백업하거나 원격단말기로 연락처를 전송할 수 있음
+- 연락처를 선택 후( 다중 선택 가능 ) 삭제 할 수 있음
 
 
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+[ 블루투스 연결 ]
+- 단말기1과 단말기2 에서 앱 실행
+- 단말기1과 단말기2 에서 앱의 우측 하단의 블루투스 버튼을 클릭하여 '블루투스' 화면으로 전환
+- 단말기1에서 '다른 장치의 연결 허용' 버튼 클릭
+	- 300 초간 연결 허용( '예' 선택 )
+- 단말기2에서 '연결 가능한 단말기 찾기' 버튼 클릭
+	- 단말기1이 리스트에 보이지 않으면 '연결 가능한 단말기 찾기' 몇 회 반복
+	- 단말기1이 리스트에 보이면 단말기1 항목을 리스트에서 클릭
+- 단말기1과 단말기2 에서 연결확인 ( 최초 연결 시 )
+- 단말기1에서 단말기2의 연결 요청 허용( '예' 선택 )
 
-    <string name="app_name">블루투스 연락처 공유</string>
-    <string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
 
-    <!--  DeviceListActivity -->
-    <string name="bluetooth">블루투스</string>
-    <string name="scanning">찾는 중...</string>
-    <string name="bluetooth_connect">블루투스 연결</string>    
-    <string name="no_connected">연결된 디바이스가 없음</string>
-    <string name="select_device">연결할 디바이스를 선택하세요</string>
-    <string name="none_paired">등록된 디바이스가 없습니다</string>
-    <string name="none_found">연결 가능한 디바이스를 찾을 수 없습니다.</string>
-    <string name="title_my_device">내 디바이스</string>
-    <string name="title_paired_devices">등록된 디바이스</string>
-    <string name="title_other_devices">연결 가능한 디바이스</string>
-    <string name="button_allow_search">다른 장치의 연결 허요</string>
-    <string name="button_scan">찾기</string>
-    <string name="button_cancel">찾기 취소</string>
-    
-    <string name="yes">예</string>
-    <string name="no">아니요</string>
-    <string name="cancel">취소</string>
-    
-    <string name="contact">연락처</string>
-    <string name="chat">문자전송</string>
-    <string name="my_device">내 단말기</string>
-    <string name="remote_device">원격단말기</string>
-    <string name="connect">연결하기</string>
-    <string name="connect_failed">연결 실패</string>
-    <string name="backup">백업</string>
-    <string name="restore">복원</string>
-	
-    <string name="change_device_name">단말기 이름 변경</string>
-    <string name="get_contact_list">연락처 정보 가져오기</string>
-    <string name="search_text">검색( 이름 or 연락처 or 이메일 )</string>
-    <string name="send_to_remote_device">원격 단말기로 전송</string>
-    <string name="send_to_remote_device_info">선택한 xxxxx개의 연락처를 원격 단말기로 전송합니다.</string>
-    <string name="send_to_my_device">내 단말기로 전송</string>
-    <string name="send_to_my_device_info">선택한 xxxxx개의 연락처를 내 단말기로 전송합니다.</string>
-    <string name="delete">삭제</string>
-    <string name="delete_info">선택한 xxxxx 개의 연락처를 삭제합니다.</string>
-    <string name="selecte_all">전체 선택</string>
-    <string name="clear_all">전체 선택해제</string>
-    <string name="backup_selected_contacts">선택된 연락처 백업</string>
-    <string name="backup_info">선택된 xxxxx개의 연락처를 백업 합니다.</string>
-    <string name="enter_backup_name">백업명을 입력해 주세요.</string>
-    <string name="backup_result">xxxxx 개의 연락처를 yyyyy 이름으로 백업하였습니다.</string>
-<string name="bluetooth_not_enable">블루투스가 활성화되지 않아서 앱을 종료 합니다.</string>
-</resources>
+[원격 단말기]
+- 블루트스가 연결이 된 상태
+- 우측 하단의 '갱신' 버튼 클릭 
+	- 연결된 단말기의 연락처 정보가 리스트로 보여 줌
+- 리스트에서 연락처를 선택 후 내 단말기로 가져 올 수 있음
+
+
+[백업]
+- 내 단말기에서 백업한 정보를 리스트로 보여 줌
+- 백업 항목을 선택하여 복원 및 삭제 할 수 있음
