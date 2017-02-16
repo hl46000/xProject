@@ -177,10 +177,11 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 			context.getMenuInflater().inflate(R.menu.contact_remote, menu);
 			
 			if( adapter.getCheckedCount() == 0 ) {
-				menu.findItem( R.id.menu_send_to_my ).setVisible( false );
-				menu.findItem( R.id.menu_remote_delete ).setVisible( false );
+				menu.findItem( R.id.menu_send_to_my ).setVisible( false );				
 				menu.findItem( R.id.menu_remote_clear_all ).setVisible( false );				
 			}
+			// TODO : 원격 단말기의 연락처 삭제 기능 추가가 필요함
+			menu.findItem( R.id.menu_remote_delete ).setVisible( false );
 		}
 	}
 	
@@ -199,10 +200,13 @@ public class RemoteContactFragment extends FragmentEx implements OnClickListener
 		
 		switch( item.getItemId()) {
 		case R.id.menu_send_to_my : 
+			// TODO : 사용자 확인 Dialog 필요
+			// TODO : 작업 진행 Dialog 필요
 			adapter.sendRequestContactDatas();
 			ret = true;
 			break;
 		case R.id.menu_remote_delete : 
+			// TODO : 삭제 하기 전에 사용자 확인 Dialog 필요
 			adapter.sendDeleteContacts();
 			ret = true;
 			break;

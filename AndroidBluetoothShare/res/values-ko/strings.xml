@@ -18,6 +18,8 @@
     <string name="button_allow_search">다른 장치의 연결 허용</string>
     <string name="button_scan">연결 가능한 단말기 찾기</string>
     <string name="button_cancel">찾기 취소</string>
+    <string name="confirm_connection">연결 확인</string>
+    <string name="confirm_connection_message">xxxxx로 부터 연결 요청을 받았습니다.\n연결하시겠습니까?</string>
     
     <string name="yes">예</string>
     <string name="no">아니요</string>

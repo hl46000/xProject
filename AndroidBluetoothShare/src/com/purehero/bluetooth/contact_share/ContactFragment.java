@@ -173,11 +173,12 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		case R.id.menu_send_to_remote : 
 			strTemp = context.getString( R.string.send_to_remote_device_info );
 			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() )); 
-			G.confirmDialog( context, context.getString( R.string.decline ), strTemp, 0, new DialogInterface.OnClickListener(){
+			G.confirmDialog( context, context.getString( R.string.send_to_remote_device ), strTemp, 0, new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					switch( arg1 ) {
 					case G.DIALOG_BUTTON_ID_YES :
+						// TODO : 작업 진행 Dialog 가 필요함
 						List<Long> contact_ids = new ArrayList<Long>();
 						for( int i = 0; i < adapter.getCount(); i++ ) {
 							ContactData data = ( ContactData ) adapter.getItem(i);
@@ -194,7 +195,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		case R.id.menu_delete :
 			strTemp = context.getString( R.string.delete_info );
 			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() )); 
-			G.confirmDialog( context, context.getString( R.string.decline ), strTemp, 0, new DialogInterface.OnClickListener(){
+			G.confirmDialog( context, context.getString( R.string.delete ), strTemp, 0, new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					switch( arg1 ) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Bluetooth Contacts Share</string>
+    <string name="app_name">BT Contacts Share</string>
     
     <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
 	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
@@ -16,7 +16,7 @@
     <string name="no_connected">No connected devices</string>
     <string name="select_device">select a device to connect</string>
     <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
+    <string name="none_found">No nearby Bluetooth devices found.</string>
     
     <string name="title_my_device">My Device</string>
     <string name="title_paired_devices">Paired Devices</string>
@@ -39,7 +39,9 @@
     <string name="connect_failed">connection failed</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
-
+	<string name="confirm_connection">Confirm Connection</string>
+	<string name="confirm_connection_message">A connection request has been received from xxxxx.\nDo you want to connect?</string>
+    
     <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
     <string name="send_to_remote_device">Send to remote device</string>

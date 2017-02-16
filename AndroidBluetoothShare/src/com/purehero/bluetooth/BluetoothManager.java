@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.G;
 
 import android.app.Activity;
@@ -163,7 +164,9 @@ public class BluetoothManager {
 				return;
 			} 
 			btComm = newComm;
-			G.confirmDialog( activity, "연결요청 확인", btComm.getName() + " 으로부터 연청 요청을 받았습니다.\n연결하시겠습니까?", 0, dialogOnClickListener );
+			String title 	= activity.getString( R.string.confirm_connection );
+			String message 	= activity.getString( R.string.confirm_connection_message );
+			G.confirmDialog( activity, title, message.replace( "xxxxx", btComm.getName()), 0, dialogOnClickListener );
 		}
 
 		@Override
