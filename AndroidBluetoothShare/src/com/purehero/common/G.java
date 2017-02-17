@@ -2,11 +2,13 @@ package com.purehero.common;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -124,4 +126,50 @@ public class G {
 	public static String getTextInputDialogResult() {
 		return __input.getText().toString();
 	}
+	
+	public static void waitDialog( final Activity activity, final String title, final String message, final ProgressRunnable runnable ) {
+		new progressDialogTask( activity, title, message, ProgressDialog.STYLE_SPINNER, runnable ).execute();
+	}
+	
+	/**
+	 * @param activity
+	 * @param title
+	 * @param message
+	 * @param runnable
+	 */
+	public static void progressDialog( final Activity activity, final String title, final String message, final ProgressRunnable runnable ) {
+		new progressDialogTask( activity, title, message, ProgressDialog.STYLE_HORIZONTAL, runnable ).execute();
+	}
+	
+	private static class progressDialogTask extends AsyncTask<Void, Void, Void> {
+        final ProgressDialog asyncDialog;
+        final ProgressRunnable runnable;
+        
+        public progressDialogTask( Activity activity, String title, String message, int dialogType, ProgressRunnable runnable ) {
+        	asyncDialog 	= new ProgressDialog( activity );
+        	this.runnable	= runnable;
+        	
+        	asyncDialog.setProgressStyle(dialogType);
+        	if( title != null ) asyncDialog.setTitle( title );
+        	if( message != null ) asyncDialog.setMessage( message );
+        }
+        
+        @Override
+        protected void onPreExecute() {
+            asyncDialog.show(); 
+            super.onPreExecute();
+        }
+ 
+        @Override
+        protected Void doInBackground(Void... arg0) {
+        	runnable.run( asyncDialog );
+        	return null;
+        }
+ 
+        @Override
+        protected void onPostExecute(Void result) {
+            asyncDialog.dismiss();
+            super.onPostExecute(result);
+        }
+    }
 }

@@ -41,7 +41,10 @@
     <string name="restore">Restore</string>
 	<string name="confirm_connection">Confirm Connection</string>
 	<string name="confirm_connection_message">A connection request has been received from xxxxx.\nDo you want to connect?</string>
-    
+    <string name="generat_transfer_data">Generating transfer data</string>
+	<string name="send_transfer_data">Transferring data</string>
+	<string name="delete_format">Deleted( xxxxx )</string>
+	
     <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
     <string name="send_to_remote_device">Send to remote device</string>
