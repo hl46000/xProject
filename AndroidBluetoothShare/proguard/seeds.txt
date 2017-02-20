@@ -28860,8 +28860,10 @@ com.purehero.bluetooth.contact_share.R$string: int create_calendar_message
 com.purehero.bluetooth.contact_share.R$string: int create_calendar_title
 com.purehero.bluetooth.contact_share.R$string: int decline
 com.purehero.bluetooth.contact_share.R$string: int delete
+com.purehero.bluetooth.contact_share.R$string: int delete_format
 com.purehero.bluetooth.contact_share.R$string: int delete_info
 com.purehero.bluetooth.contact_share.R$string: int enter_backup_name
+com.purehero.bluetooth.contact_share.R$string: int generat_transfer_data
 com.purehero.bluetooth.contact_share.R$string: int get_contact_list
 com.purehero.bluetooth.contact_share.R$string: int my_device
 com.purehero.bluetooth.contact_share.R$string: int no
@@ -28879,6 +28881,7 @@ com.purehero.bluetooth.contact_share.R$string: int send_to_my_device_indo
 com.purehero.bluetooth.contact_share.R$string: int send_to_my_device_info
 com.purehero.bluetooth.contact_share.R$string: int send_to_remote_device
 com.purehero.bluetooth.contact_share.R$string: int send_to_remote_device_info
+com.purehero.bluetooth.contact_share.R$string: int send_transfer_data
 com.purehero.bluetooth.contact_share.R$string: int store_picture_message
 com.purehero.bluetooth.contact_share.R$string: int store_picture_title
 com.purehero.bluetooth.contact_share.R$string: int title_my_device

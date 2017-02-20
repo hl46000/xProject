@@ -37656,10 +37656,34 @@ com.purehero.bluetooth.contact_share.ContactFragment$1$1$1 -> com.purehero.bluet
 com.purehero.bluetooth.contact_share.ContactFragment$2 -> com.purehero.bluetooth.contact_share.h:
     com.purehero.bluetooth.contact_share.ContactFragment this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.purehero.bluetooth.contact_share.ContactFragment$3 -> com.purehero.bluetooth.contact_share.i:
+    com.purehero.bluetooth.contact_share.ContactFragment access$0(com.purehero.bluetooth.contact_share.ContactFragment$2) -> a
+com.purehero.bluetooth.contact_share.ContactFragment$2$1 -> com.purehero.bluetooth.contact_share.i:
+    com.purehero.bluetooth.contact_share.ContactFragment$2 this$1 -> a
+    void run(android.app.ProgressDialog) -> a
+    com.purehero.bluetooth.contact_share.ContactFragment$2 access$0(com.purehero.bluetooth.contact_share.ContactFragment$2$1) -> a
+com.purehero.bluetooth.contact_share.ContactFragment$2$1$1 -> com.purehero.bluetooth.contact_share.j:
+    com.purehero.bluetooth.contact_share.ContactFragment$2$1 this$2 -> a
+    android.app.ProgressDialog val$dialog -> b
+    void run() -> run
+com.purehero.bluetooth.contact_share.ContactFragment$3 -> com.purehero.bluetooth.contact_share.k:
     com.purehero.bluetooth.contact_share.ContactFragment this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.purehero.bluetooth.contact_share.ContactFragment$4 -> com.purehero.bluetooth.contact_share.j:
+    com.purehero.bluetooth.contact_share.ContactFragment access$0(com.purehero.bluetooth.contact_share.ContactFragment$3) -> a
+com.purehero.bluetooth.contact_share.ContactFragment$3$1 -> com.purehero.bluetooth.contact_share.l:
+    com.purehero.bluetooth.contact_share.ContactFragment$3 this$1 -> a
+    java.lang.String val$delete_format_msg -> b
+    void run(android.app.ProgressDialog) -> a
+    com.purehero.bluetooth.contact_share.ContactFragment$3 access$0(com.purehero.bluetooth.contact_share.ContactFragment$3$1) -> a
+com.purehero.bluetooth.contact_share.ContactFragment$3$1$1 -> com.purehero.bluetooth.contact_share.m:
+    com.purehero.bluetooth.contact_share.ContactFragment$3$1 this$2 -> a
+    android.app.ProgressDialog val$dialog -> b
+    java.lang.String val$delete_format_msg -> c
+    com.purehero.contact.ContactData val$data -> d
+    void run() -> run
+com.purehero.bluetooth.contact_share.ContactFragment$3$1$2 -> com.purehero.bluetooth.contact_share.n:
+    com.purehero.bluetooth.contact_share.ContactFragment$3$1 this$2 -> a
+    void run() -> run
+com.purehero.bluetooth.contact_share.ContactFragment$4 -> com.purehero.bluetooth.contact_share.o:
     com.purehero.bluetooth.contact_share.ContactFragment this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
 com.purehero.bluetooth.contact_share.MainActivity -> com.purehero.bluetooth.contact_share.MainActivity:
@@ -37679,10 +37703,10 @@ com.purehero.bluetooth.contact_share.MainActivity -> com.purehero.bluetooth.cont
     com.purehero.contact.ContactAdapter getContactAdapter() -> c
     void setRemoteContactAdapter(com.purehero.bluetooth.contact_share.RemoteContactAdapter) -> a
     com.purehero.bluetooth.contact_share.RemoteContactAdapter getRemoteContactAdapter() -> d
-com.purehero.bluetooth.contact_share.MainActivity$1 -> com.purehero.bluetooth.contact_share.k:
+com.purehero.bluetooth.contact_share.MainActivity$1 -> com.purehero.bluetooth.contact_share.p:
     com.purehero.bluetooth.contact_share.MainActivity this$0 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.purehero.bluetooth.contact_share.RemoteContactAdapter -> com.purehero.bluetooth.contact_share.l:
+com.purehero.bluetooth.contact_share.RemoteContactAdapter -> com.purehero.bluetooth.contact_share.q:
     com.purehero.bluetooth.contact_share.MainActivity context -> d
     java.util.List listDatas -> e
     java.util.List filteredData -> f
@@ -37719,22 +37743,22 @@ com.purehero.bluetooth.contact_share.RemoteContactAdapter -> com.purehero.blueto
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
     java.util.List access$0(com.purehero.bluetooth.contact_share.RemoteContactAdapter) -> a
     void access$1(com.purehero.bluetooth.contact_share.RemoteContactAdapter,java.util.List) -> a
-com.purehero.bluetooth.contact_share.RemoteContactAdapter$1 -> com.purehero.bluetooth.contact_share.m:
+com.purehero.bluetooth.contact_share.RemoteContactAdapter$1 -> com.purehero.bluetooth.contact_share.r:
     com.purehero.bluetooth.contact_share.RemoteContactAdapter this$0 -> a
     void run() -> run
-com.purehero.bluetooth.contact_share.RemoteContactAdapter$2 -> com.purehero.bluetooth.contact_share.n:
+com.purehero.bluetooth.contact_share.RemoteContactAdapter$2 -> com.purehero.bluetooth.contact_share.s:
     com.purehero.bluetooth.contact_share.RemoteContactAdapter this$0 -> a
     void run() -> run
-com.purehero.bluetooth.contact_share.RemoteContactAdapter$ItemFilter -> com.purehero.bluetooth.contact_share.o:
+com.purehero.bluetooth.contact_share.RemoteContactAdapter$ItemFilter -> com.purehero.bluetooth.contact_share.t:
     com.purehero.bluetooth.contact_share.RemoteContactAdapter this$0 -> a
     android.widget.Filter$FilterResults performFiltering(java.lang.CharSequence) -> performFiltering
     void publishResults(java.lang.CharSequence,android.widget.Filter$FilterResults) -> publishResults
-com.purehero.bluetooth.contact_share.RemoteContactAdapter$ViewHolder -> com.purehero.bluetooth.contact_share.p:
+com.purehero.bluetooth.contact_share.RemoteContactAdapter$ViewHolder -> com.purehero.bluetooth.contact_share.u:
     android.widget.CheckBox checkBox -> a
     android.widget.ImageView icon -> b
     android.widget.TextView name -> c
     com.purehero.bluetooth.contact_share.RemoteContactAdapter this$0 -> d
-com.purehero.bluetooth.contact_share.RemoteContactComm -> com.purehero.bluetooth.contact_share.q:
+com.purehero.bluetooth.contact_share.RemoteContactComm -> com.purehero.bluetooth.contact_share.v:
     byte[] DEF_MAGIC_VALUE -> a
     com.purehero.bluetooth.BluetoothCommunication btComm -> b
     void setBluetoothCommunication(com.purehero.bluetooth.BluetoothCommunication) -> a
@@ -37743,7 +37767,7 @@ com.purehero.bluetooth.contact_share.RemoteContactComm -> com.purehero.bluetooth
     void sendRequestRemoteDevice(byte,byte[]) -> a
     void sendResponseRemoteDevice(byte,byte[]) -> b
     void setEnableRequest(boolean) -> a
-com.purehero.bluetooth.contact_share.RemoteContactFragment -> com.purehero.bluetooth.contact_share.r:
+com.purehero.bluetooth.contact_share.RemoteContactFragment -> com.purehero.bluetooth.contact_share.w:
     com.purehero.bluetooth.contact_share.MainActivity context -> c
     android.view.View layout -> d
     android.widget.ListView listView -> e
@@ -37763,28 +37787,28 @@ com.purehero.bluetooth.contact_share.RemoteContactFragment -> com.purehero.bluet
     android.widget.ProgressBar access$2(com.purehero.bluetooth.contact_share.RemoteContactFragment) -> c
     android.widget.ListView access$3(com.purehero.bluetooth.contact_share.RemoteContactFragment) -> d
     android.view.View access$4(com.purehero.bluetooth.contact_share.RemoteContactFragment) -> e
-com.purehero.bluetooth.contact_share.RemoteContactFragment$1 -> com.purehero.bluetooth.contact_share.s:
+com.purehero.bluetooth.contact_share.RemoteContactFragment$1 -> com.purehero.bluetooth.contact_share.x:
     com.purehero.bluetooth.contact_share.RemoteContactFragment this$0 -> a
     void OnDataReceived(byte[],int) -> a
     void OnDisconnected() -> a
     void OnConnected(com.purehero.bluetooth.BluetoothCommunication) -> a
     com.purehero.bluetooth.contact_share.RemoteContactFragment access$0(com.purehero.bluetooth.contact_share.RemoteContactFragment$1) -> a
-com.purehero.bluetooth.contact_share.RemoteContactFragment$1$1 -> com.purehero.bluetooth.contact_share.t:
+com.purehero.bluetooth.contact_share.RemoteContactFragment$1$1 -> com.purehero.bluetooth.contact_share.y:
     com.purehero.bluetooth.contact_share.RemoteContactFragment$1 this$1 -> a
     void run() -> run
-com.purehero.bluetooth.contact_share.RemoteContactFragment$1$2 -> com.purehero.bluetooth.contact_share.u:
+com.purehero.bluetooth.contact_share.RemoteContactFragment$1$2 -> com.purehero.bluetooth.contact_share.z:
     com.purehero.bluetooth.contact_share.RemoteContactFragment$1 this$1 -> a
     com.purehero.bluetooth.BluetoothCommunication val$_btComm -> b
     void run() -> run
-com.purehero.bluetooth.contact_share.RemoteContactFragment$2 -> com.purehero.bluetooth.contact_share.v:
+com.purehero.bluetooth.contact_share.RemoteContactFragment$2 -> com.purehero.bluetooth.contact_share.aa:
     com.purehero.bluetooth.contact_share.RemoteContactFragment this$0 -> a
     void run() -> run
     com.purehero.bluetooth.contact_share.RemoteContactFragment access$0(com.purehero.bluetooth.contact_share.RemoteContactFragment$2) -> a
-com.purehero.bluetooth.contact_share.RemoteContactFragment$2$1 -> com.purehero.bluetooth.contact_share.w:
+com.purehero.bluetooth.contact_share.RemoteContactFragment$2$1 -> com.purehero.bluetooth.contact_share.ab:
     com.purehero.bluetooth.contact_share.RemoteContactFragment$2 this$1 -> a
     void run() -> run
     com.purehero.bluetooth.contact_share.RemoteContactFragment$2 access$0(com.purehero.bluetooth.contact_share.RemoteContactFragment$2$1) -> a
-com.purehero.bluetooth.contact_share.RemoteContactFragment$2$1$1 -> com.purehero.bluetooth.contact_share.x:
+com.purehero.bluetooth.contact_share.RemoteContactFragment$2$1$1 -> com.purehero.bluetooth.contact_share.ac:
     com.purehero.bluetooth.contact_share.RemoteContactFragment$2$1 this$2 -> a
     void onTextChanged(java.lang.CharSequence,int,int,int) -> onTextChanged
     void beforeTextChanged(java.lang.CharSequence,int,int,int) -> beforeTextChanged
@@ -37821,6 +37845,7 @@ com.purehero.common.G -> com.purehero.a.d:
     void confirmDialog(android.app.Activity,java.lang.String,java.lang.String,int,android.content.DialogInterface$OnClickListener) -> a
     void textInputDialog(android.app.Activity,java.lang.String,java.lang.String,java.lang.String,int,android.content.DialogInterface$OnClickListener) -> a
     java.lang.String getTextInputDialogResult() -> a
+    void progressDialog(android.app.Activity,java.lang.String,java.lang.String,com.purehero.common.ProgressRunnable) -> a
     android.widget.EditText access$0() -> b
 com.purehero.common.G$1 -> com.purehero.a.e:
     android.app.Activity val$activity -> a
@@ -37836,7 +37861,15 @@ com.purehero.common.G$2 -> com.purehero.a.f:
     java.lang.String val$title -> d
     int val$res_icon -> e
     void run() -> run
-com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial -> com.purehero.a.g:
+com.purehero.common.G$progressDialogTask -> com.purehero.a.g:
+    android.app.ProgressDialog asyncDialog -> a
+    com.purehero.common.ProgressRunnable runnable -> b
+    void onPreExecute() -> onPreExecute
+    java.lang.Void doInBackground(java.lang.Void[]) -> a
+    void onPostExecute(java.lang.Void) -> a
+    void onPostExecute(java.lang.Object) -> onPostExecute
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial -> com.purehero.a.h:
     int compare(java.lang.String,java.lang.String) -> a
     boolean isKoreanAndEnglish(char,char) -> a
     boolean isKoreanAndNumber(char,char) -> b
@@ -37848,7 +37881,9 @@ com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial -> com.purehero.a.g:
     boolean isKorean(char) -> b
     boolean isNumber(char) -> c
     boolean isSpecial(char) -> d
-com.purehero.common.Utils -> com.purehero.a.h:
+com.purehero.common.ProgressRunnable -> com.purehero.a.i:
+    void run(android.app.ProgressDialog) -> a
+com.purehero.common.Utils -> com.purehero.a.j:
     byte[] inputStreamToByteArray(java.io.InputStream) -> a
     java.io.InputStream byteArrayToInputStream(byte[],int,int) -> a
     java.lang.String byteArrayToHexString(byte[],int) -> a
@@ -37858,7 +37893,7 @@ com.purehero.common.Utils -> com.purehero.a.h:
     long byteToLong(byte[]) -> b
     java.lang.String sizeToFormatString(long) -> b
     java.lang.String getPureFilename(java.io.File) -> a
-com.purehero.common.ViewPagerAdapter -> com.purehero.a.i:
+com.purehero.common.ViewPagerAdapter -> com.purehero.a.k:
     java.util.List fragmentList -> b
     java.util.List fragmentName -> c
     it.neokree.materialtabs.MaterialTabHost tabHost -> d
@@ -37869,7 +37904,7 @@ com.purehero.common.ViewPagerAdapter -> com.purehero.a.i:
     java.lang.CharSequence getPageTitle(int) -> getPageTitle
     boolean onBackPressed(int) -> a
     it.neokree.materialtabs.MaterialTabHost access$0(com.purehero.common.ViewPagerAdapter) -> a
-com.purehero.common.ViewPagerAdapter$1 -> com.purehero.a.j:
+com.purehero.common.ViewPagerAdapter$1 -> com.purehero.a.l:
     com.purehero.common.ViewPagerAdapter this$0 -> a
     void onPageSelected(int) -> onPageSelected
 com.purehero.contact.ContactAdapter -> com.purehero.b.a:
@@ -37892,7 +37927,6 @@ com.purehero.contact.ContactAdapter -> com.purehero.b.a:
     int getCheckedCount() -> c
     void setAllChecked(boolean) -> b
     java.lang.String getContactListDataALL() -> d
-    void deleteCheckedItems() -> e
     void backupCheckedItems(java.lang.String) -> a
     java.util.List access$0(com.purehero.contact.ContactAdapter) -> a
     void access$1(com.purehero.contact.ContactAdapter,java.util.List) -> a
@@ -37907,19 +37941,16 @@ com.purehero.contact.ContactAdapter$1$1 -> com.purehero.b.c:
 com.purehero.contact.ContactAdapter$2 -> com.purehero.b.d:
     com.purehero.contact.ContactAdapter this$0 -> a
     void run() -> run
-com.purehero.contact.ContactAdapter$3 -> com.purehero.b.e:
-    com.purehero.contact.ContactAdapter this$0 -> a
-    void run() -> run
-com.purehero.contact.ContactAdapter$ItemFilter -> com.purehero.b.f:
+com.purehero.contact.ContactAdapter$ItemFilter -> com.purehero.b.e:
     com.purehero.contact.ContactAdapter this$0 -> a
     android.widget.Filter$FilterResults performFiltering(java.lang.CharSequence) -> performFiltering
     void publishResults(java.lang.CharSequence,android.widget.Filter$FilterResults) -> publishResults
-com.purehero.contact.ContactAdapter$ViewHolder -> com.purehero.b.g:
+com.purehero.contact.ContactAdapter$ViewHolder -> com.purehero.b.f:
     android.widget.CheckBox checkBox -> a
     android.widget.ImageView icon -> b
     android.widget.TextView name -> c
     com.purehero.contact.ContactAdapter this$0 -> d
-com.purehero.contact.ContactData -> com.purehero.b.h:
+com.purehero.contact.ContactData -> com.purehero.b.g:
     android.net.Uri PhoneCONTENT_URI -> b
     android.net.Uri EmailCONTENT_URI -> c
     android.net.Uri AddressCONTENT_URI -> d
@@ -37948,10 +37979,10 @@ com.purehero.contact.ContactData -> com.purehero.b.h:
     java.lang.String getEmails() -> g
     boolean isSelected() -> h
     void setSelected(boolean) -> a
-com.purehero.contact.ContactData$1 -> com.purehero.b.i:
+com.purehero.contact.ContactData$1 -> com.purehero.b.h:
     int compare(com.purehero.contact.ContactData,com.purehero.contact.ContactData) -> a
     int compare(java.lang.Object,java.lang.Object) -> compare
-com.purehero.contact.ContactUtils -> com.purehero.b.j:
+com.purehero.contact.ContactUtils -> com.purehero.b.i:
     byte[] getIconBytes(android.content.Context,long) -> a
     void openDetailView(android.content.Context,long) -> b
 it.neokree.materialtabs.MaterialTab -> it.neokree.materialtabs.a:

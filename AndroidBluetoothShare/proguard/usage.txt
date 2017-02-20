@@ -461,8 +461,9 @@ com.purehero.common.FragmentText
 com.purehero.common.G:
     public static final int DIALOG_BUTTON_ID_YES
     public static final int DIALOG_BUTTON_ID_NO
-    15:15:public G()
-    32:33:public static void Log()
+    17:17:public G()
+    34:35:public static void Log()
+    131:132:public static void waitDialog(android.app.Activity,java.lang.String,java.lang.String,com.purehero.common.ProgressRunnable)
 com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial:
     private static final int REVERSE
     private static final int LEFT_FIRST

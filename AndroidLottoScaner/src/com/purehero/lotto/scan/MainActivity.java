@@ -14,7 +14,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -39,6 +38,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		
 		progressBar = ( ProgressBar ) 	findViewById( R.id.progressBar );
 		
+		/*
 		int btnIDs [] = new int[]{ R.id.btnMenu01, R.id.btnMenu02, R.id.btnMenu03 };
 		for( int id : btnIDs ) {
 			Button btn = ( Button ) findViewById( id );
@@ -46,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 				btn.setOnClickListener( this );
 			}
 		}
+		*/
 		
 		
 		// 하단 배너 광고 표시
@@ -214,9 +215,9 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 	@Override
 	public void onClick(View arg0) {
 		switch( arg0.getId()) {
-		case R.id.btnMenu01 : openUrl( "http://m.nlotto.co.kr/gameResult.do?method=byWin" ); break; 
-		case R.id.btnMenu02 : openUrl( "http://m.nlotto.co.kr/store.do?method=topStore&pageGubun=L645" ); break; 
-		case R.id.btnMenu03 : openUrl( "http://m.nlotto.co.kr/gameResult.do?method=statByNumber" ); break;	 
+		//case R.id.btnMenu01 : openUrl( "http://m.nlotto.co.kr/gameResult.do?method=byWin" ); break; 
+		//case R.id.btnMenu02 : openUrl( "http://m.nlotto.co.kr/store.do?method=topStore&pageGubun=L645" ); break; 
+		//case R.id.btnMenu03 : openUrl( "http://m.nlotto.co.kr/gameResult.do?method=statByNumber" ); break;	 
 		}
 	}
 }
