@@ -10,8 +10,8 @@
     <string name="confirm">확인</string>
     <string name="scan_info">화면의 사각형 안에 복권의 QR코드 이미지를 비춰주시면 자동으로 인식합니다.</string>
     
-    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4679407789</string>        
-	<string name="ad_unit_id">ca-app-pub-9674501681746717/6156140986</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/1981778982</string>        
+	<string name="ad_unit_id">ca-app-pub-9674501681746717/3458512182</string>
 	<string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
 	
 	<string name="btn_menu_01">회차별 당첨 결과</string>

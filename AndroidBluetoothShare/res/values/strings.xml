@@ -3,8 +3,8 @@
 
     <string name="app_name">BT Contacts Share</string>
     
-    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
-	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/6411978585</string>
+	<string name="ad_unit_id">ca-app-pub-9674501681746717/7888711785</string>
 	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
     
 	<string name="backup_folder">/mnt/sdcard/BTShareContacts</string>
