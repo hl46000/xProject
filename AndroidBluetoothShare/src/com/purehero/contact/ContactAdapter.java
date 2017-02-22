@@ -286,6 +286,7 @@ public class ContactAdapter extends BaseAdapter
 		return ret.toString();
 	}
 
+	/*
 	public synchronized void deleteCheckedItems() {
 		List<ContactData> deleteDatas 	= new ArrayList<ContactData>();
 		for( ContactData data : listDatas ) {
@@ -308,6 +309,7 @@ public class ContactAdapter extends BaseAdapter
 				}
 			);
 	}
+	*/
 
 	public void backupCheckedItems(String backupName ) {
 		if( backupName.length() < 1 ) {

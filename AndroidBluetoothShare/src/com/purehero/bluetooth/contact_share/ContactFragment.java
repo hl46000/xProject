@@ -1,5 +1,9 @@
 package com.purehero.bluetooth.contact_share;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,13 +23,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.purehero.bluetooth.BluetoothManager;
-import com.purehero.bluetooth.contact_share.R;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
+import com.purehero.common.ProgressRunnable;
 import com.purehero.contact.ContactAdapter;
 import com.purehero.contact.ContactData;
 import com.purehero.contact.ContactUtils;
@@ -178,15 +179,42 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 				public void onClick(DialogInterface arg0, int arg1) {
 					switch( arg1 ) {
 					case G.DIALOG_BUTTON_ID_YES :
-						// TODO : 작업 진행 Dialog 가 필요함
-						List<Long> contact_ids = new ArrayList<Long>();
-						for( int i = 0; i < adapter.getCount(); i++ ) {
-							ContactData data = ( ContactData ) adapter.getItem(i);
-							if( data.isSelected()) {
-								contact_ids.add( data.getContactID());
-							}
-						}
-						context.getRemoteContactAdapter().sendResponseContactDatas( contact_ids );
+						String title 	= context.getString( R.string.send_to_remote_device );
+						String message 	= context.getString( R.string.generat_transfer_data );
+						G.progressDialog( context, title, message, new ProgressRunnable(){
+							
+							@Override
+							public void run(final ProgressDialog dialog) {
+								dialog.setMax( adapter.getCheckedCount() );
+								int count = 0;
+								
+								List<Long> contact_ids = new ArrayList<Long>();
+								for( int i = 0; i < adapter.getCount(); i++ ) {
+									ContactData data = ( ContactData ) adapter.getItem(i);
+									if( data.isSelected()) {
+										contact_ids.add( data.getContactID());
+										dialog.setProgress( ++count );
+										
+										try {
+											Thread.sleep( 50 );
+										} catch (InterruptedException e) {
+										}
+									}
+								}
+								context.runOnUiThread( new Runnable(){
+									@Override
+									public void run() {
+										String message = context.getString( R.string.send_transfer_data );
+										dialog.setMessage( message );
+										try {
+											Thread.sleep( 50 );
+										} catch (InterruptedException e) {
+										}
+									}});
+								
+								context.getRemoteContactAdapter().sendResponseContactDatas( contact_ids );
+							}});
+						
 						break;
 					}
 				}});
@@ -200,7 +228,45 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 				public void onClick(DialogInterface arg0, int arg1) {
 					switch( arg1 ) {
 					case G.DIALOG_BUTTON_ID_YES :
-						adapter.deleteCheckedItems();
+						final String title 				= context.getString( R.string.delete );
+						final String delete_format_msg 	= context.getString( R.string.delete_format );
+						G.progressDialog( context, title, "", new ProgressRunnable(){
+
+							@Override
+							public void run(final ProgressDialog dialog) {
+								dialog.setMax( adapter.getCheckedCount() );
+								int count = 0;
+								
+								for( int i = 0; i < adapter.getCount(); i++ ) {
+									final ContactData data = ( ContactData ) adapter.getItem(i);
+									if( data.isSelected()) {
+										data.delete();
+										dialog.setProgress( ++count );
+										
+										context.runOnUiThread( new Runnable(){
+											@Override
+											public void run() {
+												dialog.setMessage( delete_format_msg.replace( "xxxxx", data.getDisplayName() ));
+												try {
+													Thread.sleep( 50 );
+												} catch (InterruptedException e) {
+												}
+											}});
+										
+										try {
+											Thread.sleep( 50 );
+										} catch (InterruptedException e) {
+										}
+									}
+								}
+								context.runOnUiThread( new Runnable(){
+									@Override
+									public void run() {
+										adapter.setAllChecked( false );
+										adapter.setShowCheckBox( false );										
+									}});
+							}});
+						
 						break;
 					}
 				}});			

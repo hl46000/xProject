@@ -3,8 +3,8 @@
 
     <string name="app_name">BT Contacts Share</string>
     
-    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
-	<string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/6411978585</string>
+	<string name="ad_unit_id">ca-app-pub-9674501681746717/7888711785</string>
 	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
     
 	<string name="backup_folder">/mnt/sdcard/BTShareContacts</string>
@@ -41,7 +41,10 @@
     <string name="restore">Restore</string>
 	<string name="confirm_connection">Confirm Connection</string>
 	<string name="confirm_connection_message">A connection request has been received from xxxxx.\nDo you want to connect?</string>
-    
+    <string name="generat_transfer_data">Generating transfer data</string>
+	<string name="send_transfer_data">Transferring data</string>
+	<string name="delete_format">Deleted( xxxxx )</string>
+	
     <string name="get_contact_list">Get contact list</string>    
     <string name="search_text">Search( Name or Number or Email )</string>
     <string name="send_to_remote_device">Send to remote device</string>

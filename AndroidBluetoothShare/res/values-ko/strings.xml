@@ -20,6 +20,9 @@
     <string name="button_cancel">찾기 취소</string>
     <string name="confirm_connection">연결 확인</string>
     <string name="confirm_connection_message">xxxxx로 부터 연결 요청을 받았습니다.\n연결하시겠습니까?</string>
+    <string name="generat_transfer_data">전송할 데이터를 생성중 입니다.</string>
+    <string name="send_transfer_data">데이터를 전송 중 입니다.</string>
+    <string name="delete_format">삭제 됨( xxxxx )</string>
     
     <string name="yes">예</string>
     <string name="no">아니요</string>
