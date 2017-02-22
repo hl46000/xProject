@@ -9,6 +9,8 @@ public class NativeLibrary {
 	public native void open_test( Context context );
 		
 	static {
+		//System.loadLibrary( "substrate" );
+		//System.loadLibrary( "substrate-dvm" );
 		System.loadLibrary( "hooking" );
 	}
 }

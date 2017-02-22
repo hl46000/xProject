@@ -13,28 +13,20 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "hooking/hooking.h"
+//#include "hooking/hooking.h"
 #include "alog.h"
 
 #define DELAY_TIME		usleep(10);
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//static hooking hk;
 
 void init( JNIEnv * env, jobject, jobject appContext );
 void HookingFunc( JNIEnv * env, jobject, jobject appContext );
 void OpenTestFunc( JNIEnv * env, jobject, jobject appContext );
-
-hooking hk;
-
-__attribute__((constructor)) int JNI_OnPreLoad()
-{
-	LOGT();
-
-	LOGD( "PID[%d] : TID[%d]", getpid(), gettid() );
-	return 0;
-}
 
 #if 0
 #include <time.h>
@@ -99,32 +91,32 @@ clock_t hook_clock(void)
 
 
 //int hook_open( char *filename, int access, int permission )
-int (*__original_open)( const char*, int, ... );
-int hook_open( char *filename, int flags, ... )
+static int (*__original_open)( const char*, int );
+static int hook_open( char *filename, int flags )
 {
 	int ret = -1;
 	if( __original_open != 0 ) {
 		ret = (*__original_open)( filename, flags );
 	}
 
-	LOGD("hook_open : [%d]%s %d", getpid(), filename, flags );
+	LOGD("hook_open : [%d] %s %d %d", getpid(), filename, flags, ret );
 	return ret;
 }
 
-int (*__original_open64)( const char*, int, ... );
-int hook_open64( char *filename, int flags, ... )
+static int (*__original_open64)( const char*, int );
+static int hook_open64( char *filename, int flags )
 {
 	int ret = -1;
 	if( __original_open64 != 0 ) {
 		ret = (*__original_open64)( filename, flags );
 	}
 
-	LOGD("hook_open64 : [%d]%s %d", getpid(), filename, flags );
+	LOGD("hook_open64 : [%d]%s %d %d", getpid(), filename, flags, ret );
 	return ret;
 }
 
-int (*__original_openat)(int a, const char* b, int c, ...);
-int hook_openat(int a, const char* b, int c, ...)
+static int (*__original_openat)(int a, const char* b, int c, ...);
+static int hook_openat(int a, const char* b, int c, ...)
 {
 	int ret = -1;
 	if( __original_openat != 0 ) {
@@ -135,8 +127,8 @@ int hook_openat(int a, const char* b, int c, ...)
 	return ret;
 }
 
-int (*__original_openat64)(int a, const char* b, int c, ...);
-int hook_openat64(int a, const char* b, int c, ...)
+static int (*__original_openat64)(int a, const char* b, int c, ...);
+static int hook_openat64(int a, const char* b, int c, ...)
 {
 	int ret = -1;
 	if( __original_openat64 != 0 ) {
@@ -148,8 +140,8 @@ int hook_openat64(int a, const char* b, int c, ...)
 }
 
 
-int (*__original_close)(int);
-int hook_close( int fd )
+static int (*__original_close)(int);
+static int hook_close( int fd )
 {
 	int ret = -1;
 	if( __original_close != 0 ) {
@@ -160,8 +152,18 @@ int hook_close( int fd )
 	return ret;
 }
 
-ssize_t (*__original_read)(int, void *, size_t);
-ssize_t hook_read( int fd, void * buff, size_t len )
+#include <sys/syslimits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/param.h>
+#include <sys/stat.h>
+static ssize_t (*__original_read)(int, void *, size_t);
+static ssize_t hook_read( int fd, void * buff, size_t len )
 {
 	ssize_t ret = -1;
 	if( __original_read != 0 ) {
@@ -172,8 +174,8 @@ ssize_t hook_read( int fd, void * buff, size_t len )
 	return ret;
 }
 
-ssize_t (*__original_pread)(int, void *, size_t, off_t);
-ssize_t hook_pread(int a, void * b, size_t c, off_t d)
+static ssize_t (*__original_pread)(int, void *, size_t, off_t);
+static ssize_t hook_pread(int a, void * b, size_t c, off_t d)
 {
 	ssize_t ret = -1;
 	if( __original_pread != 0 ) {
@@ -184,8 +186,8 @@ ssize_t hook_pread(int a, void * b, size_t c, off_t d)
 	return ret;
 }
 
-ssize_t (*__original_pread64)(int, void *, size_t, off64_t);
-ssize_t hook_pread64(int a, void * b, size_t c, off64_t d)
+static ssize_t (*__original_pread64)(int, void *, size_t, off64_t);
+static ssize_t hook_pread64(int a, void * b, size_t c, off64_t d)
 {
 	ssize_t ret = -1;
 	if( __original_pread64 != 0 ) {
@@ -196,8 +198,8 @@ ssize_t hook_pread64(int a, void * b, size_t c, off64_t d)
 	return ret;
 }
 
-ssize_t (*__original_write)(int, const void *, size_t);
-ssize_t hook_write( int fd, void * buff, size_t len )
+static ssize_t (*__original_write)(int, const void *, size_t);
+static ssize_t hook_write( int fd, void * buff, size_t len )
 {
 	ssize_t ret = -1;
 	if( __original_write != 0 ) {
@@ -208,33 +210,33 @@ ssize_t hook_write( int fd, void * buff, size_t len )
 	return ret;
 }
 
-int (*__original_creat)(const char*, mode_t);
-int hook_creat( const char * fname, mode_t mode )
+static int (*__original_creat)(const char*, mode_t);
+static int hook_creat( const char * fname, mode_t mode )
 {
 	int ret = -1;
 	if( __original_creat != 0 ) {
 		ret = (*__original_creat)( fname, mode);
 	}
 
-	LOGD("hook_creat : [%d] %s %d", getpid(), fname, mode );
+	LOGD("hook_creat : [%d] %s %d %d", getpid(), fname, mode, ret );
 	return ret;
 }
 
 
-int (*__original_creat64)(const char*, mode_t);
-int hook_creat64( const char * fname, mode_t mode )
+static int (*__original_creat64)(const char*, mode_t);
+static int hook_creat64( const char * fname, mode_t mode )
 {
 	int ret = -1;
 	if( __original_creat64 != 0 ) {
 		ret = (*__original_creat64)( fname, mode);
 	}
 
-	LOGD("hook_creat64 : [%d] %s %d", getpid(), fname, mode );
+	LOGD("hook_creat64 : [%d] %s %d %d", getpid(), fname, mode, ret );
 	return ret;
 }
 
-int (*__original_fcntl)(int, int, ...);
-int hook_fcntl( int fd, int cmd, ... )
+static int (*__original_fcntl)(int, int, ...);
+static int hook_fcntl( int fd, int cmd, ... )
 {
 	int ret = -1;
 	if( __original_fcntl != 0 ) {
@@ -245,8 +247,8 @@ int hook_fcntl( int fd, int cmd, ... )
 	return ret;
 }
 
-off_t (*__original_lseek)(int, off_t, int);
-off_t hook_lseek( int a, off_t b, int c )
+static off_t (*__original_lseek)(int, off_t, int);
+static off_t hook_lseek( int a, off_t b, int c )
 {
 	off_t ret = -1;
 	if( __original_lseek != 0 ) {
@@ -257,8 +259,8 @@ off_t hook_lseek( int a, off_t b, int c )
 	return ret;
 }
 
-off64_t (*__original_lseek64)(int, off64_t, int);
-off64_t hook_lseek64( int a, off64_t b, int c )
+static off64_t (*__original_lseek64)(int, off64_t, int);
+static off64_t hook_lseek64( int a, off64_t b, int c )
 {
 	off64_t ret = -1;
 	if( __original_lseek64 != 0 ) {
@@ -269,8 +271,8 @@ off64_t hook_lseek64( int a, off64_t b, int c )
 	return ret;
 }
 
-FILE *(*__original_fopen)(const char *, const char *);
-FILE *hook_fopen(const char * a , const char * b)
+static FILE *(*__original_fopen)(const char *, const char *);
+static FILE *hook_fopen(const char * a , const char * b)
 {
 	FILE * ret = NULL;
 	if( __original_fopen != 0 ) {
@@ -281,8 +283,8 @@ FILE *hook_fopen(const char * a , const char * b)
 	return ret;
 }
 
-int	 (*__original_fclose)(FILE *);
-int hook_fclose( FILE * fp )
+static int	 (*__original_fclose)(FILE *);
+static int hook_fclose( FILE * fp )
 {
 	int ret = -1;
 	if( __original_fclose != 0 ) {
@@ -293,8 +295,8 @@ int hook_fclose( FILE * fp )
 	return ret;
 }
 
-int	 (*__original_fseek)(FILE *, long, int);
-int hook_fseek( FILE * fp, long a, int b )
+static int	 (*__original_fseek)(FILE *, long, int);
+static int hook_fseek( FILE * fp, long a, int b )
 {
 	int ret = -1;
 	if( __original_fseek != 0 ) {
@@ -305,8 +307,8 @@ int hook_fseek( FILE * fp, long a, int b )
 	return ret;
 }
 
-size_t	 (*__original_fread)(void *, size_t, size_t, FILE *);
-size_t	 hook_fread(void *a, size_t b, size_t c, FILE * fp)
+static size_t	 (*__original_fread)(void *, size_t, size_t, FILE *);
+static size_t	 hook_fread(void *a, size_t b, size_t c, FILE * fp)
 {
 	size_t ret = -1;
 	if( __original_fread != 0 ) {
@@ -317,8 +319,8 @@ size_t	 hook_fread(void *a, size_t b, size_t c, FILE * fp)
 	return ret;
 }
 
-size_t	 (*__original_fwrite)(void *, size_t, size_t, FILE *);
-size_t	 hook_fwrite(void *a, size_t b, size_t c, FILE * fp)
+static size_t	 (*__original_fwrite)(void *, size_t, size_t, FILE *);
+static size_t	 hook_fwrite(void *a, size_t b, size_t c, FILE * fp)
 {
 	size_t ret = -1;
 	if( __original_fwrite != 0 ) {
@@ -341,8 +343,8 @@ void* hook_mmap(void* a, size_t b, int c, int d, int e, off_t f)
 	return ret;
 }
 
-void* (*__original_mmap64)(void*, size_t, int, int, int, off64_t);
-void* hook_mmap64(void* a, size_t b, int c, int d, int e, off64_t f)
+static void* (*__original_mmap64)(void*, size_t, int, int, int, off64_t);
+static void* hook_mmap64(void* a, size_t b, int c, int d, int e, off64_t f)
 {
 	void * ret = NULL;
 	if( __original_mmap64 != 0 ) {
@@ -353,8 +355,8 @@ void* hook_mmap64(void* a, size_t b, int c, int d, int e, off64_t f)
 	return ret;
 }
 
-void* (*__original_dlopen)(const char*, int);
-void* hook_dlopen(const char* a, int b)
+static void* (*__original_dlopen)(const char*, int);
+static void* hook_dlopen(const char* a, int b)
 {
 	void * ret = NULL;
 	if( __original_dlopen != 0 ) {
@@ -365,8 +367,8 @@ void* hook_dlopen(const char* a, int b)
 	return ret;
 }
 
-int   (*__original_dlclose)(void*);
-int   hook_dlclose(void*  a)
+static int   (*__original_dlclose)(void*);
+static int   hook_dlclose(void*  a)
 {
 	int ret = -1;
 	if( __original_dlclose != 0 ) {
@@ -377,8 +379,8 @@ int   hook_dlclose(void*  a)
 	return ret;
 }
 
-void* (*__original_dlsym)(void*, const char*);
-void* hook_dlsym(void* a, const char* b)
+static void* (*__original_dlsym)(void*, const char*);
+static void* hook_dlsym(void* a, const char* b)
 {
 	void * ret = NULL;
 	if( __original_dlsym != 0 ) {
@@ -388,6 +390,19 @@ void* hook_dlsym(void* a, const char* b)
 	LOGD("hook_dlsym : [%d] %s", getpid(), b );
 	return ret;
 }
+
+static void* (*__original_printf)(const char *format, ...);
+static int hook_printf(const char *format, ...) {
+	LOGD("hook_printf : [%d] %s", getpid(), format );
+
+	va_list args;
+	va_start(args, format);
+	int ret = __android_log_vprint(ANDROID_LOG_DEBUG, "TEST_Native", format, args);
+	va_end(args);
+
+	return ret;
+}
+
 
 // JNI_OnLoad
 jint JNI_OnLoad(JavaVM* vm,  __attribute__((unused)) void* reserved)
@@ -413,79 +428,120 @@ jint JNI_OnLoad(JavaVM* vm,  __attribute__((unused)) void* reserved)
 
 	JNINativeMethod gMethods[3] = {
 			{ "init", 			"(Landroid/content/Context;)V", (void*) init },
-			{ "hooking", 		"(Landroid/content/Context;)V", (void*) HookingFunc },
-			{ "open_test", 		"(Landroid/content/Context;)V", (void*) OpenTestFunc }
+			{ "hooking", 		"(Landroid/content/Context;)V", (void*) HookingFunc }
+			//{ "open_test", 		"(Landroid/content/Context;)V", (void*) OpenTestFunc }
 	};
 
-	if (env->RegisterNatives( clazz, gMethods, 3 ) < 0 )
+	if (env->RegisterNatives( clazz, gMethods, 2 ) < 0 )
 	{
 		LOGE( "RegisterNatives failed for '%s'", classPath );
 		return -1;
 	}
 
-	return JNI_VERSION_1_4;
+
+
+	return JNI_VERSION_1_6;
 }
+
+long GetModuleBaseAddr( const char* module_name ) {
+	long base_addr_long = 0;
+
+	char temp[512];
+	sprintf( temp, "/proc/%d/maps", getpid());
+	FILE* fp = fopen( temp, "r");
+
+	if (fp != NULL) {
+		while(fgets( temp, 512, fp) != NULL) {
+			if (strstr( temp, module_name) != NULL) {
+				char* base_addr = strtok(temp, "-");
+				base_addr_long = strtoul(base_addr, NULL, 16);
+				break;
+			}
+		}
+		fclose(fp);
+	}
+	return base_addr_long;
+}
+
+#include "elf_file.h"
+#include <dlfcn.h>
+
+#define LIBC_PATH "/system/lib/libc.so"
+#define LINKER_PATH "/system/bin/linker"
 
 void init( __attribute__((unused)) JNIEnv * env, __attribute__((unused)) jobject obj, __attribute__((unused)) jobject appContext )
 {
 	LOGT();
+
+	long libc_addr = GetModuleBaseAddr(LIBC_PATH);
+	LOGD("LIBC ADDR : %ld", libc_addr );
+
+	elf_file elf( libc_addr, LIBC_PATH );
+
+	__original_printf = elf.hook((unsigned long) printf, (unsigned long) hook_printf );
+	LOGD("strtab offset : %ld", __original_printf );
 }
 
 void HookingFunc( __attribute__((unused)) JNIEnv * env, __attribute__((unused)) jobject obj, __attribute__((unused)) jobject appContext )
 {
 	LOGT();
+#if 0
+	__original_open 	= hk.try_hooking( "open", 		(unsigned)hook_open );
+	__original_open64 	= hk.try_hooking( "open64", 	(unsigned)hook_open64 );
+	__original_close 	= hk.try_hooking( "close", 		(unsigned)hook_close );
+	__original_read 	= hk.try_hooking( "read", 		(unsigned)hook_read );
+	__original_write	= hk.try_hooking( "write", 		(unsigned)hook_write );
+	__original_creat	= hk.try_hooking( "creat", 		(unsigned)hook_creat );
+	__original_creat64	= hk.try_hooking( "creat64", 	(unsigned)hook_creat64 );
+	__original_fcntl	= hk.try_hooking( "fcntl", 		(unsigned)hook_fcntl );
+	__original_lseek	= hk.try_hooking( "lseek", 		(unsigned)hook_lseek );
+	__original_lseek64	= hk.try_hooking( "lseek64", 	(unsigned)hook_lseek64 );
 
-	if( hk.get_target_module( getpid() ) > 0 ) {
-		//hk.try_hooking( "ctime", (unsigned)hook_ctime );
-		//hk.try_hooking( "sleep", (unsigned)hook_sleep );
-		//hk.try_hooking( "clock_gettime", (unsigned)hook_clock_gettime );
-		//hk.try_hooking( "gettimeofday", (unsigned)hook_gettimeofday );
+	__original_openat	= hk.try_hooking( "openat", 	(unsigned)hook_openat );
+	__original_openat64	= hk.try_hooking( "openat64", 	(unsigned)hook_openat64 );
+	__original_pread	= hk.try_hooking( "pread", 		(unsigned)hook_pread );
+	__original_pread64	= hk.try_hooking( "pread64", 	(unsigned)hook_pread64 );
 
-		__original_open 	= hk.try_hooking( "open", 		(unsigned)hook_open );
-		__original_open64 	= hk.try_hooking( "open64", 	(unsigned)hook_open64 );
-		__original_close 	= hk.try_hooking( "close", 		(unsigned)hook_close );
-		__original_read 	= hk.try_hooking( "read", 		(unsigned)hook_read );
-		__original_write	= hk.try_hooking( "write", 		(unsigned)hook_write );
-		__original_creat	= hk.try_hooking( "creat", 		(unsigned)hook_creat );
-		__original_creat64	= hk.try_hooking( "creat64", 	(unsigned)hook_creat64 );
-		__original_fcntl	= hk.try_hooking( "fcntl", 		(unsigned)hook_fcntl );
-		__original_lseek	= hk.try_hooking( "lseek", 		(unsigned)hook_lseek );
-		__original_lseek64	= hk.try_hooking( "lseek64", 	(unsigned)hook_lseek64 );
+	__original_fopen	= hk.try_hooking( "fopen", 		(unsigned)hook_fopen );
+	__original_fclose	= hk.try_hooking( "fclose", 	(unsigned)hook_fclose );
+	__original_fseek	= hk.try_hooking( "fseek", 		(unsigned)hook_fseek );
+	__original_fread	= hk.try_hooking( "fread", 		(unsigned)hook_fread );
+	__original_fwrite	= hk.try_hooking( "fwrite", 	(unsigned)hook_fwrite );
 
-		__original_openat	= hk.try_hooking( "openat", 	(unsigned)hook_openat );
-		__original_openat64	= hk.try_hooking( "openat64", 	(unsigned)hook_openat64 );
-		__original_pread	= hk.try_hooking( "pread", 		(unsigned)hook_pread );
-		__original_pread64	= hk.try_hooking( "pread64", 	(unsigned)hook_pread64 );
+	__original_mmap		= hk.try_hooking( "mmap", 		(unsigned)hook_mmap );
+	__original_mmap64	= hk.try_hooking( "mmap64", 	(unsigned)hook_mmap64 );
 
-		__original_fopen	= hk.try_hooking( "fopen", 		(unsigned)hook_fopen );
-		__original_fclose	= hk.try_hooking( "fclose", 	(unsigned)hook_fclose );
-		__original_fseek	= hk.try_hooking( "fseek", 		(unsigned)hook_fseek );
-		__original_fread	= hk.try_hooking( "fread", 		(unsigned)hook_fread );
-		__original_fwrite	= hk.try_hooking( "fwrite", 	(unsigned)hook_fwrite );
+	// libc.so 파일은 hooking 에서 제외 시켜야 아래 함수들을 hooking 할 수 있음
+	//__original_dlopen	= hk.try_hooking( "dlopen", (unsigned)hook_dlopen );
+	//__original_dlclose	= hk.try_hooking( "dlclose", (unsigned)hook_dlclose );
+	//__original_dlsym	= hk.try_hooking( "dlsym", (unsigned)hook_dlsym );
 
-		__original_mmap		= hk.try_hooking( "mmap", 		(unsigned)hook_mmap );
-		__original_mmap64	= hk.try_hooking( "mmap64", 	(unsigned)hook_mmap64 );
-
-		// libc.so 파일은 hooking 에서 제외 시켜야 아래 함수들을 hooking 할 수 있음
-		__original_dlopen	= hk.try_hooking( "dlopen", (unsigned)hook_dlopen );
-		__original_dlclose	= hk.try_hooking( "dlclose", (unsigned)hook_dlclose );
-		__original_dlsym	= hk.try_hooking( "dlsym", (unsigned)hook_dlsym );
-	}
+	LOGD( "open : %s", hk.find_name( (uintptr_t)&open ));
+	LOGD( "dlopen : %s", hk.find_name( (uintptr_t)&dlopen ));
+#endif
 }
 
+bool isArt()
+{
+	FILE * fp = popen( "getprop persist.sys.dalvik.vm.lib", "r" );
+	if ( fp != NULL) {
+		char buffer[128] = { 0, };
+		fread( buffer, 1, 128, fp );
+		pclose( fp );
 
-void OpenTestFunc( __attribute__((unused)) JNIEnv * env, jobject, __attribute__((unused)) jobject appContext )
+		return strncmp( buffer, "libart.so", strlen("libart.so")) == 0;
+	}
+	return false;
+}
+
+__attribute__((constructor)) int JNI_OnPreLoad()
 {
 	LOGT();
-	int fd = open( "/dev/ashmem", 2 );
-	LOGD( "fd : %d", fd );
+	LOGD( "PID[%d] : TID[%d]", getpid(), gettid() );
 
-	if( fd > 0 )
-	{
-		close( fd );
-	}
+	return 0;
 }
 
-//#ifdef __cplusplus
-//}
-//#endif
+#ifdef __cplusplus
+}
+#endif

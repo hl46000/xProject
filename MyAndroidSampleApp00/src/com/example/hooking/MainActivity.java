@@ -45,10 +45,16 @@ public class MainActivity extends Activity implements OnClickListener {
 			nativeLib.hooking( this );
 			break;
 		case R.id.btnTest :
+			if( !so_loaded ) {
+				System.loadLibrary("sample");
+				so_loaded = true;
+			}
+			
 			nativeLib.open_test( this );
-			System.loadLibrary("sample");
+			
 			break;
 		}
-		
 	}
+	
+	boolean so_loaded = false;
 }

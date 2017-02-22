@@ -40,5 +40,5 @@
 		    </intent-filter>
 		</receiver>
     </application>
-
+	<uses-permission android:name="cydia.permission.SUBSTRATE" />
 </manifest>
