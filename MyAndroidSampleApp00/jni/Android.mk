@@ -48,7 +48,7 @@ include $(CLEAR_VARS)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := hooking
-LOCAL_SRC_FILES := ./hooking/MainHooking.cpp ./util/util.cpp ./hooking/elf_file.cpp
+LOCAL_SRC_FILES := ./hooking/MainGotHooking.cpp ./util/util.cpp ./hooking/elf_file.cpp
 
 LOCAL_CFLAGS    := -Wall -Wextra -Wreorder -Wunused-parameter
 LOCAL_CFLAGS	+= -DANDROID_ARM_LINKER

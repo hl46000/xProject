@@ -28,68 +28,6 @@ void init( JNIEnv * env, jobject, jobject appContext );
 void HookingFunc( JNIEnv * env, jobject, jobject appContext );
 void OpenTestFunc( JNIEnv * env, jobject, jobject appContext );
 
-#if 0
-#include <time.h>
-char * hook_ctime ( const time_t * timer )
-{
-	LOGT();
-	return ctime( timer );
-}
-
-int hook_gettimeofday(struct timeval *tv, struct timezone *tz)
-{
-	//LOGT();
-	//tv->tv_usec += 3000;
-	int ret = gettimeofday( tv, tz );
-
-	static time_t hook_val = 0;
-	static struct timeval o_tv = { 0,0 };
-	if( o_tv.tv_sec < tv->tv_sec ) {
-		memcpy( &o_tv, tv, sizeof( struct timeval ));
-		hook_val += 60;
-	}
-
-	tv->tv_sec += hook_val;
-
-	return ret;
-}
-
-unsigned int hook_sleep( unsigned int seconds)
-{
-	LOGD( "Called hook_sleep %d seconds", seconds );
-	unsigned int ret = sleep( seconds );
-
-	return ret;
-}
-
-int hook_clock_gettime(clockid_t clk_id, struct timespec *tp)
-{
-	int ret = clock_gettime( clk_id, tp );
-
-	static unsigned int cnt = 0;
-	cnt++;
-
-	static time_t o_sec = tp->tv_sec;
-	if( o_sec < tp->tv_sec ) {
-
-		LOGD( "Called hook_clock_gettime function : %u count, %d sec", cnt, (int)( tp->tv_sec - o_sec ));
-
-		o_sec = tp->tv_sec;
-		cnt = 0;
-	}
-	return ret;
-}
-
-clock_t hook_clock(void)
-{
-	clock_t ret = clock();
-	static clock_t inc_ret = 0;
-	inc_ret += CLOCKS_PER_SEC;
-	return ret + inc_ret;
-}
-#endif
-
-
 //int hook_open( char *filename, int access, int permission )
 static int (*__original_open)( const char*, int );
 static int hook_open( char *filename, int flags )
