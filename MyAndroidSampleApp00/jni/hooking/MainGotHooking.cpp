@@ -20,12 +20,6 @@
 
 #define DELAY_TIME		usleep(10);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-//static hooking hk;
-
 void init( JNIEnv * env, jobject, jobject appContext );
 void HookingFunc( JNIEnv * env, jobject, jobject appContext );
 void OpenTestFunc( JNIEnv * env, jobject, jobject appContext );
@@ -77,27 +71,6 @@ jint JNI_OnLoad(JavaVM* vm,  __attribute__((unused)) void* reserved)
 	return JNI_VERSION_1_6;
 }
 
-#include <stdlib.h>
-unsigned long GetModuleBaseAddr( const char* module_name ) {
-	unsigned long base_addr_long = 0;
-
-	char temp[512];
-	sprintf( temp, "/proc/%d/maps", getpid());
-	FILE* fp = fopen( temp, "r");
-
-	if (fp != NULL) {
-		while(fgets( temp, 512, fp) != NULL) {
-			if (strstr( temp, module_name) != NULL) {
-				char* base_addr = strtok(temp, "-");
-				base_addr_long = strtoul(base_addr, NULL, 16);
-				break;
-			}
-		}
-		fclose(fp);
-	}
-	return base_addr_long;
-}
-
 void dumpMaps() {
 	char temp[512];
 	sprintf( temp, "/proc/%d/maps", getpid());
@@ -129,6 +102,10 @@ bool isArt()
 	return false;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static void* (*__original_printf)(const char *format, ...);
 static int hook_printf(const char *format, ...) {
 	LOGD("hook_printf : [%d] %s", getpid(), format );
@@ -141,17 +118,7 @@ static int hook_printf(const char *format, ...) {
 	return ret;
 }
 
-static int (*__original_open)( const char*, int );
-static int hook_open( char *filename, int flags )
-{
-	int ret = -1;
-	if( __original_open != 0 ) {
-		ret = (*__original_open)( filename, flags );
-	}
 
-	LOGD("hook_open : [%d] %s %d %d", getpid(), filename, flags, ret );
-	return ret;
-}
 
 static ssize_t (*__original_read)(int, void *, size_t);
 static ssize_t hook_read( int fd, void * buff, size_t len )
@@ -213,31 +180,40 @@ void* hook_mmap(void* a, size_t b, int c, int d, int e, off_t f)
 	return ret;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
-#include "elf_file.h"
+static int (*__original_open)( const char*, int );
+static int hook_open( char *filename, int flags )
+{
+	int ret = -1;
+	if( __original_open != 0 ) {
+		ret = (*__original_open)( filename, flags );
+	}
+
+	LOGD("hook_open : [%d] %s %d %d", getpid(), filename, flags, ret );
+	return ret;
+}
+
+
+#include "got_hook.h"
 
 #define LIBC_PATH "/system/lib/libc.so"
 #define LINKER_PATH "/system/bin/linker"
+
+got_hook hook;
 void init( __attribute__((unused)) JNIEnv * env, __attribute__((unused)) jobject obj, __attribute__((unused)) jobject appContext )
 {
 	LOGT();
 
+
 	//dumpMaps();
-
-	unsigned long libc_addr = GetModuleBaseAddr(LIBC_PATH);
-	LOGD("LIBC ADDR : 0x%x", libc_addr );
-
-	elf_file elf( libc_addr, LIBC_PATH );
-
-	__original_fopen 	= elf.hook((unsigned long) fopen, (unsigned long) hook_fopen );
-	__original_open 	= elf.hook((unsigned long) open, (unsigned long) hook_open );
-	__original_read 	= elf.hook((unsigned long) read, (unsigned long) hook_read );
-	__original_dlopen 	= elf.hook((unsigned long) dlopen, (unsigned long) hook_dlopen );
-	__original_fcntl	= elf.hook((unsigned long) fcntl, (unsigned long) hook_fcntl );
-	__original_mmap		= elf.hook((unsigned long) mmap, (unsigned long) hook_mmap );
+	//__original_fopen 	= hook.hooking( "fopen", 	(unsigned long) fopen, 	(unsigned long) hook_fopen );
+	__original_open 	= hook.hooking( "open" , 	open, 	hook_open );
+	//__original_read 	= hook.hooking( "read",		(unsigned long) read, 	(unsigned long) hook_read );
+	//__original_dlopen 	= hook.hooking( "dlopen",	(unsigned long) dlopen, (unsigned long) hook_dlopen );
+	//__original_fcntl	= hook.hooking( "fcntl",	(unsigned long) fcntl, 	(unsigned long) hook_fcntl );
+	//__original_mmap		= hook.hooking( "mmap",		(unsigned long) mmap, 	(unsigned long) hook_mmap );
 }
 
-
-#ifdef __cplusplus
-}
-#endif

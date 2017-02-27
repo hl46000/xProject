@@ -24,8 +24,11 @@ void OpenTestFunc( __attribute__((unused)) JNIEnv * env, jobject, __attribute__(
 {
 	LOGT();
 
+	LOGD( "open address : [%d] 0x%08x", getpid(), open );
+
 #if 1
-	int fd = open( "/dev/ashmem", 2 );
+	//int fd = open( "/dev/ashmem", 2 );
+	int fd = open( "/proc/cpuinfo", 2 );
 	LOGD( "fd : %d", fd );
 
 	if( fd > 0 )

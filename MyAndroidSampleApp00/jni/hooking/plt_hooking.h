@@ -5,15 +5,14 @@
  *      Author: purehero2
  */
 
-#ifndef UTIL_HOOKING_H_
-#define UTIL_HOOKING_H_
+#ifndef _HOOKING_H_
+#define _HOOKING_H_
 
 #include <string>
 #include <vector>
 #include <map>
 
 #include <dlfcn.h>
-#include "util/linker.h"
 
 typedef struct _hooking_simple_maps_info_
 {
@@ -21,10 +20,10 @@ typedef struct _hooking_simple_maps_info_
     std::string name;
 } HOOKING_MAPS_INFO ;
 
-class hooking {
+class plt_hooking {
 public:
-	hooking();
-	virtual ~hooking();
+	plt_hooking();
+	virtual ~plt_hooking();
 
 	int get_target_module( int pid );
 	unsigned try_hooking( const char *symbol, unsigned newval, bool bLog = true );
@@ -35,7 +34,6 @@ protected :
 	std::vector<HOOKING_MAPS_INFO> m_maps_info;
 
 	unsigned elfhash( const char *_name );
-	Elf32_Sym *soinfo_elf_lookup(struct soinfo *si, unsigned hash, const char *name);
 	unsigned libhook_patch_address( unsigned addr, unsigned newval );
 };
 

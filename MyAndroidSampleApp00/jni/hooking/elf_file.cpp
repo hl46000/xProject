@@ -71,7 +71,7 @@ elf_file::elf_file( unsigned long addr, std::string path )
 	fread( m_program_header, sizeof(ElfW(Phdr)), m_elf_header.e_phnum, m_pFP );
 
 	ElfW(Shdr) * section_header = &m_section_header[m_elf_header.e_shstrndx];
-	LOGD( "shstr offset : %d, size : %d", section_header->sh_offset, section_header->sh_size );
+	//LOGD( "shstr offset : %d, size : %d", section_header->sh_offset, section_header->sh_size );
 
 	m_pShstrtab = ( char * ) malloc( section_header->sh_size );
 	fseek( m_pFP, section_header->sh_offset, SEEK_SET );
@@ -147,7 +147,7 @@ void * elf_file::hook( void * original_function, void * target_function ) {
 		const char * section_name = (const char *)( m_pShstrtab + m_section_header[i].sh_name );
 
 		if (strcmp( section_name, ".got") == 0) {
-			LOGD( "section name : %s", section_name );
+			//LOGD( "section name : %s", section_name );
 
 			unsigned long got_section_address = m_base_address + m_section_header[i].sh_addr;
 			size_t  got_section_size	= m_section_header[i].sh_size;
@@ -155,13 +155,13 @@ void * elf_file::hook( void * original_function, void * target_function ) {
 			// LOGD( "got_section_size : %u", got_section_size );
 
 			unsigned long got_entry = 0;
-			for( int i = 0; i < got_section_size; i += sizeof(long)) {
+			for( int i = 0; i < got_section_size; i += sizeof(int)) {
 				//got_entry = ptrace(PTRACE_PEEKDATA, pid, (void *)(got_section_address + i), NULL);
 				got_entry = (unsigned long)*((unsigned long*)(got_section_address + i));
 
-				//LOGD( "%ul, %ul", got_entry, original_function_addr );
+				//LOGD( "0x%08x, 0x%08x", got_entry, original_function );
 				if( got_entry == original_function ) {
-					LOGD( "found" );
+					LOGD( "found got entry : 0x%08x", got_entry );
 
 					if( replace_address( (void*)(got_section_address + i), target_function )) {
 						LOGD( "replace success" );
@@ -177,7 +177,7 @@ void * elf_file::hook( void * original_function, void * target_function ) {
 
 	//PtraceDetach( pid );
 	LOGD( "no found" );
-	return 0;
+	return NULL;
 }
 
 int elf_file::set_mem_access( unsigned long addr, int prots)
@@ -220,9 +220,13 @@ int elf_file::get_mem_access( unsigned long addr, uint32_t* pprot)
 int clear_cache(void* addr, size_t len)
 {
 	LOGT();
-    void *end = (uint8_t *)addr + len;
+	cacheflush((long) addr, (long) addr + len, 0 );
+	usleep( 10 );
+
+	void *end = (uint8_t *)addr + len;
     return syscall(0xf0002, addr, end);
 }
+
 bool elf_file::replace_address( void * addr, void * replace_func )
 {
 	LOGT();
@@ -235,11 +239,9 @@ bool elf_file::replace_address( void * addr, void * replace_func )
 	}
 
 	uint32_t prots = old_prots | PROT_WRITE | PROT_EXEC;
-	/*
 	if ((prots & PROT_WRITE) != 0) { // make sure we're never simultaneously writable / executable
 		prots &= ~PROT_EXEC;
 	}
-	*/
 
 	if(set_mem_access( addr, prots)) {
 		LOGD("[-] modify mem access fails, error %s.\n", strerror(errno));
@@ -253,7 +255,7 @@ bool elf_file::replace_address( void * addr, void * replace_func )
 		return false;
 	}
 
-	clear_cache(addr, getpagesize());
+	clear_cache( *(void **)addr, getpagesize());
 	usleep( 100 );
 
 	return true;

@@ -5,8 +5,6 @@
  *      Author: purehero2
  */
 
-#include "hooking.h"
-
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/mman.h>
@@ -16,12 +14,15 @@
 
 #include "util/linker.h"
 #include "alog.h"
+#include "plt_hooking.h"
 
 
-hooking::hooking() {}
-hooking::~hooking() {}
+plt_hooking::plt_hooking() {}
+plt_hooking::~plt_hooking() {}
 
-int hooking::get_target_module( int pid )
+Elf32_Sym *soinfo_elf_lookup(struct soinfo *si, unsigned hash, const char *name);
+
+int plt_hooking::get_target_module( int pid )
 {
 	LOGT();
 
@@ -84,7 +85,7 @@ int hooking::get_target_module( int pid )
 }
 
 
-const char * hooking::find_name( uintptr_t addr )
+const char * plt_hooking::find_name( uintptr_t addr )
 {
 	for( std::vector<HOOKING_MAPS_INFO>::iterator it = m_maps_info.begin(); it != m_maps_info.end(); it++ ) {
 		if( it->s_add >= addr && it->e_add >= addr ) {
@@ -94,7 +95,7 @@ const char * hooking::find_name( uintptr_t addr )
 	return "";
 }
 
-unsigned hooking::try_hooking( const char *symbol, unsigned newval, bool bLog )
+unsigned plt_hooking::try_hooking( const char *symbol, unsigned newval, bool bLog )
 {
 	//LOGT();
 
@@ -187,7 +188,7 @@ unsigned hooking::try_hooking( const char *symbol, unsigned newval, bool bLog )
 	return ret;
 }
 
-unsigned hooking::elfhash( const char *_name )
+unsigned plt_hooking::elfhash( const char *_name )
 {
 	const unsigned char *name = (const unsigned char *) _name;
 	unsigned h = 0, g;
@@ -219,7 +220,7 @@ int isValidPtr(const void*p, int len) {
 	return ret;
 }
 
-Elf32_Sym * hooking::soinfo_elf_lookup(struct soinfo *si, unsigned hash, const char *name)
+Elf32_Sym * soinfo_elf_lookup(struct soinfo *si, unsigned hash, const char *name)
 {
 	Elf32_Sym *symtab = si->symtab;
     const char *strtab = si->strtab;
@@ -239,7 +240,7 @@ Elf32_Sym * hooking::soinfo_elf_lookup(struct soinfo *si, unsigned hash, const c
 
 
 
-unsigned hooking::libhook_patch_address( unsigned addr, unsigned newval )
+unsigned plt_hooking::libhook_patch_address( unsigned addr, unsigned newval )
 {
 	//LOGT();
 
