@@ -11,14 +11,16 @@ import android.widget.ListView;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 
+import java.io.File;
+
 /**
  * Created by MY on 2017-02-25.
  */
 
-public class FileListFragment extends FragmentEx {
+public class FileListFragment extends FragmentEx implements SearchTextChangeListener{
     private View layout = null;
     private ListView listView = null;
-    private FileListAdapter listAdapter = new FileListAdapter();
+    private FileListAdapter listAdapter = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -29,9 +31,24 @@ public class FileListFragment extends FragmentEx {
 
         listView	= ( ListView ) layout.findViewById( R.id.listView );
         if( listView != null ) {
+            listAdapter = new FileListAdapter( getActivity(), new File("/") );;
             listView.setAdapter( listAdapter );
+
+            listAdapter.reload();
         }
 
         return layout;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        listAdapter.getFilter().filter(s);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        listAdapter.getFilter().filter(s);
+        return true;
     }
 }
