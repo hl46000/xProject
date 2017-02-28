@@ -81,10 +81,11 @@ void * got_hook::try_to_got_hooking( const char * fname, void * original_functio
 }
 
 
+plt_hooking hk;
 void * got_hook::try_to_plt_hooking( const char * fname, void * original_function, void * target_function ) {
-	//LOGD( "[PLT HOOK]" );
+	LOGD( "[PLT HOOK]" );
 
-	plt_hooking hk;
-	return  ( void * ) hk.try_hooking( fname, (unsigned) target_function );
+	hk.get_target_module(getpid());
+	return  ( void * ) hk.try_hooking( fname, (unsigned) target_function, true );
 	//return NULL;
 }

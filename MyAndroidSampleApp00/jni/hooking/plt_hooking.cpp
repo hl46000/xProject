@@ -97,7 +97,7 @@ const char * plt_hooking::find_name( uintptr_t addr )
 
 unsigned plt_hooking::try_hooking( const char *symbol, unsigned newval, bool bLog )
 {
-	//LOGT();
+	LOGT();
 
 	unsigned ret = 0;
 	if ( !symbol || !newval ) {
