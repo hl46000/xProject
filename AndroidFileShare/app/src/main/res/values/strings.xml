@@ -2,4 +2,5 @@
     <string name="app_name">File Share</string>
     <string name="search_text">Search</string>
     <string name="search_hint">Search File Name</string>
+    <string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
 </resources>

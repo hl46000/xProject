@@ -4,10 +4,12 @@ package share.file.purehero.com.fileshare;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -18,17 +20,24 @@ import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 
 import java.io.File;
+import java.util.Vector;
 
 /**
  * Created by MY on 2017-02-25.
  */
 
-public class FileListFragment extends FragmentEx implements SearchTextChangeListener{
+public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener {
     private View layout = null;
     private ListView listView = null;
     private FileListAdapter listAdapter = null;
     private LinearLayout pathList = null;
     private HorizontalScrollView pathScrollView = null;
+    private MainActivity context;
+
+    public FileListFragment setMainActivity( MainActivity activity ) {
+        context = activity;
+        return this;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,37 +51,81 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             pathList        = ( LinearLayout ) layout.findViewById( R.id.pathList ) ;
             pathScrollView = ( HorizontalScrollView ) layout.findViewById( R.id.pathScrollView ) ;
 
-            addPathList("/");
-            addPathList("acct"); addPathList("bcct"); addPathList("ccct");
-            addPathList("dcct"); addPathList("ecct"); addPathList("fcct");
-            addPathList("acct"); addPathList("bcct"); addPathList("ccct");
-            addPathList("dcct"); addPathList("ecct"); addPathList("fcct");
+            listAdapter = new FileListAdapter( getActivity() );;
+            listAdapter.push_folder( new File("/"));
 
-            listAdapter = new FileListAdapter( getActivity(), new File("/") );;
             listView.setAdapter( listAdapter );
-
-            listAdapter.reload();
-
-            new Handler().postDelayed( new Runnable(){
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void run() {
-                    getActivity().runOnUiThread( new Runnable(){
-                        @Override
-                        public void run() {
-                            pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
-                        }
-                    });
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    FileListData data = ( FileListData ) listAdapter.getItem( position );
+
+                    if( data.getFile().isDirectory()) {
+                        context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
+                        listAdapter.push_folder( data.getFile());
+                        //new Thread( listUpdateRunnable ).start();
+                        listUpdateRunnable.run();
+                        //} else {
+                        //fileListView.showContextMenuForChild(view);
+                    }
                 }
-            }, 1000 );
+            });
+
+
+            //new Thread( listUpdateRunnable ).start();
+            listUpdateRunnable.run();
         }
 
         return layout;
     }
 
+    @Override
+    public boolean onBackPressed() {
+        if( listAdapter.is_next_pop_folder()) {
+            listAdapter.pop_folder();
+            listUpdateRunnable.run();
+
+            context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+            return true;
+        }
+
+        return false;
+    }
+
+    Runnable listUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            listAdapter.reload();
+            getActivity().runOnUiThread( pathListUpdateRunnable );
+        }
+    };
+
+    Handler pathScrollViewPosition = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
+        }
+    };
+
+    Runnable pathListUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            pathList.removeAllViews();
+
+            Vector<File> folders = listAdapter.getFolderVector();
+            for( File folder : folders ) {
+                addPathList( folder.getName());
+            }
+
+            pathScrollViewPosition.sendEmptyMessageDelayed( 100, 1000 );
+        }
+    };
+
     private void addPathList(String pathString) {
         Button btn = new Button( getActivity());
         btn.setText( "〉 " + pathString);
-        btn.setMinimumWidth(1);
+        btn.setMaxWidth( 200 );
         btn.setBackgroundResource( android.R.color.transparent );
         btn.setTextColor(Color.parseColor( "#CFCFFF" ));
 
@@ -95,5 +148,20 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public boolean onQueryTextChange(String s) {
         listAdapter.getFilter().filter(s);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(int id) {
+        switch( id ) {
+            case android.R.id.home:
+                if( listAdapter.is_next_pop_folder()) {
+                    listAdapter.pop_folder();
+                    listUpdateRunnable.run();
+
+                    context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+                    return true;
+                }
+        }
+        return false;
     }
 }

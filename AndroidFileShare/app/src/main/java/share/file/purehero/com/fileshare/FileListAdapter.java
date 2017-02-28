@@ -1,8 +1,10 @@
 package share.file.purehero.com.fileshare;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * Created by MY on 2017-02-25.
@@ -27,11 +31,9 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
     private List<FileListData> listData = new ArrayList<FileListData>();    // 전체 데이터
     private List<FileListData> filterData = new ArrayList<FileListData>();  // 검색이 적용된 데이터
 
-    private final Context context;
-    private File baseFolder;
-    public FileListAdapter(Context context, File baseFolder ) {
+    private final Activity context;
+    public FileListAdapter( Activity context) {
         this.context = context;
-        this.baseFolder = baseFolder;
     }
 
     @Override
@@ -50,16 +52,23 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
         return 0;
     }
 
-    public void sort() {
+    Runnable listDataUpdateRunnable = new Runnable(){
+        @Override
+        public void run() {
+            notifyDataSetChanged();
+        }
+    };
+
+    public synchronized void sort() {
         Collections.sort( filterData, FileListData.ALPHA_COMPARATOR );
-        notifyDataSetChanged();
+        context.runOnUiThread( listDataUpdateRunnable );
     }
 
-    public void reload(){
+    public synchronized void reload(){
         listData.clear();
         filterData.clear();
 
-        File subItems [] = baseFolder.listFiles();
+        File subItems [] = folder_stack.lastElement().listFiles();
         if( subItems != null ) {
             for( File file : subItems ) {
                 FileListData data = new FileListData( context, file );
@@ -72,7 +81,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
+    public synchronized View getView(int position, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder;
         if( view == null ) {
             viewHolder = new ViewHolder();
@@ -106,6 +115,28 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
         }
 
         return view;
+    }
+
+    private Vector<File> folder_stack = new Vector<File>();
+    public synchronized Vector<File> getFolderVector() { return folder_stack; }
+    public synchronized void push_folder(File file) {
+        folder_stack.add( file );
+    }
+
+    /*
+    * return : 다음에도 pop 이 가능한지를 반환한다.
+    * */
+    public synchronized boolean pop_folder() {
+        if( folder_stack.size() > 1 ) {
+            folder_stack.remove( folder_stack.size() - 1 );
+            reload();
+        }
+
+        return is_next_pop_folder();
+    }
+
+    public synchronized boolean is_next_pop_folder() {
+        return folder_stack.size() > 1 ? true : false;
     }
 
     class ViewHolder

@@ -12,7 +12,7 @@ import android.widget.TextView;
 /**
  * Created by MY on 2017-02-25.
  */
-public class FragmentText extends Fragment {
+public class FragmentText extends FragmentEx {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         TextView text = new TextView(container.getContext());

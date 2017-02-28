@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.ViewPagerAdapter;
 
@@ -28,14 +31,17 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setIcon( R.mipmap.ic_back );
+
         tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
         pager = (ViewPager) this.findViewById(R.id.pager);
 
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
 
-        pagerAdapter.addItem( new FileListFragment(), "FIRST" );
-        pagerAdapter.addItem( new FileListFragment(), "SECOND" );
+        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "FIRST" );
+        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "SECOND" );
         pagerAdapter.addItem( new FragmentText(), "ETC" );
 
         pager.setAdapter(pagerAdapter);
@@ -68,6 +74,20 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
     @Override
     public void onTabUnselected(MaterialTab tab) {
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
+                if( fragment instanceof OptionsItemSelectListener ) {
+                    OptionsItemSelectListener listener = ( OptionsItemSelectListener ) fragment;
+                    return listener.onOptionsItemSelected( item.getItemId() );
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -111,12 +131,25 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         return true;
     }
 
+    // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
+    private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
+    private long backPressedTime = 0;
+
     @Override
     public void onBackPressed() {
         if (!searchView.isIconified()) {
             searchView.setIconified(true);
         } else {
-            super.onBackPressed();
+            FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( pager.getCurrentItem());
+            if( !fragment.onBackPressed()) {
+                if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+                    super.onBackPressed();
+
+                } else {
+                    backPressedTime = System.currentTimeMillis();
+                    Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+                }
+            }
         }
     }
 }

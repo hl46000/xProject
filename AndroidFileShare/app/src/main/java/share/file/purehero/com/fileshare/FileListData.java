@@ -63,6 +63,8 @@ public class FileListData {
         return fileDate;
     }
 
+    public File getFile() { return file; }
+
     public Drawable getIcon() {
         if( icon != null ) return icon;
 
