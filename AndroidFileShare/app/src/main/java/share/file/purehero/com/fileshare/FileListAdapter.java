@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -27,9 +29,10 @@ import java.util.Vector;
  * Created by MY on 2017-02-25.
  */
 
-public class FileListAdapter extends BaseAdapter implements Filterable {
+public class FileListAdapter extends BaseAdapter implements Filterable, View.OnClickListener {
     private List<FileListData> listData = new ArrayList<FileListData>();    // 전체 데이터
     private List<FileListData> filterData = new ArrayList<FileListData>();  // 검색이 적용된 데이터
+    private boolean selectMode = false;
 
     private final Activity context;
     public FileListAdapter( Activity context) {
@@ -37,10 +40,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
     }
 
     @Override
-    public int getCount() {
-        G.Log("getCount : %d", filterData.size());
-        return filterData.size();
-    }
+    public int getCount() { return filterData.size(); }
 
     @Override
     public Object getItem(int i) {
@@ -49,7 +49,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return i;
     }
 
     Runnable listDataUpdateRunnable = new Runnable(){
@@ -89,8 +89,10 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
             LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
             view  = inflater.inflate( R.layout.file_list_cell, null );
 
+            viewHolder.cbSelected   = (CheckBox)  view.findViewById( R.id.file_list_view_item_checkbox );
+            viewHolder.cbSelected.setOnClickListener( this );
             viewHolder.ivIcon 		= (ImageView) view.findViewById( R.id.file_list_view_item_icon );
-            viewHolder.tvTitle 	= (TextView)  view.findViewById( R.id.file_list_view_item_file_name );
+            viewHolder.tvTitle 	    = (TextView)  view.findViewById( R.id.file_list_view_item_file_name );
             viewHolder.tvSubTitle 	= (TextView)  view.findViewById( R.id.file_list_view_item_sub_title );
             viewHolder.tvDate 		= (TextView)  view.findViewById( R.id.file_list_view_item_date );
 
@@ -99,12 +101,23 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
             viewHolder = ( ViewHolder ) view.getTag();
         }
 
-        FileListData data = filterData.get( position );
+        FileListData data = ( FileListData ) getItem( position );
+
         viewHolder.tvTitle.setText( data.getFilename());
         viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
         viewHolder.tvSubTitle.setText( data.getSubTitle());
         viewHolder.tvDate.setVisibility( View.VISIBLE );
         viewHolder.tvDate.setText( data.getFileDate());
+
+        if( isSelectMode()) {
+            viewHolder.cbSelected.setVisibility( View.VISIBLE );
+            viewHolder.cbSelected.setChecked( data.isSelected() );
+        } else {
+            viewHolder.cbSelected.setVisibility( View.GONE );
+            viewHolder.cbSelected.setChecked( false );
+            data.setSelected( false );
+        }
+        viewHolder.cbSelected.setId( position );
 
         Drawable icon = data.getIcon();
         if( icon == null ) {
@@ -115,6 +128,22 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
         }
 
         return view;
+    }
+
+    @Override
+    public void onClick(View view) {
+        CheckBox cb = ( CheckBox ) view;
+        FileListData data = filterData.get( cb.getId() );
+        data.setSelected( cb.isChecked());
+    }
+
+    class ViewHolder
+    {
+        public CheckBox cbSelected;
+        public ImageView ivIcon;
+        public TextView tvTitle;
+        public TextView tvSubTitle;
+        public TextView tvDate;
     }
 
     private Vector<File> folder_stack = new Vector<File>();
@@ -139,13 +168,11 @@ public class FileListAdapter extends BaseAdapter implements Filterable {
         return folder_stack.size() > 1 ? true : false;
     }
 
-    class ViewHolder
-    {
-        public ImageView ivIcon;
-        public TextView tvTitle;
-        public TextView tvSubTitle;
-        public TextView tvDate;
+    public boolean isSelectMode() { return selectMode; }
+    public void setSelectMode(boolean selectMode) {
+        this.selectMode = selectMode;
     }
+
 
     @Override
     public Filter getFilter() {
