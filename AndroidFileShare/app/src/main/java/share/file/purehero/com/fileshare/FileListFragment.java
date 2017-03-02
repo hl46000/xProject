@@ -149,6 +149,12 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public boolean onOptionsItemSelected(int id) {
         switch( id ) {
             case android.R.id.home:
+                if( listAdapter.isSelectMode()) {
+                    listAdapter.setSelectMode( false );
+                    listAdapter.notifyDataSetChanged();
+                    return true;
+                }
+
                 if( listAdapter.is_next_pop_folder()) {
                     listAdapter.pop_folder();
                     listUpdateRunnable.run();
