@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
+    <!-- 검색 버튼 -->
     <item
         android:id="@+id/action_search"
         android:icon="@android:drawable/ic_menu_search"
@@ -10,4 +11,21 @@
         app:actionViewClass="android.support.v7.widget.SearchView"
         android:title="Search"/>
 
+    <!-- 선택 버튼 -->
+    <item android:id="@+id/action_select_mode"
+        android:title="@string/action_select_mode"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <!-- 선택 버튼 -->
+    <item android:id="@+id/action_create_folder"
+        android:title="@string/action_create_folder"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <!-- 설정 버튼 -->
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
 </menu>

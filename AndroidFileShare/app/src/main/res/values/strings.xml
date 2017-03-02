@@ -3,4 +3,12 @@
     <string name="search_text">Search</string>
     <string name="search_hint">Search File Name</string>
     <string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_select_mode">Select</string>
+    <string name="action_create_folder">Create folder</string>
+    <string name="action_move">Move</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_zip">Zip</string>
+    <string name="action_detail">Details</string>
 </resources>
