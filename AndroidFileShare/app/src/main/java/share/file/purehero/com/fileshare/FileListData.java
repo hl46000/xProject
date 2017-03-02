@@ -19,6 +19,7 @@ public class FileListData {
     private String fileDate = "";
     private Drawable icon 	= null;
     private int subItemCount = 0;
+    private boolean selected = false;
 
     public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
 
@@ -64,6 +65,9 @@ public class FileListData {
     }
 
     public File getFile() { return file; }
+
+    public boolean isSelected() { return selected; }
+    public void setSelected(boolean selected) { this.selected = selected; }
 
     public Drawable getIcon() {
         if( icon != null ) return icon;
