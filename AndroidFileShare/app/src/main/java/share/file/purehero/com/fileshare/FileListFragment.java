@@ -20,6 +20,11 @@ import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.util.Stack;
 import java.util.Vector;
 
 /**
@@ -163,5 +168,48 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 }
         }
         return false;
+    }
+
+    protected void copyFileOrDirectory( File srcFile, File destFolder ) throws IOException {
+        Stack<File> folders = new Stack<File>();
+        do {
+            if( srcFile.isDirectory()) {
+
+            } else {
+                copyFile( srcFile, destFolder );
+            }
+        } while( !folders.empty());
+    }
+
+    protected void copyFile(File srcFile, File destFolder) throws IOException {
+        if( !destFolder.exists()) {
+            destFolder.mkdirs();
+        }
+
+        File destFile = new File( destFolder, srcFile.getName());
+        if( !destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        FileChannel src = null;
+        FileChannel dest = null;
+
+        try {
+            src     = new FileInputStream( srcFile ).getChannel();
+            dest    = new FileOutputStream( destFile ).getChannel();
+            dest.transferFrom( src, 0, src.size());
+
+        } catch ( Exception e ) {
+            e.printStackTrace();
+
+        } finally {
+            if( src != null ) {
+                try { src.close(); } catch( Exception e ){}
+            }
+            if( dest != null ) {
+                try { dest.close(); } catch( Exception e ){}
+            }
+        }
+
     }
 }
