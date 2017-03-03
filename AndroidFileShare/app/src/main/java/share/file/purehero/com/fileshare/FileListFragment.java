@@ -31,7 +31,7 @@ import java.util.Vector;
  * Created by MY on 2017-02-25.
  */
 
-public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener {
+public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private View layout = null;
     private ListView listView = null;
     private FileListAdapter listAdapter = null;
@@ -60,23 +60,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             listAdapter.push_folder( new File("/"));
 
             listView.setAdapter( listAdapter );
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    FileListData data = ( FileListData ) listAdapter.getItem( position );
-
-                    if( data.getFile().isDirectory()) {
-                        context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-
-                        listAdapter.push_folder( data.getFile());
-                        //new Thread( listUpdateRunnable ).start();
-                        listUpdateRunnable.run();
-                        //} else {
-                        //fileListView.showContextMenuForChild(view);
-                    }
-                }
-            });
-
+            listView.setOnItemClickListener( this );
+            listView.setOnItemLongClickListener( this );
 
             //new Thread( listUpdateRunnable ).start();
             listUpdateRunnable.run();
@@ -87,12 +72,22 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public boolean onBackPressed() {
-        if( listAdapter.is_next_pop_folder()) {
-            listAdapter.pop_folder();
-            listUpdateRunnable.run();
+        try {
+            if( listAdapter.isSelectMode()) {
+                listAdapter.setSelectMode( false );
+                listAdapter.notifyDataSetChanged();
+                return true;
+            }
 
-            context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
-            return true;
+            if( listAdapter.is_next_pop_folder()) {
+                listAdapter.pop_folder();
+                listUpdateRunnable.run();
+
+                context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+                return true;
+            }
+        } catch( Exception e ) {
+            e.printStackTrace();
         }
 
         return false;
@@ -159,6 +154,12 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public boolean onOptionsItemSelected(int id) {
         switch( id ) {
             case android.R.id.home:
+                if( listAdapter.isSelectMode()) {
+                    listAdapter.setSelectMode( false );
+                    listAdapter.notifyDataSetChanged();
+                    return true;
+                }
+
                 if( listAdapter.is_next_pop_folder()) {
                     listAdapter.pop_folder();
                     listUpdateRunnable.run();
@@ -182,12 +183,12 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     protected void copyFile(File srcFile, File destFolder) throws IOException {
-        if( !destFolder.exists()) {
+        if (!destFolder.exists()) {
             destFolder.mkdirs();
         }
 
-        File destFile = new File( destFolder, srcFile.getName());
-        if( !destFile.exists()) {
+        File destFile = new File(destFolder, srcFile.getName());
+        if (!destFile.exists()) {
             destFile.createNewFile();
         }
 
@@ -195,21 +196,56 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         FileChannel dest = null;
 
         try {
-            src     = new FileInputStream( srcFile ).getChannel();
-            dest    = new FileOutputStream( destFile ).getChannel();
-            dest.transferFrom( src, 0, src.size());
+            src = new FileInputStream(srcFile).getChannel();
+            dest = new FileOutputStream(destFile).getChannel();
+            dest.transferFrom(src, 0, src.size());
 
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
 
         } finally {
-            if( src != null ) {
-                try { src.close(); } catch( Exception e ){}
+            if (src != null) {
+                try {
+                    src.close();
+                } catch (Exception e) {
+                }
             }
-            if( dest != null ) {
-                try { dest.close(); } catch( Exception e ){}
+            if (dest != null) {
+                try {
+                    dest.close();
+                } catch (Exception e) {
+                }
             }
         }
+    }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        FileListData data = ( FileListData ) listAdapter.getItem( position );
+        G.Log( "onItemClick : %d %s", position, data.getFilename() );
+
+        if( listAdapter.isSelectMode()) {
+            data.setSelected( !data.isSelected());
+            listAdapter.notifyDataSetChanged();
+            return;
+        }
+
+        if( data.getFile().isDirectory()) {
+            context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
+            listAdapter.push_folder( data.getFile());
+            //new Thread( listUpdateRunnable ).start();
+            listUpdateRunnable.run();
+            //} else {
+            //fileListView.showContextMenuForChild(view);
+        }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        listAdapter.setSelectMode( !listAdapter.isSelectMode());
+        listAdapter.notifyDataSetChanged();
+
+        return true;
     }
 }

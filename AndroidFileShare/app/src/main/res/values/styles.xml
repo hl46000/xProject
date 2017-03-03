@@ -6,6 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+
+    <!-- Action Bar 테마 설정 -->
+    <style name="MyActionBar" parent="AppTheme">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 </resources>
