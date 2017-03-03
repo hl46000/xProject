@@ -76,6 +76,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         try {
             if( listAdapter.isSelectMode()) {
                 listAdapter.setSelectMode( false );
+                context.setBaseToolbarMode();
                 listAdapter.notifyDataSetChanged();
                 return true;
             }
@@ -177,6 +178,18 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
                     return true;
                 }
+                break;
+
+            case R.drawable.ck_checked :
+                listAdapter.setSelectedALL( true );
+                listAdapter.notifyDataSetChanged();
+                context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
+                break;
+            case R.drawable.ck_nomal :
+                listAdapter.setSelectedALL( false );
+                listAdapter.notifyDataSetChanged();
+                context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
+                break;
         }
         return false;
     }
@@ -234,16 +247,17 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         FileListData data = ( FileListData ) listAdapter.getItem( position );
         G.Log( "onItemClick : %d %s", position, data.getFilename() );
 
-        if( listAdapter.isSelectMode()) {
-            data.setSelected( !data.isSelected());
-            listAdapter.notifyDataSetChanged();
-            return;
+        if( listAdapter.isSelectMode()) {                                       // 파일 선택 모드일 경우
+            data.setSelected( !data.isSelected());                              // 선택한 항목의 선택을 반전시킨다.
+            context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );    // 선택한 개수를 액션바에서 갱신시킨다.
+            listAdapter.notifyDataSetChanged();                                 // 리스트의 내용을 갱신시킨다.
+            return;                                                             // 함수를 반환한다.
         }
 
         if( data.getFile().isDirectory()) {
-            context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+            context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
-            listAdapter.push_folder( data.getFile());
+            listAdapter.push_folder( data.getFile());                           // 선택한 폴더로 리스트를 갱신시킨다.
             //new Thread( listUpdateRunnable ).start();
             listUpdateRunnable.run();
             //} else {
@@ -252,17 +266,21 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+        FileListData data = ( FileListData ) listAdapter.getItem( position );
+
         if( listAdapter.isSelectMode()) {
-            listAdapter.setSelectMode( false );
-            context.changeActionBar(0);
+            listAdapter.setSelectedALL( false );    // 모든 항목의 선택을 해제한다.
+            listAdapter.setSelectMode( false );     // 파일 선택모드를 해제한다.
+            context.setBaseToolbarMode();           // 액션바를 기본으로 전환시킨다.
         } else {
-            listAdapter.setSelectMode( true );
-            context.changeActionBar(1);
+            data.setSelected( true );               // 롱 클릭한 항목은 기본으로 선택한다.
+            listAdapter.setSelectMode( true );      // 파일 선택모드로 전환한다.
+            context.setSelectToolbarMode();         // 액션바를 선택 항목 개수가 나오도록 전환 시킨다.
+            context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() ); // 액션바에 선택한 개수를 표시한다.
         }
 
-        listAdapter.notifyDataSetChanged();
-
+        listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
         return true;
     }
 }

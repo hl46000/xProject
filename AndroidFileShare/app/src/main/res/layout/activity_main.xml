@@ -10,16 +10,17 @@
     android:layout_height="match_parent"
     tools:context="share.file.purehero.com.fileshare.MainActivity">
 
-    <share.file.purehero.com.fileshare.ToolbarEx
+    <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar2"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
+        android:paddingLeft="2dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <share.file.purehero.com.fileshare.ToolbarEx
+    <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"

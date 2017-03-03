@@ -52,6 +52,21 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         return i;
     }
 
+    public void setSelectedALL( boolean selected ) {
+        for( FileListData data : filterData ) {
+            data.setSelected( selected );
+        }
+    }
+    public int getSelectedCount() {
+        int ret = 0;
+        for( FileListData data : filterData ) {
+            if( data.isSelected() ) {
+                ++ret;
+            }
+        }
+        return ret;
+    }
+
     Runnable listDataUpdateRunnable = new Runnable(){
         @Override
         public void run() {

@@ -3,12 +3,14 @@ package share.file.purehero.com.fileshare;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.purehero.common.FragmentEx;
@@ -24,12 +26,14 @@ import it.neokree.materialtabs.MaterialTabHost;
 import it.neokree.materialtabs.MaterialTabListener;
 
 
-public class MainActivity extends AppCompatActivity implements MaterialTabListener {
+public class MainActivity extends AppCompatActivity implements MaterialTabListener, View.OnClickListener {
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
     private SearchView searchView;
-    private List<ToolbarEx> toolbarList = new ArrayList<ToolbarEx>();
+    private List<Toolbar> toolbarList = new ArrayList<Toolbar>();
+    private int toolbarIndex = 0;
+    private boolean selectionALL = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,14 +45,13 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         for( int i = 0; i < toolbarIDs.length; i++  ) {
             int id = toolbarIDs[i];
 
-            ToolbarEx toolbar = (ToolbarEx) findViewById( id );
+            Toolbar toolbar = (Toolbar) findViewById( id );
             if( toolbar != null ) {
                 toolbar.setTitle( toolbarTitleIDs[i] );
-                toolbar.setId(id);
                 toolbarList.add( toolbar );
             }
         }
-        setSupportActionBar(toolbarList.get(0));
+        setSupportActionBar(toolbarList.get(toolbarIndex));
 
         tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
         pager = (ViewPager) this.findViewById(R.id.pager);
@@ -94,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        G.Log("onOptionsItemSelected : %d", item.getItemId());
+
         switch (item.getItemId()) {
             case android.R.id.home:
                 Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
@@ -114,21 +119,55 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         return super.onOptionsItemSelected(item);
     }
 
+    protected void changeToolbarMode() {
+        getSupportActionBar().hide();
+        setSupportActionBar(toolbarList.get(toolbarIndex));
+        getSupportActionBar().show();
+    }
+
     public Toolbar getActionBar( int index ) {
         return toolbarList.get(index);
     }
     public void changeActionBar( int index ) {
-        getSupportActionBar().hide();
-        setSupportActionBar(toolbarList.get(index));
-        getSupportActionBar().show();
+        toolbarIndex = index;
+        changeToolbarMode();
     }
 
+    public void setBaseToolbarMode() {
+        toolbarIndex = 0;
+        changeToolbarMode();
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        selectionALL = false;
+    }
+
+    public void setSelectToolbarMode() {
+        toolbarIndex = 1;
+        changeToolbarMode();
+        ActionBar actionbar = getSupportActionBar();
+        if( actionbar != null ) {
+            actionbar.setIcon( selectionALL ? R.drawable.ck_checked : R.drawable.ck_nomal );
+            actionbar.setHomeButtonEnabled(true);
+
+            View view = toolbarList.get(1).getChildAt(1);
+            view.setOnClickListener( this );
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        G.Log( "onCreateOptionsMenu : %s", getSupportActionBar().getTitle());
-        ToolbarEx actionBar = (ToolbarEx) getSupportActionBar();
+        switch (toolbarIndex) {
+            case 0: return baseMenu(menu);
+            case 1: return selectMenu(menu);
+        }
+        return false;
+    }
 
+    private boolean selectMenu( Menu menu ) {
+        getMenuInflater().inflate(R.menu.menu_select_mode, menu);
+        return true;
+    }
+
+    private boolean baseMenu( Menu menu ) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         
         final MenuItem searchItem = menu.findItem(R.id.action_search);
@@ -176,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     public void onBackPressed() {
         if (!searchView.isIconified()) {
             searchView.setIconified(true);
+            setBaseToolbarMode();
         } else {
             FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( pager.getCurrentItem());
             if( !fragment.onBackPressed()) {
@@ -188,5 +228,25 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 }
             }
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        selectionALL = !selectionALL;
+
+        Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
+        if( fragment instanceof OptionsItemSelectListener ) {
+            OptionsItemSelectListener listener = ( OptionsItemSelectListener ) fragment;
+            listener.onOptionsItemSelected( selectionALL ? R.drawable.ck_checked : R.drawable.ck_nomal );
+        }
+        getSupportActionBar().setIcon( selectionALL ? R.drawable.ck_checked : R.drawable.ck_nomal );
+
+        G.Log( "selectionALL : %s", selectionALL?"true":"false" );
+    }
+
+    public void setSelectToolbarSelectedCount(int selectedCount) {
+        String strSelected = getString( R.string.toolbar2 );
+
+        getSupportActionBar().setTitle( String.format("%d %s", selectedCount, strSelected ));
     }
 }
