@@ -31,7 +31,7 @@ public class G {
         }
     }
 
-    private static String TAG = "BluetoothShare";
+    private static String TAG = "FileManager";
     public static void Log() {
         Log("");
     }

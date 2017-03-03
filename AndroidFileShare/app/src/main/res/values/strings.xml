@@ -11,4 +11,6 @@
     <string name="action_rename">Rename</string>
     <string name="action_zip">Zip</string>
     <string name="action_detail">Details</string>
+    <string name="toolbar">FileManager</string>
+    <string name="toolbar2">Select</string>
 </resources>

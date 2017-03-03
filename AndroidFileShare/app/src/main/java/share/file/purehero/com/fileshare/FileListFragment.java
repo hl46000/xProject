@@ -15,6 +15,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
@@ -123,14 +124,23 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     };
 
     private void addPathList(String pathString) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( 20, ViewGroup.LayoutParams.WRAP_CONTENT );
+        params.setMargins(0,0,0,0);
+
+        TextView tv = new TextView( getActivity());
+        tv.setText("/");
+        tv.setTextColor(Color.parseColor( "#CFCFFF" ));
+        tv.setLayoutParams( params );
+        tv.setPadding(0,0,0,0);
+        pathList.addView( tv );
+
+        params = new LinearLayout.LayoutParams( ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT );
         Button btn = new Button( getActivity());
-        btn.setText( "〉 " + pathString);
+        btn.setText( pathString);
         btn.setMaxWidth( 200 );
         btn.setBackgroundResource( android.R.color.transparent );
         btn.setTextColor(Color.parseColor( "#CFCFFF" ));
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT );
-        params.setMargins(0,0,0,0);
         btn.setLayoutParams( params );
         btn.setPadding(0,0,0,0);
 
@@ -243,7 +253,14 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-        listAdapter.setSelectMode( !listAdapter.isSelectMode());
+        if( listAdapter.isSelectMode()) {
+            listAdapter.setSelectMode( false );
+            context.changeActionBar(0);
+        } else {
+            listAdapter.setSelectMode( true );
+            context.changeActionBar(1);
+        }
+
         listAdapter.notifyDataSetChanged();
 
         return true;

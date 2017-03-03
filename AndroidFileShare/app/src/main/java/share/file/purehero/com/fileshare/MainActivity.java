@@ -6,14 +6,18 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
+import com.purehero.common.G;
 import com.purehero.common.ViewPagerAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
@@ -25,14 +29,26 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
     private SearchView searchView;
+    private List<ToolbarEx> toolbarList = new ArrayList<ToolbarEx>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
-        //getSupportActionBar().setIcon( R.mipmap.ic_back );
+        int toolbarTitleIDs[] = { R.string.toolbar, R.string.toolbar2 };
+        int toolbarIDs [] = { R.id.my_toolbar, R.id.my_toolbar2 };
+        for( int i = 0; i < toolbarIDs.length; i++  ) {
+            int id = toolbarIDs[i];
+
+            ToolbarEx toolbar = (ToolbarEx) findViewById( id );
+            if( toolbar != null ) {
+                toolbar.setTitle( toolbarTitleIDs[i] );
+                toolbar.setId(id);
+                toolbarList.add( toolbar );
+            }
+        }
+        setSupportActionBar(toolbarList.get(0));
 
         tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
         pager = (ViewPager) this.findViewById(R.id.pager);
@@ -86,12 +102,33 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                     return listener.onOptionsItemSelected( item.getItemId() );
                 }
                 break;
+            case R.id.action_select_mode :
+
+                break;
+            case R.id.action_create_folder :
+
+                break;
+            case R.id.action_settings :
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public Toolbar getActionBar( int index ) {
+        return toolbarList.get(index);
+    }
+    public void changeActionBar( int index ) {
+        getSupportActionBar().hide();
+        setSupportActionBar(toolbarList.get(index));
+        getSupportActionBar().show();
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        G.Log( "onCreateOptionsMenu : %s", getSupportActionBar().getTitle());
+        ToolbarEx actionBar = (ToolbarEx) getSupportActionBar();
+
         getMenuInflater().inflate(R.menu.menu_main, menu);
         
         final MenuItem searchItem = menu.findItem(R.id.action_search);
