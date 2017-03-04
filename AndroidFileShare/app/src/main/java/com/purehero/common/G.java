@@ -137,8 +137,8 @@ public class G {
                 alert.show();
             }});
     }
-    private static int no_string_res = -1;
-    private static int yes_string_res = -1;
+    public static int no_string_res = -1;
+    public static int yes_string_res = -1;
 
     public static String getTextInputDialogResult() {
         return __input.getText().toString();

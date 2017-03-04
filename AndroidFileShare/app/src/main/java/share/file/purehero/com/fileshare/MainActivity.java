@@ -97,24 +97,21 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        G.Log("onOptionsItemSelected : %d", item.getItemId());
+        int id = item.getItemId();
 
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
-                if( fragment instanceof OptionsItemSelectListener ) {
-                    OptionsItemSelectListener listener = ( OptionsItemSelectListener ) fragment;
-                    return listener.onOptionsItemSelected( item.getItemId() );
-                }
-                break;
-            case R.id.action_select_mode :
+        Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
+        if( fragment instanceof OptionsItemSelectListener ) {
+            OptionsItemSelectListener listener = ( OptionsItemSelectListener ) fragment;
+            if( listener.onOptionsItemSelected( id )) {
+                return true;
+            }
+        }
 
-                break;
-            case R.id.action_create_folder :
-
-                break;
-            case R.id.action_settings :
-                break;
+        switch (id) {
+            case android.R.id.home          : break;
+            case R.id.action_select_mode    : break;
+            case R.id.action_create_folder  : break;
+            case R.id.action_settings       : break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -125,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         getSupportActionBar().show();
     }
 
+    /*
     public Toolbar getActionBar( int index ) {
         return toolbarList.get(index);
     }
@@ -132,15 +130,16 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         toolbarIndex = index;
         changeToolbarMode();
     }
+    */
 
-    public void setBaseToolbarMode() {
+    public void changeFileListModeToolbar() {
         toolbarIndex = 0;
         changeToolbarMode();
         getSupportActionBar().setDisplayShowHomeEnabled(false);
         selectionALL = false;
     }
 
-    public void setSelectToolbarMode() {
+    public void changeFileSelectModeToolbar() {
         toolbarIndex = 1;
         changeToolbarMode();
         ActionBar actionbar = getSupportActionBar();
@@ -151,6 +150,16 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             View view = toolbarList.get(1).getChildAt(1);
             view.setOnClickListener( this );
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        try {
+            Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
+            fragment.onPrepareOptionsMenu(menu);
+        } catch( Exception e ) {}
+
+        return true;
     }
 
     @Override
@@ -215,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     public void onBackPressed() {
         if (!searchView.isIconified()) {
             searchView.setIconified(true);
-            setBaseToolbarMode();
+            changeFileListModeToolbar();
         } else {
             FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( pager.getCurrentItem());
             if( !fragment.onBackPressed()) {

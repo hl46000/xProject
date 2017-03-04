@@ -170,10 +170,13 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
     /*
     * return : 다음에도 pop 이 가능한지를 반환한다.
     * */
-    public synchronized boolean pop_folder() {
+    public synchronized boolean pop_folder( boolean bReload ) {
         if( folder_stack.size() > 1 ) {
             folder_stack.remove( folder_stack.size() - 1 );
-            reload();
+
+            if( bReload ) {
+                reload();
+            }
         }
 
         return is_next_pop_folder();
@@ -181,6 +184,10 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
 
     public synchronized boolean is_next_pop_folder() {
         return folder_stack.size() > 1 ? true : false;
+    }
+
+    public synchronized File getLastFolder() {
+        return folder_stack.lastElement();
     }
 
     public boolean isSelectMode() { return selectMode; }
