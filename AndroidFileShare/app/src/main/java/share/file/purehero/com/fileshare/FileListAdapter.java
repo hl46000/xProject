@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.purehero.common.G;
@@ -57,6 +58,18 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             data.setSelected( selected );
         }
     }
+
+    public List<FileListData> getSelectedItems() {
+        List<FileListData> ret = new ArrayList<FileListData>();
+        for( FileListData data : filterData ) {
+            if( data.isSelected() ) {
+                ret.add( data );
+            }
+        }
+
+        return ret;
+    }
+
     public int getSelectedCount() {
         int ret = 0;
         for( FileListData data : filterData ) {

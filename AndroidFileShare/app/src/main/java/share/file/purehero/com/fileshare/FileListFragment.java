@@ -1,8 +1,10 @@
 package share.file.purehero.com.fileshare;
 
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,9 +23,16 @@ import android.widget.TextView;
 
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
+import com.purehero.common.ProgressRunnable;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
+
+import static android.R.attr.name;
 
 /**
  * Created by MY on 2017-02-25.
@@ -97,6 +106,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         public void run() {
             listAdapter.reload();
             getActivity().runOnUiThread( pathListUpdateRunnable );
+            listView.smoothScrollToPosition(0);
         }
     };
 
@@ -113,20 +123,24 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             pathList.removeAllViews();
 
             Vector<File> folders = listAdapter.getFolderVector();
-            for( File folder : folders ) {
-                String name = folder.getName();
-                if( name.trim().isEmpty()) continue;
+            String name = null;
 
-                addPathList( name );
+            for( int i = 0; i < folders.size(); i++ ) {
+                name = folders.get(i).getName();
+                if( name.trim().isEmpty()) {
+                    continue;
+                }
+
+                addPathList( name, i == folders.size() - 1 );
             }
 
-            pathScrollViewPosition.sendEmptyMessageDelayed( 100, 1000 );
+            pathScrollViewPosition.sendEmptyMessageDelayed( 100, 300 );
         }
     };
 
-    private void addPathList(String pathString) {
+    private void addPathList(String pathString, boolean isLastItem ) {
         TextView tv = new TextView( getActivity());
-        tv.setText("/");
+        tv.setText(" / ");
         tv.setTextColor(Color.parseColor( "#CFCFFF" ));
         tv.setIncludeFontPadding( false );
         tv.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
@@ -137,6 +151,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         tv.setTextColor(Color.parseColor( "#CFCFFF" ));
         tv.setIncludeFontPadding( false );
         tv.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
+        if( isLastItem ) {
+            tv.setTypeface(null, Typeface.BOLD);
+        }
         tv.setOnClickListener( pathListTextViewOnClickListener );
         pathList.addView( tv );
     }
@@ -198,13 +215,17 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             case R.id.action_select_mode    :           // 파일 선택 모드
                 changeFileSelectMode();
                 return true;
-
+/*
             case R.id.action_list_mode      :           // 파일 리스트 모드
                 changeFileListMode();
                 return true;
-
-            case R.id.action_create_folder  :
+*/
+            case R.id.action_create_folder  :           // 새 폴더 생성
                 function_create_new_folder();
+                return true;
+
+            case R.id.action_delete :                   // 선택 항목 삭제
+                function_delete_selected_items();
                 return true;
 
             case R.drawable.ck_checked :                // 전체 파일 선택
@@ -222,10 +243,62 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         return false;
     }
 
+    private void function_delete_selected_items() {
+        int item_count = listAdapter.getSelectedCount();
+        String message = String.format( "%d %s\n\n", item_count, getString( R.string.delete_message ));
+
+        G.no_string_res     = R.string.cancel;
+        G.yes_string_res    = R.string.delete;
+        G.confirmDialog(getActivity(), R.string.delete_title, message, -1, new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch(i) {
+                    case G.DIALOG_BUTTON_ID_YES :       // Clicked Delete
+                        G.progressDialog( getActivity(), R.string.delete_title, "", new ProgressRunnable(){
+                            @Override
+                            public void run(ProgressDialog dialog) {
+                                List<FileListData> selectedItems = listAdapter.getSelectedItems();
+                                dialog.setMax(selectedItems.size());
+
+                                int progress_count = 0;
+                                for( FileListData data : selectedItems ) {
+                                    dialog.setMessage( data.getFilename() );
+                                    try {
+                                        FileUtils.forceDelete( data.getFile() );
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    dialog.setProgress( ++progress_count );
+                                }
+
+                                getActivity().runOnUiThread( new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        listUpdateRunnable.run();
+                                        changeFileListMode();
+                                    }
+                                } );
+                            }
+                        });
+                        break;
+                }
+            }
+        } );
+    }
+
     private void function_create_new_folder() {
         String title    = getString( R.string.create_folder_title);
-        String text     = null;
+        String text     = "";
         String hint     = getString( R.string.create_folder_hint);
+
+        File targetFolder = new File( listAdapter.getLastFolder(), hint );
+        if( targetFolder.exists()) {
+            for( int i = 1; targetFolder.exists(); i++ ) {
+                hint = String.format( "%s(%d)", getString( R.string.create_folder_hint), i );
+                targetFolder = new File( listAdapter.getLastFolder(), hint );
+            }
+        }
 
         G.no_string_res     = R.string.cancel;
         G.yes_string_res    = R.string.create;
@@ -237,10 +310,13 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         File newFolder = new File( listAdapter.getLastFolder(), G.getTextInputDialogResult());
                         G.Log( "Try to create folder : '%s'", newFolder.getAbsolutePath() );
                         if( newFolder.mkdirs()) {
+                            listAdapter.reload();                                               // 리스트를 갱신 시킨다.
+                            /*
                             context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
                             listAdapter.push_folder( newFolder);                                // 생성한 폴더로 리스트를 갱신시킨다.
                             listUpdateRunnable.run();
+                            */
                         }
                         break;
                 }

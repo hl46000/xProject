@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
 
-        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "FIRST" );
-        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "SECOND" );
-        pagerAdapter.addItem( new FragmentText(), "ETC" );
+        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file_0 );
+        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file_1 );
+        pagerAdapter.addItem( new FragmentText(), R.string.remote_file );
 
         pager.setAdapter(pagerAdapter);
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {

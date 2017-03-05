@@ -11,11 +11,11 @@
         android:title="Search"/>
 
     <!-- 선택 취소 버튼 -->
-    <item
+    <!-- item
         android:id="@+id/action_list_mode"
         android:title="@string/action_list_mode"
         android:orderInCategory="100"
-        app:showAsAction="never" />
+        app:showAsAction="never" / -->
 
     <!-- 이동 버튼 -->
     <item android:id="@+id/action_move"

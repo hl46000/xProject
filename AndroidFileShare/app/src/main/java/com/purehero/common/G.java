@@ -68,6 +68,14 @@ public class G {
      * @param res_icon
      * @param listener
      */
+    public static void confirmDialog( final Activity activity, int title_res_id, int message_res_id, final int res_icon, final DialogInterface.OnClickListener listener ){
+        confirmDialog( activity, title_res_id, activity.getString( message_res_id ), res_icon, listener );
+    }
+
+    public static void confirmDialog( final Activity activity, int title_res_id, String message, final int res_icon, final DialogInterface.OnClickListener listener ){
+        confirmDialog( activity, activity.getString( title_res_id ), message, res_icon, listener );
+    }
+
     public static void confirmDialog( final Activity activity, final String title, final String message, final int res_icon, final DialogInterface.OnClickListener listener ){
         activity.runOnUiThread( new Runnable(){
             @Override
@@ -109,7 +117,9 @@ public class G {
     private static EditText __input = null;
     public static void textInputDialog( final Activity activity, final String title, final String message, String hint, final int res_icon, final DialogInterface.OnClickListener listener ) {
         __input = new EditText(activity);
-        __input.setHint( hint );
+        //__input.setHint( hint );
+        __input.setText( hint );
+        __input.selectAll();
 
         activity.runOnUiThread( new Runnable(){
             @Override
@@ -154,6 +164,10 @@ public class G {
      * @param message
      * @param runnable
      */
+    public static void progressDialog( final Activity activity, int title_res_id, final String message, final ProgressRunnable runnable ) {
+        String title = activity.getString( title_res_id );
+        progressDialog( activity, title, message, runnable );
+    }
     public static void progressDialog( final Activity activity, final String title, final String message, final ProgressRunnable runnable ) {
         new progressDialogTask( activity, title, message, ProgressDialog.STYLE_HORIZONTAL, runnable ).execute();
     }

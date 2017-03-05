@@ -21,9 +21,14 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     private List<String> fragmentName = new ArrayList<String>();
     private final MaterialTabHost tabHost;
 
-    public ViewPagerAdapter(FragmentManager fm, MaterialTabHost tabHost ) {
+    public ViewPagerAdapter( FragmentManager fm, MaterialTabHost tabHost ) {
         super(fm);
         this.tabHost = tabHost;
+    }
+
+    public void addItem( Fragment fragment, int title_res_id ) {
+        String title = tabHost.getContext().getString( title_res_id );
+        addItem( fragment, title );
     }
 
     public void addItem( Fragment fragment, String title ) {
