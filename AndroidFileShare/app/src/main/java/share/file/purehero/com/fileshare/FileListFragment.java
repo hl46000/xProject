@@ -28,6 +28,8 @@ import com.purehero.common.ProgressRunnable;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
@@ -45,9 +47,15 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     private LinearLayout pathList = null;
     private HorizontalScrollView pathScrollView = null;
     private MainActivity context;
+    private File root_folder = new File( "/" );
 
     public FileListFragment setMainActivity( MainActivity activity ) {
         context = activity;
+        return this;
+    }
+
+    public FileListFragment setRootFolder( File root_folder ) {
+        this.root_folder = root_folder;
         return this;
     }
 
@@ -64,7 +72,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             pathScrollView = ( HorizontalScrollView ) layout.findViewById( R.id.pathScrollView ) ;
 
             listAdapter = new FileListAdapter( getActivity() );;
-            listAdapter.push_folder( new File("/"));
+            listAdapter.push_folder( root_folder, "" );
 
             listView.setAdapter( listAdapter );
             listView.setOnItemClickListener( this );
@@ -122,16 +130,16 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         public void run() {
             pathList.removeAllViews();
 
-            Vector<File> folders = listAdapter.getFolderVector();
+            Vector<String> folder_names = listAdapter.getFolderNameVector();
             String name = null;
 
-            for( int i = 0; i < folders.size(); i++ ) {
-                name = folders.get(i).getName();
+            for( int i = 0; i < folder_names.size(); i++ ) {
+                name = folder_names.get(i);
                 if( name.trim().isEmpty()) {
                     continue;
                 }
 
-                addPathList( name, i == folders.size() - 1 );
+                addPathList( name, i == folder_names.size() - 1 );
             }
 
             pathScrollViewPosition.sendEmptyMessageDelayed( 100, 300 );
@@ -164,7 +172,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             TextView tv = ( TextView ) view;
             String name = tv.getText().toString();
 
-            while( name.compareToIgnoreCase( listAdapter.getLastFolder().getName()) != 0 ) {
+            while( name.compareToIgnoreCase( listAdapter.getLastFolderName()) != 0 ) {
                 listAdapter.pop_folder( false );
             }
             listUpdateRunnable.run();
@@ -266,7 +274,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     private void function_paste_items() {
-        G.progressDialog(getActivity(), R.string.copying, "", new ProgressRunnable() {
+        int title_res_id = context.getOpCode() == R.id.action_move ? R.string.moving : R.string.copying;
+        G.progressDialog(getActivity(), title_res_id, "", new ProgressRunnable() {
             @Override
             public void run(ProgressDialog dialog) {
                 List<FileListData> selected_items = context.getSelectedItems();
@@ -283,8 +292,54 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 for( FileListData data : selected_items ) {
                     dialog.setMessage( data.getFilename() );
 
+                    boolean isError = false;
 
+                    int nRead = 0;
+                    FileInputStream fis = null;
+                    FileOutputStream fos = null;
+                    try {
+                        fis = new FileInputStream( data.getFile());
+                        fos = new FileOutputStream( new File( listAdapter.getLastFolder(), data.getFilename()));
+
+                        while(( nRead = fis.read( buffer, 0, 102400 )) > 0 ) {
+                            fos.write( buffer, 0, nRead );
+
+                            copied_byte_size += nRead;
+                            dialog.setProgress((int) ( copied_byte_size * 100 / copy_byte_size ));
+
+                            try { Thread.sleep( 10 ); } catch (InterruptedException e) { e.printStackTrace(); }
+                        }
+
+                    } catch( IOException e ) {
+                        isError = true;
+                        e.printStackTrace();
+
+                    } finally {
+                        if( fis != null ) {
+                            try { fis.close(); } catch (IOException e) { e.printStackTrace(); }
+                        }
+                        if( fos != null ) {
+                            try { fos.close(); } catch (IOException e) { e.printStackTrace(); }
+                        }
+                    }
+
+                    if( !isError && context.getOpCode() == R.id.action_move ) {
+                        try {
+                            FileUtils.forceDelete( data.getFile());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
+                dialog.setProgress( 100 );
+
+                getActivity().runOnUiThread( new Runnable(){
+                    @Override
+                    public void run() {
+                        listUpdateRunnable.run();
+                        changeFileListMode();
+                    }
+                } );
             }
         });
     }
@@ -400,11 +455,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         if( data.getFile().isDirectory()) {
             context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
-            listAdapter.push_folder( data.getFile());                           // 선택한 폴더로 리스트를 갱신시킨다.
-            //new Thread( listUpdateRunnable ).start();
+            listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
             listUpdateRunnable.run();
-            //} else {
-            //fileListView.showContextMenuForChild(view);
         }
     }
 

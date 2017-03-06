@@ -19,8 +19,8 @@
     <string name="create_folder_hint">New folder</string>
     <string name="cancel">CANCEL</string>
     <string name="create">CREATE</string>
-    <string name="my_file_0">My_File1</string>
-    <string name="my_file_1">My_File2</string>
+    <string name="my_file">MyFile</string>
+    <string name="my_sdcard_file">Sdcard</string>
     <string name="remote_file">Remote_File</string>
     <string name="delete_title">Delete items</string>
     <string name="delete_message">items will be deleted.</string>
@@ -28,5 +28,7 @@
     <string name="deleting">Deleting</string>
     <string name="action_paste">Paste</string>
     <string name="copying">Copying</string>
+    <string name="moving">Moving</string>
+
 
 </resources>

@@ -1,7 +1,12 @@
 package share.file.purehero.com.fileshare;
 
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +21,10 @@ import android.widget.Toast;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.G;
+import com.purehero.common.StorageHelper;
 import com.purehero.common.ViewPagerAdapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,8 +66,15 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
 
-        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file_0 );
-        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file_1 );
+        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file );
+
+        String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
+        if( state.equals(Environment.MEDIA_MOUNTED)){ // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
+            File externalStorageFolder = Environment.getExternalStorageDirectory();
+            //G.Log( "externalStorageFolder : %s", externalStorageFolder.getAbsolutePath());
+            pagerAdapter.addItem( new FileListFragment().setRootFolder(externalStorageFolder).setMainActivity(this), R.string.my_sdcard_file );
+        }
+
         pagerAdapter.addItem( new FragmentText(), R.string.remote_file );
 
         pager.setAdapter(pagerAdapter);
@@ -79,6 +93,25 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                             .setText(pagerAdapter.getPageTitle(i))
                             .setTabListener(this)
             );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 123 :
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    checkPermission();
+                }
+                break;
+        }
+    }
+
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 123 );
         }
     }
 

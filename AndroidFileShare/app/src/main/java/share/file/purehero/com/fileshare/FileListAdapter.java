@@ -96,7 +96,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         listData.clear();
         filterData.clear();
 
-        File subItems [] = folder_stack.lastElement().listFiles();
+        File subItems [] = getLastFolder().listFiles();
         if( subItems != null ) {
             for( File file : subItems ) {
                 FileListData data = new FileListData( context, file );
@@ -132,6 +132,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         FileListData data = ( FileListData ) getItem( position );
 
         viewHolder.tvTitle.setText( data.getFilename());
+        viewHolder.tvTitle.setSelected( true );
         viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
         viewHolder.tvSubTitle.setText( data.getSubTitle());
         viewHolder.tvDate.setVisibility( View.VISIBLE );
@@ -174,10 +175,13 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         public TextView tvDate;
     }
 
+    private Vector<String> folder_name_stack = new Vector<String>();
     private Vector<File> folder_stack = new Vector<File>();
+    public synchronized Vector<String> getFolderNameVector() { return folder_name_stack; }
     public synchronized Vector<File> getFolderVector() { return folder_stack; }
-    public synchronized void push_folder(File file) {
+    public synchronized void push_folder(File file, String name ) {
         folder_stack.add( file );
+        folder_name_stack.add( name==null? file.getName() : name );
     }
 
     /*
@@ -186,6 +190,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
     public synchronized boolean pop_folder( boolean bReload ) {
         if( folder_stack.size() > 1 ) {
             folder_stack.remove( folder_stack.size() - 1 );
+            folder_name_stack.remove( folder_name_stack.size() - 1 );
 
             if( bReload ) {
                 reload();
@@ -199,6 +204,9 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         return folder_stack.size() > 1 ? true : false;
     }
 
+    public synchronized String getLastFolderName() {
+        return folder_name_stack.lastElement();
+    }
     public synchronized File getLastFolder() {
         return folder_stack.lastElement();
     }
