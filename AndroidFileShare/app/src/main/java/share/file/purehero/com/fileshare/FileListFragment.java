@@ -191,6 +191,20 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         if( menu_item != null ) {
             menu_item.setEnabled( listAdapter.getLastFolder().canWrite());
         }
+
+        List<FileListData> selected_items = context.getSelectedItems();     // 선택된 데이터값을 가져 온다.
+        menu_item = menu.findItem( R.id.action_copy );                      // 복사 메뉴
+        if( menu_item != null ) {
+            menu_item.setVisible( selected_items == null );                 // 선택된 값이 없을 경우 보이게 한다.
+        }
+        menu_item = menu.findItem( R.id.action_move );                      // 이동 메뉴
+        if( menu_item != null ) {
+            menu_item.setVisible( selected_items == null );                 // 선택된 값이 없을 경우 보이게 한다.
+        }
+        menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
+        if( menu_item != null ) {
+            menu_item.setVisible( selected_items != null );                 // 선택된 값이 있을 경우 보이게 한다.
+        }
     }
 
     @Override
@@ -215,17 +229,25 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             case R.id.action_select_mode    :           // 파일 선택 모드
                 changeFileSelectMode();
                 return true;
-/*
-            case R.id.action_list_mode      :           // 파일 리스트 모드
-                changeFileListMode();
-                return true;
-*/
+
             case R.id.action_create_folder  :           // 새 폴더 생성
                 function_create_new_folder();
                 return true;
 
             case R.id.action_delete :                   // 선택 항목 삭제
                 function_delete_selected_items();
+                return true;
+
+            case R.id.action_copy :                     // 파일 복사
+                function_copy_selected_items();
+                return true;
+
+            case R.id.action_move :                     // 파일 이동
+                function_move_selected_items();
+                return true;
+
+            case R.id.action_paste :                    // 파일 복사/이동, 붙여 넣기
+                function_paste_items();
                 return true;
 
             case R.drawable.ck_checked :                // 전체 파일 선택
@@ -241,6 +263,44 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         }
 
         return false;
+    }
+
+    private void function_paste_items() {
+        G.progressDialog(getActivity(), R.string.copying, "", new ProgressRunnable() {
+            @Override
+            public void run(ProgressDialog dialog) {
+                List<FileListData> selected_items = context.getSelectedItems();
+                long copy_byte_size = 0;
+                long copied_byte_size = 0;
+
+                for( FileListData data : selected_items ) {
+                    copy_byte_size += data.getFile().length();
+                }
+
+                dialog.setMax( 100 );
+
+                byte buffer [] = new byte[ 102400 ];        // 100Kbyte
+                for( FileListData data : selected_items ) {
+                    dialog.setMessage( data.getFilename() );
+
+
+                }
+            }
+        });
+    }
+
+    private void function_move_selected_items() {
+        context.setSelectedItems( listAdapter.getSelectedItems());
+        context.setOpCode( R.id.action_move );
+
+        changeFileListMode();
+    }
+
+    private void function_copy_selected_items() {
+        context.setSelectedItems( listAdapter.getSelectedItems());
+        context.setOpCode( R.id.action_copy );
+
+        changeFileListMode();
     }
 
     private void function_delete_selected_items() {
@@ -362,16 +422,20 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     private void changeFileSelectMode() {
-        listAdapter.setSelectMode( true );      // 파일 선택모드로 전환한다.
-        context.changeFileSelectModeToolbar();         // 액션바를 선택 항목 개수가 나오도록 전환 시킨다.
+        context.changeFileSelectModeToolbar();               // 액션바를 선택 항목 개수가 나오도록 전환 시킨다.
         context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() ); // 액션바에 선택한 개수를 표시한다.
-        listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
+        context.setSelectedItems( null );                   // 이전에 선택된 항목들을 제거 한다.
+        context.setOpCode( -1 );                            // 이전 명령어 코드를 삭제한다.
+
+        listAdapter.setSelectMode( true );                 // 파일 선택모드로 전환한다.
+        listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
     }
 
     private void changeFileListMode() {
+        context.changeFileListModeToolbar();           // 액션바를 기본으로 전환시킨다.
+
         listAdapter.setSelectedALL( false );    // 모든 항목의 선택을 해제한다.
         listAdapter.setSelectMode( false );     // 파일 선택모드를 해제한다.
-        context.changeFileListModeToolbar();           // 액션바를 기본으로 전환시킨다.
         listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
     }
 }

@@ -258,4 +258,22 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
         getSupportActionBar().setTitle( String.format("%d %s", selectedCount, strSelected ));
     }
+
+    protected List<FileListData> selected_items = null;
+    public void setSelectedItems( List<FileListData> items ) {
+        selected_items = items;
+    }
+
+    public List<FileListData> getSelectedItems() {
+        return selected_items;
+    }
+
+    public int getOpCode() {
+        return opCode;
+    }
+
+    protected int opCode = -1;
+    public void setOpCode( int code ) {
+        opCode = code;
+    }
 }

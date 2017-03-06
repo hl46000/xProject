@@ -11,6 +11,12 @@
         app:actionViewClass="android.support.v7.widget.SearchView"
         android:title="Search"/>
 
+    <!-- 붙여넣기 버튼 -->
+    <item android:id="@+id/action_paste"
+        android:title="@string/action_paste"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
     <!-- 선택 버튼 -->
     <item android:id="@+id/action_select_mode"
         android:title="@string/action_select_mode"
