@@ -101,7 +101,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             for( File file : subItems ) {
                 FileListData data = new FileListData( context, file );
                 FileClickCount.loadClickCount( data );
-                
+
                 filterData.add( data );
                 listData.add( data );
             }

@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.G;
-import com.purehero.common.StorageHelper;
 import com.purehero.common.ViewPagerAdapter;
 
 import java.io.File;
@@ -46,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FileClickCount.loadDatas( this );
 
         int toolbarTitleIDs[] = { R.string.toolbar, R.string.toolbar2 };
         int toolbarIDs [] = { R.id.my_toolbar, R.id.my_toolbar2 };
@@ -94,6 +95,12 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                             .setTabListener(this)
             );
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        FileClickCount.saveDatas( this );
+        super.onDestroy();
     }
 
     @Override

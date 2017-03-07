@@ -310,6 +310,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         }
                     });
 
+                    File target_file = new File( listAdapter.getLastFolder(), data.getFilename());
                     boolean isError = false;
 
                     int nRead = 0;
@@ -317,7 +318,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     FileOutputStream fos = null;
                     try {
                         fis = new FileInputStream( data.getFile());
-                        fos = new FileOutputStream( new File( listAdapter.getLastFolder(), data.getFilename()));
+                        fos = new FileOutputStream( target_file );
 
                         while(( nRead = fis.read( buffer, 0, 102400 )) > 0 && !G.progressDialogCanceled ) {
                             fos.write( buffer, 0, nRead );
@@ -341,16 +342,23 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         }
                     }
 
-                    if( !isError && context.getOpCode() == R.id.action_move ) {
+                    if( G.progressDialogCanceled) {
                         try {
-                            FileUtils.forceDelete( data.getFile());
+                            FileUtils.forceDelete( target_file );   // Cancel 이 눌러질때 동작 중이던 파일은 삭제 한다.
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        if( !isError && context.getOpCode() == R.id.action_move ) {
+                            try {
+                                FileUtils.forceDelete( data.getFile());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        dialog.setProgress( 100 );
                     }
-                }
-                if( !G.progressDialogCanceled ) {
-                    dialog.setProgress( 100 );
                 }
 
                 getActivity().runOnUiThread( new Runnable(){
