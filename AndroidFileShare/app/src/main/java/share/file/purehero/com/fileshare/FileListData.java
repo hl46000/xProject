@@ -20,6 +20,7 @@ public class FileListData {
     private Drawable icon 	= null;
     private int subItemCount = 0;
     private boolean selected = false;
+    private int clickCount = 0;             // 사용자에 의해 선택되어지 횟수
 
     public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
 
@@ -69,6 +70,17 @@ public class FileListData {
     public boolean isSelected() { return selected; }
     public void setSelected(boolean selected) { this.selected = selected; }
 
+    public void IncrementClickCount() {
+        ++clickCount;
+    }
+    public int getClickCount() {
+        return clickCount;
+    }
+
+    public void setClickCount(int clickCount) {
+        this.clickCount = clickCount;
+    }
+
     public Drawable getIcon() {
         if( icon != null ) return icon;
 
@@ -115,14 +127,16 @@ public class FileListData {
         return result;
     }
 
-
-
     public static final Comparator<FileListData> ALPHA_COMPARATOR = new Comparator<FileListData> () {
         @Override
         public int compare(FileListData arg0, FileListData arg1) {
             if( arg0.file.isDirectory() && !arg1.file.isDirectory() ) return -1;
             if( !arg0.file.isDirectory() && arg1.file.isDirectory() ) return  1;
-
+            if( arg0.getClickCount() > arg1.getClickCount()) {
+                return -1;
+            } else if( arg0.getClickCount() < arg1.getClickCount() ) {
+                return 1;
+            }
             return arg0.getFilename().compareToIgnoreCase( arg1.getFilename());
         }
     };

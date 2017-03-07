@@ -62,9 +62,9 @@ public class G {
     /**
      * 확인 용 Dialog 을 띄워준다.
      *
-     * @param context
-     * @param title
-     * @param message
+     * @param
+     * @param
+     * @param
      * @param res_icon
      * @param listener
      */
@@ -164,6 +164,7 @@ public class G {
      * @param message
      * @param runnable
      */
+    public static boolean progressDialogCanceled = false;
     public static void progressDialog( final Activity activity, int title_res_id, final String message, final ProgressRunnable runnable ) {
         String title = activity.getString( title_res_id );
         progressDialog( activity, title, message, runnable );
@@ -193,6 +194,7 @@ public class G {
 
         @Override
         protected Void doInBackground(Void... arg0) {
+            progressDialogCanceled = false;
             runnable.run( asyncDialog );
             return null;
         }

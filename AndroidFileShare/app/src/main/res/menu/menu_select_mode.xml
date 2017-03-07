@@ -17,15 +17,15 @@
         android:orderInCategory="100"
         app:showAsAction="never" / -->
 
-    <!-- 이동 버튼 -->
-    <item android:id="@+id/action_move"
-        android:title="@string/action_move"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
-
     <!-- 복사 버튼 -->
     <item android:id="@+id/action_copy"
         android:title="@string/action_copy"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <!-- 이동 버튼 -->
+    <item android:id="@+id/action_move"
+        android:title="@string/action_move"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

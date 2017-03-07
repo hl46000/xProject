@@ -263,6 +263,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 listAdapter.notifyDataSetChanged();
                 context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
                 break;
+
             case R.drawable.ck_nomal :                  // 전체 파일 선택 취소
                 listAdapter.setSelectedALL( false );
                 listAdapter.notifyDataSetChanged();
@@ -277,7 +278,15 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         int title_res_id = context.getOpCode() == R.id.action_move ? R.string.moving : R.string.copying;
         G.progressDialog(getActivity(), title_res_id, "", new ProgressRunnable() {
             @Override
-            public void run(ProgressDialog dialog) {
+            public void run(final ProgressDialog dialog) {
+                dialog.setCancelable( true );
+                dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        G.progressDialogCanceled = true;
+                    }
+                });
+
                 List<FileListData> selected_items = context.getSelectedItems();
                 long copy_byte_size = 0;
                 long copied_byte_size = 0;
@@ -289,8 +298,17 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 dialog.setMax( 100 );
 
                 byte buffer [] = new byte[ 102400 ];        // 100Kbyte
-                for( FileListData data : selected_items ) {
-                    dialog.setMessage( data.getFilename() );
+                for( final FileListData data : selected_items ) {
+                    if( G.progressDialogCanceled ) {
+                        break;
+                    }
+
+                    getActivity().runOnUiThread( new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.setMessage(data.getFilename());
+                        }
+                    });
 
                     boolean isError = false;
 
@@ -301,7 +319,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         fis = new FileInputStream( data.getFile());
                         fos = new FileOutputStream( new File( listAdapter.getLastFolder(), data.getFilename()));
 
-                        while(( nRead = fis.read( buffer, 0, 102400 )) > 0 ) {
+                        while(( nRead = fis.read( buffer, 0, 102400 )) > 0 && !G.progressDialogCanceled ) {
                             fos.write( buffer, 0, nRead );
 
                             copied_byte_size += nRead;
@@ -331,7 +349,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         }
                     }
                 }
-                dialog.setProgress( 100 );
+                if( !G.progressDialogCanceled ) {
+                    dialog.setProgress( 100 );
+                }
 
                 getActivity().runOnUiThread( new Runnable(){
                     @Override
@@ -371,13 +391,19 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     case G.DIALOG_BUTTON_ID_YES :       // Clicked Delete
                         G.progressDialog( getActivity(), R.string.delete_title, "", new ProgressRunnable(){
                             @Override
-                            public void run(ProgressDialog dialog) {
+                            public void run( final ProgressDialog dialog) {
                                 List<FileListData> selectedItems = listAdapter.getSelectedItems();
                                 dialog.setMax(selectedItems.size());
 
                                 int progress_count = 0;
-                                for( FileListData data : selectedItems ) {
-                                    dialog.setMessage( data.getFilename() );
+                                for( final FileListData data : selectedItems ) {
+                                    getActivity().runOnUiThread( new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.setMessage(data.getFilename());
+                                        }
+                                    });
+
                                     try {
                                         FileUtils.forceDelete( data.getFile() );
                                     } catch (IOException e) {
@@ -443,7 +469,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         FileListData data = ( FileListData ) listAdapter.getItem( position );
-        G.Log( "onItemClick : %d %s", position, data.getFilename() );
+        data.IncrementClickCount();
+        FileClickCount.saveClickCount( data );
 
         if( listAdapter.isSelectMode()) {                                       // 파일 선택 모드일 경우
             data.setSelected( !data.isSelected());                              // 선택한 항목의 선택을 반전시킨다.
@@ -463,6 +490,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
         FileListData data = ( FileListData ) listAdapter.getItem( position );
+        data.IncrementClickCount();
+        FileClickCount.saveClickCount( data );
 
         if( listAdapter.isSelectMode()) {
             changeFileListMode();                   // 파일 리스트 모드로 전환한다.
