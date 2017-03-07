@@ -29,6 +29,7 @@
     <string name="action_paste">Paste</string>
     <string name="copying">Copying</string>
     <string name="moving">Moving</string>
+    <string name="read_only">ReadOnly</string>
 
 
 </resources>

@@ -33,10 +33,10 @@ import java.util.Vector;
 public class FileListAdapter extends BaseAdapter implements Filterable, View.OnClickListener {
     private List<FileListData> listData = new ArrayList<FileListData>();    // 전체 데이터
     private List<FileListData> filterData = new ArrayList<FileListData>();  // 검색이 적용된 데이터
-    private boolean selectMode = false;
+    //private boolean selectMode = false;
 
-    private final Activity context;
-    public FileListAdapter( Activity context) {
+    private MainActivity context;
+    public FileListAdapter( MainActivity context) {
         this.context = context;
     }
 
@@ -53,7 +53,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         return i;
     }
 
-    public void setSelectedALL( boolean selected ) {
+    public void setSelectALL(boolean selected ) {
         for( FileListData data : filterData ) {
             data.setSelected( selected );
         }
@@ -212,10 +212,12 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         return folder_stack.lastElement();
     }
 
-    public boolean isSelectMode() { return selectMode; }
+    public boolean isSelectMode() { return context.isSelectMode(); }
+    /*
     public void setSelectMode(boolean selectMode) {
         this.selectMode = selectMode;
     }
+    */
 
 
     @Override

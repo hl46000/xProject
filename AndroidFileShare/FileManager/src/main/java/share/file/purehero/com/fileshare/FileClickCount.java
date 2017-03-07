@@ -25,7 +25,7 @@ public class FileClickCount {
         count_datas.remove( hash );
         count_datas.put( hash, data.getClickCount());
 
-        G.Log( "saveClickCount %s=%d", hash, data.getClickCount());
+        //G.Log( "saveClickCount %s=%d", hash, data.getClickCount());
     }
 
     public static void loadClickCount( FileListData data ) {
@@ -34,7 +34,7 @@ public class FileClickCount {
         String hash = Cipher.MD5( data.getFile().getAbsolutePath());
         if( count_datas.containsKey( hash )) {
             data.setClickCount( count_datas.get( hash ));
-            G.Log( "loadClickCount %s=%d", hash, data.getClickCount());
+          //  G.Log( "loadClickCount %s=%d", hash, data.getClickCount());
         }
     }
 

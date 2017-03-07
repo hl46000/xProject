@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
-import static android.R.attr.name;
-
 /**
  * Created by MY on 2017-02-25.
  */
@@ -61,8 +59,6 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        G.Log( "onCreateView" );
-
         layout 		= inflater.inflate( R.layout.file_list, container, false);
         if( layout == null ) return null;
 
@@ -71,7 +67,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             pathList        = ( LinearLayout ) layout.findViewById( R.id.pathList ) ;
             pathScrollView = ( HorizontalScrollView ) layout.findViewById( R.id.pathScrollView ) ;
 
-            listAdapter = new FileListAdapter( getActivity() );;
+            listAdapter = new FileListAdapter( context );;
             listAdapter.push_folder( root_folder, "" );
 
             listView.setAdapter( listAdapter );
@@ -89,7 +85,6 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public boolean onBackPressed() {
         try {
             if( listAdapter.isSelectMode()) {
-                listAdapter.setSelectMode( false );
                 context.changeFileListModeToolbar();
                 listAdapter.notifyDataSetChanged();
                 return true;
@@ -97,7 +92,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
             if( listAdapter.is_next_pop_folder()) {
                 listAdapter.pop_folder( false );
-                listUpdateRunnable.run();
+                reloadListView();
 
                 context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
                 return true;
@@ -109,11 +104,19 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         return false;
     }
 
+    public void reflashListView() {
+        listAdapter.notifyDataSetChanged();
+    }
+
+    public void reloadListView() {
+        listUpdateRunnable.run();
+    }
+
     Runnable listUpdateRunnable = new Runnable() {
         @Override
         public void run() {
             listAdapter.reload();
-            getActivity().runOnUiThread( pathListUpdateRunnable );
+            context.runOnUiThread( pathListUpdateRunnable );
             listView.smoothScrollToPosition(0);
         }
     };
@@ -147,14 +150,14 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     };
 
     private void addPathList(String pathString, boolean isLastItem ) {
-        TextView tv = new TextView( getActivity());
+        TextView tv = new TextView( context );
         tv.setText(" / ");
         tv.setTextColor(Color.parseColor( "#CFCFFF" ));
         tv.setIncludeFontPadding( false );
         tv.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
         pathList.addView( tv );
 
-        tv = new TextView( getActivity());
+        tv = new TextView( context );
         tv.setText(pathString);
         tv.setTextColor(Color.parseColor( "#CFCFFF" ));
         tv.setIncludeFontPadding( false );
@@ -175,7 +178,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             while( name.compareToIgnoreCase( listAdapter.getLastFolderName()) != 0 ) {
                 listAdapter.pop_folder( false );
             }
-            listUpdateRunnable.run();
+            reloadListView();
             context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
         }
     };
@@ -194,24 +197,26 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        G.Log( "FileListFragment::onPrepareOptionsMenu" );
-        MenuItem menu_item = menu.findItem( R.id.action_create_folder );
+        MenuItem menu_item = menu.findItem( R.id.action_create_folder );    // 새 폴더 생성
         if( menu_item != null ) {
-            menu_item.setEnabled( listAdapter.getLastFolder().canWrite());
+            if( !listAdapter.getLastFolder().canWrite() ) {
+                menu_item.setTitle( String.format( "%s(%s)",  getString( R.string.action_create_folder), getString( R.string.read_only )) );
+                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
+            } else {
+                menu_item.setTitle( getString( R.string.action_create_folder));
+                menu_item.setEnabled( true );
+            }
         }
 
-        List<FileListData> selected_items = context.getSelectedItems();     // 선택된 데이터값을 가져 온다.
-        menu_item = menu.findItem( R.id.action_copy );                      // 복사 메뉴
-        if( menu_item != null ) {
-            menu_item.setVisible( selected_items == null );                 // 선택된 값이 없을 경우 보이게 한다.
-        }
-        menu_item = menu.findItem( R.id.action_move );                      // 이동 메뉴
-        if( menu_item != null ) {
-            menu_item.setVisible( selected_items == null );                 // 선택된 값이 없을 경우 보이게 한다.
-        }
         menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
         if( menu_item != null ) {
-            menu_item.setVisible( selected_items != null );                 // 선택된 값이 있을 경우 보이게 한다.
+            if( !listAdapter.getLastFolder().canWrite() ) {
+                menu_item.setTitle( String.format( "%s(%s)", getString( R.string.action_paste), getString( R.string.read_only )) );
+                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
+            } else {
+                menu_item.setTitle( getString( R.string.action_paste));
+                menu_item.setEnabled( true );
+            }
         }
     }
 
@@ -219,15 +224,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public boolean onOptionsItemSelected(int id) {
         switch( id ) {
             case android.R.id.home:
-                if( listAdapter.isSelectMode()) {
-                    listAdapter.setSelectMode( false );
-                    listAdapter.notifyDataSetChanged();
-                    return true;
-                }
-
                 if( listAdapter.is_next_pop_folder()) {
                     listAdapter.pop_folder( false );
-                    listUpdateRunnable.run();
+                    reloadListView();
 
                     context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
                     return true;
@@ -259,13 +258,13 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 return true;
 
             case R.drawable.ck_checked :                // 전체 파일 선택
-                listAdapter.setSelectedALL( true );
+                listAdapter.setSelectALL( true );     // 현재 폴더의 전체를 선택한다.
                 listAdapter.notifyDataSetChanged();
                 context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
                 break;
 
             case R.drawable.ck_nomal :                  // 전체 파일 선택 취소
-                listAdapter.setSelectedALL( false );
+                listAdapter.setSelectALL( false );    // 현재 폴더의 전체 선택의 취소한다.
                 listAdapter.notifyDataSetChanged();
                 context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
                 break;
@@ -276,7 +275,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     private void function_paste_items() {
         int title_res_id = context.getOpCode() == R.id.action_move ? R.string.moving : R.string.copying;
-        G.progressDialog(getActivity(), title_res_id, "", new ProgressRunnable() {
+        G.progressDialog( context, title_res_id, "", new ProgressRunnable() {
             @Override
             public void run(final ProgressDialog dialog) {
                 dialog.setCancelable( true );
@@ -303,7 +302,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         break;
                     }
 
-                    getActivity().runOnUiThread( new Runnable() {
+                    context.runOnUiThread( new Runnable() {
                         @Override
                         public void run() {
                             dialog.setMessage(data.getFilename());
@@ -361,10 +360,11 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     }
                 }
 
-                getActivity().runOnUiThread( new Runnable(){
+                context.clearSelectedItems();
+                context.runOnUiThread( new Runnable(){
                     @Override
                     public void run() {
-                        listUpdateRunnable.run();
+                        reloadListView();
                         changeFileListMode();
                     }
                 } );
@@ -373,15 +373,17 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     private void function_move_selected_items() {
-        context.setSelectedItems( listAdapter.getSelectedItems());
+        context.collectSelectedItems( listAdapter.getSelectedItems()); // 전체 화면의 선택 항목을 수집한다.
         context.setOpCode( R.id.action_move );
+        context.setAllSelectItems( false );         // 전체 화면의 선택 항목을 해제 한다.
 
         changeFileListMode();
     }
 
     private void function_copy_selected_items() {
-        context.setSelectedItems( listAdapter.getSelectedItems());
+        context.collectSelectedItems( listAdapter.getSelectedItems()); // 전체 화면의 선택 항목을 수집한다.
         context.setOpCode( R.id.action_copy );
+        context.setAllSelectItems( false );         // 전체 화면의 선택 항목을 해제 한다.
 
         changeFileListMode();
     }
@@ -392,12 +394,12 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
         G.no_string_res     = R.string.cancel;
         G.yes_string_res    = R.string.delete;
-        G.confirmDialog(getActivity(), R.string.delete_title, message, -1, new DialogInterface.OnClickListener(){
+        G.confirmDialog( context, R.string.delete_title, message, -1, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch(i) {
                     case G.DIALOG_BUTTON_ID_YES :       // Clicked Delete
-                        G.progressDialog( getActivity(), R.string.delete_title, "", new ProgressRunnable(){
+                        G.progressDialog( context, R.string.delete_title, "", new ProgressRunnable(){
                             @Override
                             public void run( final ProgressDialog dialog) {
                                 List<FileListData> selectedItems = listAdapter.getSelectedItems();
@@ -405,7 +407,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
                                 int progress_count = 0;
                                 for( final FileListData data : selectedItems ) {
-                                    getActivity().runOnUiThread( new Runnable() {
+                                    context.runOnUiThread( new Runnable() {
                                         @Override
                                         public void run() {
                                             dialog.setMessage(data.getFilename());
@@ -421,10 +423,10 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                                     dialog.setProgress( ++progress_count );
                                 }
 
-                                getActivity().runOnUiThread( new Runnable(){
+                                context.runOnUiThread( new Runnable(){
                                     @Override
                                     public void run() {
-                                        listUpdateRunnable.run();
+                                        reloadListView();
                                         changeFileListMode();
                                     }
                                 } );
@@ -451,7 +453,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
         G.no_string_res     = R.string.cancel;
         G.yes_string_res    = R.string.create;
-        G.textInputDialog(getActivity(),title, text, hint, -1, new DialogInterface.OnClickListener() {
+        G.textInputDialog( context,title, text, hint, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch( i ) {
@@ -464,7 +466,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                             context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
                             listAdapter.push_folder( newFolder);                                // 생성한 폴더로 리스트를 갱신시킨다.
-                            listUpdateRunnable.run();
+                            rel.run();
                             */
                         }
                         break;
@@ -491,7 +493,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
             listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
-            listUpdateRunnable.run();
+            reloadListView();
         }
     }
 
@@ -513,18 +515,28 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     private void changeFileSelectMode() {
         context.changeFileSelectModeToolbar();               // 액션바를 선택 항목 개수가 나오도록 전환 시킨다.
         context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() ); // 액션바에 선택한 개수를 표시한다.
-        context.setSelectedItems( null );                   // 이전에 선택된 항목들을 제거 한다.
+        context.collectSelectedItems( null );                   // 이전에 선택된 항목들을 제거 한다.
         context.setOpCode( -1 );                            // 이전 명령어 코드를 삭제한다.
 
-        listAdapter.setSelectMode( true );                 // 파일 선택모드로 전환한다.
         listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
     }
 
     private void changeFileListMode() {
         context.changeFileListModeToolbar();           // 액션바를 기본으로 전환시킨다.
 
-        listAdapter.setSelectedALL( false );    // 모든 항목의 선택을 해제한다.
-        listAdapter.setSelectMode( false );     // 파일 선택모드를 해제한다.
+        listAdapter.setSelectALL( false );    // 모든 항목의 선택을 해제한다.
         listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
+    }
+
+    public int getSelectedItemCount() {
+        return listAdapter.getSelectedCount();
+    }
+
+    public List<FileListData> getSelectedItems() {
+        return listAdapter.getSelectedItems();
+    }
+
+    public void setSelectALL(boolean b) {
+        listAdapter.setSelectALL(b);
     }
 }

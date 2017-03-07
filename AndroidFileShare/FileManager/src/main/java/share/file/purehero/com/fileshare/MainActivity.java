@@ -33,12 +33,15 @@ import it.neokree.materialtabs.MaterialTabListener;
 
 
 public class MainActivity extends AppCompatActivity implements MaterialTabListener, View.OnClickListener {
+    public static int ACTION_BAR_LIST_MODE = 0;
+    public static int ACTION_BAR_SELECTE_MODE = 1;
+
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
     private SearchView searchView;
     private List<Toolbar> toolbarList = new ArrayList<Toolbar>();
-    private int toolbarIndex = 0;
+    private int toolbarIndex = ACTION_BAR_LIST_MODE;
     private boolean selectionALL = false;
 
     @Override
@@ -66,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
-
         pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file );
 
         String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
@@ -82,8 +84,18 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                // when user do a swipe the selected tab change
                 tabHost.setSelectedNavigationItem(position);
+
+                Fragment fragment = pagerAdapter.getItem( position );
+                if( fragment instanceof FileListFragment ) {
+                    FileListFragment fileListFragment = ( FileListFragment ) fragment;
+                    fileListFragment.reflashListView();
+                }
+
+                // ActionBar에 검색바가 활성되어 있으면 검색바를 사라지게 한다.
+                if (!searchView.isIconified()) {
+                    searchView.setIconified(true);
+                }
             }
         });
 
@@ -125,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     @Override
     public void onTabSelected(MaterialTab tab) {
         pager.setCurrentItem(tab.getPosition());
+        //G.Log( "onTabSelected : %d", tab.getPosition());
     }
 
     @Override
@@ -173,14 +186,14 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     */
 
     public void changeFileListModeToolbar() {
-        toolbarIndex = 0;
+        toolbarIndex = ACTION_BAR_LIST_MODE;
         changeToolbarMode();
         getSupportActionBar().setDisplayShowHomeEnabled(false);
         selectionALL = false;
     }
 
     public void changeFileSelectModeToolbar() {
-        toolbarIndex = 1;
+        toolbarIndex = ACTION_BAR_SELECTE_MODE;
         changeToolbarMode();
         ActionBar actionbar = getSupportActionBar();
         if( actionbar != null ) {
@@ -194,9 +207,28 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        //G.Log( "onPrepareOptionsMenu" );
         try {
             Fragment fragment = pagerAdapter.getItem( pager.getCurrentItem());
             fragment.onPrepareOptionsMenu(menu);
+
+            MenuItem menu_item = null;
+            if( isSelectMode()) {
+                menu_item = menu.findItem( R.id.action_copy );                      // 복사 메뉴
+                if( menu_item != null ) {
+                    menu_item.setEnabled( g_SelectedItems != null );                 // 선택된 값이 없을 경우 보이게 한다.
+                }
+                menu_item = menu.findItem( R.id.action_move );                      // 이동 메뉴
+                if( menu_item != null ) {
+                    menu_item.setEnabled( g_SelectedItems != null );                 // 선택된 값이 없을 경우 보이게 한다.
+                }
+            } else {
+                menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
+                if( menu_item != null ) {
+                    menu_item.setVisible( g_SelectedItems != null );                 // 선택된 값이 있을 경우 보이게 한다.
+                }
+            }
+
         } catch( Exception e ) {}
 
         return true;
@@ -290,22 +322,51 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         }
         getSupportActionBar().setIcon( selectionALL ? R.drawable.ck_checked : R.drawable.ck_nomal );
 
-        G.Log( "selectionALL : %s", selectionALL?"true":"false" );
+       //G.Log( "selectionALL : %s", selectionALL?"true":"false" );
     }
 
     public void setSelectToolbarSelectedCount(int selectedCount) {
         String strSelected = getString( R.string.toolbar2 );
+        selectedCount = 0;
 
+        int len = pagerAdapter.getCount();
+        for( int i = 0; i < len; i++ ) {
+            Fragment fragment = pagerAdapter.getItem( i );
+            if( fragment instanceof FileListFragment ) {
+                FileListFragment fileListFragment = ( FileListFragment ) fragment;
+                selectedCount += fileListFragment.getSelectedItemCount();
+            }
+        }
         getSupportActionBar().setTitle( String.format("%d %s", selectedCount, strSelected ));
     }
 
-    protected List<FileListData> selected_items = null;
-    public void setSelectedItems( List<FileListData> items ) {
-        selected_items = items;
+    protected List<FileListData> g_SelectedItems = null;
+    public void collectSelectedItems(List<FileListData> items ) {
+        g_SelectedItems = null;
+
+        int len = pagerAdapter.getCount();
+        for( int i = 0; i < len; i++ ) {
+            Fragment fragment = pagerAdapter.getItem( i );
+            if( fragment instanceof FileListFragment ) {
+                FileListFragment fileListFragment = ( FileListFragment ) fragment;
+                List<FileListData> selectedItems = fileListFragment.getSelectedItems();
+
+                if( selectedItems != null && selectedItems.size() > 0 ) {
+                    if( g_SelectedItems == null ) {
+                        g_SelectedItems = new ArrayList<FileListData>();
+                    }
+                    g_SelectedItems.addAll( selectedItems );
+                }
+            }
+        }
+    }
+
+    public void clearSelectedItems() {
+        g_SelectedItems = null;
     }
 
     public List<FileListData> getSelectedItems() {
-        return selected_items;
+        return g_SelectedItems;
     }
 
     public int getOpCode() {
@@ -315,5 +376,20 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     protected int opCode = -1;
     public void setOpCode( int code ) {
         opCode = code;
+    }
+
+    public boolean isSelectMode() {
+        return toolbarIndex == ACTION_BAR_SELECTE_MODE;
+    }
+
+    public void setAllSelectItems(boolean b) {
+        int len = pagerAdapter.getCount();
+        for( int i = 0; i < len; i++ ) {
+            Fragment fragment = pagerAdapter.getItem( i );
+            if( fragment instanceof FileListFragment ) {
+                FileListFragment fileListFragment = ( FileListFragment ) fragment;
+                fileListFragment.setSelectALL( b );
+            }
+        }
     }
 }
