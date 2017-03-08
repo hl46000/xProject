@@ -80,7 +80,9 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             pagerAdapter.addItem( new FileListFragment().setRootFolder(externalStorageFolder).setMainActivity(this), R.string.my_sdcard_file );
         }
 
+        /*
         pagerAdapter.addItem( new FragmentText(), R.string.remote_file );
+        */
 
         pager.setAdapter(pagerAdapter);
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -182,16 +184,6 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         setSupportActionBar(toolbarList.get(toolbarIndex));
         getSupportActionBar().show();
     }
-
-    /*
-    public Toolbar getActionBar( int index ) {
-        return toolbarList.get(index);
-    }
-    public void changeActionBar( int index ) {
-        toolbarIndex = index;
-        changeToolbarMode();
-    }
-    */
 
     public void changeFileListModeToolbar() {
         toolbarIndex = ACTION_BAR_LIST_MODE;

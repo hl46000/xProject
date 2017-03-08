@@ -2,7 +2,8 @@ package share.file.purehero.com.fileshare;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.icu.text.Collator;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -105,10 +106,11 @@ public class FileListData {
      */
     public static final String getFilesize( File file ) {
         String result = "0 B";
+        //String result = FileUtils.byteCountToDisplaySize(file.length());
 
         float size = file.length();
         if( size < 1024.0f ) {
-            result = String.format( "%.2f B", size );
+            result = String.format( "%d B", (int)size );
         } else {
             size /= 1024.0f;
             if( size < 1024.0f ) {

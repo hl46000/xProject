@@ -242,6 +242,10 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 function_create_new_folder();
                 return true;
 
+            case R.id.action_rename :                   // 이름 변경
+                function_rename_selected_item();
+                return true;
+
             case R.id.action_delete :                   // 선택 항목 삭제
                 function_delete_selected_items();
                 return true;
@@ -403,7 +407,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         G.progressDialog( context, R.string.delete_title, "", new ProgressRunnable(){
                             @Override
                             public void run( final ProgressDialog dialog) {
-                                List<FileListData> selectedItems = listAdapter.getSelectedItems();
+                                List<FileListData> selectedItems = context.getSelectedItems();
                                 dialog.setMax(selectedItems.size());
 
                                 int progress_count = 0;
@@ -439,9 +443,36 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         } );
     }
 
+    private void function_rename_selected_item() {
+        changeFileListMode();                                   // 선택 모드에서만 호출되므로 선택모드를 해제 한다.
+
+        String title    = getString( R.string.rename_title);
+        String text     = null;
+
+        final File srcFile  = context.getSelectedItems().get(0).getFile();
+        String hint         = srcFile.getName();
+
+        G.no_string_res     = R.string.cancel;
+        G.yes_string_res    = R.string.rename;
+        G.textInputDialog( context,title, text, hint, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch( i ) {
+                    case G.DIALOG_BUTTON_ID_YES :
+                        File destFile = new File( srcFile.getParentFile(), G.getTextInputDialogResult());
+                        if( srcFile.renameTo( destFile )) {
+                            listAdapter.reload();                                       // 리스트를 갱신 시킨다.
+                        }
+                        break;
+                }
+            }
+        } );
+        G.no_string_res     = -1; G.yes_string_res    = -1;
+    }
+
     private void function_create_new_folder() {
         String title    = getString( R.string.create_folder_title);
-        String text     = "";
+        String text     = null;
         String hint     = getString( R.string.create_folder_hint);
 
         File targetFolder = new File( listAdapter.getLastFolder(), hint );
@@ -457,21 +488,21 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         G.textInputDialog( context,title, text, hint, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                switch( i ) {
-                    case G.DIALOG_BUTTON_ID_YES :
-                        File newFolder = new File( listAdapter.getLastFolder(), G.getTextInputDialogResult());
-                        G.Log( "Try to create folder : '%s'", newFolder.getAbsolutePath() );
-                        if( newFolder.mkdirs()) {
-                            listAdapter.reload();                                               // 리스트를 갱신 시킨다.
-                            /*
-                            context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
+            switch( i ) {
+                case G.DIALOG_BUTTON_ID_YES :
+                    File newFolder = new File( listAdapter.getLastFolder(), G.getTextInputDialogResult());
+                    G.Log( "Try to create folder : '%s'", newFolder.getAbsolutePath() );
+                    if( newFolder.mkdirs()) {
+                        listAdapter.reload();                                               // 리스트를 갱신 시킨다.
+                        /*
+                        context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
-                            listAdapter.push_folder( newFolder);                                // 생성한 폴더로 리스트를 갱신시킨다.
-                            rel.run();
-                            */
-                        }
-                        break;
-                }
+                        listAdapter.push_folder( newFolder);                                // 생성한 폴더로 리스트를 갱신시킨다.
+                        rel.run();
+                        */
+                    }
+                    break;
+            }
             }
         } );
         G.no_string_res     = -1; G.yes_string_res    = -1;

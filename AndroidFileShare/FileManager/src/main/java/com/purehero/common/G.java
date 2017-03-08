@@ -13,6 +13,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.text.method.ScrollingMovementMethod;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -116,10 +118,13 @@ public class G {
      */
     private static EditText __input = null;
     public static void textInputDialog( final Activity activity, final String title, final String message, String hint, final int res_icon, final DialogInterface.OnClickListener listener ) {
-        __input = new EditText(activity);
+        __input = new EditText( activity );
         //__input.setHint( hint );
         __input.setText( hint );
         __input.selectAll();
+        __input.setMaxLines(1);
+        __input.setHorizontallyScrolling(true);
+        __input.setMovementMethod(new ScrollingMovementMethod());
 
         activity.runOnUiThread( new Runnable(){
             @Override

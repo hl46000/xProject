@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -133,7 +135,12 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         FileListData data = ( FileListData ) getItem( position );
 
         viewHolder.tvTitle.setText( data.getFilename());
+        /*
         viewHolder.tvTitle.setSelected( true );
+        viewHolder.tvTitle.setHorizontallyScrolling( true );
+        viewHolder.tvTitle.setMovementMethod(new ScrollingMovementMethod());
+        */
+
         viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
         viewHolder.tvSubTitle.setText( data.getSubTitle());
         viewHolder.tvDate.setVisibility( View.VISIBLE );
@@ -159,6 +166,19 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
 
         return view;
     }
+
+    View.OnTouchListener TextViewTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_MOVE ) {
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+            } else {
+                v.getParent().requestDisallowInterceptTouchEvent(false);
+            }
+            return true;
+        }
+    };
+
 
     @Override
     public void onClick(View view) {
