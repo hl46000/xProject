@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
-    <!-- 검색 버튼 -->
+    <!-- 삭제 버튼( 아이콘 ) -->
     <item
         android:id="@+id/action_delete"
         android:icon="@android:drawable/ic_menu_delete"
@@ -36,14 +36,18 @@
         app:showAsAction="never" />
 
     <!-- ZIP 암축 버튼 -->
+    <!-- 구현이 완료되지 않아 보이지 않게 한다. -->
     <item android:id="@+id/action_zip"
         android:title="@string/action_zip"
+        android:visible="false"
         android:orderInCategory="100"
         app:showAsAction="never" />
 
     <!-- 상세정보 버튼 -->
+    <!-- 구현이 완료되지 않아 보이지 않게 한다. -->
     <item android:id="@+id/action_detail"
         android:title="@string/action_detail"
+        android:visible="false"
         android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

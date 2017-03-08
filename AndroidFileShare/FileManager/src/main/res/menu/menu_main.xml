@@ -30,8 +30,10 @@
         app:showAsAction="never" />
 
     <!-- 설정 버튼 -->
+    <!-- 구현이 완료되지 않아 보이지 않게 한다. -->
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
+        android:visible="false"
         android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

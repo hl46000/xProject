@@ -84,9 +84,10 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     @Override
     public boolean onBackPressed() {
         try {
-            if( listAdapter.isSelectMode()) {
-                context.changeFileListModeToolbar();
-                listAdapter.notifyDataSetChanged();
+            if( listAdapter.isSelectMode()) {           // 뒤로가기에 의한 ActionBar 전환
+                context.changeFileListModeToolbar();       // 선택모드를 해제한다.
+                context.clearSelectedItems();               // 선택된 항목이 있다면 Clear 한다.
+                listAdapter.notifyDataSetChanged();         // 리스트를 갱신한다.
                 return true;
             }
 
@@ -505,6 +506,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
         if( listAdapter.isSelectMode()) {
             changeFileListMode();                   // 파일 리스트 모드로 전환한다.
+            context.clearSelectedItems();          // 선택된 항목이 있다면 Clear 한다.
         } else {
             data.setSelected( true );               // 롱 클릭한 항목은 기본으로 선택한다.
             changeFileSelectMode();                 // 파일 선택모드로 전환한다.

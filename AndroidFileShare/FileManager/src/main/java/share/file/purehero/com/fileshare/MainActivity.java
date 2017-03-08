@@ -222,6 +222,11 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 if( menu_item != null ) {
                     menu_item.setEnabled( g_SelectedItems != null );                 // 선택된 값이 없을 경우 보이게 한다.
                 }
+                menu_item = menu.findItem( R.id.action_rename );                    // 이름 변경
+                if( menu_item != null ) {
+                    menu_item.setVisible( g_SelectedItems != null && g_SelectedItems.size() == 1 ); // 선택된 항목이 있고, 개수가 1개 일때만 보이게 한다.
+                }
+
             } else {
                 menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
                 if( menu_item != null ) {
