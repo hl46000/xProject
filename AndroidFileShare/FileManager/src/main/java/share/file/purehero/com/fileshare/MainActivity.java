@@ -2,7 +2,9 @@ package share.file.purehero.com.fileshare;
 
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -113,6 +115,12 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     protected void onDestroy() {
         FileClickCount.saveDatas( this );
         super.onDestroy();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        tabHost.notifyDataSetChanged();
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
