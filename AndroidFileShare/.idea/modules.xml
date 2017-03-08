@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidFileShare.iml" filepath="$PROJECT_DIR$/AndroidFileShare.iml" />
       <module fileurl="file://$PROJECT_DIR$/FileManager/FileManager.iml" filepath="$PROJECT_DIR$/FileManager/FileManager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/FileManager/FileManager.iml" filepath="$PROJECT_DIR$/FileManager/FileManager.iml" />
     </modules>
   </component>
 </project>
