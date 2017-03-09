@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">파일관리자</string>
+    <string name="search_text">검색</string>
+    <string name="search_hint">파일 이름검색</string>
+    <string name="two_back_touch_exit_app">뒤로 가기 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
+    <string name="action_settings">설정</string>
+    <string name="action_list_mode">파일리스트 모드</string>
+    <string name="action_select_mode">편집</string>
+    <string name="action_create_folder">새 폴더 추가</string>
+    <string name="action_move">이동</string>
+    <string name="action_copy">복사</string>
+    <string name="action_rename">이름 변경</string>
+    <string name="action_zip">ZIP으로 압축하기</string>
+    <string name="action_detail">상세정보</string>
+    <string name="toolbar">파일관리자</string>
+    <string name="toolbar2">선택됨</string>
+    <string name="action_check">선택</string>
+    <string name="create_folder_title">새 폴더 추가</string>
+    <string name="create_folder_hint">새 폴더</string>
+    <string name="cancel">취소</string>
+    <string name="create">추가</string>
+    <string name="my_file">내파일</string>
+    <string name="my_sdcard_file">외부저장장치</string>
+    <string name="remote_file">원격파일</string>
+    <string name="delete_title">삭제</string>
+    <string name="delete_message">항목이 삭제됩니다.</string>
+    <string name="delete">삭제</string>
+    <string name="deleting">삭제중...</string>
+    <string name="action_paste">붙여넣기</string>
+    <string name="copying">복사중...</string>
+    <string name="moving">이동중...</string>
+    <string name="read_only">읽기전용</string>
+    <string name="rename_title">이름바꾸기</string>
+    <string name="rename">바꾸기</string>
+
+</resources>

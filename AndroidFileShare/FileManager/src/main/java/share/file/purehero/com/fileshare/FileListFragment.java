@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 import java.util.Vector;
 
 /**
@@ -145,8 +146,13 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
                 addPathList( name, i == folder_names.size() - 1 );
             }
-
-            pathScrollViewPosition.sendEmptyMessageDelayed( 100, 300 );
+            G.Log(  "pathList.getChildCount() : %d", pathList.getChildCount());
+            if( pathList.getChildCount() > 0 ) {
+                pathScrollView.setVisibility( View.VISIBLE );
+                pathScrollViewPosition.sendEmptyMessageDelayed( 100, 300 );
+            } else {
+                pathScrollView.setVisibility( View.GONE );
+            }
         }
     };
 
@@ -296,74 +302,80 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 long copied_byte_size = 0;
 
                 for( FileListData data : selected_items ) {
-                    copy_byte_size += data.getFile().length();
+                    File file = data.getFile();
+                    if( file.isDirectory()) {
+                        copy_byte_size += folder_length( file );
+                    } else {
+                        copy_byte_size += data.getFile().length();
+                    }
                 }
 
                 dialog.setMax( 100 );
 
                 byte buffer [] = new byte[ 102400 ];        // 100Kbyte
-                for( final FileListData data : selected_items ) {
+                for( FileListData data : selected_items ) {
                     if( G.progressDialogCanceled ) {
                         break;
                     }
 
-                    context.runOnUiThread( new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.setMessage(data.getFilename());
+                    File source_file = data.getFile();
+                    if( source_file.isDirectory()) {
+                        Stack<File> folders = new Stack<File>();
+                        folders.push( source_file );
+
+                        while( !folders.isEmpty() && !G.progressDialogCanceled ) {
+                            File current_folder = folders.pop();
+                            File file_list[] = current_folder.listFiles();
+                            for( File file : file_list ) {
+                                if( G.progressDialogCanceled ) break;
+
+                                if( file.isDirectory()) {
+                                    folders.push(file);
+                                    continue;
+                                }
+
+                                //G.Log( "file.getAbsolutePath : %s", file.getAbsolutePath() );
+                                //G.Log( "source_file.getAbsolutePath : %s", source_file.getAbsolutePath() );
+                                //G.Log( "listAdapter.getLastFolder().getAbsolutePath : %s", listAdapter.getLastFolder().getAbsolutePath() );
+                                File target_file = new File( file.getAbsolutePath().replace( source_file.getParentFile().getAbsolutePath(), listAdapter.getLastFolder().getAbsolutePath()));
+                                //G.Log( "target_file.getAbsolutePath : %s", target_file.getAbsolutePath() );
+
+                                target_file.getParentFile().mkdirs();
+                                try {
+                                    copied_byte_size = file_copy( file, target_file, buffer, copied_byte_size, copy_byte_size, dialog );
+                                } catch( Exception e ) {
+                                    e.printStackTrace();
+                                }
+
+                                if( G.progressDialogCanceled) {
+                                    try {
+                                        FileUtils.forceDelete( target_file );   // Cancel 이 눌러질때 동작 중이던 파일은 삭제 한다.
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
                         }
-                    });
 
-                    File target_file = new File( listAdapter.getLastFolder(), data.getFilename());
-                    boolean isError = false;
-
-                    int nRead = 0;
-                    FileInputStream fis = null;
-                    FileOutputStream fos = null;
-                    try {
-                        fis = new FileInputStream( data.getFile());
-                        fos = new FileOutputStream( target_file );
-
-                        while(( nRead = fis.read( buffer, 0, 102400 )) > 0 && !G.progressDialogCanceled ) {
-                            fos.write( buffer, 0, nRead );
-
-                            copied_byte_size += nRead;
-                            dialog.setProgress((int) ( copied_byte_size * 100 / copy_byte_size ));
-
-                            try { Thread.sleep( 10 ); } catch (InterruptedException e) { e.printStackTrace(); }
-                        }
-
-                    } catch( IOException e ) {
-                        isError = true;
-                        e.printStackTrace();
-
-                    } finally {
-                        if( fis != null ) {
-                            try { fis.close(); } catch (IOException e) { e.printStackTrace(); }
-                        }
-                        if( fos != null ) {
-                            try { fos.close(); } catch (IOException e) { e.printStackTrace(); }
-                        }
-                    }
-
-                    if( G.progressDialogCanceled) {
+                    } else {
+                        File target_file = new File( listAdapter.getLastFolder(), source_file.getName());
                         try {
-                            FileUtils.forceDelete( target_file );   // Cancel 이 눌러질때 동작 중이던 파일은 삭제 한다.
-                        } catch (IOException e) {
+                            copied_byte_size = file_copy( source_file, target_file, buffer, copied_byte_size, copy_byte_size, dialog );
+                        } catch( Exception e ) {
                             e.printStackTrace();
                         }
-                    } else {
-                        if( !isError && context.getOpCode() == R.id.action_move ) {
+
+                        if( G.progressDialogCanceled) {
                             try {
-                                FileUtils.forceDelete( data.getFile());
+                                FileUtils.forceDelete( target_file );   // Cancel 이 눌러질때 동작 중이던 파일은 삭제 한다.
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-
-                        dialog.setProgress( 100 );
                     }
                 }
+
+                dialog.setProgress( 100 );
 
                 context.clearSelectedItems();
                 context.runOnUiThread( new Runnable(){
@@ -375,6 +387,81 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 } );
             }
         });
+    }
+
+    private long file_copy(File source_file, File target_file, byte[] buffer, long copied_byte_size, long copy_byte_size, final ProgressDialog dialog) throws IOException {
+        final String source_file_name = source_file.getName();
+        context.runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+                dialog.setMessage( source_file_name );
+            }
+        });
+
+        int nRead = 0;
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+        try {
+            fis = new FileInputStream( source_file );
+            fos = new FileOutputStream( target_file );
+
+            while(( nRead = fis.read( buffer, 0, 102400 )) > 0 && !G.progressDialogCanceled ) {
+                fos.write( buffer, 0, nRead );
+
+                copied_byte_size += nRead;
+                dialog.setProgress((int) ( copied_byte_size * 100 / copy_byte_size ));
+
+                try { Thread.sleep( 10 ); } catch (InterruptedException e) { e.printStackTrace(); }
+            }
+
+        } catch( IOException e ) {
+            throw e;
+
+        } finally {
+            if( fis != null ) {
+                try { fis.close(); } catch (IOException e) { e.printStackTrace(); }
+            }
+            if( fos != null ) {
+                try { fos.close(); } catch (IOException e) { e.printStackTrace(); }
+            }
+        }
+
+        if( context.getOpCode() == R.id.action_move ) {
+            try {
+                FileUtils.forceDelete( source_file );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return copied_byte_size;
+    }
+
+    /**
+     * 폴더내에 존재하는 파일의 전체 크기를 반환한다. 하위 폴더 포함
+     *
+     * @param base_folder
+     * @return
+     */
+    private long folder_length(File base_folder) {
+        long ret = 0;
+
+        if( !base_folder.isDirectory()) return ret;
+
+        Stack<File> folders = new Stack<File>();
+        folders.add( base_folder );
+
+        while( !folders.isEmpty()) {
+            File file_list [] = folders.pop().listFiles();
+            for( File file : file_list ) {
+                if( file.isDirectory()) {
+                    folders.push( file );
+                    continue;
+                }
+                ret += file.length();
+            }
+        }
+        return ret;
     }
 
     private void function_move_selected_items() {
@@ -394,7 +481,11 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     private void function_delete_selected_items() {
-        int item_count = listAdapter.getSelectedCount();
+        context.collectSelectedItems( listAdapter.getSelectedItems()); // 전체 화면의 선택 항목을 수집한다.
+
+        final List<FileListData> selectedItems = context.getSelectedItems();
+        int item_count = selectedItems.size();
+
         String message = String.format( "%d %s\n\n", item_count, getString( R.string.delete_message ));
 
         G.no_string_res     = R.string.cancel;
@@ -407,7 +498,6 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                         G.progressDialog( context, R.string.delete_title, "", new ProgressRunnable(){
                             @Override
                             public void run( final ProgressDialog dialog) {
-                                List<FileListData> selectedItems = context.getSelectedItems();
                                 dialog.setMax(selectedItems.size());
 
                                 int progress_count = 0;
@@ -433,6 +523,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                                     public void run() {
                                         reloadListView();
                                         changeFileListMode();
+                                        context.collectSelectedItems( null );                   // 이전에 선택된 항목들을 제거 한다.
                                     }
                                 } );
                             }
