@@ -32,5 +32,6 @@
     <string name="read_only">읽기전용</string>
     <string name="rename_title">이름바꾸기</string>
     <string name="rename">바꾸기</string>
+    <string name="choose_application">앱을 선택해 주세요</string>
 
 </resources>

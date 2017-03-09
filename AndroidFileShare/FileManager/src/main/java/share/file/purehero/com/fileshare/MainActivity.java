@@ -363,8 +363,16 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         }
     }
 
-    public void clearSelectedItems() {
-        g_SelectedItems = null;
+    /**
+     * UI의 모든 선택 항목을 선택하제 한다. bClearSelectedItems 값이 참이면
+     * 선택항목의 기억을 삭제한다.
+     *
+     * @param bClearSelectedItems
+     */
+    public void clearSelectedItems( boolean bClearSelectedItems ) {
+        if( bClearSelectedItems ) {
+            g_SelectedItems = null;
+        }
 
         int len = pagerAdapter.getCount();
         for( int i = 0; i < len; i++ ) {

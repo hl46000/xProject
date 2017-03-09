@@ -2,10 +2,15 @@ package share.file.purehero.com.fileshare;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.webkit.MimeTypeMap;
+
+import com.purehero.common.G;
 
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 
@@ -18,6 +23,7 @@ public class FileListData {
     private final File file;
     private String subTitle = "";
     private String fileDate = "";
+    private String mimeType = "";
     private Drawable icon 	= null;
     private int subItemCount = 0;
     private boolean selected = false;
@@ -38,10 +44,21 @@ public class FileListData {
 
         } else {
             subTitle = getFilesize(file);
+
+            try {
+                String extension = getFileExt( file.getName());
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat( DATE_FORMAT );
         fileDate = sdf.format(file.lastModified());
+    }
+
+    private String getFileExt(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
     }
 
     /**
@@ -52,6 +69,8 @@ public class FileListData {
     public String getFilename() {
         return file.getName();
     }
+
+    public String getMimeType() { return mimeType; }
 
     /**
      * subTitle 을 반환한다.
@@ -91,9 +110,39 @@ public class FileListData {
             } else {
                 icon = context.getResources().getDrawable( R.drawable.folder );
             }
-
         } else {
-            icon = context.getResources().getDrawable( R.drawable.text );
+            if( mimeType != null ) {
+                G.Log( "mimeType : %s", mimeType );
+                if (mimeType.startsWith("image")) {
+                    icon = context.getResources().getDrawable(R.drawable.image);
+                } else if (mimeType.startsWith("audio")) {
+                    icon = context.getResources().getDrawable(R.drawable.music);
+                } else if (mimeType.startsWith("video")) {
+                    icon = context.getResources().getDrawable(R.drawable.movies);
+                } else if (mimeType.endsWith("zip")) {
+                    icon = context.getResources().getDrawable(R.drawable.zip);
+                } else if (mimeType.endsWith("excel")) {
+                    icon = context.getResources().getDrawable(R.drawable.excel);
+                } else if (mimeType.endsWith("powerpoint")) {
+                    icon = context.getResources().getDrawable(R.drawable.ppt);
+                } else if (mimeType.endsWith("word")) {
+                    icon = context.getResources().getDrawable(R.drawable.word);
+                } else if (mimeType.endsWith("pdf")) {
+                    icon = context.getResources().getDrawable(R.drawable.pdf);
+                } else if (mimeType.endsWith("xml")) {
+                    icon = context.getResources().getDrawable(R.drawable.xml32);
+                } else if (mimeType.endsWith("vnd.android.package-archive")) {  // APK
+                    icon = context.getResources().getDrawable(R.drawable.apk);
+                } else if (mimeType.endsWith("torrent")) {  // APK
+                    icon = context.getResources().getDrawable(R.drawable.torrent);
+                } else {// torrent
+                    // text 로 간주
+                    icon = context.getResources().getDrawable(R.drawable.text);
+                }
+            } else {
+                // text 로 간주
+                icon = context.getResources().getDrawable(R.drawable.text);
+            }
         }
         return icon;
     }
@@ -106,7 +155,6 @@ public class FileListData {
      */
     public static final String getFilesize( File file ) {
         String result = "0 B";
-        //String result = FileUtils.byteCountToDisplaySize(file.length());
 
         float size = file.length();
         if( size < 1024.0f ) {

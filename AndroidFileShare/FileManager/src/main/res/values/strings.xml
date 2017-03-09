@@ -32,5 +32,6 @@
     <string name="read_only">ReadOnly</string>
     <string name="rename_title">Rename</string>
     <string name="rename">RENAME</string>
+    <string name="choose_application">Choose an application to open with</string>
 
 </resources>

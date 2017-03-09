@@ -3,8 +3,10 @@ package share.file.purehero.com.fileshare;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -87,7 +89,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         try {
             if( listAdapter.isSelectMode()) {           // 뒤로가기에 의한 ActionBar 전환
                 context.changeFileListModeToolbar();       // 선택모드를 해제한다.
-                context.clearSelectedItems();               // 선택된 항목이 있다면 Clear 한다.
+                context.clearSelectedItems(true);          // 선택된 항목이 있다면 Clear 한다. 기억도 삭제한다.
                 listAdapter.notifyDataSetChanged();         // 리스트를 갱신한다.
                 return true;
             }
@@ -146,7 +148,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
                 addPathList( name, i == folder_names.size() - 1 );
             }
-            G.Log(  "pathList.getChildCount() : %d", pathList.getChildCount());
+            //G.Log(  "pathList.getChildCount() : %d", pathList.getChildCount());
             if( pathList.getChildCount() > 0 ) {
                 pathScrollView.setVisibility( View.VISIBLE );
                 pathScrollViewPosition.sendEmptyMessageDelayed( 100, 300 );
@@ -381,7 +383,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     @Override
                     public void run() {
                         reloadListView();
-                        changeFileListMode( true );
+                        changeFileListMode( true ); // 선택된 항목의 작업이 모두 완료 되었기 때문에 기억된 선택 사항도 함께 삭제한다.
                     }
                 } );
             }
@@ -464,17 +466,17 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     private void function_move_selected_items() {
-        context.collectSelectedItems(); // 전체 화면의 선택 항목을 수집한다.
+        context.collectSelectedItems(); // UI에서 선택된 항목을 기억한다.
         context.setOpCode( R.id.action_move );
 
-        changeFileListMode( true );
+        changeFileListMode( false );   // 기억된 선택항목은 유지 시킨다.
     }
 
     private void function_copy_selected_items() {
-        context.collectSelectedItems(); // 전체 화면의 선택 항목을 수집한다.
+        context.collectSelectedItems(); // UI에서 선택된 항목을 기억한다.
         context.setOpCode( R.id.action_copy );
 
-        changeFileListMode( true );
+        changeFileListMode( false );    // 기억된 선택항목은 유지 시킨다.
     }
 
     private void function_delete_selected_items() {
@@ -536,7 +538,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         final File srcFile  = context.getSelectedItems().get(0).getFile();
         String hint         = srcFile.getName();
 
-        changeFileListMode( true );                                   // 선택 모드에서만 호출되므로 선택모드를 해제 한다.
+        changeFileListMode( true );             // 선택 모드에서만 호출되므로 선택모드를 해제 한다.
+                                                // 이미 선택된 항목의 데이터를 획득하여기 때문에
+                                                // 기억된 선택 사항도 제거한다.
 
         G.no_string_res     = R.string.cancel;
         G.yes_string_res    = R.string.rename;
@@ -612,6 +616,16 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
             listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
             reloadListView();
+
+        } else {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_VIEW);
+            sendIntent.setDataAndType( Uri.fromFile( data.getFile()), data.getMimeType());
+            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            if (sendIntent.resolveActivity( context.getPackageManager()) != null) {
+                context.startActivity( Intent.createChooser( sendIntent, getString( R.string.choose_application )) );
+            }
         }
     }
 
@@ -622,30 +636,28 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         FileClickCount.saveClickCount( data );
 
         if( listAdapter.isSelectMode()) {
-            changeFileListMode( true );                   // 파일 리스트 모드로 전환한다.
+            changeFileListMode( true );             // 파일 리스트 모드로 전환한다.
+                                                    // 기억된 선택항목들도 삭제한다.
         } else {
             data.setSelected( true );               // 롱 클릭한 항목은 기본으로 선택한다.
             changeFileSelectMode();                 // 파일 선택모드로 전환한다.
         }
+        listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
         return true;
     }
 
     private void changeFileSelectMode() {
         context.changeFileSelectModeToolbar();               // 액션바를 선택 항목 개수가 나오도록 전환 시킨다.
         context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() ); // 액션바에 선택한 개수를 표시한다.
-        context.clearSelectedItems();                       // 이전에 선택된 항목들을 제거 한다.
+        //context.clearSelectedItems();                       // 이전에 선택된 항목들을 제거 한다.
         context.setOpCode( -1 );                            // 이전 명령어 코드를 삭제한다.
 
         listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
     }
 
     private void changeFileListMode( boolean bClearSelectedItems ) {
-        context.changeFileListModeToolbar();           // 액션바를 기본으로 전환시킨다.
-        if( bClearSelectedItems ) {
-            context.clearSelectedItems();                       // 이전에 선택된 항목들을 제거 한다.
-        } else {
-            listAdapter.setSelectALL( false );    // 모든 항목의 선택을 해제한다.
-        }
+        context.changeFileListModeToolbar();                    // 액션바를 기본으로 전환시킨다.
+        context.clearSelectedItems( bClearSelectedItems );      // 이전에 선택된 항목들을 제거 한다.
 
         listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
     }
