@@ -334,19 +334,16 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         String strSelected = getString( R.string.toolbar2 );
         selectedCount = 0;
 
-        int len = pagerAdapter.getCount();
-        for( int i = 0; i < len; i++ ) {
-            Fragment fragment = pagerAdapter.getItem( i );
-            if( fragment instanceof FileListFragment ) {
-                FileListFragment fileListFragment = ( FileListFragment ) fragment;
-                selectedCount += fileListFragment.getSelectedItemCount();
-            }
+        collectSelectedItems();
+        if( g_SelectedItems != null ) {
+            selectedCount = g_SelectedItems.size();
         }
+
         getSupportActionBar().setTitle( String.format("%d %s", selectedCount, strSelected ));
     }
 
     protected List<FileListData> g_SelectedItems = null;
-    public void collectSelectedItems(List<FileListData> items ) {
+    public void collectSelectedItems() {
         g_SelectedItems = null;
 
         int len = pagerAdapter.getCount();
@@ -368,6 +365,15 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
     public void clearSelectedItems() {
         g_SelectedItems = null;
+
+        int len = pagerAdapter.getCount();
+        for( int i = 0; i < len; i++ ) {
+            Fragment fragment = pagerAdapter.getItem( i );
+            if( fragment instanceof FileListFragment ) {
+                FileListFragment fileListFragment = ( FileListFragment ) fragment;
+                fileListFragment.setSelectALL(false);
+            }
+        }
     }
 
     public List<FileListData> getSelectedItems() {
