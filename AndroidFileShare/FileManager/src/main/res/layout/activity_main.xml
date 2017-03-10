@@ -10,6 +10,17 @@
     android:layout_height="match_parent"
     tools:context="share.file.purehero.com.fileshare.MainActivity">
 
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/banner_ad_unit_id">
+    </com.google.android.gms.ads.AdView>
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar2"
         android:layout_width="match_parent"
@@ -32,7 +43,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="?attr/actionBarSize" >
+        android:paddingTop="?attr/actionBarSize"
+        android:layout_above="@id/adView" >
 
         <it.neokree.materialtabs.MaterialTabHost
             android:id="@+id/tabHost"

@@ -20,6 +20,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.G;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     public static int ACTION_BAR_LIST_MODE = 0;
     public static int ACTION_BAR_SELECTE_MODE = 1;
 
+    private AdView bannerAdView = null;
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
@@ -111,6 +115,27 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                             .setTabListener(this)
             );
         }
+
+        bannerAdView = (AdView) findViewById(R.id.adView);
+        if( bannerAdView != null ) {
+            bannerAdView.setVisibility( View.GONE );
+
+            AdRequest adRequest = new AdRequest.Builder().build();
+            bannerAdView.setAdListener( new AdListener(){
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                    bannerAdView.setVisibility( View.VISIBLE );
+                }});
+
+            bannerAdView.loadAd(adRequest);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkPermission();
     }
 
     @Override
@@ -129,18 +154,31 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 123 :
+                /*
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 } else {
                     checkPermission();
                 }
+                */
                 break;
         }
     }
 
     private void checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 123 );
+        String permissions[] = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE
+        };
+        List<String> request_permissions = new ArrayList<String>();
+        for( String permission : permissions ) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
+                request_permissions.add( permission );
+            }
+        }
+        if( request_permissions.size() > 0 ) {
+            ActivityCompat.requestPermissions(this, (String[])request_permissions.toArray(), 123 );
         }
     }
 

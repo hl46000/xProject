@@ -3,6 +3,8 @@
     <string name="search_text">검색</string>
     <string name="search_hint">파일 이름검색</string>
     <string name="two_back_touch_exit_app">뒤로 가기 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/8860963787</string>
+    <string name="reward_ad_unit_id">ca-app-pub-9674501681746717/1337696986</string>
     <string name="action_settings">설정</string>
     <string name="action_list_mode">파일리스트 모드</string>
     <string name="action_select_mode">편집</string>
