@@ -28,14 +28,31 @@ import com.purehero.common.G;
 import com.purehero.common.ProgressRunnable;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.ftpserver.FtpServer;
+import org.apache.ftpserver.FtpServerFactory;
+import org.apache.ftpserver.ftplet.Authority;
+import org.apache.ftpserver.ftplet.FileSystemFactory;
+import org.apache.ftpserver.ftplet.FileSystemView;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.ftplet.User;
+import org.apache.ftpserver.ftplet.UserManager;
+import org.apache.ftpserver.listener.ListenerFactory;
+import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
+import org.apache.ftpserver.usermanager.SaltedPasswordEncryptor;
+import org.apache.ftpserver.usermanager.UserFactory;
+import org.apache.ftpserver.usermanager.impl.WritePermission;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
+
+import static share.file.purehero.com.fileshare.FtpClientAdapter.server;
 
 /**
  * Created by MY on 2017-02-25.
@@ -106,6 +123,62 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         }
 
         return false;
+    }
+
+    FtpServer ftpServer = null;
+    public void initFtpServer( String id, String pwd ) {
+        if( ftpServer != null ) return;
+
+        FtpServerFactory serverFactory = new FtpServerFactory();
+
+        ListenerFactory factory = new ListenerFactory();
+        factory.setPort( 2221 );
+        serverFactory.addListener("default", factory.createListener());
+
+        UserFactory userFact = new UserFactory();
+        userFact.setName( id );                  // user name
+        userFact.setPassword( pwd );                 // user password
+        userFact.setHomeDirectory( root_folder.getAbsolutePath() );           // user root directory
+
+        // 폴더에 쓰기 권한을 준다.
+        List<Authority> authorities = ( List<Authority> ) userFact.getAuthorities();
+        authorities.add( (Authority) new WritePermission() );
+        userFact.setAuthorities( authorities );
+
+        User user = userFact.createUser();
+        try {
+            serverFactory.getUserManager().save(user);
+            //serverFactory.setUserManager( userManager );
+
+            ftpServer = serverFactory.createServer();
+            G.Log( "FTP Server address : %s:%d", G.getIPAddress(true), factory.getPort() );
+        } catch (FtpException e) {
+            e.printStackTrace();
+        }
+    }
+    public boolean isStartedFtpServer() {
+        if( ftpServer == null ) return false;
+        return !ftpServer.isStopped();
+    }
+
+    public void startFtpServer() {
+        if( ftpServer != null ) {
+            try {
+                if( ftpServer.isSuspended()) {
+                    ftpServer.resume();
+                } else if( ftpServer.isStopped()) {
+                    ftpServer.start();
+                }
+            } catch (FtpException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void stopFtpServer() {
+        if( ftpServer != null ) {
+            ftpServer.stop();
+        }
     }
 
     public void reflashListView() {

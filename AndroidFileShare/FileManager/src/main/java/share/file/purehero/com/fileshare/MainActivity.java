@@ -98,7 +98,15 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 if( fragment instanceof FileListFragment ) {
                     FileListFragment fileListFragment = ( FileListFragment ) fragment;
                     fileListFragment.reflashListView();
+
+                    String title = pagerAdapter.getPageTitle( position ).toString();
+                    if( title.compareTo( getString( R.string.my_sdcard_file )) == 0 ) {
+                        fileListFragment.initFtpServer( "test", "1234" );
+                        fileListFragment.startFtpServer();
+                    }
                 }
+
+
 
                 // ActionBar에 검색바가 활성되어 있으면 검색바를 사라지게 한다.
                 if (!searchView.isIconified()) {
