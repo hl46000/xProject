@@ -7,6 +7,7 @@
             android:key="tfp_server_port"
             android:selectAllOnFocus="true"
             android:singleLine="true"
+            android:numeric="decimal"
             android:title="@string/ftp_server_port" />
     </PreferenceCategory>
 
@@ -18,10 +19,12 @@
             android:singleLine="true"
             android:title="@string/ftp_server_user_id" />
         <EditTextPreference
+            android:inputType="textPassword"
             android:defaultValue="1234"
             android:key="ftp_server_user_pwd"
             android:selectAllOnFocus="true"
             android:singleLine="true"
+            android:password="true"
             android:title="@string/ftp_server_user_pwd" />
     </PreferenceCategory>
 </PreferenceScreen>

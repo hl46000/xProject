@@ -4,12 +4,14 @@ package share.file.purehero.com.fileshare;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,15 +19,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.purehero.common.FragmentEx;
 import com.purehero.common.G;
 import com.purehero.common.ProgressRunnable;
+import com.purehero.ftpserver.settings.FtpServerSettingsActivity;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ftpserver.FtpServer;
@@ -58,7 +63,7 @@ import static share.file.purehero.com.fileshare.FtpClientAdapter.server;
  * Created by MY on 2017-02-25.
  */
 
-public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener {
     private View layout = null;
     private ListView listView = null;
     private FileListAdapter listAdapter = null;
@@ -66,6 +71,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     private HorizontalScrollView pathScrollView = null;
     private MainActivity context;
     private File root_folder = new File( "/" );
+    private String ftpConnectionMessage = "FTP Server is not starting";
 
     public FileListFragment setMainActivity( MainActivity activity ) {
         context = activity;
@@ -96,6 +102,14 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
             //new Thread( listUpdateRunnable ).start();
             listUpdateRunnable.run();
+
+            int btnIDs[] = { R.id.btnFtpServerSW };
+            for( int id : btnIDs ) {
+                Button btn = ( Button ) layout.findViewById(id);
+                if( btn != null ) {
+                    btn.setOnClickListener( this );
+                }
+            }
         }
 
         return layout;
@@ -125,14 +139,55 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         return false;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch( requestCode ) {
+            case 100 :  // FTP Server 설정
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                String strPort  = sharedPref.getString( "tfp_server_port", "2345" );
+                String userID   = sharedPref.getString( "ftp_server_user_id", "Guest" );
+                String userPWD  = sharedPref.getString( "ftp_server_user_pwd", "1234" );
+
+                initFtpServer( userID, userPWD, Integer.valueOf( strPort ));
+                startFtpServer();
+
+                new Handler().postDelayed( new Runnable(){
+                    @Override
+                    public void run() {
+                        context.runOnUiThread( new Runnable(){
+                            @Override
+                            public void run() {
+                                if( isStartedFtpServer()) {
+                                    Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
+                                    if( btn != null ) {
+                                        btn.setBackgroundResource( R.drawable.ftp_server_on );
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }, 1000 );
+                break;
+        }
+
+
+    }
+
     FtpServer ftpServer = null;
-    public void initFtpServer( String id, String pwd ) {
-        if( ftpServer != null ) return;
+    public void initFtpServer( String id, String pwd, int port ) {
+        String deviceAddr = G.getIPAddress(true);
+        if( deviceAddr == null || deviceAddr.length() < 6 ) {
+            Toast.makeText( context, R.string.network_disconntion, Toast.LENGTH_LONG ).show();
+            return;
+        }
+        if( ftpServer != null ) {
+            return;
+        }
 
         FtpServerFactory serverFactory = new FtpServerFactory();
 
         ListenerFactory factory = new ListenerFactory();
-        factory.setPort( 2221 );
+        factory.setPort( port );
         serverFactory.addListener("default", factory.createListener());
 
         UserFactory userFact = new UserFactory();
@@ -151,7 +206,12 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             //serverFactory.setUserManager( userManager );
 
             ftpServer = serverFactory.createServer();
-            G.Log( "FTP Server address : %s:%d", G.getIPAddress(true), factory.getPort() );
+            G.Log( "FTP Server address : %s:%d", deviceAddr, factory.getPort() );
+
+            String message = getString( R.string.connection_addr );
+            String serverAddr = String.format("%s:%d", deviceAddr,  port );
+            String ex = String.format( "\n\nex) ftp://%s@%s:%d", id, deviceAddr, port );
+            ftpConnectionMessage = message + serverAddr + ex;
         } catch (FtpException e) {
             e.printStackTrace();
         }
@@ -745,5 +805,26 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     public void setSelectALL(boolean b) {
         listAdapter.setSelectALL(b);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch( view.getId()) {
+            case R.id.btnFtpServerSW :
+                if( !isStartedFtpServer()) {
+                    Intent intent = new Intent( context, FtpServerSettingsActivity.class );
+                    this.startActivityForResult( intent, 100 );
+                } else {
+                    Toast.makeText( context, ftpConnectionMessage, Toast.LENGTH_LONG ).show();
+                }
+                break;
+        }
+    }
+
+    public void ftpButtonVisible(boolean b) {
+        Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
+        if( btn != null ) {
+            btn.setVisibility( b ? View.VISIBLE : View.GONE );
+        }
     }
 }
