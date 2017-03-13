@@ -133,7 +133,9 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 @Override
                 public void onAdLoaded() {
                     super.onAdLoaded();
-                    bannerAdView.setVisibility( View.VISIBLE );
+                    if( !G.debuggable ) { // 릴리즈 빌드이거나 테스트 할때만 아래를 활성화 시킨다.
+                        bannerAdView.setVisibility(View.VISIBLE);
+                    }
                 }});
 
             bannerAdView.loadAd(adRequest);

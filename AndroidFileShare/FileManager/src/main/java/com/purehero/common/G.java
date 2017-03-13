@@ -27,7 +27,7 @@ public class G {
     public static final int DIALOG_BUTTON_ID_YES 	= -1;
     public static final int DIALOG_BUTTON_ID_NO 	= -2;
 
-    private static boolean debuggable = true;
+    public static boolean debuggable = true;
     public static void init( Context context ) {
         PackageManager pm = context.getPackageManager();
         try {

@@ -35,5 +35,12 @@
     <string name="rename_title">Rename</string>
     <string name="rename">RENAME</string>
     <string name="choose_application">Choose an application to open with</string>
+    <string name="title_activity_ftp_server_settings">FTP Server Settings</string>
+    <string name="guest">Guest</string>
+    <string name="ftp_server_settings">FTP Server Settings</string>
+    <string name="ftp_server_port">Port Number</string>
+    <string name="ftp_server_user_settings">User Settings</string>
+    <string name="ftp_server_user_id">UserID</string>
+    <string name="ftp_server_user_pwd">Password</string>
 
 </resources>

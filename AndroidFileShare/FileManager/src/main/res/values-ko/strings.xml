@@ -35,5 +35,11 @@
     <string name="rename_title">이름바꾸기</string>
     <string name="rename">바꾸기</string>
     <string name="choose_application">앱을 선택해 주세요</string>
+    <string name="guest">Guest</string>
+    <string name="ftp_server_settings">FTP 서버 설정</string>
+    <string name="ftp_server_port">Port 번호</string>
+    <string name="ftp_server_user_settings">사용자 설정</string>
+    <string name="ftp_server_user_id">사용자 아이디</string>
+    <string name="ftp_server_user_pwd">비밀번호</string>
 
 </resources>

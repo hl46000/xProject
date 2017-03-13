@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/ftp_server_settings" >
+        <EditTextPreference
+            android:defaultValue="2345"
+            android:key="tfp_server_port"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/ftp_server_port" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/ftp_server_user_settings" >
+        <EditTextPreference
+            android:defaultValue="@string/guest"
+            android:key="ftp_server_user_id"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/ftp_server_user_id" />
+        <EditTextPreference
+            android:defaultValue="1234"
+            android:key="ftp_server_user_pwd"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/ftp_server_user_pwd" />
+    </PreferenceCategory>
+</PreferenceScreen>
