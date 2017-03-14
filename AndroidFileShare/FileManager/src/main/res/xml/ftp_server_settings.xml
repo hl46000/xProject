@@ -27,4 +27,8 @@
             android:password="true"
             android:title="@string/ftp_server_user_pwd" />
     </PreferenceCategory>
+
+    <Preference android:title="@string/ftp_server_start"
+        android:key="ftp_server_start_button"
+        android:summary="This is a cool button"/>
 </PreferenceScreen>

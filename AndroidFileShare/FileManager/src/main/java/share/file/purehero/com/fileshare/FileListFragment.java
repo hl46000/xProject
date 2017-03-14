@@ -71,7 +71,6 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     private HorizontalScrollView pathScrollView = null;
     private MainActivity context;
     private File root_folder = new File( "/" );
-    private String ftpConnectionMessage = "FTP Server is not starting";
 
     public FileListFragment setMainActivity( MainActivity activity ) {
         context = activity;
@@ -141,6 +140,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        /*
         switch( requestCode ) {
             case 100 :  // FTP Server 설정
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -169,76 +169,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 }, 1000 );
                 break;
         }
+        */
 
 
-    }
-
-    FtpServer ftpServer = null;
-    public void initFtpServer( String id, String pwd, int port ) {
-        String deviceAddr = G.getIPAddress(true);
-        if( deviceAddr == null || deviceAddr.length() < 6 ) {
-            Toast.makeText( context, R.string.network_disconntion, Toast.LENGTH_LONG ).show();
-            return;
-        }
-        if( ftpServer != null ) {
-            return;
-        }
-
-        FtpServerFactory serverFactory = new FtpServerFactory();
-
-        ListenerFactory factory = new ListenerFactory();
-        factory.setPort( port );
-        serverFactory.addListener("default", factory.createListener());
-
-        UserFactory userFact = new UserFactory();
-        userFact.setName( id );                  // user name
-        userFact.setPassword( pwd );                 // user password
-        userFact.setHomeDirectory( root_folder.getAbsolutePath() );           // user root directory
-
-        // 폴더에 쓰기 권한을 준다.
-        List<Authority> authorities = ( List<Authority> ) userFact.getAuthorities();
-        authorities.add( (Authority) new WritePermission() );
-        userFact.setAuthorities( authorities );
-
-        User user = userFact.createUser();
-        try {
-            serverFactory.getUserManager().save(user);
-            //serverFactory.setUserManager( userManager );
-
-            ftpServer = serverFactory.createServer();
-            G.Log( "FTP Server address : %s:%d", deviceAddr, factory.getPort() );
-
-            String message = getString( R.string.connection_addr );
-            String serverAddr = String.format("%s:%d", deviceAddr,  port );
-            String ex = String.format( "\n\nex) ftp://%s@%s:%d", id, deviceAddr, port );
-            ftpConnectionMessage = message + serverAddr + ex;
-        } catch (FtpException e) {
-            e.printStackTrace();
-        }
-    }
-    public boolean isStartedFtpServer() {
-        if( ftpServer == null ) return false;
-        return !ftpServer.isStopped();
-    }
-
-    public void startFtpServer() {
-        if( ftpServer != null ) {
-            try {
-                if( ftpServer.isSuspended()) {
-                    ftpServer.resume();
-                } else if( ftpServer.isStopped()) {
-                    ftpServer.start();
-                }
-            } catch (FtpException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void stopFtpServer() {
-        if( ftpServer != null ) {
-            ftpServer.stop();
-        }
     }
 
     public void reflashListView() {
@@ -811,11 +744,12 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public void onClick(View view) {
         switch( view.getId()) {
             case R.id.btnFtpServerSW :
-                if( !isStartedFtpServer()) {
+
+                if( !MyFtpServer.getInstance(context).isStartedFtpServer()) {
                     Intent intent = new Intent( context, FtpServerSettingsActivity.class );
                     this.startActivityForResult( intent, 100 );
                 } else {
-                    Toast.makeText( context, ftpConnectionMessage, Toast.LENGTH_LONG ).show();
+                    Toast.makeText( context, MyFtpServer.getInstance(context).getConnectionMessage(), Toast.LENGTH_LONG ).show();
                 }
                 break;
         }

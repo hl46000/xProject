@@ -22,6 +22,7 @@ public class FtpServerSettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //this.setContentView(R.layout.ftp_server_settings);
 
         getFragmentManager()
                 .beginTransaction()
