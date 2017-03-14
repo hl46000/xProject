@@ -43,5 +43,6 @@
     <string name="ftp_server_user_pwd">비밀번호</string>
     <string name="network_disconntion">Device not connected to network. Please try again after connecting.</string>
     <string name="ftp_server_start">Server Start</string>
+    <string name="ftp_server_running_title">FTP Server Running Switch</string>
 
 </resources>

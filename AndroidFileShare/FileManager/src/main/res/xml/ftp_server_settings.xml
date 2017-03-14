@@ -27,8 +27,13 @@
             android:password="true"
             android:title="@string/ftp_server_user_pwd" />
     </PreferenceCategory>
-
-    <Preference android:title="@string/ftp_server_start"
-        android:key="ftp_server_start_button"
-        android:summary="This is a cool button"/>
+    <PreferenceCategory android:title="@string/ftp_server_running_title" >>
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="ftp_server_status"
+            android:switchTextOff="OFF"
+            android:switchTextOn="ON"
+            android:title="FTP Server Stoped"
+        />
+    </PreferenceCategory>
 </PreferenceScreen>
