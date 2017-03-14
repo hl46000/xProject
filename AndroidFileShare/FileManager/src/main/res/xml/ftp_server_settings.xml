@@ -4,6 +4,7 @@
     <PreferenceCategory android:title="@string/ftp_server_settings" >
         <EditTextPreference
             android:defaultValue="2345"
+            android:dependency="ftp_server_status"
             android:key="tfp_server_port"
             android:selectAllOnFocus="true"
             android:singleLine="true"
@@ -14,6 +15,7 @@
     <PreferenceCategory android:title="@string/ftp_server_user_settings" >
         <EditTextPreference
             android:defaultValue="@string/guest"
+            android:dependency="ftp_server_status"
             android:key="ftp_server_user_id"
             android:selectAllOnFocus="true"
             android:singleLine="true"
@@ -21,19 +23,26 @@
         <EditTextPreference
             android:inputType="textPassword"
             android:defaultValue="1234"
+            android:dependency="ftp_server_status"
             android:key="ftp_server_user_pwd"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:password="true"
             android:title="@string/ftp_server_user_pwd" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/ftp_server_running_title" >>
+    <PreferenceCategory android:title="@string/ftp_server_status" >>
         <SwitchPreference
             android:defaultValue="false"
+            android:checked="false"
             android:key="ftp_server_status"
+            android:disableDependentsState="true"
             android:switchTextOff="OFF"
             android:switchTextOn="ON"
-            android:title="FTP Server Stoped"
+            android:title="@string/ftp_server_stoped"
         />
+        <Preference
+            android:title="@string/connection_address"
+            android:key="connection_address"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

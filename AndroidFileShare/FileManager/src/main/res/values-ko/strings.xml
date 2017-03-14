@@ -41,8 +41,11 @@
     <string name="ftp_server_user_settings">사용자 설정</string>
     <string name="ftp_server_user_id">사용자 아이디</string>
     <string name="ftp_server_user_pwd">비밀번호</string>
-    <string name="network_disconntion">Device not connected to network. Please try again after connecting.</string>
-    <string name="ftp_server_start">Server Start</string>
-    <string name="ftp_server_running_title">FTP Server Running Switch</string>
+    <string name="network_disconntion">네트워크에 연결되어 있지 않습니다. 연결 후 다시 시도해 주세요.</string>
+    <string name="ftp_server_start">서버 시작</string>
+    <string name="ftp_server_status">서버 상태</string>
+    <string name="ftp_server_running">FTP 서버 실행 중</string>
+    <string name="ftp_server_stoped">FTP 서버 정지</string>
+    <string name="connection_address">Connection address</string>
 
 </resources>

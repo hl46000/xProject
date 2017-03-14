@@ -4,14 +4,14 @@ package share.file.purehero.com.fileshare;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
+
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,31 +33,15 @@ import com.purehero.common.ProgressRunnable;
 import com.purehero.ftpserver.settings.FtpServerSettingsActivity;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.ftpserver.FtpServer;
-import org.apache.ftpserver.FtpServerFactory;
-import org.apache.ftpserver.ftplet.Authority;
-import org.apache.ftpserver.ftplet.FileSystemFactory;
-import org.apache.ftpserver.ftplet.FileSystemView;
-import org.apache.ftpserver.ftplet.FtpException;
-import org.apache.ftpserver.ftplet.User;
-import org.apache.ftpserver.ftplet.UserManager;
-import org.apache.ftpserver.listener.ListenerFactory;
-import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
-import org.apache.ftpserver.usermanager.SaltedPasswordEncryptor;
-import org.apache.ftpserver.usermanager.UserFactory;
-import org.apache.ftpserver.usermanager.impl.WritePermission;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import static share.file.purehero.com.fileshare.FtpClientAdapter.server;
 
 /**
  * Created by MY on 2017-02-25.
@@ -140,38 +124,18 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /*
         switch( requestCode ) {
             case 100 :  // FTP Server 설정
-                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-                String strPort  = sharedPref.getString( "tfp_server_port", "2345" );
-                String userID   = sharedPref.getString( "ftp_server_user_id", "Guest" );
-                String userPWD  = sharedPref.getString( "ftp_server_user_pwd", "1234" );
-
-                initFtpServer( userID, userPWD, Integer.valueOf( strPort ));
-                startFtpServer();
-
-                new Handler().postDelayed( new Runnable(){
-                    @Override
-                    public void run() {
-                        context.runOnUiThread( new Runnable(){
-                            @Override
-                            public void run() {
-                                if( isStartedFtpServer()) {
-                                    Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
-                                    if( btn != null ) {
-                                        btn.setBackgroundResource( R.drawable.ftp_server_on );
-                                    }
-                                }
-                            }
-                        });
+                Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
+                if( btn != null ) {
+                    if( MyFtpServer.getInstance(getActivity()).isStartedFtpServer()) {
+                        btn.setBackgroundResource(R.drawable.ftp_server_on);
+                    } else {
+                        btn.setBackgroundResource(R.drawable.ftp_server_off);
                     }
-                }, 1000 );
+                }
                 break;
         }
-        */
-
-
     }
 
     public void reflashListView() {
@@ -744,13 +708,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     public void onClick(View view) {
         switch( view.getId()) {
             case R.id.btnFtpServerSW :
-
-                if( !MyFtpServer.getInstance(context).isStartedFtpServer()) {
-                    Intent intent = new Intent( context, FtpServerSettingsActivity.class );
-                    this.startActivityForResult( intent, 100 );
-                } else {
-                    Toast.makeText( context, MyFtpServer.getInstance(context).getConnectionMessage(), Toast.LENGTH_LONG ).show();
-                }
+                Intent intent = new Intent( context, FtpServerSettingsActivity.class );
+                intent.putExtra("lastFolder", listAdapter.getLastFolder().getAbsolutePath());
+                this.startActivityForResult( intent, 100 );
                 break;
         }
     }

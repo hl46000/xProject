@@ -71,10 +71,7 @@ public class MyFtpServer {
             ftpServer = serverFactory.createServer();
             G.Log( "FTP Server address : %s:%d", deviceAddr, factory.getPort() );
 
-            String message = context.getString( R.string.connection_addr );
-            String serverAddr = String.format("%s:%d", deviceAddr,  port );
-            String ex = String.format( "\n\nex) ftp://%s@%s:%d", id, deviceAddr, port );
-            ftpConnectionMessage = message + serverAddr + ex;
+            ftpConnectionMessage = String.format( "ftp://%s@%s:%d", id, deviceAddr, port );
         } catch (FtpException e) {
             e.printStackTrace();
         }
@@ -86,7 +83,7 @@ public class MyFtpServer {
 
     public boolean isStartedFtpServer() {
         if( ftpServer == null ) return false;
-        return !ftpServer.isStopped();
+        return !(ftpServer.isStopped() || ftpServer.isSuspended());
     }
 
     public void startFtpServer() {

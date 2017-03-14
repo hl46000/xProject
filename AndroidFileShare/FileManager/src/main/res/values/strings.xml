@@ -45,6 +45,9 @@
     <string name="network_disconntion">Device not connected to network. Please try again after connecting.</string>
     <string name="connection_addr">Server Address :</string>
     <string name="ftp_server_start">Server Start</string>
-    <string name="ftp_server_running_title">FTP Server Running Switch</string>
+    <string name="ftp_server_status">Server status</string>
+    <string name="ftp_server_running">FTP Server is running</string>
+    <string name="ftp_server_stoped">FTP Server is not running</string>
+    <string name="connection_address">Connection address</string>
 
 </resources>
