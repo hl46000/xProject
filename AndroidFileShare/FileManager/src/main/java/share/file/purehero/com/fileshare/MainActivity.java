@@ -2,7 +2,10 @@ package share.file.purehero.com.fileshare;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Environment;
@@ -26,6 +29,7 @@ import com.google.android.gms.ads.AdView;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.G;
+import com.purehero.common.StorageUtils;
 import com.purehero.common.ViewPagerAdapter;
 
 import java.io.File;
@@ -145,6 +149,13 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     protected void onResume() {
         super.onResume();
         checkPermission();
+        RegisterSdCardUpdateReceiver();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        UnregisterSdCardUpdateReceiver();
     }
 
     @Override
@@ -458,4 +469,47 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             }
         }
     }
+
+    List<BroadcastReceiver> broadcastReceiverList = new ArrayList<BroadcastReceiver>();
+    protected void RegisterSdCardUpdateReceiver()     {
+        String actionNames[] = {
+                Intent.ACTION_MEDIA_MOUNTED,
+                Intent.ACTION_MEDIA_UNMOUNTED
+        };
+
+        IntentFilter intentFilter = new IntentFilter();
+        MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+        for( String name : actionNames ) {
+            intentFilter.addAction( name );
+        }
+        intentFilter.addDataScheme("file");
+        this.registerReceiver( myBroadcastReceiver, intentFilter );
+
+        broadcastReceiverList.add( myBroadcastReceiver );
+    }
+    protected void UnregisterSdCardUpdateReceiver() {
+        for( BroadcastReceiver receiver : broadcastReceiverList ) {
+            this.unregisterReceiver( receiver );
+        }
+        broadcastReceiverList.clear();
+    }
+
+    class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Toast.makeText( MainActivity.this, action, Toast.LENGTH_LONG ).show();
+
+            switch( action ) {
+                case Intent.ACTION_MEDIA_MOUNTED :
+                    List<StorageUtils.StorageInfo> storages = StorageUtils.getStorageList();
+                    for( StorageUtils.StorageInfo info : storages ) {
+                        G.Log( "%s => %s:%s", action, info.getDisplayName(), info.path );
+                    }
+                    break;
+                case Intent.ACTION_MEDIA_UNMOUNTED :
+                    break;
+            }
+        }
+    };
 }
