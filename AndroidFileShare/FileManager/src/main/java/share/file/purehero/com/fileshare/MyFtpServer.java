@@ -38,6 +38,8 @@ public class MyFtpServer {
 
     org.apache.ftpserver.FtpServer ftpServer = null;
     public void initFtpServer( String id, String pwd, int port, File root_folder ) {
+        G.Log( "initFtpServer %s:%d( %s ) => %s", id, port, pwd, root_folder.getAbsolutePath() );
+
         String deviceAddr = G.getIPAddress(true);
         if( deviceAddr == null || deviceAddr.length() < 6 ) {
             Toast.makeText( context, R.string.network_disconntion, Toast.LENGTH_LONG ).show();
@@ -87,6 +89,7 @@ public class MyFtpServer {
     }
 
     public void startFtpServer() {
+        G.Log( "startFtpServer" );
         if( ftpServer != null ) {
             try {
                 if( ftpServer.isSuspended()) {
@@ -101,8 +104,10 @@ public class MyFtpServer {
     }
 
     public void stopFtpServer() {
+        G.Log( "stopFtpServer" );
         if( ftpServer != null ) {
             ftpServer.stop();
         }
+        ftpServer = null;
     }
 }

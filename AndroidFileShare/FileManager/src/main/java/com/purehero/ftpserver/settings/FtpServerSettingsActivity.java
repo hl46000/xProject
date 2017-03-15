@@ -13,8 +13,11 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.purehero.common.G;
 
 import java.io.File;
 
@@ -27,9 +30,11 @@ import share.file.purehero.com.fileshare.R;
 
 public class FtpServerSettingsActivity extends PreferenceActivity {
     static String root_folder = "/";
+    static SwitchPreference ftpServerSwitch = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         super.onCreate(savedInstanceState);
         //this.setContentView(R.layout.ftp_server_settings);
 
@@ -72,7 +77,20 @@ public class FtpServerSettingsActivity extends PreferenceActivity {
                     initSummary(pGrp.getPreference(i));
                 }
             } else {
-                updatePrefSummary(p);
+                if( p instanceof SwitchPreference ) {
+                    ftpServerSwitch = ( SwitchPreference ) p;
+
+                    if( MyFtpServer.getInstance(getActivity()).isStartedFtpServer()) {
+                        ftpServerSwitch.setTitle( R.string.ftp_server_running );
+                        ftpServerSwitch.setChecked( true );
+                    } else {
+                        ftpServerSwitch.setTitle( R.string.ftp_server_stoped );
+                        ftpServerSwitch.setChecked( false );
+                    }
+                    update_server_address.run();
+                } else {
+                    updatePrefSummary(p);
+                }
             }
         }
 
@@ -91,19 +109,6 @@ public class FtpServerSettingsActivity extends PreferenceActivity {
             } else if (p instanceof MultiSelectListPreference) {
                 EditTextPreference editTextPref = (EditTextPreference) p;
                 p.setSummary(editTextPref.getText());
-
-            } else if( p instanceof SwitchPreference ) {
-                SwitchPreference switchPref = ( SwitchPreference ) p;
-                //if( switchPref.getKey() == "ftp_server_status" )
-                {
-                    if( MyFtpServer.getInstance(getActivity()).isStartedFtpServer()) {
-                        switchPref.setTitle( R.string.ftp_server_running );
-                        switchPref.setChecked( true );
-                    } else {
-                        switchPref.setTitle( R.string.ftp_server_stoped );
-                        switchPref.setChecked( false );
-                    }
-                }
             }
         }
 
@@ -113,8 +118,10 @@ public class FtpServerSettingsActivity extends PreferenceActivity {
         }
 
         @Override
-        public boolean onPreferenceClick(final Preference preference) {
+        public boolean onPreferenceClick(Preference preference) {
             boolean checked = ((SwitchPreference) preference).isChecked();
+            G.Log( "onPreferenceClick %s", checked ? "checked" : "not checked" );
+
             final MyFtpServer myFtpServer = MyFtpServer.getInstance(getActivity());
 
             if( checked ) {
@@ -132,32 +139,29 @@ public class FtpServerSettingsActivity extends PreferenceActivity {
                 myFtpServer.stopFtpServer();
             }
 
-            new Handler().postDelayed(new Runnable(){
-                @Override
-                public void run() {
-                    getActivity().runOnUiThread( new Runnable(){
-                        @Override
-                        public void run() {
-                            Preference ca = findPreference( "connection_address" );
-
-                            if( myFtpServer.isStartedFtpServer()) {
-                                preference.setTitle( R.string.ftp_server_running );
-
-                                if( ca != null ) {
-                                    ca.setSummary( myFtpServer.getConnectionMessage());
-                                }
-                            } else {
-                                preference.setTitle( R.string.ftp_server_stoped );
-
-                                if( ca != null ) {
-                                    ca.setSummary( "unknown" );
-                                }
-                            }
-                        }
-                    });
-                }
-            }, 1000 );
+            new Handler().postDelayed( update_server_address, 1000 );
             return true;
         }
+
+        Runnable update_server_address = new Runnable() {
+            @Override
+            public void run() {
+                Preference ca = findPreference( "connection_address" );
+
+                if( MyFtpServer.getInstance( getActivity() ).isStartedFtpServer()) {
+                    ftpServerSwitch.setTitle( R.string.ftp_server_running );
+
+                    if( ca != null ) {
+                        ca.setSummary( MyFtpServer.getInstance( getActivity() ).getConnectionMessage());
+                    }
+                } else {
+                    ftpServerSwitch.setTitle( R.string.ftp_server_stoped );
+
+                    if( ca != null ) {
+                        ca.setSummary( "unknown" );
+                    }
+                }
+            }
+        };
     }
 }
