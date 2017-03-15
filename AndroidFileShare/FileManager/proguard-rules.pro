@@ -31,3 +31,11 @@
    public *;
 }
 
+-keep public class org.apache.** {
+   public *;
+}
+
+-keep public class org.springframework.** {
+   public *;
+}
+
