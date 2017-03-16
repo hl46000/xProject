@@ -8,8 +8,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
@@ -35,9 +37,9 @@ public class StorageUtils {
             if (!removable) {
                 res.append("Internal SD card");
             } else if (number > 1) {
-                res.append("SD card " + number);
+                res.append("SDcard" + number);
             } else {
-                res.append("SD card");
+                res.append("SDcard");
             }
             if (readonly) {
                 res.append(" (Read only)");
@@ -46,9 +48,9 @@ public class StorageUtils {
         }
     }
 
-    public static List<StorageInfo> getStorageList() {
+    public static Map<String,StorageInfo> getStorageList() {
 
-        List<StorageInfo> list = new ArrayList<StorageInfo>();
+        Map<String,StorageInfo> list = new HashMap<String,StorageInfo>();
         String def_path = Environment.getExternalStorageDirectory().getPath();
         boolean def_path_removable = Environment.isExternalStorageRemovable();
         String def_path_state = Environment.getExternalStorageState();
@@ -61,7 +63,8 @@ public class StorageUtils {
 
         if (def_path_available) {
             paths.add(def_path);
-            list.add(0, new StorageInfo(def_path, def_path_readonly, def_path_removable, def_path_removable ? cur_removable_number++ : -1));
+            //list.add(0, new StorageInfo(def_path, def_path_readonly, def_path_removable, def_path_removable ? cur_removable_number++ : -1));
+            list.put( def_path, new StorageInfo(def_path, def_path_readonly, def_path_removable, def_path_removable ? cur_removable_number++ : -1));
         }
 
         BufferedReader buf_reader = null;
@@ -89,7 +92,8 @@ public class StorageUtils {
                                 && !line.contains("/dev/mapper")
                                 && !line.contains("tmpfs")) {
                             paths.add(mount_point);
-                            list.add(new StorageInfo(mount_point, readonly, true, cur_removable_number++));
+                            //list.add(new StorageInfo(mount_point, readonly, true, cur_removable_number++));
+                            list.put(mount_point,new StorageInfo(mount_point, readonly, true, cur_removable_number++));
                         }
                     }
                 }

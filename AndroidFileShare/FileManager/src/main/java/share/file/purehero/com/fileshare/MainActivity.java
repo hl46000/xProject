@@ -35,6 +35,8 @@ import com.purehero.common.ViewPagerAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        checkPermission();
         FileClickCount.loadDatas( this );
 
         int toolbarTitleIDs[] = { R.string.toolbar, R.string.toolbar2 };
@@ -81,12 +84,20 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
         pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file );
 
+        Map<String,StorageUtils.StorageInfo> storages = StorageUtils.getStorageList();
+        Set<String> keys = storages.keySet();
+        for( String key : keys ) {
+            StorageUtils.StorageInfo value = storages.get(key);
+            pagerAdapter.addItem( new FileListFragment().setRootFolder( new File( value.path)).setMainActivity(this), value.getDisplayName() );
+        }
+        /*
         String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
         if( state.equals(Environment.MEDIA_MOUNTED)){ // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
             File externalStorageFolder = Environment.getExternalStorageDirectory();
             //G.Log( "externalStorageFolder : %s", externalStorageFolder.getAbsolutePath());
             pagerAdapter.addItem( new FileListFragment().setRootFolder(externalStorageFolder).setMainActivity(this), R.string.my_sdcard_file );
         }
+        */
 
         /*
         pagerAdapter.addItem( new FragmentText(), R.string.remote_file );
@@ -498,16 +509,73 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Toast.makeText( MainActivity.this, action, Toast.LENGTH_LONG ).show();
+            Toast.makeText( MainActivity.this, action, Toast.LENGTH_SHORT).show();
 
+            Map<String,StorageUtils.StorageInfo> storages = StorageUtils.getStorageList();
+            Set<String> keys = storages.keySet();
+            for( String key : keys ) {
+                G.Log( "Mounted path : %s", key );
+            }
             switch( action ) {
                 case Intent.ACTION_MEDIA_MOUNTED :
-                    List<StorageUtils.StorageInfo> storages = StorageUtils.getStorageList();
-                    for( StorageUtils.StorageInfo info : storages ) {
-                        G.Log( "%s => %s:%s", action, info.getDisplayName(), info.path );
+                    for( String key : keys ) {
+                        File folder = new File( key );
+                        File fileList[] = folder.listFiles();
+                        for( File f : fileList ) {
+                            G.Log( "%s ==> %s", key, f.getAbsolutePath());
+                        }
+                        /*
+                        StorageUtils.StorageInfo value = storages.get(key);
+                        boolean addItem = false;
+                        for( int i = 0; i < pagerAdapter.getCount(); i++ ) {
+                            if (value.getDisplayName().compareTo(pagerAdapter.getPageTitle(i).toString()) != 0) {
+                                addItem = true;
+                                break;
+                            }
+                        }
+                        if( addItem ) {
+                            pagerAdapter.addItem( new FileListFragment().setRootFolder( new File( value.path)).setMainActivity(MainActivity.this), value.getDisplayName() );
+                        }
+                        */
                     }
+/*
+                    // insert all tabs from pagerAdapter data
+                    for (int i = 0; i < pagerAdapter.getCount(); i++) {
+                        tabHost.addTab(
+                                tabHost.newTab()
+                                        .setText(pagerAdapter.getPageTitle(i))
+                                        .setTabListener(MainActivity.this)
+                        );
+                    }
+                    */
+
                     break;
                 case Intent.ACTION_MEDIA_UNMOUNTED :
+                    /*
+                    for( String key : keys ) {
+                        StorageUtils.StorageInfo value = storages.get(key);
+                        int removeItem = -1;
+                        for( int i = 0; i < pagerAdapter.getCount(); i++ ) {
+                            if (value.getDisplayName().compareTo(pagerAdapter.getPageTitle(i).toString()) == 0) {
+                                removeItem = i;
+                                break;
+                            }
+                        }
+                        if( removeItem != -1 ) {
+                            tabHost.removeViewAt( removeItem);
+                            pagerAdapter.removeItem( removeItem );
+                        }
+                    }
+
+                    // insert all tabs from pagerAdapter data
+                    for (int i = 0; i < pagerAdapter.getCount(); i++) {
+                        tabHost.addTab(
+                                tabHost.newTab()
+                                        .setText(pagerAdapter.getPageTitle(i))
+                                        .setTabListener(MainActivity.this)
+                        );
+                    }
+                    */
                     break;
             }
         }

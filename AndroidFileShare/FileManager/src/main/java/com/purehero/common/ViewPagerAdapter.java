@@ -66,4 +66,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public boolean onBackPressed( int index ) {
         return ((FragmentEx)fragmentList.get(index)).onBackPressed();
     }
+
+    public void removeItem(int removeItem) {
+        fragmentList.remove( removeItem );
+        fragmentName.remove( removeItem );
+    }
 }
