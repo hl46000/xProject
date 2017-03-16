@@ -1,8 +1,10 @@
 package com.purehero.common;
 
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import share.file.purehero.com.fileshare.R;
 
 /**
  * Created by MY on 2017-03-15.
@@ -32,14 +36,14 @@ public class StorageUtils {
             this.number = number;
         }
 
-        public String getDisplayName() {
+        public String getDisplayName( Context context ) {
             StringBuilder res = new StringBuilder();
             if (!removable) {
-                res.append("Internal SD card");
+                res.append( context.getString( R.string.internal_sdcard ));
             } else if (number > 1) {
-                res.append("SDcard" + number);
+                res.append(context.getString( R.string.sdcard ) + number);
             } else {
-                res.append("SDcard");
+                res.append(context.getString( R.string.sdcard ));
             }
             if (readonly) {
                 res.append(" (Read only)");
@@ -71,34 +75,27 @@ public class StorageUtils {
         try {
             buf_reader = new BufferedReader(new FileReader("/proc/mounts"));
             String line;
-            //G.Log("/proc/mounts");
             while ((line = buf_reader.readLine()) != null) {
-                //G.Log(line);
-                if (line.contains("vfat") || line.contains("/mnt")) {
-                    StringTokenizer tokens = new StringTokenizer(line, " ");
-                    String unused = tokens.nextToken(); //device
-                    String mount_point = tokens.nextToken(); //mount point
-                    if (paths.contains(mount_point)) {
-                        continue;
-                    }
-                    unused = tokens.nextToken(); //file system
-                    List<String> flags = Arrays.asList(tokens.nextToken().split(",")); //flags
-                    boolean readonly = flags.contains("ro");
+                line = line.trim();
+                if (!line.startsWith("/mnt")) continue;
 
-                    if (line.contains("/dev/block/vold")) {
-                        if (!line.contains("/mnt/secure")
-                                && !line.contains("/mnt/asec")
-                                && !line.contains("/mnt/obb")
-                                && !line.contains("/dev/mapper")
-                                && !line.contains("tmpfs")) {
-                            paths.add(mount_point);
-                            //list.add(new StorageInfo(mount_point, readonly, true, cur_removable_number++));
-                            list.put(mount_point,new StorageInfo(mount_point, readonly, true, cur_removable_number++));
-                        }
-                    }
+                StringTokenizer tokens = new StringTokenizer(line, " ");
+                String unused = tokens.nextToken(); //device
+                String mount_point = tokens.nextToken(); //mount point
+                if (paths.contains(mount_point)) {
+                    continue;
                 }
-            }
+                File mount_point_file = new File( mount_point );
+                if( !mount_point_file.canRead()) continue;
 
+                unused = tokens.nextToken(); //file system
+                List<String> flags = Arrays.asList(tokens.nextToken().split(",")); //flags
+                boolean readonly = flags.contains("ro");
+
+                paths.add(mount_point);
+                //list.add(new StorageInfo(mount_point, readonly, true, cur_removable_number++));
+                list.put(mount_point,new StorageInfo(mount_point, readonly, true, cur_removable_number++));
+            }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         } catch (IOException ex) {

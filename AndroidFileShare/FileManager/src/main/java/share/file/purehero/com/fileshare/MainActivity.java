@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -88,8 +90,9 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         Set<String> keys = storages.keySet();
         for( String key : keys ) {
             StorageUtils.StorageInfo value = storages.get(key);
-            pagerAdapter.addItem( new FileListFragment().setRootFolder( new File( value.path)).setMainActivity(this), value.getDisplayName() );
+            pagerAdapter.addItem( new FileListFragment().setRootFolder( new File( value.path)).setMainActivity(this), value.getDisplayName(this) );
         }
+
         /*
         String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
         if( state.equals(Environment.MEDIA_MOUNTED)){ // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                     fileListFragment.reflashListView();
 
                     String title = pagerAdapter.getPageTitle( position ).toString();
-                    if( title.compareTo( getString( R.string.my_sdcard_file )) == 0 ) {
+                    if( title.contains( getString( R.string.sdcard_name ))) {
                         fileListFragment.ftpButtonVisible( true );
                     } else {
                         fileListFragment.ftpButtonVisible( false );
@@ -160,13 +163,13 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     protected void onResume() {
         super.onResume();
         checkPermission();
-        RegisterSdCardUpdateReceiver();
+        //RegisterSdCardUpdateReceiver();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        UnregisterSdCardUpdateReceiver();
+        //UnregisterSdCardUpdateReceiver();
     }
 
     @Override
@@ -481,6 +484,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         }
     }
 
+    /*
     List<BroadcastReceiver> broadcastReceiverList = new ArrayList<BroadcastReceiver>();
     protected void RegisterSdCardUpdateReceiver()     {
         String actionNames[] = {
@@ -518,66 +522,11 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             }
             switch( action ) {
                 case Intent.ACTION_MEDIA_MOUNTED :
-                    for( String key : keys ) {
-                        File folder = new File( key );
-                        File fileList[] = folder.listFiles();
-                        for( File f : fileList ) {
-                            G.Log( "%s ==> %s", key, f.getAbsolutePath());
-                        }
-                        /*
-                        StorageUtils.StorageInfo value = storages.get(key);
-                        boolean addItem = false;
-                        for( int i = 0; i < pagerAdapter.getCount(); i++ ) {
-                            if (value.getDisplayName().compareTo(pagerAdapter.getPageTitle(i).toString()) != 0) {
-                                addItem = true;
-                                break;
-                            }
-                        }
-                        if( addItem ) {
-                            pagerAdapter.addItem( new FileListFragment().setRootFolder( new File( value.path)).setMainActivity(MainActivity.this), value.getDisplayName() );
-                        }
-                        */
-                    }
-/*
-                    // insert all tabs from pagerAdapter data
-                    for (int i = 0; i < pagerAdapter.getCount(); i++) {
-                        tabHost.addTab(
-                                tabHost.newTab()
-                                        .setText(pagerAdapter.getPageTitle(i))
-                                        .setTabListener(MainActivity.this)
-                        );
-                    }
-                    */
-
                     break;
                 case Intent.ACTION_MEDIA_UNMOUNTED :
-                    /*
-                    for( String key : keys ) {
-                        StorageUtils.StorageInfo value = storages.get(key);
-                        int removeItem = -1;
-                        for( int i = 0; i < pagerAdapter.getCount(); i++ ) {
-                            if (value.getDisplayName().compareTo(pagerAdapter.getPageTitle(i).toString()) == 0) {
-                                removeItem = i;
-                                break;
-                            }
-                        }
-                        if( removeItem != -1 ) {
-                            tabHost.removeViewAt( removeItem);
-                            pagerAdapter.removeItem( removeItem );
-                        }
-                    }
-
-                    // insert all tabs from pagerAdapter data
-                    for (int i = 0; i < pagerAdapter.getCount(); i++) {
-                        tabHost.addTab(
-                                tabHost.newTab()
-                                        .setText(pagerAdapter.getPageTitle(i))
-                                        .setTabListener(MainActivity.this)
-                        );
-                    }
-                    */
                     break;
             }
         }
     };
+    */
 }

@@ -22,7 +22,7 @@
     <string name="cancel">CANCEL</string>
     <string name="create">CREATE</string>
     <string name="my_file">MyFile</string>
-    <string name="my_sdcard_file">Sdcard</string>
+    <string name="sdcard_name">Sdcard</string>
     <string name="remote_file">Remote_File</string>
     <string name="delete_title">Delete items</string>
     <string name="delete_message">items will be deleted.</string>
@@ -49,5 +49,7 @@
     <string name="ftp_server_running">FTP Server is running</string>
     <string name="ftp_server_stoped">FTP Server is not running</string>
     <string name="connection_address">Connection address</string>
+    <string name="internal_sdcard">Internal Sdcard</string>
+    <string name="sdcard">Sdcard</string>
 
 </resources>
