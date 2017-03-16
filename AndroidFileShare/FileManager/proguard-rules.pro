@@ -15,27 +15,15 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--keep public class com.google.android.gms.ads.** {
-   public *;
-}
+-keep public class com.google.android.gms.ads.** { public *; }
+-keep public class com.google.ads.** { public *; }
+-keep public class android.support.** { public *; }
+-keep public class org.apache.** { *; }
+-keep interface android.support.** { *; }
 
--keep public class com.google.ads.** {
-   public *;
-}
+-keepattributes *Annotation*
+-keepattributes Signature
 
--keep public class android.support.** {
-   public *;
-}
-
--keep public class com.google.** {
-   public *;
-}
-
--keep public class org.apache.** {
-   public *;
-}
-
--keep public class org.springframework.** {
-   public *;
-}
-
+-dontwarn org.slf4j.**
+-dontwarn org.apache.**
+-dontwarn com.google.android.**
