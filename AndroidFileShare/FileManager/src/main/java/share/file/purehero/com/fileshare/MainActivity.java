@@ -84,7 +84,11 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
-        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file );
+
+        File my_folder = new File( "/" );   // root 폴더를 읽지 못하는 경우가 있다.
+        if( my_folder.canRead()) {
+            pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file );
+        }
 
         /*
         Map<String,StorageUtils.StorageInfo> storages = StorageUtils.getStorageList();
