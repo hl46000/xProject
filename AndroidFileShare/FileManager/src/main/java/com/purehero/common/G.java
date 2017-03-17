@@ -54,9 +54,11 @@ public class G {
         StackTraceElement ste = Thread.currentThread().getStackTrace()[4];
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        sb.append(ste.getFileName().replace(".java", ""));
-        sb.append("::");
-        sb.append(ste.getMethodName());
+        try {
+            sb.append(ste.getFileName().replace(".java", ""));
+            sb.append("::");
+            sb.append(ste.getMethodName());
+        } catch( Exception e ) {}
         sb.append("]");
         sb.append(message);
         return sb.toString();
