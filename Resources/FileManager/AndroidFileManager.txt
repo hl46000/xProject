@@ -5,3 +5,13 @@
 
 로컬 기기의 스토리지, SD카드, USB 저장장치에 있는 모든 파일과 폴더를 관리할 수 있습니다.
 PC에서 Android 기기에 FTP(File Transfer Protocol)을 사용하여 Android 기기에 있는 모든 파일과 폴더를 관리할 수 있습니다.
+
+
+File Manager is an easy and powerful file explorer for Android devices.
+File Manager is an easy and powerful file explorer for Android devices.
+It's very easy to use with a simple UI.
+
+Supports the default behavior of the file explorer (open / search / directory navigation / copy / paste / cut / delete / rename).
+
+You can manage all the files and folders on the local device's storage, SD card, and USB storage device.
+On your PC, you can use File Transfer Protocol (FTP) for your Android device to manage all your files and folders on your Android device.

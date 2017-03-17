@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.support.v4.app.ActivityCompat;
@@ -147,18 +148,22 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
         // Tab 이 하나밖에 없는 경우, Tab 이동이 불가하여 FTP 버튼을 보이도록 한다.
         if( pagerAdapter.getCount() == 1 ) {
-            Fragment fragment = pagerAdapter.getItem( 0 );
-            if( fragment instanceof FileListFragment ) {
-                FileListFragment fileListFragment = ( FileListFragment ) fragment;
-                fileListFragment.reflashListView();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Fragment fragment = pagerAdapter.getItem(0);
+                    if (fragment instanceof FileListFragment) {
+                        FileListFragment fileListFragment = (FileListFragment) fragment;
 
-                String title = pagerAdapter.getPageTitle( 0 ).toString();
-                if( title.contains( getString( R.string.sdcard_name ))) {
-                    fileListFragment.ftpButtonVisible( true );
-                } else {
-                    fileListFragment.ftpButtonVisible( false );
+                        String title = pagerAdapter.getPageTitle(0).toString();
+                        if (title.contains(getString(R.string.sdcard_name))) {
+                            fileListFragment.ftpButtonVisible(true);
+                        } else {
+                            fileListFragment.ftpButtonVisible(false);
+                        }
+                    }
                 }
-            }
+            }, 3000);
         }
 
         bannerAdView = (AdView) findViewById(R.id.adView);

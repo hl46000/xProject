@@ -716,6 +716,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     public void ftpButtonVisible(boolean b) {
+        if( layout == null ) return ;
+
         Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
         if( btn != null ) {
             btn.setVisibility( b ? View.VISIBLE : View.GONE );
