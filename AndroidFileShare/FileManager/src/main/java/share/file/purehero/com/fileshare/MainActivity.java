@@ -86,21 +86,21 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
         pagerAdapter.addItem( new FileListFragment().setMainActivity(this), R.string.my_file );
 
+        /*
         Map<String,StorageUtils.StorageInfo> storages = StorageUtils.getStorageList();
         Set<String> keys = storages.keySet();
         for( String key : keys ) {
             StorageUtils.StorageInfo value = storages.get(key);
             pagerAdapter.addItem( new FileListFragment().setRootFolder( new File( value.path)).setMainActivity(this), value.getDisplayName(this) );
         }
+        */
 
-        /*
         String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
         if( state.equals(Environment.MEDIA_MOUNTED)){ // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
             File externalStorageFolder = Environment.getExternalStorageDirectory();
             //G.Log( "externalStorageFolder : %s", externalStorageFolder.getAbsolutePath());
-            pagerAdapter.addItem( new FileListFragment().setRootFolder(externalStorageFolder).setMainActivity(this), R.string.my_sdcard_file );
+            pagerAdapter.addItem( new FileListFragment().setRootFolder(externalStorageFolder).setMainActivity(this), R.string.sdcard_name );
         }
-        */
 
         /*
         pagerAdapter.addItem( new FragmentText(), R.string.remote_file );
@@ -150,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 @Override
                 public void onAdLoaded() {
                     super.onAdLoaded();
-                    if( !G.debuggable ) { // 릴리즈 빌드이거나 테스트 할때만 아래를 활성화 시킨다.
+                    //if( !G.debuggable ) // 릴리즈 빌드이거나 테스트 할때만 아래를 활성화 시킨다.
+                    {
                         bannerAdView.setVisibility(View.VISIBLE);
                     }
                 }});
