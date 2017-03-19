@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">APK Extractor</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="apk_extract">Copy to SD Card</string>
+    <string name="apk_market">Go to Google Play</string>
+    <string name="information">Information</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+    <string name="execute">Execute</string>
+    <string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="search_text">Search( App name or Package name )</string>
+</resources>

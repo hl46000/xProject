@@ -1,0 +1,30 @@
+<menu 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:showAsAction="always" >
+	
+	<item 
+	    android:id="@+id/APK_MENU_EXTRACT"
+	    android:icon="@drawable/op_extract" 
+	    android:title="@string/apk_extract" />
+	<item 
+	    android:id="@+id/APK_MENU_DELETE"
+	    android:icon="@drawable/op_delete"
+	    android:title="@string/delete" />
+	<item 
+	    android:id="@+id/APK_MENU_SHARE"
+	    android:icon="@drawable/op_share"
+	    android:title="@string/share" />
+	<item 
+	    android:id="@+id/APK_MENU_RUNNING"
+	    android:icon="@drawable/op_run" 
+	    android:title="@string/execute" />
+	<item 
+	    android:id="@+id/APK_MENU_INFOMATION"
+	    android:icon="@drawable/op_info" 
+	    android:title="@string/information" />
+	<item 
+	    android:id="@+id/APK_MENU_GOTO_MARKET"
+	    android:icon="@drawable/op_gplay" 
+	    android:title="@string/apk_market" />
+</menu>

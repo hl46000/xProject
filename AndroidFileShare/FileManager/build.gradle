@@ -52,8 +52,8 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.2.0'
     testCompile 'junit:junit:4.12'
     compile files('libs/ftplet-api-1.1.0.jar')
-    compile files('libs/ftpserver-core-1.1.0.jar')
     compile files('libs/mina-core-2.0.16.jar')
     compile files('libs/NetComponents.jar')
     compile files('libs/slf4j-api-1.7.21.jar')
+    compile files('libs/ftpserver-core-1.1.0.jar')
 }
