@@ -1,6 +1,7 @@
 package com.purehero.apk.extractor;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,11 +49,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+        */
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity
 
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
-        pagerAdapter.addItem( new ApkListFragment().setMainActivity(this), "Application" );
+        pagerAdapter.addItem( new ApkListFragment().setMainActivity(this), R.string.application );
 
         String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
         if( state.equals(Environment.MEDIA_MOUNTED)){ // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
@@ -100,12 +103,26 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 123 :
-                /*
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
+                boolean recheckPermission = false;
+                if ( grantResults.length > 0 ) {
+                    for( int result : grantResults ) {
+                        if( result == PackageManager.PERMISSION_GRANTED ) {
+                            recheckPermission = true;
+                            break;
+                        }
+                    }
+                }
+                if( recheckPermission ) {
                     checkPermission();
                 }
-                */
+
+                for( int i = 0; i < pagerAdapter.getCount(); i++ ) {
+                    FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( i );
+                    if( fragment instanceof FileListFragment ) {
+                        FileListFragment f = ( FileListFragment ) fragment;
+                        f.reloadListView();
+                    }
+                }
                 break;
         }
     }
@@ -170,6 +187,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity( new Intent( this, SettingsActivity.class ));
             return true;
         }
 

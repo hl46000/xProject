@@ -191,4 +191,19 @@ public class FileListData {
             return arg0.getFilename().compareToIgnoreCase( arg1.getFilename());
         }
     };
+
+    int index = -1;
+    /**
+     * @param value
+     */
+    public void setIndex( int value ) {
+        index = value;
+    }
+
+    /**
+     * @return
+     */
+    public int getIndex() {
+        return index;
+    }
 }

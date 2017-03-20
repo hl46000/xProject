@@ -34,6 +34,7 @@ public class FileCopyAsync extends AsyncTask<File, String, String>
 		
 		progressDialog = new ProgressDialog( context );
 		//progressDialog.setContentView( R.layout. );
+		progressDialog.setMessage( context.getString( R.string.extracting));
 		progressDialog.show();
 	}
 

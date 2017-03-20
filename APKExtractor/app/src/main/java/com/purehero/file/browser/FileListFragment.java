@@ -1,6 +1,7 @@
 package com.purehero.file.browser;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,11 +14,13 @@ import android.os.Handler;
 import android.os.Message;
 
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -27,6 +30,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.purehero.apk.extractor.ApkListData;
 import com.purehero.apk.extractor.MainActivity;
 import com.purehero.apk.extractor.R;
 import com.purehero.common.FragmentEx;
@@ -82,8 +86,8 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
             listView.setAdapter( listAdapter );
             listView.setOnItemClickListener( this );
-            listView.setOnItemLongClickListener( this );
-
+            //listView.setOnItemLongClickListener( this );
+            registerForContextMenu( listView );
             //new Thread( listUpdateRunnable ).start();
             listUpdateRunnable.run();
 
@@ -115,7 +119,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 listAdapter.pop_folder( false );
                 reloadListView();
 
-                context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+                //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
                 return true;
             }
         } catch( Exception e ) {
@@ -141,6 +145,44 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 */
                 break;
         }
+    }
+
+    // 메뉴 생성
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if ( v.getId() == R.id.listView ) {
+            context.getMenuInflater().inflate(R.menu.file_context_menu, menu);
+        }
+    }
+
+    // 메뉴 클릭
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        boolean ret = false;
+        // 클릭된 APK 정보
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        FileListData data = ( FileListData ) listAdapter.getItem( info.position );
+
+        G.Log( "onContextItemSelected index : " + info.position );
+
+        switch( item.getItemId()) {
+            case R.id.FILE_MENU_RUNNING		:
+                file_running( data );
+                ret = true;
+                break;
+
+            case R.id.FILE_MENU_DELETE 		:
+                file_delete( data, info.position );
+                ret = true;
+                break;
+
+            case R.id.FILE_MENU_SHARE		:
+                file_share( data );
+                ret = true;
+                break;
+        }
+
+        return ret;
     }
 
     public void reflashListView() {
@@ -223,7 +265,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                 listAdapter.pop_folder( false );
             }
             reloadListView();
-            context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+            //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
         }
     };
 
@@ -272,7 +314,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     listAdapter.pop_folder( false );
                     reloadListView();
 
-                    context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+                    //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
                     return true;
                 }
                 break;
@@ -647,7 +689,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         }
 
         if( data.getFile().isDirectory()) {
-            context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
+            //context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
 
             listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
             reloadListView();
@@ -733,5 +775,105 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             btn.setVisibility( b ? View.VISIBLE : View.GONE );
         }
         */
+    }
+
+    /**
+     * @param data
+     */
+
+    /**
+     * @param data
+     */
+    private void file_share(FileListData data) {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        try {
+            String extension = getFileExt( data.getFilename() );
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
+            shareIntent.setDataAndType( Uri.fromFile( data.getFile()), mimeType );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "Share File" ));
+    }
+
+    private String getFileExt(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+    }
+
+    /**
+     * FILE을 단말기에서 Delete 합니다.
+     *
+     * @param data
+     */
+    private void file_delete(FileListData data, int position ) {
+        data.setIndex( position );
+        new fileDeleteDialog( data ).show();
+        //data.getFile().delete();
+        //fileListAdapter.remove( position );
+    }
+
+    /**
+     * APK 을 실행 한다.
+     *
+     * @param data
+     */
+    private void file_running(FileListData data) {
+        Intent myIntent = new Intent(Intent.ACTION_VIEW);
+        myIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        //myIntent.setData(Uri.fromFile(data.getFile()));
+        myIntent.setDataAndType( Uri.fromFile(data.getFile()), getMimeType( data.getFilename()));
+
+        Intent j = Intent.createChooser(myIntent, "Choose an application to open with:");
+        startActivity(j);
+    }
+
+    private String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
+
+    class fileDeleteDialog {
+        private FileListData data;
+        public fileDeleteDialog( FileListData data ) {
+            this.data = data;
+        }
+
+        public void show() {
+            AlertDialog.Builder dlg = new AlertDialog.Builder( context );
+            dlg.setTitle( R.string.delete );
+            dlg.setMessage( String.format( "'%s'\n\n%s", data.getFilename(), context.getString( R.string.file_delete_confirm )));
+            //.setIcon(R.drawable.delete)
+            dlg.setPositiveButton( R.string.delete, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    if( data.getFile().isDirectory()) {
+                        try {
+                            FileUtils.deleteDirectory( data.getFile() );
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            FileUtils.forceDelete( data.getFile());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    listAdapter.remove( data.getIndex());
+                    dialog.dismiss();
+                }
+            });
+            dlg.setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            dlg.create().show();
+        }
     }
 }

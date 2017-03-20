@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -210,9 +211,10 @@ public class ApkListFragment extends FragmentEx {
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		File apkFile = new File( data.getApkFilepath());
-		File baseFile = new File( sharedPref.getString("sdcard_path", "/sdcard/ApkManager") );
+		File externalStorageFolder = Environment.getExternalStorageDirectory();
+		File baseFile = new File(  sharedPref.getString( "sdcard_path", new File( externalStorageFolder, "ApkExtractor" ).getAbsolutePath()));
 		if( !baseFile.exists()) baseFile.mkdirs();
-		
+
 		File destFile = new File( baseFile, data.getPackageName() + ".apk" );
 		
 		FileCopyAsync filecopy = new FileCopyAsync( context, data.getAppName() );

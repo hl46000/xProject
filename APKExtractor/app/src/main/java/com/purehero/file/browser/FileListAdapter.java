@@ -194,6 +194,11 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         data.setSelected( cb.isChecked());
     }
 
+    public void remove(int index) {
+        filterData.remove( index );
+        notifyDataSetChanged();
+    }
+
     class ViewHolder
     {
         public CheckBox cbSelected;
