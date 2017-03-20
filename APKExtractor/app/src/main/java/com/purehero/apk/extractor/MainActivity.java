@@ -1,8 +1,13 @@
 package com.purehero.apk.extractor;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -13,9 +18,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.ViewPagerAdapter;
+import com.purehero.file.browser.FileListData;
+import com.purehero.file.browser.FileListFragment;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
@@ -52,7 +65,12 @@ public class MainActivity extends AppCompatActivity
         // init view pager
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), tabHost );
         pagerAdapter.addItem( new ApkListFragment().setMainActivity(this), "Application" );
-        pagerAdapter.addItem( new FragmentText(), "SDCard" );
+
+        String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
+        if( state.equals(Environment.MEDIA_MOUNTED)){ // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
+            File externalStorageFolder = Environment.getExternalStorageDirectory();
+            pagerAdapter.addItem( new FileListFragment().setRootFolder(externalStorageFolder).setMainActivity(this), R.string.sdcard_name );
+        }
 
         pager.setAdapter(pagerAdapter);
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -72,12 +90,67 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        checkPermission();
+        //RegisterSdCardUpdateReceiver();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 123 :
+                /*
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    checkPermission();
+                }
+                */
+                break;
+        }
+    }
+
+    private void checkPermission() {
+        String permissions[] = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE
+        };
+        List<String> request_permissions = new ArrayList<String>();
+        for( String permission : permissions ) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
+                request_permissions.add( permission );
+            }
+        }
+
+        if( request_permissions.size() > 0 ) {
+            String permissionsList [] = new String[request_permissions.size()];
+            request_permissions.toArray(permissionsList);
+            ActivityCompat.requestPermissions(this, permissionsList, 123 );
+        }
+    }
+
+    // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
+    private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
+    private long backPressedTime = 0;
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( pager.getCurrentItem());
+            if( !fragment.onBackPressed()) {
+                if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+                    super.onBackPressed();
+
+                } else {
+                    backPressedTime = System.currentTimeMillis();
+                    Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+                }
+            }
         }
     }
 
@@ -138,4 +211,33 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTabUnselected(MaterialTab tab) {}
+
+
+
+    ///////////////////////////////////////////////
+    public void changeFileListModeToolbar() {
+    }
+
+    public void clearSelectedItems(boolean b) {
+    }
+
+    public void setSelectToolbarSelectedCount(int selectedCount) {
+    }
+
+    public int getOpCode() {
+        return R.string.copying;
+    }
+
+    public List<FileListData> getSelectedItems() {
+        return null;
+    }
+
+    public void collectSelectedItems() {
+    }
+
+    public void setOpCode(int action_move) {
+    }
+
+    public void changeFileSelectModeToolbar() {
+    }
 }

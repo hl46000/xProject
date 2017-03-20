@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -229,14 +230,24 @@ public class ApkListFragment extends FragmentEx {
 			
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.setType("application/vnd.android.package-archive");
-		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File( data.getApkFilepath() )));
-		shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
-		shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
+		try {
+			String extension = getFileExt( data.getApkFilepath() );
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
+			shareIntent.setDataAndType( Uri.fromFile( new File( data.getApkFilepath() )), mimeType );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//shareIntent.setType("application/vnd.android.package-archive");
+		//shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File( data.getApkFilepath() )));
+		//shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
+		//shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
 		
 		startActivityForResult(Intent.createChooser(shareIntent, "Share APK File" ), R_ID_APK_MENU_SHARE);
 	}
 
+	private String getFileExt(String fileName) {
+		return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+	}
 
 
 	/**

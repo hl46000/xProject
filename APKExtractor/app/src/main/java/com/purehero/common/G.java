@@ -40,7 +40,7 @@ public class G {
         }
     }
 
-    private static String TAG = "FileManager";
+    private static String TAG = "ApkExtrator";
     public static void Log() {
         Log("");
     }
