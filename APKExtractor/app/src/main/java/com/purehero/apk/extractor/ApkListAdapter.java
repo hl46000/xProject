@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,8 +108,11 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		}
 		
 		ApkListData data = filteredData.get( position );
-		
-		viewHolder.icon.setImageDrawable( data.getIcon());
+
+		Drawable icon = data.getIcon();
+		if( icon != null ) {
+			viewHolder.icon.setImageDrawable( icon );
+		}
 		if( data.getClickCount() == 0 ) {
 			viewHolder.appName.setText( data.getAppName());
 		} else {

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import android.support.design.widget.FloatingActionButton;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -91,15 +92,17 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
             //new Thread( listUpdateRunnable ).start();
             listUpdateRunnable.run();
 
-            /*
-            int btnIDs[] = { R.id.btnFtpServerSW };
+            int btnIDs[] = { R.id.btnReload };
             for( int id : btnIDs ) {
-                Button btn = ( Button ) layout.findViewById(id);
-                if( btn != null ) {
-                    btn.setOnClickListener( this );
+                Object obj = layout.findViewById(id);
+                if( obj == null ) continue;
+
+                if( obj instanceof Button ) {
+                    ((Button) obj).setOnClickListener( this );
+                } else if( obj instanceof FloatingActionButton ) {
+                    ((FloatingActionButton)obj).setOnClickListener(this);
                 }
             }
-            */
         }
 
         return layout;
@@ -753,17 +756,11 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public void onClick(View view) {
-        /*
         switch( view.getId()) {
-            case R.id.btnFtpServerSW :
-
-                Intent intent = new Intent( context, FtpServerSettingsActivity.class );
-                intent.putExtra("lastFolder", listAdapter.getLastFolder().getAbsolutePath());
-                this.startActivityForResult( intent, 100 );
-
+            case R.id.btnReload :
+                listAdapter.reload();
                 break;
         }
-        */
     }
 
     public void ftpButtonVisible(boolean b) {

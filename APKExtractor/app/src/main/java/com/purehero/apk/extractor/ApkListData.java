@@ -54,10 +54,11 @@ public class ApkListData {
 			folder.mkdirs();
 		}
 		clickCountFile	= new File( folder, "count" );
-		File iconFile	= new File( folder, "icon" );
-		try {
+
+		//File iconFile	= new File( folder, "icon" );
+		//try {
 			//icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
-			if( icon == null ) {
+		//	if( icon == null ) {
 				icon		= info.loadIcon(pm);
 			/*
 				if( icon != null ) {
@@ -65,10 +66,10 @@ public class ApkListData {
 					//new SaveIconToFileThread( icon, iconFile ).run();
 				}
 				*/
-			}
-		} catch( Exception e ) {
-			e.printStackTrace();
-		}
+		//	}
+		//} catch( Exception e ) {
+		//	e.printStackTrace();
+		//}
 		/*
 		if( clickCountFile.exists()) {
 			try {
