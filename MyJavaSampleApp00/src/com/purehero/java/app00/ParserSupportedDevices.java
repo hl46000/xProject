@@ -60,7 +60,7 @@ public class ParserSupportedDevices {
 				if( models == null ) {
 					name.put( token[1], token[3]  );
 				} else {
-					models = String.format( "%s:%s", models, token[3] );
+					models = String.format( "%s%s", models, token[3] );
 					name.put( token[1], models );
 				}
 			}
@@ -73,8 +73,7 @@ public class ParserSupportedDevices {
 				for( String n_key : name_keys ) {
 					String model = name.get( n_key );
 										
-					//bw.write( String.format( "%s,%s,%s", d_key, n_key, model ) );
-					bw.write( String.format( "%s,%s", n_key, model ) );
+					bw.write( String.format( "%s,%s,%s", d_key, n_key, model ) );
 					bw.newLine();
 				}
 			}

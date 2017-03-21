@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity
     public void showFullAd() {
         if( interstitialAd != null ) {
             if( interstitialAd.isLoaded()) {
-                if( System.currentTimeMillis() % 10 < 2 )
+                if( System.currentTimeMillis() % 10 == 2 )  // 1/16 확률로 전체 광고 표시
                 {
                     interstitialAd.show();
                 }
