@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">앱 추출</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">환경설정</string>
+    <string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
+
+    <string name="apk_extract">SDCard로 앱 추출</string>
+    <string name="apk_market">Google Play로 이동</string>
+    <string name="information">앱 정보보기</string>
+    <string name="delete">삭제</string>
+    <string name="share">공유</string>
+    <string name="execute">실행</string>
+    <string name="send_to_sdcard_format" formatted="false">\'%s\' 파일이 \'%s\' 로 저장되었습니다.</string>
+    <string name="cancel">취소</string>
+    <string name="ok">확인</string>
+    <string name="search_text">검색( 앱 이름 or 패키지명 )</string>
+
+    <string name="action_check">항목선택</string>
+    <string name="action_paste">붙여넣기</string>
+
+    <string name="action_select_mode">편집</string>
+    <string name="action_create_folder">새 폴더 추가</string>
+    <string name="action_move">이동</string>
+    <string name="action_copy">복사</string>
+    <string name="action_rename">이름 변경</string>
+    <string name="action_zip">ZIP으로 압축하기</string>
+    <string name="action_detail">상세정보</string>
+    <string name="create_folder_title">Create folder</string>
+    <string name="create_folder_hint">New folder</string>
+    <string name="create">CREATE</string>
+    <string name="my_file">내파일</string>
+    <string name="sdcard_name">내부저장소</string>
+    <string name="remote_file">원격파일</string>
+    <string name="delete_title">삭제</string>
+    <string name="delete_message">항목이 삭제됩니다.</string>
+    <string name="deleting">삭제중...</string>
+    <string name="copying">복사중...</string>
+    <string name="moving">이동중...</string>
+    <string name="read_only">읽기전용</string>
+    <string name="rename_title">이름바꾸기</string>
+    <string name="rename">바꾸기</string>
+    <string name="choose_application">앱을 선택해 주세요</string>
+    <string name="file_delete_confirm">삭제 하시겠습니까?</string>
+    <string name="change_sdcard_path">APK 추출경로 변경</string>
+    <string name="extracting">추출 중..</string>
+    <string name="application">앱</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/9744634186</string>
+    <string name="fullscreen_ad_unit_id">ca-app-pub-9674501681746717/2221367381</string>
+</resources>
