@@ -23,7 +23,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="?attr/actionBarSize"
         android:layout_above="@id/adView" >
         <it.neokree.materialtabs.MaterialTabHost
             android:id="@+id/tabHost"
