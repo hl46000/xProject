@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/APKExtractor.iml" filepath="$PROJECT_DIR$/APKExtractor.iml" />
       <module fileurl="file://$PROJECT_DIR$/ApkExtractor/ApkExtractor.iml" filepath="$PROJECT_DIR$/ApkExtractor/ApkExtractor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ApkExtractor/ApkExtractor.iml" filepath="$PROJECT_DIR$/ApkExtractor/ApkExtractor.iml" />
     </modules>
   </component>
 </project>
