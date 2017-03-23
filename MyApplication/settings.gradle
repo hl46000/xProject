@@ -1,1 +1,1 @@
-include ':app', ':AppCompatTabActivity', ':FileListFragment'
+include ':app', ':AppCompatTabActivity', ':FileListFragment', ':CommonModule'

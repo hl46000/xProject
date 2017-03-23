@@ -3,7 +3,11 @@ package com.purehero.module.filelistfragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -97,7 +102,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             for( File file : subItems ) {
                 if( file.isHidden()) continue;
 
-                FileListData data = new FileListData( context, file );
+                FileListData data = new FileListData( file );
                 FileClickCount.loadClickCount( data );
 
                 filterData.add( data );
@@ -145,16 +150,45 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             data.setSelected( false );
         }
         viewHolder.cbSelected.setId( position );
+        viewHolder.ivIcon.setImageBitmap( data.getIcon( context ));
 
-        Drawable icon = data.getIcon();
-        if( icon == null ) {
-            viewHolder.ivIcon.setVisibility( View.INVISIBLE );
-        } else {
-            viewHolder.ivIcon.setImageDrawable( icon );
-            viewHolder.ivIcon.setVisibility( View.VISIBLE );
+        if( data.isThumbnail()) {
+            new BitmapWorkerTask( context, data, viewHolder.ivIcon ).execute();
         }
-
         return view;
+    }
+
+    protected void loadBitmap( FileListData data, ImageView imageView ) {
+        if( cancelPotentialWork( data, imageView )) {
+            final BitmapWorkerTask task = new BitmapWorkerTask( context, data, imageView );
+            final AsyncDrawable drawable = new AsyncDrawable( context.getResources(), null, task );
+            imageView.setImageDrawable( drawable );
+            task.execute();
+        }
+    }
+
+    private boolean cancelPotentialWork(FileListData data, ImageView imageView) {
+        final BitmapWorkerTask bitmapWorkTask = getBitmapWorkerTask( imageView );
+        if( bitmapWorkTask != null ) {
+            final FileListData bitmapData = bitmapWorkTask.data;
+            if( bitmapData != data ) {
+                bitmapWorkTask.cancel(true);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+        if( imageView != null ) {
+            final Drawable drawable = imageView.getDrawable();
+            if( drawable instanceof AsyncDrawable ) {
+                final AsyncDrawable asyncDrawable = ( AsyncDrawable ) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
+            }
+        }
+        return null;
     }
 
     View.OnTouchListener TextViewTouchListener = new View.OnTouchListener() {

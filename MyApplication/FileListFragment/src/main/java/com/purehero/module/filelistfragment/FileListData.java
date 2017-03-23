@@ -1,6 +1,7 @@
 package com.purehero.module.filelistfragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.webkit.MimeTypeMap;
 
@@ -13,20 +14,18 @@ import java.util.Comparator;
  */
 
 public class FileListData {
-    private final Context context;
     private final File file;
     private String subTitle = "";
     private String fileDate = "";
     private String mimeType = "";
-    private Drawable icon 	= null;
     private int subItemCount = 0;
     private boolean selected = false;
     private int clickCount = 0;             // 사용자에 의해 선택되어지 횟수
+    private boolean isThumbnail = false;
 
     public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
 
-    public FileListData(Context context, File file ) {
-        this.context = context;
+    public FileListData( File file ) {
         this.file = file;
 
         if( file.isDirectory()) {
@@ -80,6 +79,9 @@ public class FileListData {
     }
 
     public File getFile() { return file; }
+    public int getSubItemCount() {
+        return subItemCount;
+    }
 
     public boolean isSelected() { return selected; }
     public void setSelected(boolean selected) { this.selected = selected; }
@@ -95,49 +97,15 @@ public class FileListData {
         this.clickCount = clickCount;
     }
 
-    public Drawable getIcon() {
-        if( icon != null ) return icon;
+    public boolean isThumbnail() {
+        return isThumbnail;
+    }
 
-        if( file.isDirectory() ) {
-            if( subItemCount > 0 ) {
-                icon = context.getResources().getDrawable( R.drawable.fl_ic_folder_full );
-            } else {
-                icon = context.getResources().getDrawable( R.drawable.fl_ic_folder );
-            }
-        } else {
-            if( mimeType != null ) {
-                //G.Log( "mimeType : %s", mimeType );
-                if (mimeType.startsWith("image")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_image);
-                } else if (mimeType.startsWith("audio")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_music);
-                } else if (mimeType.startsWith("video")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_movies);
-                } else if (mimeType.endsWith("zip")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_zip);
-                } else if (mimeType.endsWith("excel")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_excel);
-                } else if (mimeType.endsWith("powerpoint")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_ppt);
-                } else if (mimeType.endsWith("word")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_word);
-                } else if (mimeType.endsWith("pdf")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_pdf);
-                } else if (mimeType.endsWith("xml")) {
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_xml32);
-                } else if (mimeType.endsWith("vnd.android.package-archive")) {  // APK
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_apk);
-                } else if (mimeType.endsWith("torrent")) {  // APK
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_torrent);
-                } else {// torrent
-                    // text 로 간주
-                    icon = context.getResources().getDrawable(R.drawable.fl_ic_text);
-                }
-            } else {
-                // text 로 간주
-                icon = context.getResources().getDrawable(R.drawable.fl_ic_text);
-            }
-        }
+    public Bitmap getIcon(Context context ) {
+        int res_id = BitmapWorker.getImageResourceID(this);
+        Bitmap icon = BitmapWorker.decodeBitmapFromResource(context, res_id, 100, 100);
+
+        isThumbnail = res_id == R.drawable.fl_ic_image;
         return icon;
     }
 

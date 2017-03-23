@@ -34,6 +34,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.purehero.module.appcompattabactivity.AppCompatTabFragment;
+import com.purehero.module.common.OnBackPressedListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +49,8 @@ import java.util.Vector;
  * Created by purehero on 2017-03-22.
  */
 
-public class FileListFragment extends AppCompatTabFragment implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener {
+public class FileListFragment extends AppCompatTabFragment
+        implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, OnBackPressedListener {
     private View layout = null;
     private ListView listView = null;
     private FileListAdapter listAdapter = null;
@@ -100,57 +102,7 @@ public class FileListFragment extends AppCompatTabFragment implements SearchText
             }
         }
 
-        checkPermission();
-
         return layout;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 123 :
-                boolean recheckPermission = false;
-                if ( grantResults.length > 0 ) {
-                    for( int result : grantResults ) {
-                        if( result == PackageManager.PERMISSION_GRANTED ) {
-                            recheckPermission = true;
-                            break;
-                        }
-                    }
-                }
-                if( recheckPermission ) {
-                    checkPermission();
-
-                } else {
-                    reloadListView();
-                }
-
-                break;
-        }
-    }
-
-    private void checkPermission() {
-        context.runOnUiThread( new Runnable(){
-            @Override
-            public void run() {
-                String permissions[] = {
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                };
-                List<String> request_permissions = new ArrayList<String>();
-                for( String permission : permissions ) {
-                    if (ContextCompat.checkSelfPermission( context, permission) != PackageManager.PERMISSION_GRANTED ) {
-                        request_permissions.add( permission );
-                    }
-                }
-
-                if( request_permissions.size() > 0 ) {
-                    String permissionsList [] = new String[request_permissions.size()];
-                    request_permissions.toArray(permissionsList);
-                    ActivityCompat.requestPermissions( context, permissionsList, 123 );
-                }
-            }
-        });
     }
 
     @Override

@@ -1,8 +1,13 @@
 package com.inka.hook.sample.myapplication;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,7 +21,11 @@ import android.view.MenuItem;
 import com.purehero.module.appcompattabactivity.AppCompatTabActivity;
 import com.purehero.module.appcompattabactivity.AppCompatTabViewPagerAdapter;
 import com.purehero.module.appcompattabactivity.FragmentText;
+import com.purehero.module.common.OnBackPressedListener;
 import com.purehero.module.filelistfragment.FileListFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatTabActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -49,6 +58,8 @@ public class MainActivity extends AppCompatTabActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         initTabModule();
+
+        checkPermission();
     }
 
     @Override
@@ -62,9 +73,65 @@ public class MainActivity extends AppCompatTabActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+
         } else {
+            int cnt = getFragmentManager().getBackStackEntryCount();
+            for( int i = 0; i < cnt; i++ ) {
+                Fragment  fragment = (Fragment) getFragmentManager().getBackStackEntryAt(i);
+                if( fragment instanceof OnBackPressedListener ) {
+                    OnBackPressedListener listener = ( OnBackPressedListener ) fragment;
+                    if( listener.onBackPressed()) {
+                        return;
+                    }
+                }
+            }
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 123 :
+                boolean recheckPermission = false;
+                if ( grantResults.length > 0 ) {
+                    for( int result : grantResults ) {
+                        if( result == PackageManager.PERMISSION_GRANTED ) {
+                            recheckPermission = true;
+                            break;
+                        }
+                    }
+                }
+                if( recheckPermission ) {
+                    checkPermission();
+                }
+
+                break;
+        }
+    }
+
+    private void checkPermission() {
+        runOnUiThread( new Runnable(){
+            @Override
+            public void run() {
+                String permissions[] = {
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                };
+                List<String> request_permissions = new ArrayList<String>();
+                for( String permission : permissions ) {
+                    if (ContextCompat.checkSelfPermission( MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED ) {
+                        request_permissions.add( permission );
+                    }
+                }
+
+                if( request_permissions.size() > 0 ) {
+                    String permissionsList [] = new String[request_permissions.size()];
+                    request_permissions.toArray(permissionsList);
+                    ActivityCompat.requestPermissions( MainActivity.this, permissionsList, 123 );
+                }
+            }
+        });
     }
 
     @Override

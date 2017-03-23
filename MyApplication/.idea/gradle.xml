@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/AppCompatTabActivity" />
+            <option value="$PROJECT_DIR$/CommonModule" />
             <option value="$PROJECT_DIR$/FileListFragment" />
             <option value="$PROJECT_DIR$/app" />
           </set>
