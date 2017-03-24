@@ -21,7 +21,6 @@ public class FileListData {
     private int subItemCount = 0;
     private boolean selected = false;
     private int clickCount = 0;             // 사용자에 의해 선택되어지 횟수
-    private boolean isThumbnail = false;
 
     public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
 
@@ -95,18 +94,6 @@ public class FileListData {
 
     public void setClickCount(int clickCount) {
         this.clickCount = clickCount;
-    }
-
-    public boolean isThumbnail() {
-        return isThumbnail;
-    }
-
-    public Bitmap getIcon(Context context ) {
-        int res_id = BitmapWorker.getImageResourceID(this);
-        Bitmap icon = BitmapWorker.decodeBitmapFromResource(context, res_id, 100, 100);
-
-        isThumbnail = res_id == R.drawable.fl_ic_image;
-        return icon;
     }
 
     /**

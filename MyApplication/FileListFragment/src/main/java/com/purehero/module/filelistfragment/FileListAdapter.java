@@ -19,6 +19,8 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -150,45 +152,15 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             data.setSelected( false );
         }
         viewHolder.cbSelected.setId( position );
-        viewHolder.ivIcon.setImageBitmap( data.getIcon( context ));
 
-        if( data.isThumbnail()) {
-            new BitmapWorkerTask( context, data, viewHolder.ivIcon ).execute();
+        int res_id = getImageResourceID( data );
+        if( res_id == R.drawable.fl_ic_image || res_id == R.drawable.fl_ic_movies ) {
+            Glide.with( context ).load( data.getFile()).centerCrop().placeholder( res_id ).into( viewHolder.ivIcon );
+        } else {
+            Glide.with( context ).load( res_id ).into( viewHolder.ivIcon );
         }
+
         return view;
-    }
-
-    protected void loadBitmap( FileListData data, ImageView imageView ) {
-        if( cancelPotentialWork( data, imageView )) {
-            final BitmapWorkerTask task = new BitmapWorkerTask( context, data, imageView );
-            final AsyncDrawable drawable = new AsyncDrawable( context.getResources(), null, task );
-            imageView.setImageDrawable( drawable );
-            task.execute();
-        }
-    }
-
-    private boolean cancelPotentialWork(FileListData data, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkTask = getBitmapWorkerTask( imageView );
-        if( bitmapWorkTask != null ) {
-            final FileListData bitmapData = bitmapWorkTask.data;
-            if( bitmapData != data ) {
-                bitmapWorkTask.cancel(true);
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if( imageView != null ) {
-            final Drawable drawable = imageView.getDrawable();
-            if( drawable instanceof AsyncDrawable ) {
-                final AsyncDrawable asyncDrawable = ( AsyncDrawable ) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
     }
 
     View.OnTouchListener TextViewTouchListener = new View.OnTouchListener() {
@@ -312,5 +284,59 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             filterData = (List<FileListData>) results.values;
             sort();
         }
+    }
+
+    /**
+     *
+     * @param data
+     * @return
+     */
+    public int getImageResourceID(FileListData data) {
+        int res_id = -1;
+
+        File file = data.getFile();
+        String mimeType = data.getMimeType();
+
+        if( file.isDirectory() ) {
+            if( data.getSubItemCount() > 0 ) {
+                res_id = R.drawable.fl_ic_folder_full;
+            } else {
+                res_id = R.drawable.fl_ic_folder;
+            }
+        } else {
+            if( mimeType != null ) {
+                if (mimeType.startsWith("image")) {
+                    res_id = R.drawable.fl_ic_image;
+                } else if (mimeType.startsWith("audio")) {
+                    res_id = R.drawable.fl_ic_music;
+                } else if (mimeType.startsWith("video")) {
+                    res_id = R.drawable.fl_ic_movies;
+                } else if (mimeType.endsWith("zip")) {
+                    res_id = R.drawable.fl_ic_zip;
+                } else if (mimeType.endsWith("excel")) {
+                    res_id = R.drawable.fl_ic_excel;
+                } else if (mimeType.endsWith("powerpoint")) {
+                    res_id = R.drawable.fl_ic_ppt;
+                } else if (mimeType.endsWith("word")) {
+                    res_id = R.drawable.fl_ic_word;
+                } else if (mimeType.endsWith("pdf")) {
+                    res_id = R.drawable.fl_ic_pdf;
+                } else if (mimeType.endsWith("xml")) {
+                    res_id = R.drawable.fl_ic_xml32;
+                } else if (mimeType.endsWith("vnd.android.package-archive")) {  // APK
+                    res_id = R.drawable.fl_ic_apk;
+                } else if (mimeType.endsWith("torrent")) {  // APK
+                    res_id = R.drawable.fl_ic_torrent;
+                } else {// torrent
+                    // text 로 간주
+                    res_id = R.drawable.fl_ic_text;
+                }
+            } else {
+                // text 로 간주
+                res_id = R.drawable.fl_ic_text;
+            }
+        }
+
+        return res_id;
     }
 }

@@ -34,6 +34,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.purehero.module.appcompattabactivity.AppCompatTabFragment;
+import com.purehero.module.common.CheckPermissionListener;
+import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnBackPressedListener;
 
 import java.io.File;
@@ -50,7 +52,7 @@ import java.util.Vector;
  */
 
 public class FileListFragment extends AppCompatTabFragment
-        implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, OnBackPressedListener {
+        implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, OnBackPressedListener, CheckPermissionListener {
     private View layout = null;
     private ListView listView = null;
     private FileListAdapter listAdapter = null;
@@ -800,16 +802,7 @@ public class FileListFragment extends AppCompatTabFragment
      * @param data
      */
     private void file_share(FileListData data) {
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        try {
-            String extension = getFileExt( data.getFilename() );
-            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
-            shareIntent.setDataAndType( Uri.fromFile( data.getFile()), mimeType );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        Intent shareIntent = FileIntentUtils.Sharing( data.getFile() );
         startActivity(Intent.createChooser(shareIntent, "Share File" ));
     }
 
@@ -835,13 +828,8 @@ public class FileListFragment extends AppCompatTabFragment
      * @param data
      */
     private void file_running(FileListData data) {
-        Intent myIntent = new Intent(Intent.ACTION_VIEW);
-        myIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        //myIntent.setData(Uri.fromFile(data.getFile()));
-        myIntent.setDataAndType( Uri.fromFile(data.getFile()), getMimeType( data.getFilename()));
-
-        Intent j = Intent.createChooser(myIntent, "Choose an application to open with:");
-        startActivity(j);
+        Intent run_intent = Intent.createChooser(FileIntentUtils.Running( data.getFile()), "Choose an application to open with:");
+        startActivity( run_intent );
     }
 
     private String getMimeType(String url) {
@@ -851,6 +839,15 @@ public class FileListFragment extends AppCompatTabFragment
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return type;
+    }
+
+    @Override
+    public List<String> requestPermissionList() {
+        List<String> requestPermissions = new ArrayList<String>();
+        requestPermissions.add( Manifest.permission.WRITE_EXTERNAL_STORAGE );
+        requestPermissions.add( Manifest.permission.READ_EXTERNAL_STORAGE );
+
+        return requestPermissions;
     }
 
     /*
