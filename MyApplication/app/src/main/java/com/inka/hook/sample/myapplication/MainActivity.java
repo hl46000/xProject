@@ -61,8 +61,6 @@ public class MainActivity extends AppCompatTabActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         initTabModule();
-
-        checkPermission();
     }
 
     @Override
@@ -90,58 +88,6 @@ public class MainActivity extends AppCompatTabActivity
             }
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 123 :
-                boolean recheckPermission = false;
-                if ( grantResults.length > 0 ) {
-                    for( int result : grantResults ) {
-                        if( result == PackageManager.PERMISSION_GRANTED ) {
-                            recheckPermission = true;
-                            break;
-                        }
-                    }
-                }
-                if( recheckPermission ) {
-                    checkPermission();
-                }
-
-                break;
-        }
-    }
-
-    private void checkPermission() {
-        runOnUiThread( new Runnable(){
-            @Override
-            public void run() {
-                Set<String> permissions = new HashSet<String>();            // 필요한 퍼미션들
-
-                int cnt = getFragmentManager().getBackStackEntryCount();    // Fragment 마다 필요한 퍼미션 정보를 수집한다.
-                for( int i = 0; i < cnt; i++ ) {
-                    Fragment  fragment = (Fragment) getFragmentManager().getBackStackEntryAt(i);
-                    if( fragment instanceof CheckPermissionListener) {
-                        CheckPermissionListener listener = ( CheckPermissionListener ) fragment;
-                        permissions.addAll( listener.requestPermissionList() );
-                    }
-                }
-
-                Set<String> request_permissions = new HashSet<String>();        // 사용자 승인이 필요한 퍼미션들
-                for( String permission : permissions ) {
-                    if (ContextCompat.checkSelfPermission( MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED ) {
-                        request_permissions.add( permission );
-                    }
-                }
-
-                if( request_permissions.size() > 0 ) {
-                    String permissionsList [] = new String[request_permissions.size()];
-                    request_permissions.toArray(permissionsList);
-                    ActivityCompat.requestPermissions( MainActivity.this, permissionsList, 123 );
-                }
-            }
-        });
     }
 
     @Override

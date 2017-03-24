@@ -7,8 +7,10 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +19,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -28,6 +33,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -111,15 +117,13 @@ public class FileListFragment extends AppCompatTabFragment
     public boolean onBackPressed() {
         try {
             if( listAdapter.isSelectMode()) {           // 뒤로가기에 의한 ActionBar 전환
-                listAdapter.notifyDataSetChanged();         // 리스트를 갱신한다.
+                changeFileListMode( true );
                 return true;
             }
 
             if( listAdapter.is_next_pop_folder()) {
                 listAdapter.pop_folder( false );
                 reloadListView();
-
-                //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
                 return true;
             }
         } catch( Exception e ) {
@@ -129,36 +133,42 @@ public class FileListFragment extends AppCompatTabFragment
         return false;
     }
 
+    private CharSequence backupActionBarTitle = null;
+    private void updateSelectedCount( boolean backupPreviousValue ) {
+        if( context instanceof AppCompatActivity ) {
+            AppCompatActivity ACActivity = ( AppCompatActivity ) context;
+            ActionBar aBar = ACActivity.getSupportActionBar();
+            if( aBar != null ) {
+                if( backupPreviousValue ) {
+                    backupActionBarTitle = aBar.getTitle();
+                }
+                aBar.setTitle( String.format( "%d Selected", listAdapter.getSelectedCount()) );
+            }
+        }
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         FileListData data = ( FileListData ) listAdapter.getItem( position );
         data.IncrementClickCount();
         FileClickCount.saveClickCount( data );
 
-        if( listAdapter.isSelectMode()) {                                       // 파일 선택 모드일 경우
-            /*
-            data.setSelected( !data.isSelected());                              // 선택한 항목의 선택을 반전시킨다.
-            context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );    // 선택한 개수를 액션바에서 갱신시킨다.
-            listAdapter.notifyDataSetChanged();                                 // 리스트의 내용을 갱신시킨다.
-            */
-            return;                                                             // 함수를 반환한다.
+        if( listAdapter.isSelectMode()) {                   // 파일 선택 모드일 경우
+            data.setSelected( !data.isSelected());          // 선택한 항목의 선택을 반전시킨다.
+            updateSelectedCount( false );                   // 선택된 항목의 개수를 화면에 갱신한다.
+
+            listAdapter.notifyDataSetChanged();             // 리스트의 내용을 갱신시킨다.
+            return;                                         // 함수를 반환한다.
         }
 
         if( data.getFile().isDirectory()) {
-            //context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
-
             listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
             reloadListView();
 
         } else {
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_VIEW);
-            sendIntent.setDataAndType( Uri.fromFile( data.getFile()), data.getMimeType());
-            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
+            Intent sendIntent = FileIntentUtils.Running( data.getFile() );
             if (sendIntent.resolveActivity( context.getPackageManager()) != null) {
-                //context.startActivity( Intent.createChooser( sendIntent, getString( R.string.choose_application )) );
-                context.startActivity( Intent.createChooser( sendIntent, "choose application" ) );
+                context.startActivity( Intent.createChooser( sendIntent, getString( R.string.choose_application )) );
             }
         }
     }
@@ -170,69 +180,15 @@ public class FileListFragment extends AppCompatTabFragment
         FileClickCount.saveClickCount( data );
 
         if( listAdapter.isSelectMode()) {
-            changeFileListMode( true );             // 파일 리스트 모드로 전환한다.
-            // 기억된 선택항목들도 삭제한다.
+            changeFileListMode( true );
         } else {
-            data.setSelected( true );               // 롱 클릭한 항목은 기본으로 선택한다.
-            changeFileSelectMode();                 // 파일 선택모드로 전환한다.
+            changeFileSelectMode( data );
         }
-        listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
+
         return true;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch( requestCode ) {
-            case 100 :  // FTP Server 설정
-                /*
-                Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
-                if( btn != null ) {
-                    if( MyFtpServer.getInstance(getActivity()).isStartedFtpServer()) {
-                        btn.setBackgroundResource(R.drawable.ftp_server_on);
-                    } else {
-                        btn.setBackgroundResource(R.drawable.ftp_server_off);
-                    }
-                }
-                */
-                break;
-        }
-    }
 
-    // 메뉴 생성
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        /*
-        if ( v.getId() == R.id.listView ) {
-            context.getMenuInflater().inflate(R.menu.file_context_menu, menu);
-        }
-        */
-    }
-
-    // 메뉴 클릭
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        boolean ret = false;
-        // 클릭된 APK 정보
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        FileListData data = ( FileListData ) listAdapter.getItem( info.position );
-
-        //G.Log( "onContextItemSelected index : " + info.position );
-        /*
-        int itemId = item.getItemId();
-        if( itemId == R.id.FILE_MENU_RUNNING ) {
-            file_running(data);
-            ret = true;
-        } else if( itemId == R.id.FILE_MENU_DELETE ) {
-            file_delete(data, info.position);
-            ret = true;
-        } else if( itemId == R.id.FILE_MENU_SHARE ) {
-            file_share( data );
-            ret = true;
-        }
-        */
-
-        return ret;
-    }
 
     public void reflashListView() {
         listAdapter.notifyDataSetChanged();
@@ -330,90 +286,7 @@ public class FileListFragment extends AppCompatTabFragment
         return true;
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        /*
-        MenuItem menu_item = menu.findItem( R.id.action_create_folder );    // 새 폴더 생성
-        if( menu_item != null ) {
-            if( !listAdapter.getLastFolder().canWrite() ) {
-                menu_item.setTitle( String.format( "%s(%s)",  getString( R.string.action_create_folder), getString( R.string.read_only )) );
-                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
-            } else {
-                menu_item.setTitle( getString( R.string.action_create_folder));
-                menu_item.setEnabled( true );
-            }
-        }
 
-        menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
-        if( menu_item != null ) {
-            if( !listAdapter.getLastFolder().canWrite() ) {
-                menu_item.setTitle( String.format( "%s(%s)", getString( R.string.action_paste), getString( R.string.read_only )) );
-                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
-            } else {
-                menu_item.setTitle( getString( R.string.action_paste));
-                menu_item.setEnabled( true );
-            }
-        }
-        */
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(int id) {
-        /*
-        switch( id ) {
-            case android.R.id.home:
-                if( listAdapter.is_next_pop_folder()) {
-                    listAdapter.pop_folder( false );
-                    reloadListView();
-
-                    //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
-                    return true;
-                }
-                break;
-
-            case R.id.action_select_mode    :           // 파일 선택 모드
-                changeFileSelectMode();
-                return true;
-
-            case R.id.action_create_folder  :           // 새 폴더 생성
-                function_create_new_folder();
-                return true;
-
-            case R.id.action_rename :                   // 이름 변경
-                function_rename_selected_item();
-                return true;
-
-            case R.id.action_delete :                   // 선택 항목 삭제
-                function_delete_selected_items();
-                return true;
-
-            case R.id.action_copy :                     // 파일 복사
-                function_copy_selected_items();
-                return true;
-
-            case R.id.action_move :                     // 파일 이동
-                function_move_selected_items();
-                return true;
-
-            case R.id.action_paste :                    // 파일 복사/이동, 붙여 넣기
-                function_paste_items();
-                return true;
-
-            case R.drawable.ck_checked :                // 전체 파일 선택
-                listAdapter.setSelectALL( true );     // 현재 폴더의 전체를 선택한다.
-                listAdapter.notifyDataSetChanged();
-                context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
-                break;
-
-            case R.drawable.ck_nomal :                  // 전체 파일 선택 취소
-                listAdapter.setSelectALL( false );    // 현재 폴더의 전체 선택의 취소한다.
-                listAdapter.notifyDataSetChanged();
-                context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
-                break;
-        }
-        */
-        return false;
-    }
 
     private void function_paste_items() {
         /*
@@ -743,24 +616,40 @@ public class FileListFragment extends AppCompatTabFragment
 
 
 
-    private void changeFileSelectMode() {
-        /*
-        context.changeFileSelectModeToolbar();               // 액션바를 선택 항목 개수가 나오도록 전환 시킨다.
-        context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() ); // 액션바에 선택한 개수를 표시한다.
-        //context.clearSelectedItems();                       // 이전에 선택된 항목들을 제거 한다.
-        context.setOpCode( -1 );                            // 이전 명령어 코드를 삭제한다.
+    private void changeFileSelectMode( FileListData data ) {
+        listAdapter.setSelectMode( true );  // 파일 선택모드로 전환한다.
+        listAdapter.setSelectALL( false );  // 이전에 선택한 사항들을 초기화 시킨다.
+        data.setSelected( true );           // 클릭한 항목은 기본으로 선택한다.
 
+        updateSelectedCount( true );
+
+        if( context instanceof AppCompatActivity ) {
+            AppCompatActivity ACActivity = ( AppCompatActivity ) context;
+            ActionBar aBar = ACActivity.getSupportActionBar();
+            if( aBar != null ) {
+                backupActionBarTitle = aBar.getTitle();
+                aBar.setTitle( String.format( "%d Selected", listAdapter.getSelectedCount()) );
+            }
+        }
         listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
-        */
     }
 
     private void changeFileListMode( boolean bClearSelectedItems ) {
-        /*
-        context.changeFileListModeToolbar();                    // 액션바를 기본으로 전환시킨다.
-        context.clearSelectedItems( bClearSelectedItems );      // 이전에 선택된 항목들을 제거 한다.
+        listAdapter.setSelectMode( false ); // 파일 선택모드를 해제한다.
+
+        if( context instanceof AppCompatActivity ) {
+            AppCompatActivity ACActivity = ( AppCompatActivity ) context;
+            if( backupActionBarTitle != null ) {
+                ACActivity.getSupportActionBar().setTitle(backupActionBarTitle);
+                backupActionBarTitle = null;
+            }
+        }
+
+        if( bClearSelectedItems ) {
+            listAdapter.setSelectALL( false );
+        }
 
         listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
-        */
     }
 
     public int getSelectedItemCount() {
@@ -817,12 +706,13 @@ public class FileListFragment extends AppCompatTabFragment
      *
      * @param data
      */
-    private void file_delete( FileListData data, int position ) {
-        data.setIndex( position );
-
+    private void file_delete() {
         List<File> deleteFiles = new ArrayList<File>();
-        deleteFiles.add( data.getFile());
-        DialogUtils.FileDeleteDialog( context, deleteFiles);
+        for( FileListData data : listAdapter.getSelectedItems()) {
+            deleteFiles.add( data.getFile());
+        }
+
+        DialogUtils.FileDeleteDialog( context, deleteFiles );
 
         //new fileDeleteDialog( data ).show();
         //data.getFile().delete();
@@ -841,10 +731,150 @@ public class FileListFragment extends AppCompatTabFragment
 
     @Override
     public List<String> requestPermissionList() {
+        Log.d( "MyLOG", "requestPermissionList()");
+
         List<String> requestPermissions = new ArrayList<String>();
         requestPermissions.add( Manifest.permission.WRITE_EXTERNAL_STORAGE );
         requestPermissions.add( Manifest.permission.READ_EXTERNAL_STORAGE );
 
         return requestPermissions;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(int id) {
+        return false;
+    }
+
+
+    /*
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem menu_item = menu.findItem( R.id.action_create_folder );    // 새 폴더 생성
+        if( menu_item != null ) {
+            if( !listAdapter.getLastFolder().canWrite() ) {
+                menu_item.setTitle( String.format( "%s(%s)",  getString( R.string.action_create_folder), getString( R.string.read_only )) );
+                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
+            } else {
+                menu_item.setTitle( getString( R.string.action_create_folder));
+                menu_item.setEnabled( true );
+            }
+        }
+
+        menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
+        if( menu_item != null ) {
+            if( !listAdapter.getLastFolder().canWrite() ) {
+                menu_item.setTitle( String.format( "%s(%s)", getString( R.string.action_paste), getString( R.string.read_only )) );
+                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
+            } else {
+                menu_item.setTitle( getString( R.string.action_paste));
+                menu_item.setEnabled( true );
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(int id) {
+        switch( id ) {
+            case android.R.id.home:
+                if( listAdapter.is_next_pop_folder()) {
+                    listAdapter.pop_folder( false );
+                    reloadListView();
+
+                    //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
+                    return true;
+                }
+                break;
+
+            case R.id.action_select_mode    :           // 파일 선택 모드
+                changeFileSelectMode();
+                return true;
+
+            case R.id.action_create_folder  :           // 새 폴더 생성
+                function_create_new_folder();
+                return true;
+
+            case R.id.action_rename :                   // 이름 변경
+                function_rename_selected_item();
+                return true;
+
+            case R.id.action_delete :                   // 선택 항목 삭제
+                function_delete_selected_items();
+                return true;
+
+            case R.id.action_copy :                     // 파일 복사
+                function_copy_selected_items();
+                return true;
+
+            case R.id.action_move :                     // 파일 이동
+                function_move_selected_items();
+                return true;
+
+            case R.id.action_paste :                    // 파일 복사/이동, 붙여 넣기
+                function_paste_items();
+                return true;
+
+            case R.drawable.ck_checked :                // 전체 파일 선택
+                listAdapter.setSelectALL( true );     // 현재 폴더의 전체를 선택한다.
+                listAdapter.notifyDataSetChanged();
+                context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
+                break;
+
+            case R.drawable.ck_nomal :                  // 전체 파일 선택 취소
+                listAdapter.setSelectALL( false );    // 현재 폴더의 전체 선택의 취소한다.
+                listAdapter.notifyDataSetChanged();
+                context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );
+                break;
+        }
+        return false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch( requestCode ) {
+            case 100 :  // FTP Server 설정
+                Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
+                if( btn != null ) {
+                    if( MyFtpServer.getInstance(getActivity()).isStartedFtpServer()) {
+                        btn.setBackgroundResource(R.drawable.ftp_server_on);
+                    } else {
+                        btn.setBackgroundResource(R.drawable.ftp_server_off);
+                    }
+                }
+                break;
+        }
+    }
+
+
+    // 메뉴 생성
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if ( v.getId() == R.id.listView ) {
+            context.getMenuInflater().inflate(R.menu.file_context_menu, menu);
+        }
+    }
+
+    // 메뉴 클릭
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        boolean ret = false;
+        // 클릭된 APK 정보
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        FileListData data = ( FileListData ) listAdapter.getItem( info.position );
+
+        //G.Log( "onContextItemSelected index : " + info.position );
+        int itemId = item.getItemId();
+        if( itemId == R.id.FILE_MENU_RUNNING ) {
+            file_running(data);
+            ret = true;
+        } else if( itemId == R.id.FILE_MENU_DELETE ) {
+            file_delete(data, info.position);
+            ret = true;
+        } else if( itemId == R.id.FILE_MENU_SHARE ) {
+            file_share( data );
+            ret = true;
+        }
+
+        return ret;
+    }
+    */
 }

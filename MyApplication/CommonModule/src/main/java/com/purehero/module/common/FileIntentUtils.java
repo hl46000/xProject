@@ -33,6 +33,8 @@ public class FileIntentUtils {
         Intent myIntent = new Intent(Intent.ACTION_VIEW);
         myIntent.addCategory(Intent.CATEGORY_DEFAULT);
         myIntent.setDataAndType( Uri.fromFile( file ), getMimeType( file.getName() ));
+
+        myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return myIntent;
     }
 

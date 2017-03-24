@@ -48,7 +48,9 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
 
     @Override
     public Object getItem(int i) {
-        return filterData.get(i);
+        FileListData ret = filterData.get(i);
+        ret.setIndex( i );
+        return ret;
     }
 
     @Override

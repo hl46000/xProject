@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FileListFragment</string>
+    <string name="choose_application">choose application</string>
 </resources>

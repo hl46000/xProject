@@ -1,12 +1,21 @@
 package com.purehero.module.appcompattabactivity;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.purehero.module.common.CheckPermissionListener;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
@@ -20,6 +29,13 @@ abstract public class AppCompatTabActivity extends AppCompatActivity implements 
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private AppCompatTabViewPagerAdapter pagerAdapter;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        checkPermission();
+    }
 
     public void initTabModule() {
         tabHost = (MaterialTabHost) this.findViewById(R.id.tabHost);
@@ -78,6 +94,56 @@ abstract public class AppCompatTabActivity extends AppCompatActivity implements 
                 backPressedTime = System.currentTimeMillis();
                 Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 123 :
+                boolean recheckPermission = false;
+                if ( grantResults.length > 0 ) {
+                    for( int result : grantResults ) {
+                        if( result == PackageManager.PERMISSION_GRANTED ) {
+                            recheckPermission = true;
+                            break;
+                        }
+                    }
+                }
+                if( recheckPermission ) {
+                    checkPermission();
+                }
+
+                break;
+        }
+    }
+
+    protected void checkPermission() {
+        Log.d( "MyLOG", "checkPermission()" );
+        Set<String> permissions = new HashSet<String>();            // 필요한 퍼미션들
+
+        int cnt = pagerAdapter.getCount();    // Fragment 마다 필요한 퍼미션 정보를 수집한다.
+        for( int i = 0; i < cnt; i++ ) {
+            Fragment fragment = (Fragment) pagerAdapter.getItem(i);
+            if( fragment instanceof CheckPermissionListener) {
+                CheckPermissionListener listener = (CheckPermissionListener) fragment;
+                permissions.addAll( listener.requestPermissionList() );
+            }
+        }
+
+        Set<String> request_permissions = new HashSet<String>();        // 사용자 승인이 필요한 퍼미션들
+        for( String permission : permissions ) {
+            Log.d( "MyLOG", String.format( "Permission : %s", permission ) );
+
+            if (ContextCompat.checkSelfPermission( AppCompatTabActivity.this, permission) != PackageManager.PERMISSION_GRANTED ) {
+                request_permissions.add( permission );
+            }
+        }
+
+        if( request_permissions.size() > 0 ) {
+            String permissionsList [] = new String[request_permissions.size()];
+            request_permissions.toArray(permissionsList);
+            ActivityCompat.requestPermissions( AppCompatTabActivity.this, permissionsList, 123 );
         }
     }
 }
