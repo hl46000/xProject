@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import com.purehero.module.appcompattabactivity.AppCompatTabFragment;
 import com.purehero.module.common.CheckPermissionListener;
+import com.purehero.module.common.DialogUtils;
 import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnBackPressedListener;
 
@@ -86,9 +87,8 @@ public class FileListFragment extends AppCompatTabFragment
 
             listView.setAdapter( listAdapter );
             listView.setOnItemClickListener( this );
-            //listView.setOnItemLongClickListener( this );
-            registerForContextMenu( listView );
-            //new Thread( listUpdateRunnable ).start();
+            listView.setOnItemLongClickListener( this );
+
             listUpdateRunnable.run();
 
             int btnIDs[] = { R.id.btnReload };
@@ -127,6 +127,57 @@ public class FileListFragment extends AppCompatTabFragment
         }
 
         return false;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        FileListData data = ( FileListData ) listAdapter.getItem( position );
+        data.IncrementClickCount();
+        FileClickCount.saveClickCount( data );
+
+        if( listAdapter.isSelectMode()) {                                       // 파일 선택 모드일 경우
+            /*
+            data.setSelected( !data.isSelected());                              // 선택한 항목의 선택을 반전시킨다.
+            context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );    // 선택한 개수를 액션바에서 갱신시킨다.
+            listAdapter.notifyDataSetChanged();                                 // 리스트의 내용을 갱신시킨다.
+            */
+            return;                                                             // 함수를 반환한다.
+        }
+
+        if( data.getFile().isDirectory()) {
+            //context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
+
+            listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
+            reloadListView();
+
+        } else {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_VIEW);
+            sendIntent.setDataAndType( Uri.fromFile( data.getFile()), data.getMimeType());
+            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            if (sendIntent.resolveActivity( context.getPackageManager()) != null) {
+                //context.startActivity( Intent.createChooser( sendIntent, getString( R.string.choose_application )) );
+                context.startActivity( Intent.createChooser( sendIntent, "choose application" ) );
+            }
+        }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+        FileListData data = ( FileListData ) listAdapter.getItem( position );
+        data.IncrementClickCount();
+        FileClickCount.saveClickCount( data );
+
+        if( listAdapter.isSelectMode()) {
+            changeFileListMode( true );             // 파일 리스트 모드로 전환한다.
+            // 기억된 선택항목들도 삭제한다.
+        } else {
+            data.setSelected( true );               // 롱 클릭한 항목은 기본으로 선택한다.
+            changeFileSelectMode();                 // 파일 선택모드로 전환한다.
+        }
+        listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
+        return true;
     }
 
     @Override
@@ -690,56 +741,7 @@ public class FileListFragment extends AppCompatTabFragment
         */
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        FileListData data = ( FileListData ) listAdapter.getItem( position );
-        data.IncrementClickCount();
-        FileClickCount.saveClickCount( data );
 
-        if( listAdapter.isSelectMode()) {                                       // 파일 선택 모드일 경우
-            /*
-            data.setSelected( !data.isSelected());                              // 선택한 항목의 선택을 반전시킨다.
-            context.setSelectToolbarSelectedCount( listAdapter.getSelectedCount() );    // 선택한 개수를 액션바에서 갱신시킨다.
-            listAdapter.notifyDataSetChanged();                                 // 리스트의 내용을 갱신시킨다.
-            */
-            return;                                                             // 함수를 반환한다.
-        }
-
-        if( data.getFile().isDirectory()) {
-            //context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
-
-            listAdapter.push_folder( data.getFile(), null);                     // 선택한 폴더로 리스트를 갱신시킨다.
-            reloadListView();
-
-        } else {
-            Intent sendIntent = new Intent();
-            sendIntent.setAction(Intent.ACTION_VIEW);
-            sendIntent.setDataAndType( Uri.fromFile( data.getFile()), data.getMimeType());
-            sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            if (sendIntent.resolveActivity( context.getPackageManager()) != null) {
-                //context.startActivity( Intent.createChooser( sendIntent, getString( R.string.choose_application )) );
-                context.startActivity( Intent.createChooser( sendIntent, "choose application" ) );
-            }
-        }
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-        FileListData data = ( FileListData ) listAdapter.getItem( position );
-        data.IncrementClickCount();
-        FileClickCount.saveClickCount( data );
-
-        if( listAdapter.isSelectMode()) {
-            changeFileListMode( true );             // 파일 리스트 모드로 전환한다.
-            // 기억된 선택항목들도 삭제한다.
-        } else {
-            data.setSelected( true );               // 롱 클릭한 항목은 기본으로 선택한다.
-            changeFileSelectMode();                 // 파일 선택모드로 전환한다.
-        }
-        listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
-        return true;
-    }
 
     private void changeFileSelectMode() {
         /*
@@ -815,8 +817,13 @@ public class FileListFragment extends AppCompatTabFragment
      *
      * @param data
      */
-    private void file_delete(FileListData data, int position ) {
+    private void file_delete( FileListData data, int position ) {
         data.setIndex( position );
+
+        List<File> deleteFiles = new ArrayList<File>();
+        deleteFiles.add( data.getFile());
+        DialogUtils.FileDeleteDialog( context, deleteFiles);
+
         //new fileDeleteDialog( data ).show();
         //data.getFile().delete();
         //fileListAdapter.remove( position );
@@ -832,15 +839,6 @@ public class FileListFragment extends AppCompatTabFragment
         startActivity( run_intent );
     }
 
-    private String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        }
-        return type;
-    }
-
     @Override
     public List<String> requestPermissionList() {
         List<String> requestPermissions = new ArrayList<String>();
@@ -849,45 +847,4 @@ public class FileListFragment extends AppCompatTabFragment
 
         return requestPermissions;
     }
-
-    /*
-    class fileDeleteDialog {
-        private FileListData data;
-        public fileDeleteDialog( FileListData data ) {
-            this.data = data;
-        }
-
-        public void show() {
-            AlertDialog.Builder dlg = new AlertDialog.Builder( context );
-            dlg.setTitle( R.string.delete );
-            dlg.setMessage( String.format( "'%s'\n\n%s", data.getFilename(), context.getString( R.string.file_delete_confirm )));
-            //.setIcon(R.drawable.delete)
-            dlg.setPositiveButton( R.string.delete, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    if( data.getFile().isDirectory()) {
-                        try {
-                            FileUtils.deleteDirectory( data.getFile() );
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        try {
-                            FileUtils.forceDelete( data.getFile());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    listAdapter.remove( data.getIndex());
-                    dialog.dismiss();
-                }
-            });
-            dlg.setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            dlg.create().show();
-        }
-    }
-    */
 }
