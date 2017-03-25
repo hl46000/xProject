@@ -198,20 +198,20 @@ public class FileListFragment extends AppCompatTabFragment
         listUpdateRunnable.run();
     }
 
-    Runnable listUpdateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            listAdapter.reload();
-            context.runOnUiThread( pathListUpdateRunnable );
-            listView.smoothScrollToPosition(0);
         }
-    };
+        Runnable listUpdateRunnable = new Runnable() {
+            @Override
+            public void run() {
+                listAdapter.reload();
+                context.runOnUiThread( pathListUpdateRunnable );
+                listView.smoothScrollToPosition(0);
+            }
+        };
 
-    Handler pathScrollViewPosition = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
-        }
+        Handler pathScrollViewPosition = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
     };
 
     Runnable pathListUpdateRunnable = new Runnable() {

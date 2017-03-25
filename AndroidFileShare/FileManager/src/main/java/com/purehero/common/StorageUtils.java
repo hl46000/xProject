@@ -53,7 +53,8 @@ public class StorageUtils {
     }
 
     public static Map<String,StorageInfo> getStorageList() {
-
+		final boolean bLogOut = false;
+		
         Map<String,StorageInfo> list = new HashMap<String,StorageInfo>();
         String def_path = Environment.getExternalStorageDirectory().getPath();
         boolean def_path_removable = Environment.isExternalStorageRemovable();
@@ -77,16 +78,34 @@ public class StorageUtils {
             String line;
             while ((line = buf_reader.readLine()) != null) {
                 line = line.trim();
-                if (!line.startsWith("/mnt")) continue;
+                if( bLogOut ) Log.d( "MyLOG", line );
+                if (!line.startsWith("/mnt")) {
+                    if( bLogOut ) Log.d( "MyLOG", "not startWith /mnt" );
+                    continue;
+                }
 
                 StringTokenizer tokens = new StringTokenizer(line, " ");
                 String unused = tokens.nextToken(); //device
                 String mount_point = tokens.nextToken(); //mount point
                 if (paths.contains(mount_point)) {
+                    if( bLogOut ) Log.d( "MyLOG", String.format( "paths contains : %s", mount_point ));
                     continue;
                 }
+
                 File mount_point_file = new File( mount_point );
-                if( !mount_point_file.canRead()) continue;
+                if( !mount_point_file.canRead()) {
+                    try {
+                        File subFiles[] = mount_point_file.listFiles();
+                        if( subFiles == null ) {
+                            if( bLogOut ) Log.d( "MyLOG", String.format( "can't readable 1 : %s", mount_point ));
+                            continue;
+                        }
+                    } catch( Exception e ) {
+                        if( bLogOut ) Log.d( "MyLOG", String.format( "can't readable 2 : %s", mount_point ));
+                        continue;
+                    }
+                }
+
 
                 unused = tokens.nextToken(); //file system
                 List<String> flags = Arrays.asList(tokens.nextToken().split(",")); //flags
