@@ -1,5 +1,6 @@
-package com.purehero.module.appcompattabactivity;
+package com.purehero.module.tabhost;
 
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -8,20 +9,23 @@ import android.support.v4.view.ViewPager;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.neokree.materialtabs.MaterialTabHost;
-
 /**
  * Created by MY on 2017-02-25.
  */
 
-public class AppCompatTabViewPagerAdapter extends FragmentStatePagerAdapter {
+public class ViewPagerAdapter extends FragmentStatePagerAdapter implements TabLayout.OnTabSelectedListener {
     private List<Object> fragmentList = new ArrayList<Object>();
     private List<String> fragmentName = new ArrayList<String>();
-    private final MaterialTabHost tabHost;
+    private final TabLayout tabHost;
+    private final ViewPager pager;
 
-    public AppCompatTabViewPagerAdapter(FragmentManager fm, MaterialTabHost tabHost ) {
+    public ViewPagerAdapter( FragmentManager fm, TabLayout tabHost, ViewPager pager) {
         super(fm);
         this.tabHost = tabHost;
+        this.pager = pager;
+
+        pager.addOnPageChangeListener( new TabLayout.TabLayoutOnPageChangeListener( tabHost ));
+        tabHost.setOnTabSelectedListener( this );
     }
 
     public void addItem( Fragment fragment, int title_res_id ) {
@@ -32,6 +36,18 @@ public class AppCompatTabViewPagerAdapter extends FragmentStatePagerAdapter {
     public void addItem( Fragment fragment, String title ) {
         fragmentList.add( fragment );
         fragmentName.add( title );
+
+        tabHost.addTab(
+                tabHost.newTab()
+                        .setText(title)
+                        //.setTabListener(this)
+        );
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        //tabHost.notifyDataSetChanged();
     }
 
     public Fragment getItem(int position) {
@@ -51,7 +67,7 @@ public class AppCompatTabViewPagerAdapter extends FragmentStatePagerAdapter {
     public ViewPager.SimpleOnPageChangeListener listener = new ViewPager.SimpleOnPageChangeListener(){
         @Override
         public void onPageSelected(int position) {
-            tabHost.setSelectedNavigationItem(position);
+            //tabHost..setSelectedNavigationItem(position);
         }
     };
 
@@ -62,11 +78,27 @@ public class AppCompatTabViewPagerAdapter extends FragmentStatePagerAdapter {
      * @return
      */
     public boolean onBackPressed( int index ) {
-        return ((AppCompatTabFragment)fragmentList.get(index)).onBackPressed();
+        return ((FragmentEx)fragmentList.get(index)).onBackPressed();
     }
 
     public void removeItem(int removeItem) {
+        tabHost.removeTabAt( removeItem );
         fragmentList.remove( removeItem );
         fragmentName.remove( removeItem );
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        pager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
     }
 }

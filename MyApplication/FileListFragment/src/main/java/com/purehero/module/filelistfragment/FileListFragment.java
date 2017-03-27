@@ -2,48 +2,35 @@ package com.purehero.module.filelistfragment;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.purehero.module.appcompattabactivity.AppCompatTabFragment;
 import com.purehero.module.common.CheckPermissionListener;
 import com.purehero.module.common.DialogUtils;
 import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnBackPressedListener;
+import com.purehero.module.tabhost.FragmentEx;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,8 +45,8 @@ import java.util.Vector;
  * Created by purehero on 2017-03-22.
  */
 
-public class FileListFragment extends AppCompatTabFragment
-        implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, OnBackPressedListener, CheckPermissionListener {
+public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, OnBackPressedListener, CheckPermissionListener {
+
     private View layout = null;
     private ListView listView = null;
     private FileListAdapter listAdapter = null;
@@ -198,7 +185,7 @@ public class FileListFragment extends AppCompatTabFragment
         listUpdateRunnable.run();
     }
 
-        }
+
         Runnable listUpdateRunnable = new Runnable() {
             @Override
             public void run() {
@@ -208,11 +195,12 @@ public class FileListFragment extends AppCompatTabFragment
             }
         };
 
-        Handler pathScrollViewPosition = new Handler(){
+        Handler pathScrollViewPosition = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
-    };
+            }
+        };
 
     Runnable pathListUpdateRunnable = new Runnable() {
         @Override

@@ -1,36 +1,22 @@
 package com.inka.hook.sample.myapplication;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.purehero.module.appcompattabactivity.AppCompatTabActivity;
-import com.purehero.module.appcompattabactivity.AppCompatTabViewPagerAdapter;
-import com.purehero.module.appcompattabactivity.FragmentText;
-import com.purehero.module.common.CheckPermissionListener;
 import com.purehero.module.common.OnBackPressedListener;
 import com.purehero.module.filelistfragment.FileListFragment;
+import com.purehero.module.tabhost.FragmentText;
+import com.purehero.module.tabhost.TabAppCompatActivity;
+import com.purehero.module.tabhost.ViewPagerAdapter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-public class MainActivity extends AppCompatTabActivity
+public class MainActivity extends TabAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
@@ -59,14 +45,6 @@ public class MainActivity extends AppCompatTabActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        initTabModule();
-    }
-
-    @Override
-    public void addTabItem(AppCompatTabViewPagerAdapter pagerAdapter) {
-        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "Tab1" );
-        pagerAdapter.addItem( new FragmentText(), "Tab2" );
     }
 
     @Override
@@ -135,5 +113,11 @@ public class MainActivity extends AppCompatTabActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void addTabItem(ViewPagerAdapter pagerAdapter) {
+        pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "Tab1" );
+        pagerAdapter.addItem( new FragmentText(), "Tab2" );
     }
 }

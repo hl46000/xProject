@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AppCompatTabActivity/AppCompatTabActivity.iml" filepath="$PROJECT_DIR$/AppCompatTabActivity/AppCompatTabActivity.iml" />
       <module fileurl="file://$PROJECT_DIR$/CommonModule/CommonModule.iml" filepath="$PROJECT_DIR$/CommonModule/CommonModule.iml" />
       <module fileurl="file://$PROJECT_DIR$/FileListFragment/FileListFragment.iml" filepath="$PROJECT_DIR$/FileListFragment/FileListFragment.iml" />
       <module fileurl="file://$PROJECT_DIR$/MyApplication.iml" filepath="$PROJECT_DIR$/MyApplication.iml" />

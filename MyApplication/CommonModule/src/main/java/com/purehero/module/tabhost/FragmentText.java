@@ -1,4 +1,4 @@
-package com.purehero.module.appcompattabactivity;
+package com.purehero.module.tabhost;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 /**
  * Created by MY on 2017-02-25.
  */
-public class FragmentText extends AppCompatTabFragment {
+public class FragmentText extends FragmentEx {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         TextView text = new TextView(container.getContext());

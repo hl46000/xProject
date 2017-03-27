@@ -1,13 +1,13 @@
-package com.purehero.module.appcompattabactivity;
+package com.purehero.module.tabhost;
 
 import android.support.v4.app.Fragment;
 
 /**
  * Created by MY on 2017-02-25.
  */
-public class AppCompatTabFragment extends Fragment {
+public class FragmentEx extends Fragment {
 
-    public AppCompatTabFragment() {
+    public FragmentEx() {
     }
 
     /**
