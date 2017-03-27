@@ -3,6 +3,8 @@ package com.purehero.module.filelistfragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.purehero.module.cipher.CipherUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +20,7 @@ public class FileClickCount {
     private static Map<String,Integer> count_datas = new HashMap<String,Integer>();
 
     public static void saveClickCount( FileListData data ) {
-        String hash = Cipher.MD5( data.getFile().getAbsolutePath());
+        String hash = CipherUtils.MD5( data.getFile().getAbsolutePath());
         count_datas.remove( hash );
         count_datas.put( hash, data.getClickCount());
 
@@ -28,7 +30,7 @@ public class FileClickCount {
     public static void loadClickCount( FileListData data ) {
         if( count_datas.isEmpty()) return;
 
-        String hash = Cipher.MD5( data.getFile().getAbsolutePath());
+        String hash = CipherUtils.MD5( data.getFile().getAbsolutePath());
         if( count_datas.containsKey( hash )) {
             data.setClickCount( count_datas.get( hash ));
           //  G.Log( "loadClickCount %s=%d", hash, data.getClickCount());

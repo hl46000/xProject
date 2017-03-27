@@ -1,10 +1,10 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.cipher;
 
 /**
  * Created by purehero on 2017-03-07.
  */
 
-public class Cipher {
+public class CipherUtils {
     public static String MD5(String md5) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");

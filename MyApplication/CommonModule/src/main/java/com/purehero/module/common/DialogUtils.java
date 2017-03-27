@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.text.method.ScrollingMovementMethod;
+import android.widget.EditText;
 
 import org.apache.commons.io.FileUtils;
 
@@ -20,6 +22,62 @@ import static android.R.attr.data;
  */
 
 public class DialogUtils {
+    public static final int DIALOG_BUTTON_ID_YES 	= -1;
+    public static final int DIALOG_BUTTON_ID_NO 	= -2;
+
+    /**
+     * 한줄 입력을 받는 Dialog 을 띄운다.
+     *
+     * @param activity
+     * @param title
+     * @param message
+     * @param res_icon
+     * @param listener
+     * @return
+     */
+    private static EditText __input = null;
+    public static void TextInputDialog( final Activity activity, final String title, final String message, String hint, final int res_icon, final DialogInterface.OnClickListener listener ) {
+        __input = new EditText( activity );
+        //__input.setHint( hint );
+        __input.setText( hint );
+        __input.selectAll();
+        __input.setMaxLines(1);
+        __input.setHorizontallyScrolling(true);
+        __input.setMovementMethod(new ScrollingMovementMethod());
+
+        activity.runOnUiThread( new Runnable(){
+            @Override
+            public void run() {
+                AlertDialog.Builder alt_bld = new AlertDialog.Builder( activity );
+                alt_bld.setView(__input);
+                if( no_string_res == -1 || yes_string_res == -1 ) {
+                    alt_bld.setMessage(message).setCancelable(false)
+                            .setNegativeButton( "NO", listener)        // -2
+                            .setPositiveButton( "YES", listener);    // -1
+                } else {
+                    alt_bld.setMessage(message).setCancelable(false)
+                            .setNegativeButton( no_string_res, listener)        // -2
+                            .setPositiveButton( yes_string_res, listener);    // -1
+                }
+                AlertDialog alert = alt_bld.create();
+                // Title for AlertDialog
+                if( title != null ) {
+                    alert.setTitle( title );
+                }
+                // Icon for AlertDialog
+                if( res_icon > 0 ) {
+                    alert.setIcon( res_icon );
+                }
+                alert.show();
+            }});
+    }
+    public static int no_string_res = -1;
+    public static int yes_string_res = -1;
+
+    public static String getTextInputDialogResult() {
+        return __input.getText().toString();
+    }
+
     public static void FileDeleteDialog( final Activity context, final List<File> files ) {
         final String digTitle = context.getString( R.string.dialog_title_delete );
 

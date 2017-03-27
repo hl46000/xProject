@@ -1,8 +1,12 @@
 package com.inka.hook.sample.myapplication;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,9 +16,13 @@ import android.view.MenuItem;
 
 import com.purehero.module.common.OnBackPressedListener;
 import com.purehero.module.filelistfragment.FileListFragment;
+import com.purehero.module.tabhost.FragmentEx;
 import com.purehero.module.tabhost.FragmentText;
 import com.purehero.module.tabhost.TabAppCompatActivity;
 import com.purehero.module.tabhost.ViewPagerAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends TabAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,6 +53,35 @@ public class MainActivity extends TabAppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        checkPermission();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    }
+
+    private void checkPermission() {
+        String permissions[] = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE
+        };
+        List<String> request_permissions = new ArrayList<String>();
+        for( String permission : permissions ) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
+                request_permissions.add( permission );
+            }
+        }
+        if( request_permissions.size() > 0 ) {
+            ActivityCompat.requestPermissions(this, permissions, 123 );
+        }
     }
 
     @Override
@@ -54,26 +91,18 @@ public class MainActivity extends TabAppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
 
         } else {
-            int cnt = getFragmentManager().getBackStackEntryCount();
-            for( int i = 0; i < cnt; i++ ) {
-                Fragment  fragment = (Fragment) getFragmentManager().getBackStackEntryAt(i);
-                if( fragment instanceof OnBackPressedListener ) {
-                    OnBackPressedListener listener = ( OnBackPressedListener ) fragment;
-                    if( listener.onBackPressed()) {
-                        return;
-                    }
-                }
-            }
             super.onBackPressed();
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        if( super.onCreateOptionsMenu(menu)) return true;
+
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -15,7 +15,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,6 +34,7 @@ import com.purehero.module.common.CheckPermissionListener;
 import com.purehero.module.common.DialogUtils;
 import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnBackPressedListener;
+import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.tabhost.FragmentEx;
 
 import java.io.File;
@@ -45,7 +50,8 @@ import java.util.Vector;
  * Created by purehero on 2017-03-22.
  */
 
-public class FileListFragment extends FragmentEx implements SearchTextChangeListener, OptionsItemSelectListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, OnBackPressedListener, CheckPermissionListener {
+public class FileListFragment extends FragmentEx
+        implements SearchTextChangeListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, CheckPermissionListener {
 
     private View layout = null;
     private ListView listView = null;
@@ -102,6 +108,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public boolean onBackPressed() {
+        Log.d( "MyLOG", "onBackPressed" );
         try {
             if( listAdapter.isSelectMode()) {           // 뒤로가기에 의한 ActionBar 전환
                 changeFileListMode( true );
@@ -186,21 +193,21 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
 
-        Runnable listUpdateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                listAdapter.reload();
-                context.runOnUiThread( pathListUpdateRunnable );
-                listView.smoothScrollToPosition(0);
-            }
-        };
+    Runnable listUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            listAdapter.reload();
+            context.runOnUiThread( pathListUpdateRunnable );
+            listView.smoothScrollToPosition(0);
+        }
+    };
 
-        Handler pathScrollViewPosition = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
-            }
-        };
+    Handler pathScrollViewPosition = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
+        }
+    };
 
     Runnable pathListUpdateRunnable = new Runnable() {
         @Override
@@ -563,51 +570,27 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         */
     }
 
+    /**
+     * 새로운 폴더를 생성한다.
+     */
     private void function_create_new_folder() {
-        /*
-        String title    = getString( R.string.create_folder_title);
-        String text     = null;
-        String hint     = getString( R.string.create_folder_hint);
+        Log.d( "MyLOG", "function_create_new_folder" );
 
-        File targetFolder = new File( listAdapter.getLastFolder(), hint );
-        if( targetFolder.exists()) {
-            for( int i = 1; targetFolder.exists(); i++ ) {
-                hint = String.format( "%s(%d)", getString( R.string.create_folder_hint), i );
-                targetFolder = new File( listAdapter.getLastFolder(), hint );
-            }
-        }
-
-        G.no_string_res     = R.string.cancel;
-        G.yes_string_res    = R.string.create;
-        G.textInputDialog( context,title, text, hint, -1, new DialogInterface.OnClickListener() {
+        new FunctionCreateNewFolder( context, listAdapter.getLastFolder(), new OnSuccessListener(){
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch( i ) {
-                    case G.DIALOG_BUTTON_ID_YES :
-                        File newFolder = new File( listAdapter.getLastFolder(), G.getTextInputDialogResult());
-                        G.Log( "Try to create folder : '%s'", newFolder.getAbsolutePath() );
-                        if( newFolder.mkdirs()) {
-                            listAdapter.reload();                                               // 리스트를 갱신 시킨다.
-
-                        //context.getSupportActionBar().setDisplayHomeAsUpEnabled( true );    // 액션바에 뒤로 가기 버튼을 표시한다.
-                        //listAdapter.push_folder( newFolder);                                // 생성한 폴더로 리스트를 갱신시킨다.
-                        //rel.run();
-
-                        }
-                        break;
-                }
+            public void OnSuccess() {
+                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
             }
-        } );
-        G.no_string_res     = -1; G.yes_string_res    = -1;
-        */
+        } ).run();
     }
-
 
 
     private void changeFileSelectMode( FileListData data ) {
         listAdapter.setSelectMode( true );  // 파일 선택모드로 전환한다.
         listAdapter.setSelectALL( false );  // 이전에 선택한 사항들을 초기화 시킨다.
-        data.setSelected( true );           // 클릭한 항목은 기본으로 선택한다.
+        if( data != null ) {
+            data.setSelected(true);         // 클릭한 항목은 기본으로 선택한다.
+        }
 
         updateSelectedCount( true );
 
@@ -728,37 +711,11 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         return requestPermissions;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(int id) {
-        return false;
-    }
+
 
 
     /*
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem menu_item = menu.findItem( R.id.action_create_folder );    // 새 폴더 생성
-        if( menu_item != null ) {
-            if( !listAdapter.getLastFolder().canWrite() ) {
-                menu_item.setTitle( String.format( "%s(%s)",  getString( R.string.action_create_folder), getString( R.string.read_only )) );
-                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
-            } else {
-                menu_item.setTitle( getString( R.string.action_create_folder));
-                menu_item.setEnabled( true );
-            }
-        }
 
-        menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
-        if( menu_item != null ) {
-            if( !listAdapter.getLastFolder().canWrite() ) {
-                menu_item.setTitle( String.format( "%s(%s)", getString( R.string.action_paste), getString( R.string.read_only )) );
-                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
-            } else {
-                menu_item.setTitle( getString( R.string.action_paste));
-                menu_item.setEnabled( true );
-            }
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(int id) {
@@ -772,14 +729,6 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
                     return true;
                 }
                 break;
-
-            case R.id.action_select_mode    :           // 파일 선택 모드
-                changeFileSelectMode();
-                return true;
-
-            case R.id.action_create_folder  :           // 새 폴더 생성
-                function_create_new_folder();
-                return true;
 
             case R.id.action_rename :                   // 이름 변경
                 function_rename_selected_item();
@@ -833,14 +782,6 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
 
-    // 메뉴 생성
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        if ( v.getId() == R.id.listView ) {
-            context.getMenuInflater().inflate(R.menu.file_context_menu, menu);
-        }
-    }
-
     // 메뉴 클릭
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -865,4 +806,58 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
         return ret;
     }
     */
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if( listAdapter.isSelectMode()) {
+            context.getMenuInflater().inflate( R.menu.menu_file_select_mode, menu );
+        } else {
+            context.getMenuInflater().inflate( R.menu.menu_file_list_mode, menu );
+        }
+
+
+        return true;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem menu_item = menu.findItem( R.id.action_create_folder );    // 새 폴더 생성
+        if( menu_item != null ) {
+            if( !listAdapter.getLastFolder().canWrite() ) {
+                menu_item.setTitle( String.format( "%s(%s)",  getString( R.string.action_create_folder), getString( R.string.read_only )) );
+                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
+            } else {
+                menu_item.setTitle( getString( R.string.action_create_folder));
+                menu_item.setEnabled( true );
+            }
+        }
+
+        menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
+        if( menu_item != null ) {
+            if( !listAdapter.getLastFolder().canWrite() ) {
+                menu_item.setTitle( String.format( "%s(%s)", getString( R.string.action_paste), getString( R.string.read_only )) );
+                menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
+            } else {
+                menu_item.setTitle( getString( R.string.action_paste));
+                menu_item.setEnabled( true );
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        Log.d("MyLOG", "onOptionsItemSelected " + id);
+
+        if (id == R.id.action_select_mode) {               // 파일 선택 모드
+            changeFileSelectMode(null);
+
+        } else if (id == R.id.action_create_folder) {      // 새 폴더 생성
+            function_create_new_folder();
+        } else {
+            return false;
+        }
+        return true;
+    }
 }
