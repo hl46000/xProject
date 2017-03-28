@@ -13,4 +13,9 @@
     <string name="action_copy">Copy</string>
     <string name="action_move">Move</string>
     <string name="action_rename">Rename</string>
+    <string name="rename_title">Rename</string>
+    <string name="rename">Rename</string>
+    <string name="delete_message">items will be deleted.</string>
+    <string name="delete">Delete</string>
+    <string name="delete_item">Delete items</string>
 </resources>

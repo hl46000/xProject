@@ -1,6 +1,8 @@
 package com.purehero.module.tabhost;
 
+import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +15,8 @@ import android.widget.Toast;
 import com.purehero.module.common.OnBackPressedListener;
 import com.purehero.module.common.R;
 
+import java.io.IOException;
+
 /**
  * Created by purehero on 2017-03-27.
  */
@@ -21,6 +25,16 @@ public abstract class TabAppCompatActivity extends AppCompatActivity {
     private TabLayout tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
+    private Process suProcess;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        try {
+            suProcess = Runtime.getRuntime().exec("su");
+        } catch(IOException e) {
+        }
+    }
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {

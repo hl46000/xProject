@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,7 +22,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,6 +118,28 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             }
         }
         sort();
+    }
+
+    class DataInputStreamThread extends Thread implements Runnable {
+        private final DataInputStream dis;
+
+        public DataInputStreamThread( DataInputStream dis ) {
+            this.dis = dis;
+            this.start();
+        }
+
+        @Override
+        public void run() {
+            int nRead;
+            try {
+                byte buffer[] = new byte[1024];
+                while(( nRead = dis.read( buffer, 0, 1024  )) > 0 ) {
+                    Log.d( "MyLOG", new String( buffer, 0, nRead) );
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

@@ -37,6 +37,8 @@ import com.purehero.module.common.OnBackPressedListener;
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.tabhost.FragmentEx;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -230,7 +232,7 @@ public class FileListFragment extends FragmentEx
                 pathScrollView.setVisibility( View.VISIBLE );
                 pathScrollViewPosition.sendEmptyMessageDelayed( 100, 300 );
             } else {
-                pathScrollView.setVisibility( View.GONE );
+                pathScrollView.setVisibility(View.GONE);
             }
         }
     };
@@ -485,104 +487,6 @@ public class FileListFragment extends FragmentEx
         changeFileListMode( false );    // 기억된 선택항목은 유지 시킨다.
     }
 
-    private void function_delete_selected_items() {
-        /*
-        context.collectSelectedItems(); // 전체 화면의 선택 항목을 수집한다.
-
-        final List<FileListData> selectedItems = context.getSelectedItems();
-        int item_count = selectedItems.size();
-
-        String message = String.format( "%d %s\n\n", item_count, getString( R.string.delete_message ));
-
-        G.no_string_res     = R.string.cancel;
-        G.yes_string_res    = R.string.delete;
-        G.confirmDialog( context, R.string.delete_title, message, -1, new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch(i) {
-                    case G.DIALOG_BUTTON_ID_YES :       // Clicked Delete
-                        G.progressDialog( context, R.string.delete_title, "", new ProgressRunnable(){
-                            @Override
-                            public void run( final ProgressDialog dialog) {
-                                dialog.setMax(selectedItems.size());
-
-                                int progress_count = 0;
-                                for( final FileListData data : selectedItems ) {
-                                    context.runOnUiThread( new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            dialog.setMessage(data.getFilename());
-                                        }
-                                    });
-
-                                    try {
-                                        FileUtils.forceDelete( data.getFile() );
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    dialog.setProgress( ++progress_count );
-                                }
-                                context.runOnUiThread( new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        reloadListView();
-                                        changeFileListMode( true );
-                                    }
-                                } );
-                            }
-                        });
-                        break;
-                }
-            }
-        } );
-        */
-    }
-
-    private void function_rename_selected_item() {
-        /*
-        String title    = getString( R.string.rename_title);
-        String text     = null;
-
-        final File srcFile  = context.getSelectedItems().get(0).getFile();
-        String hint         = srcFile.getName();
-
-        changeFileListMode( true );             // 선택 모드에서만 호출되므로 선택모드를 해제 한다.
-        // 이미 선택된 항목의 데이터를 획득하여기 때문에
-        // 기억된 선택 사항도 제거한다.
-
-        G.no_string_res     = R.string.cancel;
-        G.yes_string_res    = R.string.rename;
-        G.textInputDialog( context,title, text, hint, -1, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch( i ) {
-                    case G.DIALOG_BUTTON_ID_YES :
-                        File destFile = new File( srcFile.getParentFile(), G.getTextInputDialogResult());
-                        if( srcFile.renameTo( destFile )) {
-                            listAdapter.reload();                                       // 리스트를 갱신 시킨다.
-                        }
-                        break;
-                }
-            }
-        } );
-        G.no_string_res     = -1; G.yes_string_res    = -1;
-        */
-    }
-
-    /**
-     * 새로운 폴더를 생성한다.
-     */
-    private void function_create_new_folder() {
-        Log.d( "MyLOG", "function_create_new_folder" );
-
-        new FunctionCreateNewFolder( context, listAdapter.getLastFolder(), new OnSuccessListener(){
-            @Override
-            public void OnSuccess() {
-                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
-            }
-        } ).run();
-    }
 
 
     private void changeFileSelectMode( FileListData data ) {
@@ -623,18 +527,6 @@ public class FileListFragment extends FragmentEx
         listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
     }
 
-    public int getSelectedItemCount() {
-        return listAdapter.getSelectedCount();
-    }
-
-    public List<FileListData> getSelectedItems() {
-        return listAdapter.getSelectedItems();
-    }
-
-    public void setSelectALL(boolean b) {
-        listAdapter.setSelectALL(b);
-    }
-
     @Override
     public void onClick(View view) {
         int itemId = view.getId();
@@ -645,21 +537,6 @@ public class FileListFragment extends FragmentEx
         }
     }
 
-    public void ftpButtonVisible(boolean b) {
-        if( layout == null ) return ;
-
-        /*
-        Button btn = ( Button ) layout.findViewById(R.id.btnFtpServerSW);
-        if( btn != null ) {
-            btn.setVisibility( b ? View.VISIBLE : View.GONE );
-        }
-        */
-    }
-
-    /**
-     * @param data
-     */
-
     /**
      * @param data
      */
@@ -668,14 +545,8 @@ public class FileListFragment extends FragmentEx
         startActivity(Intent.createChooser(shareIntent, "Share File" ));
     }
 
-    private String getFileExt(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-    }
-
     /**
      * FILE을 단말기에서 Delete 합니다.
-     *
-     * @param data
      */
     private void file_delete() {
         List<File> deleteFiles = new ArrayList<File>();
@@ -683,7 +554,7 @@ public class FileListFragment extends FragmentEx
             deleteFiles.add( data.getFile());
         }
 
-        DialogUtils.FileDeleteDialog( context, deleteFiles );
+        //DialogUtils.FileDeleteDialog( context, deleteFiles );
 
         //new fileDeleteDialog( data ).show();
         //data.getFile().delete();
@@ -691,15 +562,11 @@ public class FileListFragment extends FragmentEx
     }
 
     /**
-     * APK 을 실행 한다.
+     * Fragment 에서 필요한 Permission 들을 반환하여 준다.
+     * <br> Permission 들을 반환하여 주면 Main Activity 에서 수집하여 한번에 Permission 요청을 한다.
      *
-     * @param data
+     * @return 필요한 Permission 리스트
      */
-    private void file_running(FileListData data) {
-        Intent run_intent = Intent.createChooser(FileIntentUtils.Running( data.getFile()), "Choose an application to open with:");
-        startActivity( run_intent );
-    }
-
     @Override
     public List<String> requestPermissionList() {
         Log.d( "MyLOG", "requestPermissionList()");
@@ -730,13 +597,7 @@ public class FileListFragment extends FragmentEx
                 }
                 break;
 
-            case R.id.action_rename :                   // 이름 변경
-                function_rename_selected_item();
-                return true;
 
-            case R.id.action_delete :                   // 선택 항목 삭제
-                function_delete_selected_items();
-                return true;
 
             case R.id.action_copy :                     // 파일 복사
                 function_copy_selected_items();
@@ -814,8 +675,6 @@ public class FileListFragment extends FragmentEx
         } else {
             context.getMenuInflater().inflate( R.menu.menu_file_list_mode, menu );
         }
-
-
         return true;
     }
 
@@ -844,20 +703,118 @@ public class FileListFragment extends FragmentEx
         }
     }
 
+    /**
+     * 새로운 폴더를 생성한다.
+     */
+    private void function_create_new_folder() {
+        Log.d( "MyLOG", "function_create_new_folder" );
+
+        new FunctionCreateNewFolder( context, listAdapter.getLastFolder(), new OnSuccessListener(){
+            @Override
+            public void OnSuccess() {
+                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
+            }
+        } ).run();
+    }
+
+    /**
+     * 이름을 변경한다.
+     */
+    private void function_rename_selected_item() {
+        Log.d( "MyLOG", "function_rename_selected_item" );
+
+        new FunctionRenameSelectedItem( context, listAdapter.getSelectedItems().get(0), new OnSuccessListener(){
+            @Override
+            public void OnSuccess() {
+                changeFileListMode( true );                 // 선택 모드에서만 호출되므로 선택모드를 해제 한다.
+                listAdapter.notifyDataSetChanged();       // 리스트를 갱신 시킨다.
+            }
+        } ).run();
+    }
+
+    /**
+     * 선택된 파일/폴더들을 삭제한다.
+     */
+    private void function_delete_selected_items() {
+        Log.d( "MyLOG", "function_delete_selected_items" );
+
+        new FunctionDeleteSelectedItem( context, listAdapter.getSelectedItems(), new OnSuccessListener(){
+            @Override
+            public void OnSuccess() {
+
+            }
+        } ).run();
+        /*
+        context.collectSelectedItems(); // 전체 화면의 선택 항목을 수집한다.
+
+        final List<FileListData> selectedItems = context.getSelectedItems();
+        int item_count = selectedItems.size();
+
+        String message = String.format( "%d %s\n\n", item_count, getString( R.string.delete_message ));
+
+        G.no_string_res     = R.string.cancel;
+        G.yes_string_res    = R.string.delete;
+        G.confirmDialog( context, R.string.delete_title, message, -1, new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch(i) {
+                    case G.DIALOG_BUTTON_ID_YES :       // Clicked Delete
+                        G.progressDialog( context, R.string.delete_title, "", new ProgressRunnable(){
+                            @Override
+                            public void run( final ProgressDialog dialog) {
+                                dialog.setMax(selectedItems.size());
+
+                                int progress_count = 0;
+                                for( final FileListData data : selectedItems ) {
+                                    context.runOnUiThread( new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.setMessage(data.getFilename());
+                                        }
+                                    });
+
+                                    try {
+                                        FileUtils.forceDelete( data.getFile() );
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    dialog.setProgress( ++progress_count );
+                                }
+                                context.runOnUiThread( new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        reloadListView();
+                                        changeFileListMode( true );
+                                    }
+                                } );
+                            }
+                        });
+                        break;
+                }
+            }
+        } );
+        */
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         Log.d("MyLOG", "onOptionsItemSelected " + id);
 
-        if (id == R.id.action_select_mode) {               // 파일 선택 모드
+        if (id == R.id.action_select_mode) {                // 파일 선택 모드
             changeFileSelectMode(null);
-
-        } else if (id == R.id.action_create_folder) {      // 새 폴더 생성
+        } else if (id == R.id.action_create_folder) {       // 새 폴더 생성
             function_create_new_folder();
+        } else if (id == R.id.action_rename ) {             // 이름 변경
+            function_rename_selected_item();
+        } else if( id == R.id.action_delete ) {             // 삭제
+            function_delete_selected_items();
         } else {
             return false;
         }
+
         return true;
     }
 }

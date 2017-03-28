@@ -14,7 +14,7 @@ import java.util.Comparator;
  */
 
 public class FileListData {
-    private final File file;
+    private File file;
     private String subTitle = "";
     private String fileDate = "";
     private String mimeType = "";
@@ -25,6 +25,10 @@ public class FileListData {
     public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
 
     public FileListData( File file ) {
+        init( file );
+    }
+
+    private void init( File file ) {
         this.file = file;
 
         if( file.isDirectory()) {
@@ -47,6 +51,10 @@ public class FileListData {
 
         SimpleDateFormat sdf = new SimpleDateFormat( DATE_FORMAT );
         fileDate = sdf.format(file.lastModified());
+    }
+
+    public void setFile(File destFile) {
+        init( destFile );
     }
 
     private String getFileExt(String fileName) {

@@ -1,9 +1,3 @@
 <resources>
-    <string name="app_name">CommonModule</string>
-    <string name="dialog_title_delete">Delete</string>
-    <string name="dialog_item_delete_confirm">items will be deleted.</string>
-    <string name="dialog_delete_confirm">will be deleted</string>
-    <string name="dialog_button_delete">Delete</string>
-    <string name="dialog_button_cancel">Cancel</string>
     <string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
 </resources>
