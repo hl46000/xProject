@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LottoScaner</string>
+    <string name="app_name">로또 스캐너</string>
     <string name="action_settings">Settings</string>
     <string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다</string>
     <string name="scan_text">로또 스캔하기</string>

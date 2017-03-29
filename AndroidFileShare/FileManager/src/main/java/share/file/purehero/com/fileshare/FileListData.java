@@ -190,4 +190,8 @@ public class FileListData {
             return arg0.getFilename().compareToIgnoreCase( arg1.getFilename());
         }
     };
+
+    public int getSubItemCount() {
+        return subItemCount;
+    }
 }

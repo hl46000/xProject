@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.purehero.common.G;
 
 import java.io.File;
@@ -156,6 +157,13 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         }
         viewHolder.cbSelected.setId( position );
 
+        int res_id = getImageResourceID( data );
+        if( res_id == R.drawable.image || res_id == R.drawable.movies ) {
+            Glide.with( context ).load( data.getFile()).centerCrop().placeholder( res_id ).into( viewHolder.ivIcon );
+        } else {
+            Glide.with( context ).load( res_id ).into( viewHolder.ivIcon );
+        }
+        /*
         Drawable icon = data.getIcon();
         if( icon == null ) {
             viewHolder.ivIcon.setVisibility( View.INVISIBLE );
@@ -163,8 +171,63 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             viewHolder.ivIcon.setImageDrawable( icon );
             viewHolder.ivIcon.setVisibility( View.VISIBLE );
         }
+        */
 
         return view;
+    }
+
+    /**
+     *
+     * @param data
+     * @return
+     */
+    public int getImageResourceID(FileListData data) {
+        int res_id = -1;
+
+        File file = data.getFile();
+        String mimeType = data.getMimeType();
+
+        if( file.isDirectory() ) {
+            if( data.getSubItemCount() > 0 ) {
+                res_id = R.drawable.folder_full;
+            } else {
+                res_id = R.drawable.folder;
+            }
+        } else {
+            if( mimeType != null ) {
+                if (mimeType.startsWith("image")) {
+                    res_id = R.drawable.image;
+                } else if (mimeType.startsWith("audio")) {
+                    res_id = R.drawable.music;
+                } else if (mimeType.startsWith("video")) {
+                    res_id = R.drawable.movies;
+                } else if (mimeType.endsWith("zip")) {
+                    res_id = R.drawable.zip;
+                } else if (mimeType.endsWith("excel")) {
+                    res_id = R.drawable.excel;
+                } else if (mimeType.endsWith("powerpoint")) {
+                    res_id = R.drawable.ppt;
+                } else if (mimeType.endsWith("word")) {
+                    res_id = R.drawable.word;
+                } else if (mimeType.endsWith("pdf")) {
+                    res_id = R.drawable.pdf;
+                } else if (mimeType.endsWith("xml")) {
+                    res_id = R.drawable.xml32;
+                } else if (mimeType.endsWith("vnd.android.package-archive")) {  // APK
+                    res_id = R.drawable.apk;
+                } else if (mimeType.endsWith("torrent")) {  // APK
+                    res_id = R.drawable.torrent;
+                } else {// torrent
+                    // text 로 간주
+                    res_id = R.drawable.text;
+                }
+            } else {
+                // text 로 간주
+                res_id = R.drawable.text;
+            }
+        }
+
+        return res_id;
     }
 
     View.OnTouchListener TextViewTouchListener = new View.OnTouchListener() {
