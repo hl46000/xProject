@@ -30,7 +30,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
-import com.purehero.lotto.scaner.R;
+import com.purehero.quick.lotto.scanner.R;
 
 public final class PreferencesFragment
     extends PreferenceFragment 

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
-    tools:context="com.purehero.lotto.scaner.MainActivity"
+    tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
     <RelativeLayout
@@ -24,12 +24,6 @@
             ads:adUnitId="@string/banner_ad_unit_id">
         </com.google.android.gms.ads.AdView>
 
-        <WebView
-            android:id="@+id/webView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@id/adView" />
-
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleLarge"
@@ -37,14 +31,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_above="@id/adView"
-            android:layout_margin="@dimen/fab_margin"
-            app:backgroundTint="@android:color/holo_purple"
-            app:srcCompat="@android:drawable/ic_menu_camera" />
+        <RelativeLayout
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_above="@id/adView" >
+
+            <WebView
+                android:id="@+id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="@dimen/fab_margin"
+                app:backgroundTint="@android:color/holo_purple"
+                app:srcCompat="@android:drawable/ic_menu_camera" />
+        </RelativeLayout>
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

@@ -4,9 +4,9 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.purehero.lotto.scaner"
+        applicationId "com.purehero.quick.lotto.scanner"
         multiDexEnabled true
-        minSdkVersion 17
+        minSdkVersion 23
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"

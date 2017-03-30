@@ -37,7 +37,7 @@ import com.google.zxing.client.android.PreferencesActivity;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ParsedResultType;
 import com.google.zxing.client.result.ResultParser;
-import com.purehero.lotto.scaner.R;
+import com.purehero.quick.lotto.scanner.R;
 
 /**
  * A base class for the Android-specific barcode handlers. These allow the app to polymorphically
