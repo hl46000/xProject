@@ -1,4 +1,4 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.common;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -7,6 +7,7 @@ import com.purehero.module.common.CancelableProgressDialog;
 import com.purehero.module.common.DialogUtils;
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.common.ProgressRunnable;
+import com.purehero.module.filelistfragment.*;
 
 import org.apache.commons.io.FileUtils;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * Created by purehero on 2017-03-28.
  */
 
-class FunctionDeleteSelectedItem {
+public class FunctionDeleteSelectedItem {
     final Activity context;
     final List<FileListData> targetFiles;
     final OnSuccessListener successListener;
@@ -31,15 +32,15 @@ class FunctionDeleteSelectedItem {
 
     public void run() {
         final int item_count = targetFiles.size();
-        String message = String.format( "%d %s\n\n", item_count, context.getString( R.string.delete_message ));
+        String message = String.format( "%d %s\n\n", item_count, context.getString( com.purehero.module.filelistfragment.R.string.delete_message ));
 
-        DialogUtils.no_string_res     = R.string.cancel;
-        DialogUtils.yes_string_res    = R.string.delete;
-        DialogUtils.confirmDialog( context, R.string.delete, message, -1, new DialogInterface.OnClickListener() {
+        DialogUtils.no_string_res     = com.purehero.module.filelistfragment.R.string.cancel;
+        DialogUtils.yes_string_res    = com.purehero.module.filelistfragment.R.string.delete;
+        DialogUtils.confirmDialog( context, com.purehero.module.filelistfragment.R.string.delete, message, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(i == DialogUtils.DIALOG_BUTTON_ID_YES ) {       // Clicked Delete
-                    DialogUtils.progressDialog( context, R.string.delete_item, "", new ProgressRunnable(){
+                    DialogUtils.progressDialog( context, com.purehero.module.filelistfragment.R.string.delete_item, "", new ProgressRunnable(){
                         @Override
                         public void run( final CancelableProgressDialog dialog) {
 

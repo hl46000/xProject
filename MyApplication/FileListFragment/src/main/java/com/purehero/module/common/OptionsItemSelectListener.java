@@ -1,4 +1,4 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.common;
 
 /**
  * Created by MY on 2017-02-28.

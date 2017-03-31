@@ -16,6 +16,7 @@ import android.view.MenuItem;
 
 import com.purehero.module.common.OnBackPressedListener;
 import com.purehero.module.filelistfragment.FileListFragment;
+import com.purehero.module.shell.filelistfragment.ShellFileListFragment;
 import com.purehero.module.tabhost.FragmentEx;
 import com.purehero.module.tabhost.FragmentText;
 import com.purehero.module.tabhost.TabAppCompatActivity;
@@ -147,6 +148,6 @@ public class MainActivity extends TabAppCompatActivity
     @Override
     protected void addTabItem(ViewPagerAdapter pagerAdapter) {
         pagerAdapter.addItem( new FileListFragment().setMainActivity(this), "Tab1" );
-        pagerAdapter.addItem( new FragmentText(), "Tab2" );
+        pagerAdapter.addItem( new ShellFileListFragment().setMainActivity(this), "Tab2" );
     }
 }

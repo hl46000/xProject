@@ -1,10 +1,11 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.common;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 
 import com.purehero.module.common.DialogUtils;
 import com.purehero.module.common.OnSuccessListener;
+import com.purehero.module.filelistfragment.*;
 
 import java.io.File;
 
@@ -24,12 +25,12 @@ public class FunctionRenameSelectedItem {
     }
 
     public void run() {
-        String title    = context.getString( R.string.rename);
+        String title    = context.getString( com.purehero.module.filelistfragment.R.string.rename);
         String text     = null;
         String hint     = targetFile.getFilename();
 
-        DialogUtils.no_string_res     = R.string.cancel;
-        DialogUtils.yes_string_res    = R.string.rename;
+        DialogUtils.no_string_res     = com.purehero.module.filelistfragment.R.string.cancel;
+        DialogUtils.yes_string_res    = com.purehero.module.filelistfragment.R.string.rename;
         DialogUtils.TextInputDialog( context,title, text, hint, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

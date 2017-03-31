@@ -1,4 +1,4 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.common;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.common.DialogUtils;
+import com.purehero.module.filelistfragment.*;
 
 import java.io.File;
 
@@ -27,20 +28,20 @@ public class FunctionCreateNewFolder {
     public void run() {
         Log.d( "MyLOG", "FunctionCreateNewFolder::run" );
 
-        String title    = context.getString( R.string.create_folder_title);
-        String hint     = context.getString( R.string.new_folder);
+        String title    = context.getString( com.purehero.module.filelistfragment.R.string.create_folder_title);
+        String hint     = context.getString( com.purehero.module.filelistfragment.R.string.new_folder);
         String text     = null;
 
         File targetFolder = new File( folder, hint );
         if( targetFolder.exists()) {
             for( int i = 1; targetFolder.exists(); i++ ) {
-                hint = String.format( "%s(%d)", context.getString( R.string.new_folder), i );
+                hint = String.format( "%s(%d)", context.getString( com.purehero.module.filelistfragment.R.string.new_folder), i );
                 targetFolder = new File( folder, hint );
             }
         }
 
-        DialogUtils.no_string_res     = R.string.cancel;
-        DialogUtils.yes_string_res    = R.string.create;
+        DialogUtils.no_string_res     = com.purehero.module.filelistfragment.R.string.cancel;
+        DialogUtils.yes_string_res    = com.purehero.module.filelistfragment.R.string.create;
         DialogUtils.TextInputDialog( context, title, text, hint, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
