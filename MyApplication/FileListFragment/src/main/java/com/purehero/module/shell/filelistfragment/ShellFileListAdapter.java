@@ -37,13 +37,21 @@ class ShellFileListAdapter extends BaseAdapter {
 
         shell.command( "su" );
         USER = shell.command( "whoami" ).get(0);
+        shell.command( "cd /");
 
-        List<String> result = shell.command( "ls -l ./");
+        reload();
+    }
+
+    private void reload() {
+        listData.clear();
+
+        List<String> result = shell.command( "ls -l");
         for( String line : result ) {
             listData.add( new FileData( "", line ));
         }
 
         Collections.sort( listData, FileData.ALPHA_COMPARATOR );
+        notifyDataSetChanged();
     }
 
     @Override
@@ -59,6 +67,11 @@ class ShellFileListAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public void push_folder( String absolutePath, Object o) {
+        shell.command( "cd " +  absolutePath );
+        reload();
     }
 
     class ViewHolder

@@ -53,7 +53,7 @@ import java.util.Vector;
  * Created by purehero on 2017-03-22.
  */
 
-public class ShellFileListFragment extends FragmentEx {
+public class ShellFileListFragment extends FragmentEx implements AdapterView.OnItemClickListener {
 
     private View layout = null;
     private ListView listView = null;
@@ -78,11 +78,21 @@ public class ShellFileListFragment extends FragmentEx {
 
         listView	= ( ListView ) layout.findViewById( R.id.listView );
         if( listView != null ) {
-            listAdapter = new ShellFileListAdapter( context );;
+            listAdapter = new ShellFileListAdapter( context );
 
+            listView.setOnItemClickListener( this );
             listView.setAdapter( listAdapter );
         }
 
         return layout;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        FileData data = ( FileData ) listAdapter.getItem( position );
+
+        if( data.isDirectory()) {
+            listAdapter.push_folder( data.getAbsolutePath(), null );                     // 선택한 폴더로 리스트를 갱신시킨다.
+        }
     }
 }
