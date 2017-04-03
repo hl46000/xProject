@@ -1,4 +1,4 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.filelist.file;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,4 +1,6 @@
-package com.purehero.module.shell.filelistfragment;
+package com.purehero.module.filelist.shell;
+
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,6 +37,8 @@ public class ShellProcess implements Runnable {
 
 	public List<String> command( String cmd ) {
 		if( bw == null ) return null;
+		Log.d( "MyLOG", cmd );
+
 		try {
 			last_command = cmd;
 			
@@ -42,7 +46,7 @@ public class ShellProcess implements Runnable {
 			bw.write( String.format( "echo 'START %s'\n%s\necho 'END %s'\n", last_command, last_command, last_command ));
 			bw.flush();
 			
-			while( !done ) {
+			for( int i = 0; i < 30 && !done; i++  ) {
 				try {
 					Thread.sleep( 100 );
 				} catch (InterruptedException e) {

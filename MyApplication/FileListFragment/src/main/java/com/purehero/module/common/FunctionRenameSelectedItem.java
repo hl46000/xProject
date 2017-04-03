@@ -3,9 +3,7 @@ package com.purehero.module.common;
 import android.app.Activity;
 import android.content.DialogInterface;
 
-import com.purehero.module.common.DialogUtils;
-import com.purehero.module.common.OnSuccessListener;
-import com.purehero.module.filelistfragment.*;
+import com.purehero.module.filelist.file.FileListData;
 
 import java.io.File;
 

@@ -1,4 +1,4 @@
-package com.purehero.module.shell.filelistfragment;
+package com.purehero.module.filelist.shell;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,14 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.purehero.module.filelistfragment.FileListAdapter;
-import com.purehero.module.filelistfragment.FileListData;
 import com.purehero.module.filelistfragment.R;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by purehero on 2017-03-31.
@@ -28,6 +26,7 @@ class ShellFileListAdapter extends BaseAdapter {
     final Activity context;
     ShellProcess shell = new ShellProcess();
     public static String USER = "";
+    private Stack<String> path_stack = new Stack<String>();
 
     private List<FileData> listData = new ArrayList<FileData>();    // 전체 데이터
 
@@ -37,17 +36,19 @@ class ShellFileListAdapter extends BaseAdapter {
 
         shell.command( "su" );
         USER = shell.command( "whoami" ).get(0);
-        shell.command( "cd /");
 
-        reload();
+        push_folder( "/", null );
     }
 
     private void reload() {
         listData.clear();
 
+        String currentPath = path_stack.lastElement();
+
+        shell.command( "cd " +  currentPath );
         List<String> result = shell.command( "ls -l");
         for( String line : result ) {
-            listData.add( new FileData( "", line ));
+            listData.add( new FileData( currentPath, line ));
         }
 
         Collections.sort( listData, FileData.ALPHA_COMPARATOR );
@@ -70,8 +71,17 @@ class ShellFileListAdapter extends BaseAdapter {
     }
 
     public void push_folder( String absolutePath, Object o) {
-        shell.command( "cd " +  absolutePath );
+        path_stack.push( absolutePath );
         reload();
+    }
+
+    public boolean pop_folder() {
+        if( path_stack.size() == 1 ) return false;
+
+        String currentPath = path_stack.pop();
+        reload();
+
+        return true;
     }
 
     class ViewHolder
