@@ -1,8 +1,5 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.filelist.file;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;

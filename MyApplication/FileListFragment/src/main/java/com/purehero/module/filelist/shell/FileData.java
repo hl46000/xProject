@@ -1,4 +1,4 @@
-package com.purehero.module.shell.filelistfragment;
+package com.purehero.module.filelist.shell;
 
 import java.io.File;
 import java.text.ParseException;
@@ -9,7 +9,6 @@ import java.util.Locale;
 
 import android.util.Log;
 
-import com.purehero.module.filelistfragment.FileListData;
 import com.purehero.module.filelistfragment.R;
 
 public class FileData {
@@ -24,8 +23,7 @@ public class FileData {
 	
 	private final String parentPath;
 	private final String permission;
-	private final boolean isFolder;
-	private final boolean isLink;
+	private final boolean isFile;
 	private final String user;
 	private final String group;
 	private long fileSize;
@@ -44,19 +42,18 @@ public class FileData {
 		user			= token[LINE_INDEX_USER];
 		group			= token[LINE_INDEX_GROUP];
 		permission		= token[LINE_INDEX_PERMISSION];
-		isFolder 		= permission.startsWith("d");
-		isLink			= permission.startsWith("l");
-		if( isFolder || isLink ) {
-			fileSize		= 0;
-			date 			= token[LINE_INDEX_DATE-1];
-			time 			= token[LINE_INDEX_TIME-1];
-			name 			= token[LINE_INDEX_NAME-1];
-			
-		} else {
+		isFile 		= permission.startsWith("-");
+
+		if( isFile ) {
 			fileSize		= Long.valueOf( token[LINE_INDEX_SIZE] );
 			date 			= token[LINE_INDEX_DATE];
 			time 			= token[LINE_INDEX_TIME];
 			name 			= token[LINE_INDEX_NAME];
+		} else {
+			fileSize		= 0;
+			date 			= token[LINE_INDEX_DATE-1];
+			time 			= token[LINE_INDEX_TIME-1];
+			name 			= token[LINE_INDEX_NAME-1];
 		}
 	}
 	
@@ -80,7 +77,7 @@ public class FileData {
 	}
 	
 	public boolean isDirectory() {
-		return isFolder || isLink;
+		return !isFile;
 	}
 	
 	public boolean isFile() {

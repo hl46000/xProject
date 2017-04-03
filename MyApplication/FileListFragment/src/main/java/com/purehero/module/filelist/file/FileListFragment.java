@@ -1,4 +1,4 @@
-package com.purehero.module.filelistfragment;
+package com.purehero.module.filelist.file;
 
 import android.Manifest;
 import android.app.Activity;
@@ -35,6 +35,7 @@ import com.purehero.module.common.FunctionDeleteSelectedItem;
 import com.purehero.module.common.FunctionRenameSelectedItem;
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.common.SearchTextChangeListener;
+import com.purehero.module.filelistfragment.R;
 import com.purehero.module.tabhost.FragmentEx;
 
 import java.io.File;

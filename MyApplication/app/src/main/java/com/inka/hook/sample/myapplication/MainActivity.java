@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -14,11 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.purehero.module.common.OnBackPressedListener;
-import com.purehero.module.filelistfragment.FileListFragment;
-import com.purehero.module.shell.filelistfragment.ShellFileListFragment;
-import com.purehero.module.tabhost.FragmentEx;
-import com.purehero.module.tabhost.FragmentText;
+import com.purehero.module.filelist.file.FileListFragment;
+import com.purehero.module.filelist.shell.ShellFileListFragment;
 import com.purehero.module.tabhost.TabAppCompatActivity;
 import com.purehero.module.tabhost.ViewPagerAdapter;
 
