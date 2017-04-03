@@ -17,6 +17,8 @@
 package com.google.zxing.client.android;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import com.google.zxing.BarcodeFormat;
@@ -24,26 +26,32 @@ import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
 import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
-import com.purehero.quick.lotto.scanner.R;
+import com.purehero.lotto.scan.R;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebBackForwardList;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * The barcode reader activity itself. This is loosely based on the CameraPreview
@@ -104,7 +112,9 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		this.setContentView( R.layout.capture_activity );
-		
+
+		checkPermission();
+
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 	    resultView = findViewById(R.id.result_view);
 	    statusView = (TextView) findViewById(R.id.status_view);
@@ -186,6 +196,53 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
     super.onDestroy();
   }
 
+	// Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
+	private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
+	private long backPressedTime = 0;
+
+	@Override
+	public void onBackPressed() {
+		if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+			super.onBackPressed();
+
+		} else {
+			backPressedTime = System.currentTimeMillis();
+			Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		if( requestCode == 123 ) {
+			boolean retry = false;
+			for( int grant : grantResults ) {
+				if( PackageManager.PERMISSION_GRANTED != grant ) {
+					retry = true;
+					break;
+				}
+			}
+
+			if( retry ) {
+				checkPermission();
+			}
+		}
+	}
+	private void checkPermission() {
+		String permissions[] = {
+				Manifest.permission.CAMERA,
+				Manifest.permission.INTERNET,
+				Manifest.permission.ACCESS_NETWORK_STATE
+		};
+		List<String> request_permissions = new ArrayList<String>();
+		for( String permission : permissions ) {
+			if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
+				request_permissions.add( permission );
+			}
+		}
+		if( request_permissions.size() > 0 ) {
+			ActivityCompat.requestPermissions(this, permissions, 123 );
+		}
+	}
   /*
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {

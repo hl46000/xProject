@@ -29,7 +29,8 @@ import android.util.Log;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.purehero.quick.lotto.scanner.R;
+import com.purehero.lotto.scan.MainActivity;
+import com.purehero.lotto.scan.R;
 
 
 /**
@@ -99,8 +100,12 @@ public final class CaptureActivityHandler extends Handler {
         if( byPassHandler != null ) {
         	byPassHandler.handleMessage( message );
         } else {
-        	activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
-        	activity.finish();
+            Intent intent = (Intent) message.obj;
+            intent.setClass( activity, MainActivity.class );
+            //String contents = intent.getStringExtra( "CONTENTS" );
+            activity.startActivity( intent );
+        	//activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
+        	//activity.finish();
         }
         break;
         

@@ -23,7 +23,7 @@ import android.app.Activity;
 import com.google.zxing.client.android.LocaleManager;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.URIParsedResult;
-import com.purehero.quick.lotto.scanner.R;
+import com.purehero.lotto.scan.R;
 
 /**
  * Offers appropriate actions for URLS.

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ads="http://schemas.android.com/apk/res-auto">
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+        <SurfaceView android:id="@id/preview_view" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true" />
+        <com.google.zxing.client.android.ViewfinderView android:id="@id/viewfinder_view" android:background="#00000000" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+        <LinearLayout android:orientation="vertical" android:id="@id/result_view" android:background="#b0000000" android:padding="4.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <LinearLayout android:gravity="center" android:orientation="horizontal" android:padding="12.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1.0">
+                <LinearLayout android:gravity="center|right" android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="fill_parent">
+                    <ImageView android:id="@id/barcode_image_view" android:layout_width="160.0dip" android:layout_height="wrap_content" android:layout_marginBottom="4.0dip" android:scaleType="centerInside" android:adjustViewBounds="true" android:maxWidth="160.0dip" android:maxHeight="160.0dip" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <TextView android:textSize="14.0sp" android:textColor="#ffffffff" android:layout_gravity="bottom|center" android:id="@id/status_view" android:background="#00000000" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="사각형 영역을 바코드에 맞추면 자동으로 인식합니다" />
+    </FrameLayout>
+</RelativeLayout>
