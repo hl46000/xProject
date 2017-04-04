@@ -113,8 +113,6 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 		super.onCreate(icicle);
 		this.setContentView( R.layout.capture_activity );
 
-		checkPermission();
-
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 	    resultView = findViewById(R.id.result_view);
 	    statusView = (TextView) findViewById(R.id.status_view);
@@ -134,19 +132,22 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
   @Override
   protected void onResume() {
     super.onResume();
-    resetStatusView();
 
-    SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
-    SurfaceHolder surfaceHolder = surfaceView.getHolder();
-    if (hasSurface) {
-      // The activity was paused but not stopped, so the surface still exists. Therefore
-      // surfaceCreated() won't be called, so init the camera here.
-      initCamera(surfaceHolder, viewfinderView);
-    } else {
-      // Install the callback and wait for surfaceCreated() to init the camera.
-      surfaceHolder.addCallback(this);
-      //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-    }
+      if(  checkPermission() < 1 ) {
+		  resetStatusView();
+
+		  SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+    	SurfaceHolder surfaceHolder = surfaceView.getHolder();
+    	if (hasSurface) {
+      		// The activity was paused but not stopped, so the surface still exists. Therefore
+      		// surfaceCreated() won't be called, so init the camera here.
+      		initCamera(surfaceHolder, viewfinderView);
+    	} else {
+      		// Install the callback and wait for surfaceCreated() to init the camera.
+      		surfaceHolder.addCallback(this);
+      		//surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    	}
+      }
 
     source = Source.NATIVE_APP_INTENT;
     //decodeFormats = DecodeFormatManager.parseDecodeFormats(new Intent());
@@ -224,10 +225,15 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 
 			if( retry ) {
 				checkPermission();
+			} else {
+				//System.exit(0);
+				Intent intent = getIntent();
+				finish();
+				startActivity(intent);
 			}
 		}
 	}
-	private void checkPermission() {
+	private int checkPermission() {
 		String permissions[] = {
 				Manifest.permission.CAMERA,
 				Manifest.permission.INTERNET,
@@ -242,6 +248,8 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback 
 		if( request_permissions.size() > 0 ) {
 			ActivityCompat.requestPermissions(this, permissions, 123 );
 		}
+
+		return request_permissions.size();
 	}
   /*
   @Override

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -93,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
         mWebView 	= ( WebView ) 		findViewById( R.id.webView );
         if( mWebView == null ) return;
 
+        mWebView.setVerticalScrollBarEnabled(false);
+        mWebView.setHorizontalScrollBarEnabled(false);
+
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
@@ -113,6 +117,16 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.INVISIBLE);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if( mWebView.getScrollY() != 150 ) {
+                            mWebView.scrollTo(0, 150);
+                            mWebView.setEnabled( false );
+                        }
+                    }
+                }, 200);
             };
 
             @Override
