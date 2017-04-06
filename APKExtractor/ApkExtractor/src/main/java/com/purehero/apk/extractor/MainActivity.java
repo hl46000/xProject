@@ -21,10 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+//import com.google.android.gms.ads.AdListener;
+//import com.google.android.gms.ads.AdRequest;
+//import com.google.android.gms.ads.AdView;
+//import com.google.android.gms.ads.InterstitialAd;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.ViewPagerAdapter;
@@ -42,8 +42,8 @@ import it.neokree.materialtabs.MaterialTabListener;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialTabListener {
 
-    private AdView bannerAdView = null;
-    private InterstitialAd interstitialAd	= null;	// 전면 광고
+    //private AdView bannerAdView = null;
+    //private InterstitialAd interstitialAd	= null;	// 전면 광고
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity
             );
         }
 
+        /*
         bannerAdView = (AdView) findViewById(R.id.adView);
         if( bannerAdView != null ) {
             bannerAdView.setVisibility( View.GONE );
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity
 
             bannerAdView.loadAd(adRequest);
         }
+        */
     }
 
     @Override
@@ -120,7 +122,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         checkPermission();
         //RegisterSdCardUpdateReceiver();
-        showFullAd();
+        //showFullAd();
     }
 
     @Override
@@ -253,9 +255,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTabUnselected(MaterialTab tab) {
-        showFullAd();
+        //showFullAd();
     }
 
+    /*
     public void showFullAd() {
         if( interstitialAd != null ) {
             if( interstitialAd.isLoaded()) {
@@ -288,6 +291,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+    */
 
     ///////////////////////////////////////////////
     public void changeFileListModeToolbar() {
