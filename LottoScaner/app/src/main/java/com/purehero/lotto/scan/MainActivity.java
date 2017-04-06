@@ -1,19 +1,19 @@
 package com.purehero.lotto.scan;
 
-import android.Manifest;
+//import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+//import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+//import android.support.design.widget.FloatingActionButton;
+//import android.support.v4.app.ActivityCompat;
+//import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.webkit.WebBackForwardList;
+//import android.view.Menu;
+//import android.view.MenuItem;
+//import android.webkit.WebBackForwardList;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -22,10 +22,10 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+//import com.google.android.gms.ads.AdListener;
+//import com.google.android.gms.ads.AdRequest;
+//import com.google.android.gms.ads.AdView;
+//import com.google.android.gms.ads.InterstitialAd;
 import com.google.zxing.client.android.CaptureActivity;
 import com.purehero.lotto.scan.R;
 
@@ -34,8 +34,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AdView bannerAdView 			= null; // 하단 배너 광고
-    private InterstitialAd interstitialAd	= null;	// 전면 광고
+    //private AdView bannerAdView 			= null; // 하단 배너 광고
+    //private InterstitialAd interstitialAd	= null;	// 전면 광고
 
     private ProgressBar progressBar = null;
     private WebView mWebView = null;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         openUrl( getIntent().getStringExtra("CONTENTS") );
 
         // 하단 배너 광고 표시
+        /*
         bannerAdView = (AdView) findViewById(R.id.adView);
         if( bannerAdView != null ) {
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
             bannerAdView.loadAd(adRequest);
         }
+        */
     }
 
     @Override
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        showFullAd();
+        //showFullAd();
     }
 
 
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         mWebView.loadUrl( url );
     }
 
+    /*
     public void showFullAd() {
         if( interstitialAd != null ) {
             if( interstitialAd.isLoaded()) {
@@ -180,4 +183,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    */
 }

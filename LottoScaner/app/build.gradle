@@ -5,11 +5,10 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.purehero.lotto.scan"
-        multiDexEnabled true
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 6
-        versionName "1.0.4"
+        versionCode 7
+        versionName "1.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -29,8 +28,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:multidex:1.0.0'
-    compile 'com.google.android.gms:play-services:10.2.0'
+
     compile 'com.android.support:appcompat-v7:25.3.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:25.3.0'
