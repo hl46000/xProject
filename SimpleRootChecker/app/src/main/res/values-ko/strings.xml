@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">간단한 루팅확인</string>
+    <string name="check_root">루팅확인</string>
+    <string name="info">단말기 정보</string>
+</resources>

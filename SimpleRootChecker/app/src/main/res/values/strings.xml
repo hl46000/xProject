@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SimpleRootChecker</string>
+    <string name="check_root">Root check</string>
+    <string name="info">Device Info</string>
+</resources>

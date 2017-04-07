@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">FileListFragment</string>
+    <string name="choose_application">choose application</string>
     <string name="search_text">Search</string>
     <string name="action_paste">Paste</string>
     <string name="action_select_mode">Select</string>
