@@ -2,8 +2,12 @@ package share.file.purehero.com.fileshare;
 
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -158,8 +162,11 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         viewHolder.cbSelected.setId( position );
 
         int res_id = getImageResourceID( data );
-        if( res_id == R.drawable.image || res_id == R.drawable.movies ) {
-            Glide.with( context ).load( data.getFile()).centerCrop().placeholder( res_id ).into( viewHolder.ivIcon );
+        if( res_id == R.drawable.image ||
+                res_id == R.drawable.movies ) {
+            Glide.with(context).load(data.getFile()).centerCrop().placeholder(res_id).into(viewHolder.ivIcon);
+        } else if( res_id == R.drawable.music ) {
+            Glide.with(context).load(getArtUriFromMusicFile(data.getFile())).centerCrop().placeholder(res_id).into(viewHolder.ivIcon);
         } else {
             Glide.with( context ).load( res_id ).into( viewHolder.ivIcon );
         }
@@ -174,6 +181,29 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         */
 
         return view;
+    }
+
+    public Uri getArtUriFromMusicFile(File file) {
+        final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        final String[] cursor_cols = { MediaStore.Audio.Media.ALBUM_ID };
+
+        final String where = MediaStore.Audio.Media.IS_MUSIC + "=1 AND " + MediaStore.Audio.Media.DATA + " = '"
+                + file.getAbsolutePath() + "'";
+        final Cursor cursor = context.getContentResolver().query(uri, cursor_cols, where, null, null);
+        //Log.d(TAG, "Cursor count:" + cursor.getCount());
+        /*
+         * If the cusor count is greater than 0 then parse the data and get the art id.
+         */
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            Long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+
+            Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+            Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
+            cursor.close();
+            return albumArtUri;
+        }
+        return Uri.EMPTY;
     }
 
     /**

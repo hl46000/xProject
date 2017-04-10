@@ -26,9 +26,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+//import com.google.android.gms.ads.AdListener;
+//import com.google.android.gms.ads.AdRequest;
+//import com.google.android.gms.ads.AdView;
 import com.purehero.common.FragmentEx;
 import com.purehero.common.FragmentText;
 import com.purehero.common.G;
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     public static int ACTION_BAR_LIST_MODE = 0;
     public static int ACTION_BAR_SELECTE_MODE = 1;
 
-    private AdView bannerAdView = null;
+    //private AdView bannerAdView = null;
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             }, 3000);
         }
 
+        /*
         bannerAdView = (AdView) findViewById(R.id.adView);
         if( bannerAdView != null ) {
             bannerAdView.setVisibility( View.GONE );
@@ -183,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
             bannerAdView.loadAd(adRequest);
         }
+        */
     }
 
     @Override

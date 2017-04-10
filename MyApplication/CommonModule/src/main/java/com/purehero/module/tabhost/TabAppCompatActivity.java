@@ -24,16 +24,6 @@ public abstract class TabAppCompatActivity extends AppCompatActivity {
     private TabLayout tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
-    private Process suProcess;
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        try {
-            suProcess = Runtime.getRuntime().exec("su");
-        } catch(IOException e) {
-        }
-    }
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
