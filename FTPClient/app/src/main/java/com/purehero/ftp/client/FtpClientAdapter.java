@@ -1,12 +1,17 @@
 package com.purehero.ftp.client;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -63,8 +68,68 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        return null;
+    public View getView(int position, View view, ViewGroup viewGroup) {
+        ViewHolder viewHolder;
+        if( view == null ) {
+            viewHolder = new ViewHolder();
+
+            LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+            view  = inflater.inflate( R.layout.ftp_list_cell, null );
+
+            viewHolder.cbSelected   = (CheckBox)  view.findViewById( R.id.file_list_view_item_checkbox );
+            //viewHolder.cbSelected.setOnClickListener( this );
+            viewHolder.ivIcon 		= (ImageView) view.findViewById( R.id.file_list_view_item_icon );
+            viewHolder.tvTitle 	    = (TextView)  view.findViewById( R.id.file_list_view_item_file_name );
+            viewHolder.tvSubTitle 	= (TextView)  view.findViewById( R.id.file_list_view_item_sub_title );
+            viewHolder.tvDate 		= (TextView)  view.findViewById( R.id.file_list_view_item_date );
+
+            view.setTag( viewHolder );
+        } else {
+            viewHolder = ( ViewHolder ) view.getTag();
+        }
+
+
+        FTPFile data = ( FTPFile ) getItem( position );
+
+        viewHolder.tvTitle.setText( data.getName());
+        /*
+        viewHolder.tvTitle.setSelected( true );
+        viewHolder.tvTitle.setHorizontallyScrolling( true );
+        viewHolder.tvTitle.setMovementMethod(new ScrollingMovementMethod());
+        */
+
+        viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
+        if( data.isFile()) {
+            viewHolder.tvSubTitle.setText( getFilesize( data.getSize()));
+        } else {
+
+        }
+        viewHolder.tvDate.setVisibility( View.VISIBLE );
+        viewHolder.tvDate.setText( data.getTimestamp().toString());
+
+        if( isSelectMode()) {
+            viewHolder.cbSelected.setVisibility( View.VISIBLE );
+            //viewHolder.cbSelected.setChecked( data.isSelected() );
+        } else {
+            viewHolder.cbSelected.setVisibility( View.GONE );
+            viewHolder.cbSelected.setChecked( false );
+            //data.setSelected( false );
+        }
+
+        return view;
+    }
+
+    private boolean isSelectMode() {
+        return false;
+    }
+
+    class ViewHolder
+    {
+        public CheckBox cbSelected;
+        public ImageView ivIcon;
+        public TextView tvTitle;
+        public TextView tvSubTitle;
+        public TextView tvDate;
     }
 
     @Override
@@ -141,6 +206,30 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
             return arg0.getName().compareToIgnoreCase( arg1.getName());
         }
     };
+
+    public static final String getFilesize( long lsize ) {
+        String result = "0 B";
+
+        float size = lsize;
+        if( size < 1024.0f ) {
+            result = String.format( "%d B", (int)size );
+        } else {
+            size /= 1024.0f;
+            if( size < 1024.0f ) {
+                result = String.format( "%.2f KB", size );
+            } else {
+                size /= 1024.0f;
+                if( size < 1024.0f ) {
+                    result = String.format( "%.2f MB", size );
+                } else {
+                    size /= 1024.0f;
+                    result = String.format( "%.2f GB", size );
+                }
+            }
+        }
+
+        return result;
+    }
 
     public void init( String server, int port ) {
         this.server = server;
