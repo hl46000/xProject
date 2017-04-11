@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -13,6 +15,7 @@
         <HorizontalScrollView
             android:id="@+id/pathScrollView"
             android:layout_width="fill_parent"
+            android:visibility="gone"
             android:layout_height="30dp"
             android:background="#3e52b3" >
 
@@ -31,5 +34,13 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
 
 </RelativeLayout>

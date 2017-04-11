@@ -13,6 +13,8 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -23,20 +25,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by MY on 2017-03-11.
  */
 
 public class FtpClientAdapter extends BaseAdapter implements Filterable {
+    public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
+    SimpleDateFormat dataFormat = new SimpleDateFormat(DATE_FORMAT);
+
     protected FTPClient ftpClient = null;
-    protected List<FTPFile> listDatas = new ArrayList<FTPFile>();
-    protected List<FTPFile> filteredDatas = new ArrayList<FTPFile>();
+    protected List<FtpClientData> listDatas = new ArrayList<FtpClientData>();
+    protected List<FtpClientData> filteredDatas = new ArrayList<FtpClientData>();
     private Activity context;
 
     String server = "192.168.123.141";
@@ -89,39 +96,137 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
         }
 
 
-        FTPFile data = ( FTPFile ) getItem( position );
+        FtpClientData data = ( FtpClientData ) getItem( position );
 
-        viewHolder.tvTitle.setText( data.getName());
-        /*
-        viewHolder.tvTitle.setSelected( true );
-        viewHolder.tvTitle.setHorizontallyScrolling( true );
-        viewHolder.tvTitle.setMovementMethod(new ScrollingMovementMethod());
-        */
-
+        viewHolder.tvTitle.setText( data.getFilename());
         viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
-        if( data.isFile()) {
-            viewHolder.tvSubTitle.setText( getFilesize( data.getSize()));
-        } else {
-
-        }
+        viewHolder.tvSubTitle.setText( data.getSubTitle());
         viewHolder.tvDate.setVisibility( View.VISIBLE );
-        viewHolder.tvDate.setText( data.getTimestamp().toString());
+        viewHolder.tvDate.setText( data.getFileDate());
 
         if( isSelectMode()) {
             viewHolder.cbSelected.setVisibility( View.VISIBLE );
-            //viewHolder.cbSelected.setChecked( data.isSelected() );
+            viewHolder.cbSelected.setChecked( data.isSelected() );
         } else {
             viewHolder.cbSelected.setVisibility( View.GONE );
             viewHolder.cbSelected.setChecked( false );
-            //data.setSelected( false );
+            data.setSelected( false );
         }
+
+        int res_id = getImageResourceID( data );
+        Glide.with( context ).load( res_id ).into( viewHolder.ivIcon );
 
         return view;
     }
 
-    private boolean isSelectMode() {
-        return false;
+    /**
+     *
+     * @param data
+     * @return
+     */
+    public int getImageResourceID( FtpClientData data) {
+        int res_id = -1;
+
+        String mimeType = data.getMimeType();
+
+        if( data.getFile().isDirectory() ) {
+            return R.drawable.folder2;
+        } else {
+            if( mimeType != null ) {
+                if (mimeType.startsWith("image")) {
+                    res_id = R.drawable.image;
+                } else if (mimeType.startsWith("audio")) {
+                    res_id = R.drawable.music;
+                } else if (mimeType.startsWith("video")) {
+                    res_id = R.drawable.movies;
+                } else if (mimeType.endsWith("zip")) {
+                    res_id = R.drawable.zip;
+                } else if (mimeType.endsWith("excel")) {
+                    res_id = R.drawable.excel;
+                } else if (mimeType.endsWith("powerpoint")) {
+                    res_id = R.drawable.ppt;
+                } else if (mimeType.endsWith("word")) {
+                    res_id = R.drawable.word;
+                } else if (mimeType.endsWith("pdf")) {
+                    res_id = R.drawable.pdf;
+                } else if (mimeType.endsWith("xml")) {
+                    res_id = R.drawable.xml32;
+                } else if (mimeType.endsWith("vnd.android.package-archive")) {  // APK
+                    res_id = R.drawable.apk;
+                } else if (mimeType.endsWith("torrent")) {  // APK
+                    res_id = R.drawable.torrent;
+                } else {// torrent
+                    // text 로 간주
+                    res_id = R.drawable.text;
+                }
+            } else {
+                // text 로 간주
+                res_id = R.drawable.text;
+            }
+        }
+
+        return res_id;
     }
+
+    boolean bSelectedMode = false;
+    public boolean isSelectMode() {
+        return bSelectedMode;
+    }
+    public void setSelectMode(boolean selectMode) {
+        bSelectedMode = selectMode;
+    }
+
+    private Vector<String> folder_name_stack = new Vector<String>();
+    private Vector<FTPFile> folder_stack = new Vector<FTPFile>();
+    public synchronized Vector<String> getFolderNameVector() { return folder_name_stack; }
+    public synchronized Vector<FTPFile> getFolderVector() { return folder_stack; }
+    public void push_folder( final FTPFile file, Object o) {
+        folder_stack.add( file );
+        folder_name_stack.add( file.getName());
+
+        new Thread( new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    cd( file.getName());
+                    reload();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+    /*
+    * return : 다음에도 pop 이 가능한지를 반환한다.
+    * */
+    public synchronized boolean pop_folder( boolean bReload ) {
+        if( folder_stack.size() > 0 ) {
+            folder_stack.remove( folder_stack.size() - 1 );
+            folder_name_stack.remove( folder_name_stack.size() - 1 );
+
+            if( bReload ) {
+                new Thread( new Runnable(){
+                    @Override
+                    public void run() {
+                        try {
+                            cd( "..");
+                            reload();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+        }
+
+        return is_next_pop_folder();
+    }
+
+    public synchronized boolean is_next_pop_folder() {
+        return folder_stack.size() > 0 ? true : false;
+    }
+
+
 
     class ViewHolder
     {
@@ -155,12 +260,12 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
                 return results;
             }
 
-            ArrayList<FTPFile> nlist = new ArrayList<FTPFile>();
+            ArrayList<FtpClientData> nlist = new ArrayList<FtpClientData>();
             for (int i = 0; i < listDatas.size(); i++) {
-                final FTPFile item = listDatas.get(i);
+                final FtpClientData item = listDatas.get(i);
 
-                if (item.getName().toLowerCase().contains(filterString) ||
-                        item.getName().toLowerCase().contains(filterString)) {
+                if (item.getFilename().toLowerCase().contains(filterString) ||
+                        item.getFilename().toLowerCase().contains(filterString)) {
                     nlist.add( item );
                 }
             }
@@ -174,13 +279,13 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filteredDatas = (List<FTPFile>) results.values;
+            filteredDatas = (List<FtpClientData>) results.values;
             sort();
         }
     }
 
     public synchronized void sort() {
-        Collections.sort( filteredDatas, FTPFile_ALPHA_COMPARATOR );
+        Collections.sort( filteredDatas, FtpClientData.FTPFile_ALPHA_COMPARATOR );
         context.runOnUiThread( listDataUpdateRunnable );
     }
 
@@ -190,46 +295,6 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
             notifyDataSetChanged();
         }
     };
-
-    public static final Comparator<FTPFile> FTPFile_ALPHA_COMPARATOR = new Comparator<FTPFile> () {
-        @Override
-        public int compare(FTPFile arg0, FTPFile arg1) {
-            if( arg0.isDirectory() && !arg1.isDirectory() ) return -1;
-            if( !arg0.isDirectory() && arg1.isDirectory() ) return  1;
-            /*
-            if( arg0.getClickCount() > arg1.getClickCount()) {
-                return -1;
-            } else if( arg0.getClickCount() < arg1.getClickCount() ) {
-                return 1;
-            }
-            */
-            return arg0.getName().compareToIgnoreCase( arg1.getName());
-        }
-    };
-
-    public static final String getFilesize( long lsize ) {
-        String result = "0 B";
-
-        float size = lsize;
-        if( size < 1024.0f ) {
-            result = String.format( "%d B", (int)size );
-        } else {
-            size /= 1024.0f;
-            if( size < 1024.0f ) {
-                result = String.format( "%.2f KB", size );
-            } else {
-                size /= 1024.0f;
-                if( size < 1024.0f ) {
-                    result = String.format( "%.2f MB", size );
-                } else {
-                    size /= 1024.0f;
-                    result = String.format( "%.2f GB", size );
-                }
-            }
-        }
-
-        return result;
-    }
 
     public void init( String server, int port ) {
         this.server = server;
@@ -287,15 +352,17 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
 
     // FTP의 ls 명령, 모든 파일 리스트를 가져온다
     public synchronized void reload() throws IOException {
-        FTPFile[] files = this.ftpClient.listFiles("/");
+        FTPFile[] files = this.ftpClient.listFiles();
 
         listDatas.clear();
         filteredDatas.clear();
 
         for( FTPFile file : files ) {
             Log.d("MyLOG", file.toString()); // file.getName(), file.getSize() 등등.
-            listDatas.add( file );
-            filteredDatas.add( file );
+            FtpClientData data = new FtpClientData( context, file );
+
+            listDatas.add( data );
+            filteredDatas.add( data );
         }
 
         sort();
