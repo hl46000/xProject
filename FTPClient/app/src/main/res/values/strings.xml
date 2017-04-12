@@ -14,4 +14,6 @@
     <string name="ftp_server_stoped">FTP Server is not running</string>
     <string name="guest">Guest</string>
     <string name="connection_address">Connection address</string>
+    <string name="ftp_server_addr">FTP Server Address</string>
+    <string name="ftp_server_addr_value">ftp://192.168.123.130</string>
 </resources>

@@ -2,11 +2,13 @@ package com.purehero.ftp.client;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.util.TypedValue;
@@ -75,13 +77,19 @@ public class FtpClientFragment extends Fragment implements OnBackPressedListener
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch( requestCode ) {
             case 100 :  // FTP Server 설정
-                listAdapter.init( "192.168.123.141", 2345 );
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                final String strAddr  = sharedPref.getString( "tfp_server_addr", "ftp://192.168.123.130" );
+                final String strPort  = sharedPref.getString( "tfp_server_port", "2345" );
+                final String userID   = sharedPref.getString( "ftp_server_user_id", "Guest" );
+                final String userPWD  = sharedPref.getString( "ftp_server_user_pwd", "1234" );
+
+                listAdapter.init( strAddr, Integer.valueOf( strPort ) );
 
                 new Thread( new Runnable(){
                     @Override
                     public void run() {
                         try {
-                            if( listAdapter.login( "Guest", "1234" )) {
+                            if( listAdapter.login( userID, userPWD )) {
                                 listAdapter.reload();
                             }
                         } catch (IOException e) {

@@ -1,14 +1,10 @@
 package com.purehero.ftp.client;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import org.apache.commons.net.ftp.FTPFile;
 
-import java.io.File;
-import java.io.FilePermission;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 

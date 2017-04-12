@@ -297,12 +297,18 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
     };
 
     public void init( String server, int port ) {
+        Log.d( "MyLOG", String.format( "%s : %d", server, port ));
+        if( server.startsWith("ftp://")) {
+            server = server.substring( "ftp://".length());
+        }
         this.server = server;
         this.port   = port;
     }
 
     // 계정과 패스워드로 로그인
     public boolean login(String user, String password) {
+        Log.d( "MyLOG", String.format( "%s : %s", user, password ));
+
         try {
             this.connect();
             return ftpClient.login(user, password);
@@ -326,6 +332,7 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
 
     // 서버로 연결
     public void connect() {
+        Log.d( "MyLOG", String.format( "connect %s:%d", server, port ));
         try {
             ftpClient.setDefaultPort( port );
             ftpClient.connect(server);
@@ -338,6 +345,8 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
                 System.exit(1);
             }
         } catch (IOException ioe) {
+            ioe.printStackTrace();
+
             if(ftpClient.isConnected()) {
                 try {
                     ftpClient.disconnect();
