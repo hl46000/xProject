@@ -387,6 +387,7 @@ public class FtpClientAdapter extends BaseAdapter implements Filterable {
         catch (FileNotFoundException fnfe) {
             fnfe.printStackTrace();
         }
+
         File file = new File(source);
         try {
             if (ftpClient.retrieveFile(source, output)) {

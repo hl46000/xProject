@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FTP 서버</string>
+    <string name="ftp_server_settings">FTP 서버 설정</string>
+    <string name="ftp_server_port">Port 번호</string>
+    <string name="ftp_server_user_settings">사용자 설정</string>
+    <string name="ftp_server_user_id">사용자 아이디</string>
+    <string name="ftp_server_user_pwd">비밀번호</string>
+    <string name="title_activity_ftp_server_settings">FTP 서버 설정</string>
+    <string name="network_disconntion">네트워크에 연결되어 있지 않습니다. 연결 후 다시 시도해 주세요.</string>
+    <string name="connection_addr">서버 주소 :</string>
+    <string name="ftp_server_start">서버 시작</string>
+    <string name="ftp_server_status">서버 상태</string>
+    <string name="ftp_server_running">FTP 서버 실행 중</string>
+    <string name="ftp_server_stoped">FTP 서버 정지</string>
+    <string name="connection_address">접속 주소</string>
+    <string name="ftp_server_addr">Server Address</string>
+    <string name="ftp_server_home">Home Directory</string>
+</resources>
