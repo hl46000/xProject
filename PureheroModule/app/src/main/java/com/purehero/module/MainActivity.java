@@ -2,6 +2,7 @@ package com.purehero.module;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.purehero.module.fragment.FragmentText;
 import com.purehero.module.fragment.filelist.FileListFragment;
@@ -12,8 +13,11 @@ public class MainActivity extends TabAppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d( "MyLOG", "MainActivity::onCreate" );
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkPermission();
     }
 
     @Override

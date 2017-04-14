@@ -1,5 +1,6 @@
 package com.purehero.module.tabhost;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -10,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,20 +38,33 @@ import java.util.Set;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkPermission();
+
+        Log.d( "MyLOG", "TabAppCompatActivity::onCreate");
     }
 
     @Override
-        public void setContentView(@LayoutRes int layoutResID) {
-            super.setContentView(layoutResID);
-            initTabView();
-        }
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        Log.d( "MyLOG", "TabAppCompatActivity::onPostCreate");
+    }
 
-        @Override
-        public void setContentView(View view) {
-            super.setContentView(view);
-            initTabView();
-        }
+    @Override
+    protected void onPostResume() {
+        Log.d( "MyLOG", "TabAppCompatActivity::onPostResume");
+        super.onPostResume();
+    }
+
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        initTabView();
+    }
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+        initTabView();
+    }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
@@ -64,6 +79,8 @@ import java.util.Set;
     }
 
     private void initTabView() {
+        Log.d( "MyLOG", "TabAppCompatActivity::initTabView");
+
         tabHost = (TabLayout) this.findViewById(R.id.tabHost);
         pager = (ViewPager) this.findViewById(R.id.pager);
 
@@ -113,27 +130,30 @@ import java.util.Set;
         }
     }
 
-    List<String> request_permissions = new ArrayList<String>();
-    private int checkPermission() {
-        request_permissions.clear();
+
+    protected int checkPermission() {
+        List<String> request_permissions = new ArrayList<String>();
 
         for( int i = 0; i < pagerAdapter.getCount(); i++ ) {
             Object fragment = pagerAdapter.getItem(i);
             if( fragment instanceof CheckPermissionListener ) {
                 CheckPermissionListener reqPermission = ( CheckPermissionListener ) fragment;
                 List<String> reqPermissions = reqPermission.requestPermissionList();
-                for( String permission : reqPermissions ) {
-                    if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
-                        request_permissions.add( permission );
+                if( reqPermissions != null ) {
+                    for( String permission : reqPermissions ) {
+                        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
+                            request_permissions.add( permission );
+                        }
                     }
                 }
             }
         }
 
+        Log.d( "MyLOG", "" + request_permissions.size());
         if( request_permissions.size() > 0 ) {
-            String permissionsList [] = new String[request_permissions.size()];
-            request_permissions.toArray(permissionsList);
-            ActivityCompat.requestPermissions(this, permissionsList, 123 );
+            ActivityCompat.requestPermissions(this, (String[]) request_permissions.toArray(new String[request_permissions.size()]), 123 );
+            //String [] a = new String[]{ Manifest.permission.READ_PHONE_STATE };
+            //ActivityCompat.requestPermissions(this, a, 123 );
         }
 
         return request_permissions.size();

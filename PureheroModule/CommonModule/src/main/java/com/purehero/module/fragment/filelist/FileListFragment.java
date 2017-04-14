@@ -72,8 +72,12 @@ public class FileListFragment extends FragmentEx
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d( "MyLOG", "FileListFragment::onCreateView" );
+
         layout 		= inflater.inflate( R.layout.file_list, container, false);
         if( layout == null ) return null;
+
+        setHasOptionsMenu( true );
 
         listView	= ( ListView ) layout.findViewById( R.id.listView );
         if( listView != null ) {
@@ -151,6 +155,8 @@ public class FileListFragment extends FragmentEx
             updateSelectedCount( false );                   // 선택된 항목의 개수를 화면에 갱신한다.
 
             listAdapter.notifyDataSetChanged();             // 리스트의 내용을 갱신시킨다.
+            this.getActivity().invalidateOptionsMenu();
+
             return;                                         // 함수를 반환한다.
         }
 
@@ -177,7 +183,6 @@ public class FileListFragment extends FragmentEx
         } else {
             changeFileSelectMode( data );
         }
-
         return true;
     }
 
@@ -504,6 +509,7 @@ public class FileListFragment extends FragmentEx
             }
         }
         listAdapter.notifyDataSetChanged();                 // 데이터가 변경되어 리스트를 갱신한다.
+        this.getActivity().invalidateOptionsMenu();                    // option menu 항목을 갱신시킨다.
     }
 
     private void changeFileListMode( boolean bClearSelectedItems ) {
@@ -522,6 +528,7 @@ public class FileListFragment extends FragmentEx
         }
 
         listAdapter.notifyDataSetChanged();         // 데이터가 변경되어 리스트를 갱신한다.
+        this.getActivity().invalidateOptionsMenu();                    // option menu 항목을 갱신시킨다.
     }
 
     @Override
@@ -667,6 +674,8 @@ public class FileListFragment extends FragmentEx
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d( "MyLOG", "onCreateOptionsMenu" );
+
         if( listAdapter.isSelectMode()) {
             context.getMenuInflater().inflate( R.menu.menu_file_select_mode, menu );
         } else {
@@ -688,6 +697,21 @@ public class FileListFragment extends FragmentEx
             }
         }
 
+        menu_item = menu.findItem( R.id.action_copy );                     // 복사 하기 메뉴
+        if( menu_item != null ) {
+            menu_item.setEnabled( listAdapter.getSelectedCount() > 0 );
+        }
+
+        menu_item = menu.findItem( R.id.action_move );                     // 이동 하기 메뉴
+        if( menu_item != null ) {
+            menu_item.setEnabled( listAdapter.getSelectedCount() > 0 );
+        }
+
+        menu_item = menu.findItem( R.id.action_rename );                     // 이름변경 메뉴
+        if( menu_item != null ) {
+            menu_item.setEnabled( listAdapter.getSelectedCount() == 1 );
+        }
+
         menu_item = menu.findItem( R.id.action_paste );                     // 붙여 넣기 메뉴
         if( menu_item != null ) {
             if( !listAdapter.getLastFolder().canWrite() ) {
@@ -695,9 +719,10 @@ public class FileListFragment extends FragmentEx
                 menu_item.setEnabled( false );  // 현재 폴더에 쓰기 권한이 없다면 비활성 시킨다.
             } else {
                 menu_item.setTitle( getString( R.string.action_paste));
-                menu_item.setEnabled( true );
+                menu_item.setEnabled( listAdapter.getSelectedCount() > 0 );
             }
         }
+
     }
 
     /**
