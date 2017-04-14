@@ -23,3 +23,20 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep public class com.google.android.gms.ads.** { public *; }
+-keep public class com.google.ads.** { public *; }
+-keep public class android.support.** { public *; }
+-keep public class org.apache.** { *; }
+-keep interface android.support.** { *; }
+
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+-keepattributes *Annotation*
+-keepattributes Signature
+
+-dontwarn org.slf4j.**
+-dontwarn org.apache.**
+-dontwarn com.google.android.**

@@ -1,161 +1,32 @@
-AndFTP는 Android의 FTP/SFTP/SCP/FTPS 접속 소프트웨어입니다. 
-다수의 FTP 서버를 관리할 수 있으며, 
-장치의 파일탐색기와 FTP 파일탐색기가 함께 제공됩니다. 
-파일의 업로드/다운로드 기능 뿐만 아니라 파일이름변경, 
-삭제 등의 기능을 제공합니다. 
-FTP (File Transfer Protocol), 
-SFTP (SSH's Secure FTP), 
-SCP (SSH Secure Copy Protocol), 
-FTPS (Explicit FTP over TLS/SSL) 등의 다양한 접속 방식을 지원합니다.
+안드로이드 단말기를 ftp 서버로 이용하면 
+단말기에 있는 사진, 음악, 동영상 파일등을 PC로 복사할 수 있습니다.
+
+Ftp 클라이언트 프로그램이 이용하거나, 
+PC의 파일 탐색기 및 크롬/인터넷 익스플로러 등를 사용할 수도 있습니다.
+
+[ PC에서 사용하기 - 동일한 WIFI 사용 ]
+PC와 안드로이드 단말기를 같은 WIFI에 연결합니다. 
+안드로이드 단말기에서  FTP 서버를 시작합니다. 
+PC에서 파일 탐색기를 이용하여 안드로이드 단말기의 FTP 서버 접속 주소로 접속합니다. 
+( 접속 주소는 FTP 서버앱에서 확인 가능합니다. 예: ftp://192.168.123.141:2345 )
+사용자 아이디/비밀번호를 묻는 창이 뜨면, 안드로이드 단말기의 FTP 서버에서 설정한 사용자 아이디/비밀번호를 입력하면
+연결이 됩니다. 
+
+[필요한 권한]
+인터넷 사용 및 저장소 읽기/쓰기 권한이 필요합니다. 
+
+Simple & FTP Server to transfer files to/from your android device with a FTP client ( inc Explorer / Finder / FileZilla).
+You can copy your documents, file, photos, musics and files from mobile to your computer (PC).
+
+[How to use]
+1. Mobile device and FTP clients are required using the same wireless network.
+2. Set your own username, password, port number on FTP Server
+3. Start FTP Server
+4. Connect to supplied IP using ftp client (inc Explorer / Finder / FileZilla)
+
+[Request Permissions]
+- Internet
+- Read/Write Storage
 
 
 
-ftp 서버를 이용하면 안드로이드 기기에서 SD 카드는 물론 어떠한 폴더에서도 읽기/쓰기가 가능합니다. 여러분의 PC에 사진 백업이 가능하고, 음악, 동영상을 복사할 수 있습니다.
-
-Ftp 클라이언트 프로그램이 없다면, FileZilla 클라이언트를 추천합니다. (다음 링크에서 다운로드 가능합니다. http://filezilla-project.org/) 하지만 윈도우의 파일 익스플로러를 사용할 수도 있습니다.
-
-프리버전은 랜드스케이프 스크린 모드를 지원하지 않습니다.
-
-기능
-
-사용하는 기기의 모든 네트워크 인터페이스를 사용할 수 있습니다. : 와이파이, 이더넷, 모바일 네트워크, USB 등등.
-익명 사용자 (비활성화 가능함)
-Ftp 사용자(비활성화 가능). 이름, 패스워드 변경가능
-홈디렉토리 가 root 디렉토리로 이용가능
-읽기 전용 모드
-능동, 수동 모드 가능
-숨김파일 보기 
-사용자 지정 홈폴더
-포어그라운드 서비스로 서버를 운용하기 위한 옵션
-에너지 세이브 모드
-언어 지원: 영어, 스페인어, 루마니아어, 불어, 이탈리아어, 헝가리어, 독어, 중국어, 포르투갈어, 러시아어, 한국어, 카탈루냐어
-Intents:
-    com.theolivetree.ftpserver.StartFtpServer
-    com.theolivetree.ftpserver.StopFtpServer
-
-할일
-Root 유저로서 서버 동작(루팅된 기기만 적용)
-TLS/SSL 안전 연결 지원
-
-USB 케이블로 Ftp 서버 연결하는 방법
-네트워크가 사용불가능할 때, USB 케이블을 이용해서 접속하는 방법
-설정-어플리케이션- 개발 및 설정 옵션 “USB 디버깅”
-USB 케이블로 휴대폰과 PC를 연결하세요.
-Adb 서버를 시작하세요. PC에서 “adb start-server” 명령을 실행하세요.
-adb는 안드로이드 SDK에서 찾을 수 있는 프로그램입니다. 일반적으로on android-sdk\platform-tools\adb 에서 찾을 수 있습니다. 
-컴퓨터에서 휴대폰으로 필요한 포트를 포워드하세요. 컴퓨터에서"adb forward tcp:2221 tcp:2221"를 실행하세요.
-휴대폰에 설정된 모든 ftp 서버와 수동 포트를 위해 이 절차를 반복할 필요가 있습니다.
-이를 위해서, 컴퓨터 연결이 127.0.0.1:2221로 휴대폰의 포트 2221로 포워드되어야합니다.
-휴대폰의 Ftp 서버를 실행하세요. 설정을 열어서 “네트워크 인터페이스”에서 “루프백(127.0.0.1)” 혹은 “모두”를 선택하세요.
-Ftp 서버 시작
-컴퓨터의 Ftp 클라이언트에서ftp://127.0.0.1:2221로 접속하세요. (Ftp 서버 설정에 따라 포트가 다를 수 있습니다. )
-US B 연결을 사용할 때 수동모드만 가능하고, 이 모드에서는 연결이 컴퓨터에 의해서 항상 시작될 필요가 있습니다. 
-
-접근 권한 필요
-
-INTERNET
-ACCESS_NETWORK_STATE
-ACCESS_WIFI_STATE
-Ftp 클라이언트로 네트워크 통신을 열기위해 서버를 활성화하기위한 네트워크 접근권한
-
-WRITE_EXTERNAL_STORAGE
-SD 카드에서 ftp 클라이언트로 부터 전송 받은 파일을 Ftp 서버가 쓰기 가능
-
-WAKE_LOCK
-서버가 구동중일 때만 휴대폰을 깨어있는 상태로 두세요. 휴대폰이 깨어있지 않다면 Ftp 서버로의 연결은 실패할 수 있습니다.
-
-이 프로그램에 사용된 라이브러리. 아파치 ftp 서버 v1.0.6. 아파치2 라이센스. 안드로이드 viewflow pakerfeldt(01/Nov/2011). 아파치2 라이센스 http://www.apache.org/licenses/LICENSE-2.0.html
-
-Special thanks to: Beatriz Vera, Surjit Panda, Alex Sovu, Balazs David Molnar, Damien Varvenne, Simone Balducci, Juanvi, Chengcheng Hu, Noelia, Noxa Tagakov, Joon Lim, Tomokazu Wakasugi and Paulino Feitio.
-
-
-
-
-
-Simple & free FTP Server to transfer files to/from your android device with a FTP client.
-
-For more information visit https://sites.google.com/site/andreasliebigapps/ftpserver/
-
-For discussions, requests, suggestions, bug reports, etc please use the google group 
-http://groups.google.com/group/andreasliebigapps.
-Or visit https://sites.google.com/site/andreasliebigapps/ftpserver if you need more information or want to support the development.
-
-
-
-
-
-FEATURES:
-- Free FTP Server
-- UTF-8 support
-- Restrict connections to selected wireless networks
-- Access while on 3G (if supported by the mobile network)
-- Restrict access to specific folder
-- Verbose log output to trace connections/access and help in error solving 
-- Remote shutdown with custom ("SITE SHUTDOWN" command)
-- Tasker and Locale Plugin Support
-
-
-NOTE about permissions:
-WRITE_EXTERNAL_STORAGE and READ_PHONE_STATE are implicitly added, because of compatibility to 1.5 devices (see http://stackoverflow.com/questions/1747178/android-permissions-phone-calls-read-phone-state-and-identity) for an explanation. Since there is still people with 1.5 using my FTPServer, I do not want to set the minimum required permission to a higher version.
-
-
-
-
-
-
-Google 번역을 사용하여 설명을 한국어(으)로 번역하시겠습니까? 번역
-WiFi FTP Turns your Android Phone/Pad/TV into a Wireless FTP Server. You can now copy multiple files, folders, or entire hard drives to your Phone and access this information anywhere. Leave your USB keys behind, your Android Phone can do all that and MORE!
-
-Connect and share everything among phones, save you time and eliminate the need of USB data cable for file transfer.
-
-Already supported encoding
-- UTF8
-- GBK(GB2312)
-- BIG5
-- ISO 8859-9 (Turkish)
-- ISO 8859-1 (Portuguese)
-
-- The fewer cables to carry the better
-- The computer doesn't need to have drivers it does need installed
-- Compatible with Windows Explorer and other FTP client tools (such as FileZilla)
-- No mobile data plan impact
-
-WiFi FTP lets you:
-- COPY Files
-- VIEW Files
-- BACKUP Files
-
-All you need to do is: 
-1. Start WiFi FTP on your Phone.
-2. Click the ON button
-3. Connect to supplied IP using ANY ftp client (inc Explorer / Finder / FileZilla)
-
-[PC] Recommend Client: FileZilla link: https://filezilla-project.org
-
-[PC] Other Supported FTP Client:
-Mac OS: FireFTP / CuteFTP / Transmit / Yummy / Interachy
-Windows: FireFTP / CuteFTP / SmartFTP / WinSCP / Cyberduck
-Linux : FireFTP / VirgoFTP / GFTP / GoFTP
-
-That's it. Now you have all your documents, file, photo, movies, music, homework, ANYTHING on your phone!
-
-
-
-Turn your mobile into FTP server! You can transfer files to/from your android device with a FTP client.
-You can backup your photos, musics and files from mobile to your computer (PC).
-
-- Free FTP Server
-- Transfer files to/from FTP clients
-- Custom username and password
-- Custom port number
-- Custom home folder
-- Show hidden files
-
-How to use:
-- Go to Setting to set your own username, password, port number and folder path
-- Click the On/Off button to start the FTP server
-- Share the ftp address to client
-
-*Remark: Your mobile device and FTP clients are required using the same wireless network or mobile network.
-
-FTP Server is brought to you by MobPage, an Innovative Mobile Application Consultancy & Developer under iGears Technology Limited (iGears).

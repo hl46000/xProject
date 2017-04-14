@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">FTP 서버</string>
     <string name="ftp_server_settings">FTP 서버 설정</string>
+    <string name="guest">Guest</string>
     <string name="ftp_server_port">Port 번호</string>
     <string name="ftp_server_user_settings">사용자 설정</string>
     <string name="ftp_server_user_id">사용자 아이디</string>
