@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">APK Manager</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9674501681746717/4859915387</string>
+    <string name="ad_unit_id">ca-app-pub-9674501681746717/3571861787</string>
+    <string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
+
+    <string name="apk_list_item_icon_description">icon</string>
+    <string name="splash_image_description">Loading</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="apk_extract">Copy to SD Card</string>
+    <string name="apk_market">Go to Google Play</string>
+    <string name="information">Information</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+    <string name="execute">Execute</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="search_text">Search( App name or Package name )</string>
+
+    <string name="change_sdcard_path">Change SD Card Path</string>
+    <string name="app_info">App Info</string>
+    <string name="file_delete_confirm">Do you want to Delete</string>
+    <string name="delete_all_items">Delete All Items</string>
+    <string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
+
+    <string name="file_list_sub_title_folder_format">%d item</string>
+    <string name="AM">AM</string>
+    <string name="PM">PM</string>
+    <string name="application">APPS</string>
+    <string name="files">FIELS</string>
+    <string name="history">HISTORY</string>
+</resources>

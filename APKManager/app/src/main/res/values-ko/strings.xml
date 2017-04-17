@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">APK 관리자</string>
+    
+    <string name="action_settings">환경설정</string>
+    <string name="apk_list_item_icon_description">icon</string>
+    <string name="splash_image_description">Loading</string>
+    
+    <string name="apk_extract">SD Card로 복사</string>
+	<string name="apk_market">마켓으로 이동</string>
+	<string name="information">정보</string>
+	<string name="delete">삭제</string>
+	<string name="share">공유</string>
+	<string name="execute">실행</string>
+	<string name="cancel">취소</string>
+	<string name="ok">확인</string>
+	<string name="search_text">검색( 앱 이름 or 패키지명 )</string>
+	
+	<string name="change_sdcard_path">SD Card 저장경로 변경</string>
+	<string name="app_info">어플 정보</string>
+	<string name="file_delete_confirm">삭제 하시겠습니까?</string>
+	<string name="delete_all_items">모든 항목 삭제</string>
+	
+	<string name="send_mail_to_developer">개발자에게 메일을 보냅니다</string>
+	<string name="send_to_mail">메일 보내기</string>
+		
+	<string name="send_to_sdcard_format" formatted="false">\'%s\' 파일이 \'%s\' 로 저장되었습니다.</string>
+	<string name="two_back_touch_exit_app">뒤로 버튼을 한번 더 누르면 앱이 종료됩니다.</string>
+	
+	<string name="file_list_sub_title_folder_format">%d 개</string>
+	<string name="AM">오전</string>
+	<string name="PM">오후</string>
+	<string name="application">APPS</string>
+	<string name="files">FIELS</string>
+	<string name="history">HISTORY</string>
+</resources>
