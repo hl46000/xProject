@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_search"
+        android:orderInCategory="100"
+        android:title="@string/action_search"
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_bluetooth_share"
+        android:orderInCategory="100"
+        android:title="@string/action_bluetooth_share"
+        android:icon="@android:drawable/ic_menu_share"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_bluetooth_admin"
+        android:orderInCategory="100"
+        android:title="@string/action_bluetooth_admin"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_bluetooth_identity"
+        android:orderInCategory="100"
+        android:title="@string/action_bluetooth_identity"
+        app:showAsAction="never" />
+</menu>

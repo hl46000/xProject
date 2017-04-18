@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_contact"
+            android:icon="@drawable/ic_person_black_24dp"
+            android:title="@string/contact" />
+        <item
+            android:id="@+id/nav_apps"
+            android:icon="@drawable/ic_apps_black_24dp"
+            android:title="@string/apps" />
+
+        <item android:title="@string/my_files">
+
+                <item
+                    android:id="@+id/nav_files"
+                    android:icon="@drawable/ic_folder_shared_black_24dp"
+                    android:title="@string/files" />
+                <item
+                    android:id="@+id/nav_photos"
+                    android:icon="@drawable/ic_image_black_24dp"
+                    android:title="@string/photos" />
+                <item
+                    android:id="@+id/nav_videos"
+                    android:icon="@drawable/ic_videocam_black_24dp"
+                    android:title="@string/videos" />
+                <item
+                    android:id="@+id/nav_audios"
+                    android:icon="@drawable/ic_audiotrack_black_24dp"
+                    android:title="@string/audios" />
+                <item
+                    android:id="@+id/nav_documents"
+                    android:icon="@drawable/ic_menu_manage"
+                    android:title="@string/documents" />
+
+        </item>
+    </group>
+</menu>

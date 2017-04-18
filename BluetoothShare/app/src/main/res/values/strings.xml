@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Bluetooth Share</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_bluetooth_admin">Bluetooth Admin</string>
+    <string name="action_bluetooth_identity">Bluetooth Identity</string>
+    <string name="contact">Contacts</string>
+    <string name="files">Files</string>
+    <string name="photos">Photos</string>
+    <string name="videos">Videos</string>
+    <string name="apps">Apps</string>
+    <string name="my_files">MY FILES</string>
+    <string name="audios">Audios</string>
+    <string name="documents">Documents</string>
+    <string name="action_bluetooth_share">Bluetooth Share</string>
+    <string name="action_search">Search</string>
+</resources>
