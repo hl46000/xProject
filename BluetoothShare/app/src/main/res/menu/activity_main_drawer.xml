@@ -31,7 +31,7 @@
                     android:title="@string/audios" />
                 <item
                     android:id="@+id/nav_documents"
-                    android:icon="@drawable/ic_menu_manage"
+                    android:icon="@drawable/ic_description_black_24dp"
                     android:title="@string/documents" />
 
         </item>

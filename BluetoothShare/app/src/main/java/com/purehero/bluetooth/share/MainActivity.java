@@ -2,6 +2,7 @@ package com.purehero.bluetooth.share;
 
 import android.Manifest;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -29,7 +30,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if( checkPermission() == 0 ) {
+            initContentView();
+        }
+    }
+
+    private void initContentView() {
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -50,8 +59,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        //checkPermission();
     }
 
     @Override
@@ -81,15 +88,32 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id ) {
             case R.id.action_settings:
+                startActivity(new Intent( MainActivity.this, SettingActivity.class ));
                 return true;
+
             case R.id.action_bluetooth_admin :
+                startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
                 return true;
+
             case R.id.action_bluetooth_identity :
                 return true;
+
+            case R.id.action_view_mode :
+                if( view_layout_mode == VIEW_MODE_LIST ) {
+                    item.setIcon( R.drawable.ic_view_headline_white_24dp);
+                    view_layout_mode = VIEW_MODE_GRID;
+                } else {
+                    item.setIcon( R.drawable.ic_view_module_white_24dp);
+                    view_layout_mode = VIEW_MODE_LIST;
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
     }
+    final int VIEW_MODE_LIST = 0;
+    final int VIEW_MODE_GRID = 1;
+    int view_layout_mode = VIEW_MODE_LIST;
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -100,27 +124,13 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
         switch( id ) {
-            case  R.id.nav_apps :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Apps Fragments"));
-                break;
-            case  R.id.nav_contact :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Contacts Fragments"));
-                break;
-            case R.id.nav_files :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Files Fragments"));
-                break;
-            case R.id.nav_audios :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Audios Fragments"));
-                break;
-            case R.id.nav_documents :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Documents Fragments"));
-                break;
-            case R.id.nav_photos :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Photos Fragments"));
-                break;
-            case R.id.nav_videos :
-                fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Videos Fragments"));
-                break;
+            case R.id.nav_apps      : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Apps Fragments")); break;
+            case R.id.nav_contact   : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Contacts Fragments")); break;
+            case R.id.nav_files     : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Files Fragments")); break;
+            case R.id.nav_audios    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Audios Fragments")); break;
+            case R.id.nav_documents : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Documents Fragments")); break;
+            case R.id.nav_photos    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Photos Fragments")); break;
+            case R.id.nav_videos    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Videos Fragments")); break;
         }
 
         fragmentTransaction.commit();
@@ -131,18 +141,24 @@ public class MainActivity extends AppCompatActivity
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        checkPermission();
+        if( requestCode == ACTIVITY_PERMISSION_REQUEST ) {
+            if( checkPermission() == 0 ) {
+                initContentView();
+            }
+        }
     }
 
     final int ACTIVITY_PERMISSION_REQUEST = 1004;
-    private void checkPermission() {
+    private int checkPermission() {
         String permissions[] = {
                 Manifest.permission.BLUETOOTH,
                 Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.INTERNET,
-                Manifest.permission.ACCESS_NETWORK_STATE
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS
         };
         List<String> request_permissions = new ArrayList<String>();
         for( String permission : permissions ) {
@@ -152,6 +168,9 @@ public class MainActivity extends AppCompatActivity
         }
         if( request_permissions.size() > 0 ) {
             ActivityCompat.requestPermissions(this, permissions, ACTIVITY_PERMISSION_REQUEST );
+
+            return request_permissions.size();
         }
+        return 0;
     }
 }
