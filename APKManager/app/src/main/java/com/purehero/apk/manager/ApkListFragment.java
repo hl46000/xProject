@@ -25,7 +25,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.purehero.module.tabhost.FragmentEx;
+import com.purehero.module.fragment.FragmentEx;
+
 
 public class ApkListFragment extends FragmentEx {
 	private ListView apkListView 			= null;

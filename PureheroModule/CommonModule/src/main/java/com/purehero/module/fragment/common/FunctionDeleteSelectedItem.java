@@ -12,6 +12,7 @@ import com.purehero.module.fragment.filelist.FileListData;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -21,10 +22,10 @@ import java.util.List;
 
 public class FunctionDeleteSelectedItem {
     final Activity context;
-    final List<FileListData> targetFiles;
+    final List<File> targetFiles;
     final OnSuccessListener successListener;
 
-    public FunctionDeleteSelectedItem(Activity context, List<FileListData> targetFiles, OnSuccessListener successListener) {
+    public FunctionDeleteSelectedItem(Activity context, List<File> targetFiles, OnSuccessListener successListener) {
         this.context = context;
         this.targetFiles = targetFiles;
         this.successListener = successListener;
@@ -47,16 +48,16 @@ public class FunctionDeleteSelectedItem {
                             dialog.setMax( item_count );
 
                             int progress_count = 0;
-                            for( final FileListData data : targetFiles ) {
+                            for( final File data : targetFiles ) {
                                 context.runOnUiThread( new Runnable() {
                                     @Override
                                     public void run() {
-                                        dialog.setMessage(data.getFilename());
+                                        dialog.setMessage(data.getName());
                                     }
                                 });
 
                                 try {
-                                    FileUtils.forceDelete( data.getFile() );
+                                    FileUtils.forceDelete( data );
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

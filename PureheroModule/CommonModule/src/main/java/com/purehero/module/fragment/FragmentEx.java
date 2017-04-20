@@ -28,4 +28,5 @@ public class FragmentEx extends Fragment implements OnBackPressedListener {
         return false;
     }
 
+    public void onPrePause() {}
 }

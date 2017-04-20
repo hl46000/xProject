@@ -2,7 +2,11 @@ package com.purehero.module.fragment.filelist;
 
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -178,11 +182,36 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
         int res_id = getImageResourceID( data );
         if( res_id == R.drawable.fl_ic_image || res_id == R.drawable.fl_ic_movies ) {
             Glide.with( context ).load( data.getFile()).centerCrop().placeholder( res_id ).into( viewHolder.ivIcon );
+        } else if( res_id == R.drawable.fl_ic_music ) {
+            Glide.with(context).load(getArtUriFromMusicFile(data.getFile())).centerCrop().placeholder(res_id).into(viewHolder.ivIcon);
         } else {
             Glide.with( context ).load( res_id ).into( viewHolder.ivIcon );
         }
 
         return view;
+    }
+
+    public Uri getArtUriFromMusicFile(File file) {
+        final Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        final String[] cursor_cols = { MediaStore.Audio.Media.ALBUM_ID };
+
+        final String where = MediaStore.Audio.Media.IS_MUSIC + "=1 AND " + MediaStore.Audio.Media.DATA + " = '"
+                + file.getAbsolutePath() + "'";
+        final Cursor cursor = context.getContentResolver().query(uri, cursor_cols, where, null, null);
+        //Log.d(TAG, "Cursor count:" + cursor.getCount());
+        /*
+         * If the cusor count is greater than 0 then parse the data and get the art id.
+         */
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            Long albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+
+            Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+            Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
+            cursor.close();
+            return albumArtUri;
+        }
+        return Uri.EMPTY;
     }
 
     View.OnTouchListener TextViewTouchListener = new View.OnTouchListener() {

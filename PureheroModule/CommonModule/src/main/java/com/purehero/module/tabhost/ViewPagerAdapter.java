@@ -96,11 +96,14 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter implements TabLa
 
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
-
+        Fragment fragment = ( Fragment ) fragmentList.get( pager.getCurrentItem());
+        if( fragment instanceof FragmentEx ) {
+            FragmentEx fragmentEx = (FragmentEx) fragment;
+            fragmentEx.onPrePause();
+        }
     }
 
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
-
     }
 }

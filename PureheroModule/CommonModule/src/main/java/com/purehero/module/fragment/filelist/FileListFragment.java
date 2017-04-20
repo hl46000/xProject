@@ -34,6 +34,8 @@ import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.common.R;
 import com.purehero.module.fragment.FragmentEx;
 import com.purehero.module.fragment.common.FunctionCreateNewFolder;
+import com.purehero.module.fragment.common.FunctionDeleteSelectedItem;
+import com.purehero.module.fragment.common.FunctionRenameSelectedItem;
 import com.purehero.module.fragment.common.SearchTextChangeListener;
 
 import java.io.File;
@@ -107,6 +109,15 @@ public class FileListFragment extends FragmentEx
         }
 
         return layout;
+    }
+
+    @Override
+    public void onPrePause() {
+        super.onPrePause();
+
+        if( listAdapter.isSelectMode()) {           // 뒤로가기에 의한 ActionBar 전환
+            changeFileListMode( true );
+        }
     }
 
     @Override
@@ -393,6 +404,7 @@ public class FileListFragment extends FragmentEx
         */
     }
 
+
     private long file_copy(File source_file, File target_file, byte[] buffer, long copied_byte_size, long copy_byte_size, final ProgressDialog dialog) throws IOException {
         final String source_file_name = source_file.getName();
         context.runOnUiThread( new Runnable() {
@@ -503,8 +515,9 @@ public class FileListFragment extends FragmentEx
         if( context instanceof AppCompatActivity ) {
             AppCompatActivity ACActivity = ( AppCompatActivity ) context;
             ActionBar aBar = ACActivity.getSupportActionBar();
-            if( aBar != null ) {
+            if( aBar != null && backupActionBarTitle == null ) {
                 backupActionBarTitle = aBar.getTitle();
+                Log.d( "MyLOG", "aaa : " + backupActionBarTitle );
                 aBar.setTitle( String.format( "%d Selected", listAdapter.getSelectedCount()) );
             }
         }
@@ -539,30 +552,6 @@ public class FileListFragment extends FragmentEx
                     .setAction("Action", null).show();
             listAdapter.reload();
         }
-    }
-
-    /**
-     * @param data
-     */
-    private void file_share(FileListData data) {
-        Intent shareIntent = FileIntentUtils.Sharing( data.getFile() );
-        startActivity(Intent.createChooser(shareIntent, "Share File" ));
-    }
-
-    /**
-     * FILE을 단말기에서 Delete 합니다.
-     */
-    private void file_delete() {
-        List<File> deleteFiles = new ArrayList<File>();
-        for( FileListData data : listAdapter.getSelectedItems()) {
-            deleteFiles.add( data.getFile());
-        }
-
-        //DialogUtils.FileDeleteDialog( context, deleteFiles );
-
-        //new fileDeleteDialog( data ).show();
-        //data.getFile().delete();
-        //fileListAdapter.remove( position );
     }
 
     /**
@@ -745,15 +734,13 @@ public class FileListFragment extends FragmentEx
     private void function_rename_selected_item() {
         Log.d( "MyLOG", "function_rename_selected_item" );
 
-        /*
-        new FunctionRenameSelectedItem( context, listAdapter.getSelectedItems().get(0), new OnSuccessListener(){
+        new FunctionRenameSelectedItem( context, listAdapter.getSelectedItems().get(0).getFile(), new OnSuccessListener(){
             @Override
             public void OnSuccess() {
-                changeFileListMode( true );                 // 선택 모드에서만 호출되므로 선택모드를 해제 한다.
-                listAdapter.notifyDataSetChanged();       // 리스트를 갱신 시킨다.
+                listAdapter.setSelectMode(false);
+                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
             }
-        } ).run();
-        */
+        }).run();
     }
 
     /**
@@ -762,65 +749,18 @@ public class FileListFragment extends FragmentEx
     private void function_delete_selected_items() {
         Log.d( "MyLOG", "function_delete_selected_items" );
 
-        /*
-        new FunctionDeleteSelectedItem( context, listAdapter.getSelectedItems(), new OnSuccessListener(){
+        List<File> delete_files = new ArrayList<File>();
+        for( FileListData fData : listAdapter.getSelectedItems() ) {
+            delete_files.add( fData.getFile());
+        }
+
+        new FunctionDeleteSelectedItem( context, delete_files, new OnSuccessListener(){
             @Override
             public void OnSuccess() {
-
+                listAdapter.setSelectMode(false);
+                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
             }
         } ).run();
-        */
-        /*
-        context.collectSelectedItems(); // 전체 화면의 선택 항목을 수집한다.
-
-        final List<FileListData> selectedItems = context.getSelectedItems();
-        int item_count = selectedItems.size();
-
-        String message = String.format( "%d %s\n\n", item_count, getString( R.string.delete_message ));
-
-        G.no_string_res     = R.string.cancel;
-        G.yes_string_res    = R.string.delete;
-        G.confirmDialog( context, R.string.delete_title, message, -1, new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch(i) {
-                    case G.DIALOG_BUTTON_ID_YES :       // Clicked Delete
-                        G.progressDialog( context, R.string.delete_title, "", new ProgressRunnable(){
-                            @Override
-                            public void run( final ProgressDialog dialog) {
-                                dialog.setMax(selectedItems.size());
-
-                                int progress_count = 0;
-                                for( final FileListData data : selectedItems ) {
-                                    context.runOnUiThread( new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            dialog.setMessage(data.getFilename());
-                                        }
-                                    });
-
-                                    try {
-                                        FileUtils.forceDelete( data.getFile() );
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    dialog.setProgress( ++progress_count );
-                                }
-                                context.runOnUiThread( new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        reloadListView();
-                                        changeFileListMode( true );
-                                    }
-                                } );
-                            }
-                        });
-                        break;
-                }
-            }
-        } );
-        */
     }
 
     @Override

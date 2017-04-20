@@ -16,10 +16,10 @@ import java.io.File;
 
 public class FunctionRenameSelectedItem {
     final Activity context;
-    final FileListData targetFile;
+    final File targetFile;
     final OnSuccessListener successListener;
 
-    public FunctionRenameSelectedItem(Activity context, FileListData targetFile, OnSuccessListener successListener) {
+    public FunctionRenameSelectedItem(Activity context, File targetFile, OnSuccessListener successListener) {
         this.context = context;
         this.targetFile = targetFile;
         this.successListener = successListener;
@@ -28,7 +28,7 @@ public class FunctionRenameSelectedItem {
     public void run() {
         String title    = context.getString( R.string.rename);
         String text     = null;
-        String hint     = targetFile.getFilename();
+        String hint     = targetFile.getName();
 
         DialogUtils.no_string_res     = R.string.cancel;
         DialogUtils.yes_string_res    = R.string.rename;
@@ -37,9 +37,8 @@ public class FunctionRenameSelectedItem {
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch( i ) {
                     case DialogUtils.DIALOG_BUTTON_ID_YES :
-                        File destFile = new File( targetFile.getFile().getParentFile(), DialogUtils.getTextInputDialogResult());
-                        if( targetFile.getFile().renameTo( destFile )) {
-                            targetFile.setFile( destFile );
+                        File destFile = new File( targetFile.getParentFile(), DialogUtils.getTextInputDialogResult());
+                        if( targetFile.renameTo( destFile )) {
 
                             if( successListener != null ) {
                                 successListener.OnSuccess();

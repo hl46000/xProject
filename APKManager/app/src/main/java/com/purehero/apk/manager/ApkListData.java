@@ -54,21 +54,10 @@ public class ApkListData {
 			folder.mkdirs();
 		}
 		clickCountFile	= new File( folder, "count" );
-		File iconFile	= new File( folder, "icon" );
-		try {
-			icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
-			if( icon == null ) {
-				icon		= info.loadIcon(pm);
-				
-				if( icon != null ) {
-					new SaveIconToFileThread( icon, iconFile ).start();					
-					//new SaveIconToFileThread( icon, iconFile ).run();
-				}
-			}
-		} catch( Exception e ) {
-			e.printStackTrace();
+		if( icon == null ) {
+			icon = info.loadIcon(pm);
 		}
-		
+
 		if( clickCountFile.exists()) {
 			try {
 				clickCount = Integer.valueOf( G.readFile( clickCountFile ));
@@ -80,8 +69,8 @@ public class ApkListData {
 	public ApkListData(Context context, PackageInfo pi, PackageManager pm) {
 		packageName 	= pi.packageName;
 		appName 		= pi.applicationInfo.loadLabel(pm).toString();
-		versionName		= pi.versionName;
-		apkPath			= pi.applicationInfo.sourceDir;
+		versionName	= pi.versionName;
+		apkPath		= pi.applicationInfo.sourceDir;
 		
 		File base_folder 	= new File( context.getCacheDir(), "package" );
 		File folder			= new File( base_folder, packageName );
@@ -89,20 +78,11 @@ public class ApkListData {
 			folder.mkdirs();
 		}
 		clickCountFile	= new File( folder, "count" );
-		File iconFile	= new File( folder, "icon" );
-		try {
-			icon 		= BitmapDrawable.createFromPath( Uri.fromFile( iconFile ).getPath() );
-			if( icon == null ) {
-				icon		= pi.applicationInfo.loadIcon(pm);
-				
-				if( icon != null ) {
-					new SaveIconToFileThread( icon, iconFile ).start();					
-				}
-			}
-		} catch( Exception e ) {
-			e.printStackTrace();
+
+		if( icon == null ) {
+			icon = pi.applicationInfo.loadIcon(pm);
 		}
-		
+
 		if( clickCountFile.exists()) {
 			try {
 				clickCount = Integer.valueOf( G.readFile( clickCountFile ));
@@ -111,29 +91,6 @@ public class ApkListData {
 		G.writeFile( new File( folder, "app_name"), appName );
 	}
 
-	/**
-	 * @author MY
-	 * 불러온 아이콘 파일을 파일로 기록하는 Thread 을 생성한다. 
-	 *
-	 *
-	 */
-	class SaveIconToFileThread extends Thread implements Runnable {
-		final Drawable drawable;
-		final File file;
-		
-		public SaveIconToFileThread( Drawable drawable, File file ) {
-			this.drawable = drawable;
-			this.file = file;
-		}
-		
-		@Override
-		public void run() {
-			if( G.saveBitmapToFile( G.drawableToBitmap( drawable ), file )) {
-				//G.log( "Saved icon to file : " + file.getAbsolutePath());
-			}
-		}
-	};
-	
 	/**
 	 * Icon 을 반환한다. 
 	 * 
