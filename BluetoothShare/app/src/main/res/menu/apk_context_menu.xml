@@ -1,0 +1,24 @@
+<menu 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	 >
+	
+	<item 
+	    android:id="@+id/APK_MENU_EXTRACT"
+	    android:title="@string/extract" />
+	<item 
+	    android:id="@+id/APK_MENU_DELETE"
+	    android:title="@string/delete" />
+	<item 
+	    android:id="@+id/APK_MENU_SHARE"
+	    android:title="@string/share" />
+	<item 
+	    android:id="@+id/APK_MENU_RUNNING"
+	    android:title="@string/execute" />
+	<item 
+	    android:id="@+id/APK_MENU_INFOMATION"
+	    android:title="@string/information" />
+	<item 
+	    android:id="@+id/APK_MENU_GOTO_MARKET"
+	    android:title="@string/goto_market" />
+</menu>

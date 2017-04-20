@@ -18,4 +18,12 @@
     <string name="action_bluetooth_share">Bluetooth Share</string>
     <string name="action_search">Search</string>
     <string name="action_view_mode">View mode</string>
+    <string name="extract">Extract</string>
+    <string name="share">Share</string>
+    <string name="execute">Execute</string>
+    <string name="information">Information</string>
+    <string name="goto_market">Go to Google Play</string>
+    <string name="extracting">Extracting</string>
+    <string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
+    <string name="ok">OK</string>
 </resources>

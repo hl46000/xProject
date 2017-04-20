@@ -11,10 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.purehero.module.fragment.FragmentEx;
+
 /**
  * Created by MY on 2017-02-25.
  */
-public class FragmentText extends Fragment {
+public class FragmentText extends FragmentEx {
     String text_message = "Fragment content";
     public FragmentText setText( String text_message ) {
         this.text_message = text_message;

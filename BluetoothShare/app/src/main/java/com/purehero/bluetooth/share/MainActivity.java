@@ -21,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.purehero.bluetooth.share.apps.ApkListFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
         switch( id ) {
-            case R.id.nav_apps      : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Apps Fragments")); break;
+            case R.id.nav_apps      : fragmentTransaction.replace(R.id.fragment_area, new ApkListFragment().setMainActivity(this)); break;
             case R.id.nav_contact   : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Contacts Fragments")); break;
             case R.id.nav_files     : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Files Fragments")); break;
             case R.id.nav_audios    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Audios Fragments")); break;
