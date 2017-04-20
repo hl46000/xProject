@@ -109,7 +109,32 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 
 	private View getViewForGridView(int position, View convertView, ViewGroup parent) {
 		G.Log( "parent instanceof GridView" );
-		return null;
+
+		GridViewHolder viewHolder;
+		if( convertView == null ) {
+			viewHolder = new GridViewHolder();
+
+			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+			convertView  = inflater.inflate( R.layout.apps_grid_cell_layout, null );
+
+			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apps_grid_cell_icon );
+			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apps_grid_cell_app_name );
+
+			convertView.setTag( viewHolder );
+		} else {
+			viewHolder = ( GridViewHolder ) convertView.getTag();
+		}
+
+		ApkListData data = filteredData.get( position );
+
+		Drawable icon = data.getIcon();
+		if( icon != null ) {
+			viewHolder.icon.setImageDrawable( icon );
+		}
+		viewHolder.appName.setText( data.getAppName());
+		viewHolder.appName.setSelected( true );
+
+		return convertView;
 	}
 
 	private View getViewForListView(int position, View convertView, ViewGroup parent) {
@@ -120,7 +145,7 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 			viewHolder = new ListViewHolder();
 
 			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-			convertView  = inflater.inflate( R.layout.apk_list_cell_layout, null );
+			convertView  = inflater.inflate( R.layout.apps_list_cell_layout, null );
 
 			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apk_list_view_item_icon );
 			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apk_list_view_item_app_name );
@@ -157,6 +182,12 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		}
 
 		return convertView;
+	}
+
+	class GridViewHolder
+	{
+		public ImageView icon;
+		public TextView appName;
 	}
 
 	class ListViewHolder

@@ -26,4 +26,11 @@
     <string name="extracting">Extracting</string>
     <string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
     <string name="ok">OK</string>
+    <string name="apps_search_hint">Search( App name or Package name )</string>
+
+    <string name="contacts_selected_backup">Backup selected contacts</string>
+    <string name="contacts_backup_info">Backup the xxxxx selected contacts.</string>
+    <string name="contacts_enter_backup_name">Please enter backup name</string>
+    <string name="contacts_backup_result">backed up xxxxx contacts with the name yyyyy</string>
+    <string name="contacts_menu_backup_selected">Backup selected contacts</string>
 </resources>

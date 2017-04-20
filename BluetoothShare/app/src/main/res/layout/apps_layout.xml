@@ -23,7 +23,7 @@
             android:layout_height="45dp"
             android:layout_alignParentBottom="true"
             android:ems="10"
-            android:hint="@string/search_text"
+            android:hint="@string/apps_search_hint"
             android:singleLine="true"
             android:textSize="12sp" />
 
@@ -41,6 +41,12 @@
 				android:id="@+id/apkGridView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:verticalSpacing="15dip"
+				android:horizontalSpacing="10dip"
+				android:gravity="center"
+                android:columnWidth="72dp"
+                android:numColumns="auto_fit"
+                android:stretchMode="columnWidth"
 				android:visibility="invisible" />
 
 		</FrameLayout>

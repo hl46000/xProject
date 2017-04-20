@@ -32,17 +32,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if( checkPermission() == 0 ) {
-            initContentView();
-        }
-    }
-
-    private void initContentView() {
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -53,14 +52,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        checkPermission();
     }
 
     @Override
@@ -74,23 +69,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         switch (id ) {
             case R.id.action_settings:
-                startActivity(new Intent( MainActivity.this, SettingActivity.class ));
+                startActivity(new Intent( this, SettingActivity.class));
                 return true;
 
             case R.id.action_bluetooth_admin :
@@ -100,22 +83,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_bluetooth_identity :
                 return true;
 
-            case R.id.action_view_mode :
-                if( view_layout_mode == VIEW_MODE_LIST ) {
-                    item.setIcon( R.drawable.ic_view_headline_white_24dp);
-                    view_layout_mode = VIEW_MODE_GRID;
-                } else {
-                    item.setIcon( R.drawable.ic_view_module_white_24dp);
-                    view_layout_mode = VIEW_MODE_LIST;
-                }
-                break;
         }
 
         return super.onOptionsItemSelected(item);
     }
-    final int VIEW_MODE_LIST = 0;
-    final int VIEW_MODE_GRID = 1;
-    int view_layout_mode = VIEW_MODE_LIST;
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -144,9 +116,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         if( requestCode == ACTIVITY_PERMISSION_REQUEST ) {
-            if( checkPermission() == 0 ) {
-                initContentView();
-            }
+            checkPermission() ;
         }
     }
 

@@ -9,11 +9,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,12 +37,16 @@ import java.io.File;
 import java.util.Stack;
 
 public class ApkListFragment extends FragmentEx {
+	final int VIEW_MODE_LIST = 0;
+	final int VIEW_MODE_GRID = 1;
+
 	private ListView apkListView 			= null;
 	private GridView apkGridView				= null;
 	private ProgressBar progressBar  		= null;
 	private ApkListAdapter apkListAdapter 	= null;
 	private Stack<ApkListData> workStack 	= new Stack<ApkListData>();
-		
+
+	int view_layout_mode = VIEW_MODE_LIST;
 	private MainActivity context = null;
 	private View layout = null;
 	
@@ -49,37 +57,46 @@ public class ApkListFragment extends FragmentEx {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		layout = inflater.inflate( R.layout.apk_list_layout, container, false);
-		
+		layout = inflater.inflate( R.layout.apps_layout, container, false);
+
+        // Fragment 가 option menu을 가지고 있음을 알림
+        setHasOptionsMenu(true);
+
+        // ActionBar Title 변경
+        AppCompatActivity ACActivity = ( AppCompatActivity ) getActivity();
+        ActionBar aBar = ACActivity.getSupportActionBar();
+        if( aBar != null ) {
+            aBar.setTitle( R.string.apps );
+        }
+
 		new Thread( apk_info_load_runnable ).start();
 		return layout;	
 	}
 
-	@Override
-	public void onResume() {
-		G.Log( "ApkListFragment::onResume" );
-		
-		super.onResume();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().invalidateOptionsMenu();
+    }
 
-	@Override
+    @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent ) {
 		G.Log( "ApkListFragment::onActivityResult");
-		
+
 		ApkListData data = null;
-		
+
 		if( !workStack.isEmpty()) {
 			data = workStack.pop();
 		}
-		
+
 		switch( requestCode ) {
 		case R_ID_APK_MENU_DELETE :	
-			
-			// APK Uninstall 이후 처리 로직 
+
+			// APK Uninstall 이후 처리 로직
 			// ( resultCode 는 항상 0이다. intent 값은 null 이 넘어 온다. )
 			if( data != null ) {
 				String packageName = data.getPackageName();
-				
+
 				if( packageName != null && !is_apk_installed(packageName)) {
 					int position = data.getIndex();
 					if( position != -1 ) {
@@ -111,25 +128,43 @@ public class ApkListFragment extends FragmentEx {
 			progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
 			progressBar.setVisibility( View.GONE );
 			progressBar = null;
-			
-			// ListView 나타나게 하기
-			apkListView	= ( ListView ) layout.findViewById( R.id.apkListView );
-			apkListView.setVisibility( View.VISIBLE );
-			apkListView.setAdapter( apkListAdapter );			
-			registerForContextMenu( apkListView );
-			
-			apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-		        @Override
-		        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		        	ApkListData data = ( ApkListData ) apkListAdapter.getItem( position );
-		        	apk_running( data );
-		        	
-		    		data.setClickCount( data.getClickCount() + 1 );
-		        }
-		    });
 
-			// GridView
-			apkGridView = ( GridView ) layout.findViewById( R.id.apkGridView );
+			apkListView = (ListView) layout.findViewById(R.id.apkListView);
+			apkGridView = (GridView) layout.findViewById(R.id.apkGridView);
+
+			if( view_layout_mode == VIEW_MODE_LIST ) {
+				// ListView 나타나게 하기
+				apkGridView.setVisibility(View.GONE);
+				apkListView.setVisibility(View.VISIBLE);
+				apkListView.setAdapter(apkListAdapter);
+				registerForContextMenu(apkListView);
+
+				apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+						ApkListData data = (ApkListData) apkListAdapter.getItem(position);
+						apk_running(data);
+
+						data.setClickCount(data.getClickCount() + 1);
+					}
+				});
+
+			} else {
+				apkListView.setVisibility(View.GONE);
+				apkGridView.setVisibility(View.VISIBLE);
+				apkGridView.setAdapter(apkListAdapter);
+				registerForContextMenu(apkGridView);
+
+				apkGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+						ApkListData data = (ApkListData) apkListAdapter.getItem(position);
+						apk_running(data);
+
+						data.setClickCount(data.getClickCount() + 1);
+					}
+				});
+			}
 
 			EditText apk_search = (EditText) layout.findViewById( R.id.txt_search );
 			if( apk_search != null ) {
@@ -155,14 +190,41 @@ public class ApkListFragment extends FragmentEx {
 	    apkListAdapter = new ApkListAdapter( context );
 	    apkListAdapter.sort();
 	}
-			
-	
-		
+
+
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+
+		//noinspection SimplifiableIfStatement
+		switch (id ) {
+			case R.id.action_view_mode :
+				if( view_layout_mode == VIEW_MODE_LIST ) {
+					item.setIcon( R.drawable.ic_view_headline_white_24dp);
+					view_layout_mode = VIEW_MODE_GRID;
+				} else {
+					item.setIcon( R.drawable.ic_view_module_white_24dp);
+					view_layout_mode = VIEW_MODE_LIST;
+				}
+				new Thread( apk_info_load_runnable ).start();
+				return true;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.apps_option_menu, menu);
+    }
+
 	// 메뉴 생성
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v.getId() == R.id.apkListView ) {
-			context.getMenuInflater().inflate(R.menu.apk_context_menu, menu);
+			context.getMenuInflater().inflate(R.menu.apps_context_menu, menu);
 		}
 	}
 	

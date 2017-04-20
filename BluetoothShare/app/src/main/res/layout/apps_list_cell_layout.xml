@@ -8,8 +8,8 @@
     
 	<ImageView 
 	    android:id="@+id/apk_list_view_item_icon"
-	    android:layout_width="48dp"
-	    android:layout_height="48dp"
+	    android:layout_width="60dp"
+	    android:layout_height="60dp"
 	    android:layout_margin="5dp"
 	    android:contentDescription="@string/app_name"
 	    />
