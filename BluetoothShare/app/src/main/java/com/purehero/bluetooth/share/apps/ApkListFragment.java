@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.purehero.bluetooth.share.G;
+import com.purehero.bluetooth.share.IconizedMenu;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
 import com.purehero.module.fragment.FragmentEx;
@@ -36,7 +37,7 @@ import com.purehero.module.fragment.FragmentEx;
 import java.io.File;
 import java.util.Stack;
 
-public class ApkListFragment extends FragmentEx {
+public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLongClickListener {
 	final int VIEW_MODE_LIST = 0;
 	final int VIEW_MODE_GRID = 1;
 
@@ -137,8 +138,8 @@ public class ApkListFragment extends FragmentEx {
 				apkGridView.setVisibility(View.GONE);
 				apkListView.setVisibility(View.VISIBLE);
 				apkListView.setAdapter(apkListAdapter);
-				registerForContextMenu(apkListView);
 
+				apkListView.setOnItemLongClickListener( ApkListFragment.this );
 				apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -149,12 +150,13 @@ public class ApkListFragment extends FragmentEx {
 					}
 				});
 
+
 			} else {
 				apkListView.setVisibility(View.GONE);
 				apkGridView.setVisibility(View.VISIBLE);
 				apkGridView.setAdapter(apkListAdapter);
-				registerForContextMenu(apkGridView);
 
+				apkGridView.setOnItemLongClickListener( ApkListFragment.this );
 				apkGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -390,5 +392,15 @@ public class ApkListFragment extends FragmentEx {
         }
 
         return false;
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		IconizedMenu popup = new IconizedMenu( context, view);
+		MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.apps_context_menu, popup.getMenu());
+		popup.show();
+
+		return true;
 	}
 }

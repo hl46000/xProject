@@ -5,20 +5,26 @@
 	
 	<item 
 	    android:id="@+id/APK_MENU_EXTRACT"
+		android:icon="@android:drawable/ic_dialog_email"
 	    android:title="@string/extract" />
 	<item 
 	    android:id="@+id/APK_MENU_DELETE"
+		android:icon="@android:drawable/ic_delete"
 	    android:title="@string/delete" />
 	<item 
 	    android:id="@+id/APK_MENU_SHARE"
+		android:icon="@android:drawable/ic_dialog_alert"
 	    android:title="@string/share" />
 	<item 
 	    android:id="@+id/APK_MENU_RUNNING"
+		android:icon="@android:drawable/ic_menu_camera"
 	    android:title="@string/execute" />
 	<item 
 	    android:id="@+id/APK_MENU_INFOMATION"
+		android:icon="@android:drawable/ic_dialog_info"
 	    android:title="@string/information" />
 	<item 
 	    android:id="@+id/APK_MENU_GOTO_MARKET"
+		android:icon="@android:drawable/ic_menu_share"
 	    android:title="@string/goto_market" />
 </menu>

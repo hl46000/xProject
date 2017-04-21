@@ -28,7 +28,9 @@
 
 		<FrameLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:background="#fff"
+			>
 
 			<ListView
 				android:id="@+id/contactListView"
@@ -40,8 +42,9 @@
 				android:id="@+id/contactGridView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:verticalSpacing="15dip"
-				android:horizontalSpacing="10dip"
+				android:listSelector="@android:color/transparent"
+				android:verticalSpacing="1dip"
+				android:horizontalSpacing="1dip"
 				android:gravity="center"
 				android:columnWidth="72dp"
 				android:numColumns="auto_fit"
