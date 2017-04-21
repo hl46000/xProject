@@ -7,9 +7,6 @@ import java.util.Comparator;
 
 import org.json.JSONException;
 
-import com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial;
-import com.purehero.common.Utils;
-
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;

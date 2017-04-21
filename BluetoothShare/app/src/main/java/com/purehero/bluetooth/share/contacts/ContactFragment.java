@@ -1,16 +1,15 @@
 package com.purehero.bluetooth.share.contacts;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,8 +17,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -29,30 +28,46 @@ import com.purehero.bluetooth.share.R;
 import com.purehero.module.fragment.FragmentEx;
 
 public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
-	private final MainActivity context;
+	final int VIEW_MODE_LIST = 0;
+	final int VIEW_MODE_GRID = 1;
+
+	private MainActivity context = null;
 	private View layout = null;
 
 	private ListView listView = null;
+	private GridView gridView = null;
 	private ProgressBar progressBar = null;
 	private ContactAdapter adapter;
-	
-	public ContactFragment(MainActivity mainActivity) {
+
+	int view_layout_mode = VIEW_MODE_LIST;
+
+	public ContactFragment setMainActivity(MainActivity mainActivity) {
 		context = mainActivity;
+
+		return this;
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		G.Log( "onCreateView" );
-		
-		layout 		= inflater.inflate( R.layout.contact_layout, container, false);
-		listView	= ( ListView ) layout.findViewById( R.id.listView );
-		listView.setOnItemClickListener( this );
-		listView.setOnItemLongClickListener( this );
-		registerForContextMenu( listView );
-		
+
+		// Fragment 가 option menu을 가지고 있음을 알림
+		setHasOptionsMenu(true);
+
+		// ActionBar Title 변경
+		AppCompatActivity ACActivity = ( AppCompatActivity ) getActivity();
+		ActionBar aBar = ACActivity.getSupportActionBar();
+		if( aBar != null ) {
+			aBar.setTitle( R.string.contact );
+		}
+		layout 	= inflater.inflate( R.layout.contacts_layout, container, false );
+
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
+		progressBar.setVisibility( View.VISIBLE );
+
 		new Thread( getContactRunnable ).start();
-		
+
+		/*
 		int btnIDs [] = { R.id.btnReload, R.id.btnBluetooth};
 		for( int id : btnIDs ) {
 			Button btn = ( Button ) layout.findViewById( id );
@@ -60,25 +75,54 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 				btn.setOnClickListener( this );
 			}
 		}
+		*/
 		
 		return layout;
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		getActivity().invalidateOptionsMenu();
+	}
+
 	Runnable getContactRunnable = new Runnable() {
 		@Override
 		public void run() {
-			G.Log( "run" );			
+			G.Log( "run" );
+
 			if( adapter == null ) {
 				adapter = new ContactAdapter( context );
 				adapter.getContactDatas();
 			}
-			
+
 			context.runOnUiThread( new Runnable(){
 				@Override
 				public void run() {
 					G.Log( "runOnUiThread run" );
-					listView.setAdapter( adapter );
-					
+
+					listView	= ( ListView ) layout.findViewById( R.id.contactListView );
+					gridView	= ( GridView ) layout.findViewById( R.id.contactGridView );
+
+					if( view_layout_mode == VIEW_MODE_LIST ) {
+						gridView.setVisibility( View.GONE );
+						listView.setVisibility( View.VISIBLE );
+						listView.setOnItemClickListener( ContactFragment.this );
+						listView.setOnItemLongClickListener( ContactFragment.this );
+						registerForContextMenu( listView );
+
+						listView.setAdapter( adapter );
+
+					} else {
+						listView.setVisibility( View.GONE);
+						gridView.setVisibility( View.VISIBLE );
+						gridView.setOnItemClickListener( ContactFragment.this );
+						gridView.setOnItemLongClickListener( ContactFragment.this );
+						registerForContextMenu(gridView);
+
+						gridView.setAdapter( adapter );
+					}
+
 					adapter.notifyDataSetChanged();
 					progressBar.setVisibility( View.INVISIBLE );
 					
@@ -111,6 +155,35 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		}
 		
 		return super.onBackPressed();
+	}
+
+
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+
+		//noinspection SimplifiableIfStatement
+		switch (id ) {
+			case R.id.action_view_mode :
+				if( view_layout_mode == VIEW_MODE_LIST ) {
+					item.setIcon( R.drawable.ic_view_headline_white_24dp);
+					view_layout_mode = VIEW_MODE_GRID;
+				} else {
+					item.setIcon( R.drawable.ic_view_module_white_24dp);
+					view_layout_mode = VIEW_MODE_LIST;
+				}
+				new Thread( getContactRunnable ).start();
+				return true;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.contacts_option_menu, menu);
 	}
 
 	@Override
@@ -158,6 +231,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		G.Log( "onContextItemSelected index : " + info.position );
 		
 		switch( item.getItemId()) {
+			/*
 		case R.id.menu_delete :
 			strTemp = context.getString( R.string.delete_info );
 			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() )); 
@@ -226,6 +300,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 			
 			ret = true;	
 			break;
+			*/
 		}
 							
 		return ret;

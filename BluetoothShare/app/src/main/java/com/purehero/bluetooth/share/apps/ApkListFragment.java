@@ -276,17 +276,22 @@ public class ApkListFragment extends FragmentEx {
 
 	@SuppressLint("SdCardPath")
 	private void apk_extract(ApkListData data) {
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-		
-		File apkFile = new File( data.getApkFilepath());
-		File externalStorageFolder = Environment.getExternalStorageDirectory();
-		File baseFile = new File(  sharedPref.getString( "sdcard_path", new File( externalStorageFolder, "ApkExtractor" ).getAbsolutePath()));
-		if( !baseFile.exists()) baseFile.mkdirs();
+		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "YeeunApps" );
+		File extratedFolder = new File( baseFolder, "ExtratedApps" );
+		if( !extratedFolder.exists()) {
+			extratedFolder.mkdirs();
+		}
 
-		File destFile = new File( baseFile, data.getPackageName() + ".apk" );
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( context );
+
+		File apkFile 	= new File( data.getApkFilepath());
+		File destFile 	= new File( sharedPref.getString( "apps_extractor_path", extratedFolder.getAbsolutePath()), data.getPackageName() + ".apk" );
 		
 		FileCopyAsync filecopy = new FileCopyAsync( context, data.getAppName() );
 		filecopy.execute( apkFile, destFile );
+
+		sharedPref.edit().putString( "apps_extractor_path", destFile.getParent() );
+		sharedPref.edit().commit();
 	}
 
 

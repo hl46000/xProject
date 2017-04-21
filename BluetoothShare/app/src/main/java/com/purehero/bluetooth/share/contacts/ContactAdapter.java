@@ -12,9 +12,12 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +28,9 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,50 +87,49 @@ public class ContactAdapter extends BaseAdapter
 		ViewHolder viewHolder;
 		if( convertView == null ) {
 			viewHolder = new ViewHolder();
-			
+
 			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-			convertView  = inflater.inflate( R.layout.contact_list_cell_layout, null );
-			
+			convertView  = null;
+
+			if( parent instanceof ListView) {
+				convertView  = inflater.inflate( R.layout.contacts_list_cell_layout, null );
+			} else if( parent instanceof GridView) {
+				convertView  = inflater.inflate( R.layout.contacts_grid_cell_layout, null );
+			}
+
 			viewHolder.checkBox = ( CheckBox )convertView.findViewById( R.id.check_box );
 			viewHolder.icon	= (ImageView) convertView.findViewById( R.id.contact_icon );
 			viewHolder.name	= (TextView)  convertView.findViewById( R.id.contact_name );
-		
+
 			viewHolder.checkBox.setOnCheckedChangeListener( this );
-			
+
 			convertView.setTag( viewHolder );
 		} else {
-			viewHolder = ( ViewHolder ) convertView.getTag();
+			viewHolder = (ViewHolder) convertView.getTag();
 		}
-		
+
 		viewHolder.checkBox.setVisibility( showCheckBox ? View.VISIBLE : View.GONE );
 		viewHolder.checkBox.setId( position );
-		
+
 		ContactData data = ( ContactData ) getItem( position );
-		if( data != null ) {
-			Drawable icon = data.getIcon();
-			if( icon == null ) {
-				viewHolder.icon.setImageResource( R.drawable.ic_contact );
-			} else {
-				viewHolder.icon.setImageDrawable( icon );				
-			}
-			
-			viewHolder.name.setVisibility( View.VISIBLE );
-			viewHolder.name.setText( data.getDisplayName());
-			viewHolder.checkBox.setChecked( data.isSelected() );
-			
+		Drawable icon = data.getIcon();
+		if( icon == null ) {
+			viewHolder.icon.setImageResource( R.drawable.ic_contact );
 		} else {
-			viewHolder.icon.setVisibility( View.INVISIBLE );
-			viewHolder.name.setText( "" );
-			viewHolder.checkBox.setChecked( false );
+			viewHolder.icon.setImageDrawable( icon );
 		}
-		
+
+		viewHolder.name.setVisibility( View.VISIBLE );
+		viewHolder.name.setText( data.getDisplayName());
+		viewHolder.checkBox.setChecked( data.isSelected() );
+
 		return convertView;
 	}
 
 	class ViewHolder {
 		public CheckBox checkBox;
 		public ImageView icon;
-		public TextView name;		
+		public TextView name;
 	}
 	
 	Thread IconUpdateThread = null;
@@ -317,17 +321,20 @@ public class ContactAdapter extends BaseAdapter
 			return;
 		}
 
-		//File backup_folder = new File( context.getString( R.string.contacts_backup_folder) );
-		File backup_folder = new File( "backup" );
-		if( !backup_folder.exists()) {
-			backup_folder.mkdirs();
+		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "YeeunApps" );
+		File backupFolder 	= new File( baseFolder, "BackupContacts" );
+		if( !backupFolder.exists()) {
+			backupFolder.mkdirs();
 		}
-		File backup_file = new File( backup_folder, backupName + ".vcf" );
+
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( context );
+
+		File backup_file = new File( sharedPref.getString( "contacts_backup_path",  backupFolder.getAbsolutePath()), backupName + ".vcf" );
 		FileOutputStream fos = null;
 		
 		try {
 			fos = new FileOutputStream( backup_file );
-			
+
 			int count = 0;
 			for( ContactData data : listDatas ) {
 				if( data.isSelected()) {
