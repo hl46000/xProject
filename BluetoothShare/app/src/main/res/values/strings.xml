@@ -33,4 +33,6 @@
     <string name="contacts_enter_backup_name">Please enter backup name</string>
     <string name="contacts_backup_result">backed up xxxxx contacts with the name yyyyy</string>
     <string name="contacts_menu_backup_selected">Backup selected contacts</string>
+    <string name="share_select_app">Select Apps( e.g E-Mail )</string>
+    <string name="share_via">Share via</string>
 </resources>

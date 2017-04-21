@@ -128,7 +128,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 			// Progress bar 사라지게 하기
 			progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
 			progressBar.setVisibility( View.GONE );
-			progressBar = null;
+			registerForContextMenu(progressBar);
 
 			apkListView = (ListView) layout.findViewById(R.id.apkListView);
 			apkGridView = (GridView) layout.findViewById(R.id.apkGridView);
@@ -139,7 +139,8 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				apkListView.setVisibility(View.VISIBLE);
 				apkListView.setAdapter(apkListAdapter);
 
-				apkListView.setOnItemLongClickListener( ApkListFragment.this );
+				registerForContextMenu(apkListView);
+				//apkListView.setOnItemLongClickListener( ApkListFragment.this );
 				apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -156,7 +157,8 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				apkGridView.setVisibility(View.VISIBLE);
 				apkGridView.setAdapter(apkListAdapter);
 
-				apkGridView.setOnItemLongClickListener( ApkListFragment.this );
+				registerForContextMenu(apkGridView);
+				//apkGridView.setOnItemLongClickListener( ApkListFragment.this );
 				apkGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -211,6 +213,11 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				}
 				new Thread( apk_info_load_runnable ).start();
 				return true;
+
+            case R.id.action_share :
+                context.openContextMenu(progressBar);
+				progressBar.showContextMenu();
+                return true;
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -227,7 +234,10 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		if ( v.getId() == R.id.apkListView ) {
 			context.getMenuInflater().inflate(R.menu.apps_context_menu, menu);
-		}
+		} else if ( v.getId() == R.id.progressBar ) {
+            context.getMenuInflater().inflate(R.menu.share_context_menu, menu);
+			menu.setHeaderTitle( R.string.share_via );
+        }
 	}
 	
 	// 메뉴 클릭 
