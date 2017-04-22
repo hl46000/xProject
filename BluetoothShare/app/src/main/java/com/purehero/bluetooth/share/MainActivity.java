@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +24,7 @@ import android.view.View;
 
 import com.purehero.bluetooth.share.apps.ApkListFragment;
 import com.purehero.bluetooth.share.contacts.ContactFragment;
+import com.purehero.module.fragment.FragmentEx;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +67,12 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
+            if( fragment instanceof FragmentEx ) {
+                if( ((FragmentEx) fragment).onBackPressed()) {
+                    return;
+                }
+            }
             super.onBackPressed();
         }
     }

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.GridView;
@@ -31,9 +32,11 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 	private List<ApkListData> filteredData 	= new ArrayList<ApkListData>();
 		
 	public ApkListAdapter( Context context ) {
-		super();
-		this.context = context;
-		
+        super();
+        this.context = context;
+    }
+
+    public void loadApps() {
 		PackageManager pm =  context.getPackageManager();
 	    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
 	    homeIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -57,7 +60,31 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 	    	filteredData.add( apkData );
 	    }	    	    	    
 	}
-	
+
+	boolean bSelectMode = false;
+	public boolean isSelectMode() {
+		return bSelectMode;
+	}
+	public void setSelectMode( boolean bMode ) {
+		boolean bChanged = bSelectMode != bMode;
+
+		bSelectMode = bMode;
+		if( bChanged ) {
+            for( ApkListData data : filteredData ) {
+                data.setSelected( false );
+            }
+			notifyDataSetChanged();
+		}
+	}
+
+	public int getSelectedItemCount() {
+        int ret = 0;
+        for( ApkListData data : filteredData ) {
+            if( data.isSelected()) ++ ret;
+        }
+        return ret;
+    }
+
 	public void remove( int index ) {
 		ApkListData apkData = filteredData.remove( index );		
 		dataChanged();
@@ -110,19 +137,20 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 	private View getViewForGridView(int position, View convertView, ViewGroup parent) {
 		G.Log( "parent instanceof GridView" );
 
-		GridViewHolder viewHolder;
+		ViewHolder viewHolder;
 		if( convertView == null ) {
-			viewHolder = new GridViewHolder();
+			viewHolder = new ViewHolder();
 
 			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 			convertView  = inflater.inflate( R.layout.apps_grid_cell_layout, null );
 
-			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apps_grid_cell_icon );
-			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apps_grid_cell_app_name );
+			viewHolder.check		= (CheckBox)  convertView.findViewById( R.id.apps_cell_check_box );
+			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apps_cell_icon );
+			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apps_cell_app_name );
 
 			convertView.setTag( viewHolder );
 		} else {
-			viewHolder = ( GridViewHolder ) convertView.getTag();
+			viewHolder = ( ViewHolder ) convertView.getTag();
 		}
 
 		ApkListData data = filteredData.get( position );
@@ -133,6 +161,8 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		}
 		viewHolder.appName.setText( data.getAppName());
 		viewHolder.appName.setSelected( true );
+		viewHolder.check.setVisibility( isSelectMode() ? View.VISIBLE : View.GONE );
+		viewHolder.check.setChecked( data.isSelected() );
 
 		return convertView;
 	}
@@ -140,20 +170,21 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 	private View getViewForListView(int position, View convertView, ViewGroup parent) {
 		G.Log( "getViewForListView" );
 
-		ListViewHolder viewHolder;
+		ViewHolder viewHolder;
 		if( convertView == null ) {
-			viewHolder = new ListViewHolder();
+			viewHolder = new ViewHolder();
 
 			LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 			convertView  = inflater.inflate( R.layout.apps_list_cell_layout, null );
 
-			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apk_list_view_item_icon );
-			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apk_list_view_item_app_name );
-			viewHolder.packageName 	= (TextView)  convertView.findViewById( R.id.apk_list_view_item_package_name );
-			viewHolder.versionName	= (TextView)  convertView.findViewById( R.id.apk_list_view_item_version_name );
+			viewHolder.check		= (CheckBox)  convertView.findViewById( R.id.apps_cell_check_box );
+			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apps_cell_icon );
+			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apps_cell_app_name );
+			viewHolder.packageName 	= (TextView)  convertView.findViewById( R.id.apps_cell_package_name );
+			viewHolder.versionName	= (TextView)  convertView.findViewById( R.id.apps_cell_version_name );
 			convertView.setTag( viewHolder );
 		} else {
-			viewHolder = ( ListViewHolder ) convertView.getTag();
+			viewHolder = ( ViewHolder ) convertView.getTag();
 		}
 
 		ApkListData data = filteredData.get( position );
@@ -181,17 +212,15 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 			viewHolder.versionName.setSelected( true );
 		}
 
+		viewHolder.check.setVisibility( isSelectMode() ? View.VISIBLE : View.GONE );
+		viewHolder.check.setChecked( data.isSelected() );
+
 		return convertView;
 	}
 
-	class GridViewHolder
+	class ViewHolder
 	{
-		public ImageView icon;
-		public TextView appName;
-	}
-
-	class ListViewHolder
-	{
+		public CheckBox check;
 		public ImageView icon;
 		public TextView appName;
 		public TextView packageName;

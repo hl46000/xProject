@@ -42,9 +42,9 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	final int VIEW_MODE_GRID = 1;
 
 	private ListView apkListView 			= null;
-	private GridView apkGridView				= null;
+	private GridView apkGridView			= null;
 	private ProgressBar progressBar  		= null;
-	private ApkListAdapter apkListAdapter 	= null;
+	private ApkListAdapter appsAdapter      = null;
 	private Stack<ApkListData> workStack 	= new Stack<ApkListData>();
 
 	int view_layout_mode = VIEW_MODE_LIST;
@@ -53,6 +53,8 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	
 	public ApkListFragment setMainActivity( MainActivity activity ) {
 		context = activity;
+		appsAdapter = new ApkListAdapter( context );
+
 		return this;
 	}
 
@@ -101,7 +103,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				if( packageName != null && !is_apk_installed(packageName)) {
 					int position = data.getIndex();
 					if( position != -1 ) {
-						apkListAdapter.remove( position );
+						appsAdapter.remove( position );
 					}
 				}
 			}
@@ -111,12 +113,22 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	Runnable apk_info_load_runnable = new Runnable() {
+    @Override
+    public boolean onBackPressed() {
+        if( appsAdapter.isSelectMode()) {
+            appsAdapter.setSelectMode( false );
+            context.invalidateOptionsMenu();
+			return true;
+        }
+        return super.onBackPressed();
+    }
+
+    Runnable apk_info_load_runnable = new Runnable() {
 		@Override
 		public void run() {
 			// 초기화면을 표시하기 위해 필요한 데이터 수집
-			getApkInfos();
-			
+            appsAdapter.loadApps();
+
 			// 수집된 데이터 화면에 보여 주기
 			context.runOnUiThread( init_ui_runnable );
 		}
@@ -137,16 +149,22 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				// ListView 나타나게 하기
 				apkGridView.setVisibility(View.GONE);
 				apkListView.setVisibility(View.VISIBLE);
-				apkListView.setAdapter(apkListAdapter);
+				apkListView.setAdapter(appsAdapter);
 
 				registerForContextMenu(apkListView);
-				//apkListView.setOnItemLongClickListener( ApkListFragment.this );
+				apkListView.setOnItemLongClickListener( ApkListFragment.this );
 				apkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						ApkListData data = (ApkListData) apkListAdapter.getItem(position);
-						apk_running(data);
+						ApkListData data = (ApkListData) appsAdapter.getItem(position);
+						if( appsAdapter.isSelectMode()) {
+							data.setSelected( !data.isSelected());
+							appsAdapter.notifyDataSetChanged();
+							context.invalidateOptionsMenu();
+							return;
+						}
 
+						apk_running(data);
 						data.setClickCount(data.getClickCount() + 1);
 					}
 				});
@@ -155,14 +173,20 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 			} else {
 				apkListView.setVisibility(View.GONE);
 				apkGridView.setVisibility(View.VISIBLE);
-				apkGridView.setAdapter(apkListAdapter);
+				apkGridView.setAdapter(appsAdapter);
 
 				registerForContextMenu(apkGridView);
-				//apkGridView.setOnItemLongClickListener( ApkListFragment.this );
+				apkGridView.setOnItemLongClickListener( ApkListFragment.this );
 				apkGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						ApkListData data = (ApkListData) apkListAdapter.getItem(position);
+						ApkListData data = (ApkListData) appsAdapter.getItem(position);
+						if( appsAdapter.isSelectMode()) {
+							data.setSelected( !data.isSelected());
+							appsAdapter.notifyDataSetChanged();
+							context.invalidateOptionsMenu();
+							return;
+						}
 						apk_running(data);
 
 						data.setClickCount(data.getClickCount() + 1);
@@ -175,7 +199,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				apk_search.addTextChangedListener(new TextWatcher() {
 			        @Override
 			        public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-			        	ApkListFragment.this.apkListAdapter.getFilter().filter(cs);
+			        	ApkListFragment.this.appsAdapter.getFilter().filter(cs);
 			        }
 			        @Override
 			        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
@@ -183,6 +207,8 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 			        public void afterTextChanged(Editable arg0) { }
 			    });
 			}
+
+            appsAdapter.sort();
 		}
 	};
 	
@@ -191,8 +217,8 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	 * 설치된 앱(APK)들의 정보(아이콘, 앱이름, 패키지명)등을 추출한다. 
 	 */
 	private void getApkInfos() {
-	    apkListAdapter = new ApkListAdapter( context );
-	    apkListAdapter.sort();
+		appsAdapter.loadApps();
+		appsAdapter.sort();
 	}
 
 
@@ -203,9 +229,9 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 
 		//noinspection SimplifiableIfStatement
 		switch (id ) {
-			case R.id.action_view_mode :
+			case R.id.apps_action_view_mode :
 				if( view_layout_mode == VIEW_MODE_LIST ) {
-					item.setIcon( R.drawable.ic_view_headline_white_24dp);
+					item.setIcon( R.drawable.ic_format_list_bulleted_white_24dp);
 					view_layout_mode = VIEW_MODE_GRID;
 				} else {
 					item.setIcon( R.drawable.ic_view_module_white_24dp);
@@ -214,16 +240,46 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				new Thread( apk_info_load_runnable ).start();
 				return true;
 
-            case R.id.action_share :
+            case R.id.apps_action_share :
                 context.openContextMenu(progressBar);
 				progressBar.showContextMenu();
                 return true;
+
+			case R.id.apps_action_select_mode :
+			    appsAdapter.setSelectMode( true );
+				context.invalidateOptionsMenu();
+				return true;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
 
-    @Override
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		int selectedCount = appsAdapter.getSelectedItemCount();
+
+		MenuItem item = menu.findItem( R.id.apps_action_select_mode );
+		if( item != null ) {
+			item.setVisible( !appsAdapter.isSelectMode() );
+		}
+
+		item = menu.findItem( R.id.apps_action_delete );
+		if( item != null ) {
+			item.setVisible( appsAdapter.isSelectMode() && selectedCount == 1 );
+		}
+
+		item = menu.findItem( R.id.apps_action_share );
+		if( item != null ) {
+			item.setVisible( appsAdapter.isSelectMode() );
+		}
+
+		item = menu.findItem( R.id.apps_action_bluetooth_share );
+		if( item != null ) {
+			item.setVisible( appsAdapter.isSelectMode() );
+		}
+	}
+
+	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.apps_option_menu, menu);
@@ -247,7 +303,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-		ApkListData data = ( ApkListData ) apkListAdapter.getItem( info.position );
+		ApkListData data = ( ApkListData ) appsAdapter.getItem( info.position );
 				
 		data.setIndex( info.position );
 		data.setClickCount( data.getClickCount() + 1 );
@@ -406,11 +462,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		IconizedMenu popup = new IconizedMenu( context, view);
-		MenuInflater inflater = popup.getMenuInflater();
-		inflater.inflate(R.menu.apps_context_menu, popup.getMenu());
-		popup.show();
-
-		return true;
+        if( appsAdapter.isSelectMode()) return true;
+		return false;
 	}
 }

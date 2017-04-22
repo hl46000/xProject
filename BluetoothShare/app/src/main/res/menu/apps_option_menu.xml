@@ -3,33 +3,47 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_share"
+        android:id="@+id/apps_action_bluetooth_share"
         android:orderInCategory="100"
-        android:title="@string/action_view_mode"
-        android:icon="@drawable/ic_menu_share"
+        android:title="@string/action_bluetooth_share"
+        android:icon="@drawable/ic_bluetooth_white_24dp"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_view_mode"
+        android:id="@+id/apps_action_share"
+        android:orderInCategory="100"
+        android:title="@string/action_view_mode"
+        android:icon="@drawable/ic_share_white_24dp"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/apps_action_view_mode"
         android:orderInCategory="100"
         android:title="@string/action_view_mode"
         android:icon="@drawable/ic_view_module_white_24dp"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/apps_action_delete"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="@string/action_delete"
+        android:icon="@drawable/ic_delete_white_24dp"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/apps_action_select_mode"
+        android:orderInCategory="100"
+        android:title="@string/action_select_mode"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_bluetooth_admin"
+        android:id="@+id/apps_action_bluetooth_admin"
         android:orderInCategory="100"
         android:title="@string/action_bluetooth_admin"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_bluetooth_identity"
+        android:id="@+id/apps_action_bluetooth_identity"
         android:orderInCategory="100"
         android:title="@string/action_bluetooth_identity"
         app:showAsAction="never" />

@@ -26,7 +26,8 @@ public class ApkListData {
 	private File clickCountFile = null;
 	private int clickCount;
 	private int index 		= -1;
-	
+	private boolean bSelected = false;
+
 	/**
 	 * 생성자, 
 	 * 
@@ -144,7 +145,14 @@ public class ApkListData {
 	public int getClickCount() {
 		return clickCount;
 	}
-	
+
+	public boolean isSelected() {
+		return bSelected;
+	}
+	public void setSelected( boolean bSelected ) {
+		this.bSelected = bSelected;
+	}
+
 	/**
 	 * ApkListData 의 list 을 정렬에 필요한 비교자
 	 */
