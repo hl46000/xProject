@@ -35,6 +35,8 @@ import com.purehero.bluetooth.share.R;
 import com.purehero.module.fragment.FragmentEx;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLongClickListener {
@@ -237,7 +239,15 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 					item.setIcon( R.drawable.ic_view_module_white_24dp);
 					view_layout_mode = VIEW_MODE_LIST;
 				}
-				new Thread( apk_info_load_runnable ).start();
+				// 수집된 데이터 화면에 보여 주기
+				init_ui_runnable.run();
+
+				return true;
+
+			case R.id.apps_action_delete :
+				return true;
+
+			case R.id.apps_action_bluetooth_share :
 				return true;
 
             case R.id.apps_action_share :
@@ -270,12 +280,12 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 
 		item = menu.findItem( R.id.apps_action_share );
 		if( item != null ) {
-			item.setVisible( appsAdapter.isSelectMode() );
+			item.setVisible( appsAdapter.isSelectMode() && selectedCount > 0 );
 		}
 
 		item = menu.findItem( R.id.apps_action_bluetooth_share );
 		if( item != null ) {
-			item.setVisible( appsAdapter.isSelectMode() );
+			item.setVisible( appsAdapter.isSelectMode() && selectedCount > 0 );
 		}
 	}
 
@@ -300,20 +310,23 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		boolean ret = false;
-		
+
+		List<ApkListData> datas = new ArrayList<ApkListData>();
+
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		ApkListData data = ( ApkListData ) appsAdapter.getItem( info.position );
-				
+		datas.add( data );
+
 		data.setIndex( info.position );
 		data.setClickCount( data.getClickCount() + 1 );
 		
 		switch( item.getItemId()) {
 		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		ret=true; break;
 		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	ret=true; break;
-		case R.id.APK_MENU_DELETE 		: apk_uninstall( data, info.position ); 	ret=true; break;
-		case R.id.APK_MENU_SHARE		: apk_share( data ); ret=true; break;
-		case R.id.APK_MENU_EXTRACT 		: apk_extract( data ); ret=true; break;
+		case R.id.APK_MENU_UNINSTALL 	: apk_uninstall( datas ); 	ret=true; break;
+		case R.id.APK_MENU_SHARE			: apk_share( datas ); ret=true; break;
+		case R.id.APK_MENU_EXTRACT 		: apk_extract( datas ); ret=true; break;
 		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); ret=true; break;
 		}
 					
@@ -343,7 +356,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	}
 
 	@SuppressLint("SdCardPath")
-	private void apk_extract(ApkListData data) {
+	private void apk_extract( List<ApkListData> datas ) {
 		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "YeeunApps" );
 		File extratedFolder = new File( baseFolder, "ExtratedApps" );
 		if( !extratedFolder.exists()) {
@@ -352,14 +365,19 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences( context );
 
-		File apkFile 	= new File( data.getApkFilepath());
-		File destFile 	= new File( sharedPref.getString( "apps_extractor_path", extratedFolder.getAbsolutePath()), data.getPackageName() + ".apk" );
-		
-		FileCopyAsync filecopy = new FileCopyAsync( context, data.getAppName() );
-		filecopy.execute( apkFile, destFile );
+		File destFile = null;
+		for( ApkListData data : datas ) {
+			File apkFile = new File(data.getApkFilepath());
+			destFile = new File(sharedPref.getString("apps_extractor_path", extratedFolder.getAbsolutePath()), data.getPackageName() + ".apk");
 
-		sharedPref.edit().putString( "apps_extractor_path", destFile.getParent() );
-		sharedPref.edit().commit();
+			FileCopyAsync filecopy = new FileCopyAsync(context, data.getAppName());
+			filecopy.execute(apkFile, destFile);
+		}
+
+		if( destFile != null ) {
+			sharedPref.edit().putString("apps_extractor_path", destFile.getParent());
+			sharedPref.edit().commit();
+		}
 	}
 
 
@@ -367,19 +385,27 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	/**
 	 * @param data
 	 */
-	private void apk_share(ApkListData data) {
+	private void apk_share( List<ApkListData> datas ) {
 		workStack.clear();
-		workStack.push( data );
+		workStack.push( datas.get(0) );
 			
 		Intent shareIntent = new Intent();
-		shareIntent.setAction(Intent.ACTION_SEND);
+		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		shareIntent.setType("*/*");
 		try {
-			String extension = getFileExt( data.getApkFilepath() );
-			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
-			shareIntent.setDataAndType( Uri.fromFile( new File( data.getApkFilepath() )), mimeType );
+			ArrayList<Uri> shareDatas = new ArrayList<Uri>();
+			for( ApkListData data : datas ) {
+				String extension = getFileExt( data.getApkFilepath() );
+				String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
+				shareDatas.add( Uri.fromFile( new File( data.getApkFilepath() )) );
+				//shareIntent.setDataAndType( , mimeType );
+			}
+
+			shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		//shareIntent.setType("application/vnd.android.package-archive");
 		//shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File( data.getApkFilepath() )));
 		//shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
@@ -398,14 +424,15 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	 * 
 	 * @param data
 	 */	
-	private void apk_uninstall(ApkListData data, int position ) {
+	private void apk_uninstall( List<ApkListData> datas ) {
 		workStack.clear();
-		workStack.push( data );
-		
-		Uri packageURI = Uri.parse("package:"+data.getPackageName());
-		Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
-		startActivityForResult( uninstallIntent, R_ID_APK_MENU_DELETE );
-		
+		workStack.push( datas.get(0));
+
+		for( ApkListData data : datas ) {
+			Uri packageURI = Uri.parse("package:" + data.getPackageName());
+			Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+			startActivityForResult(uninstallIntent, R_ID_APK_MENU_DELETE);
+		}
 	}
 
 	/**

@@ -36,4 +36,5 @@
     <string name="share_select_app">Select Apps( e.g E-Mail )</string>
     <string name="share_via">Share via</string>
     <string name="action_delete">Delete</string>
+    <string name="uninstall">Uninstall</string>
 </resources>

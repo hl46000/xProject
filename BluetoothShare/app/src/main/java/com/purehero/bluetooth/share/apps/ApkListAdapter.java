@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.GridView;
@@ -25,8 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ApkListAdapter extends BaseAdapter implements Filterable
-{
+public class ApkListAdapter extends BaseAdapter implements Filterable, CompoundButton.OnCheckedChangeListener, View.OnClickListener {
 	private final Context context;
 	private List<ApkListData> listData 		= new ArrayList<ApkListData>();
 	private List<ApkListData> filteredData 	= new ArrayList<ApkListData>();
@@ -84,6 +84,17 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
         }
         return ret;
     }
+
+	public List<ApkListData> getSelectedItem() {
+		List<ApkListData> ret = new ArrayList<ApkListData>();
+
+		for( ApkListData data : filteredData ) {
+			if( data.isSelected()) {
+				ret.add( data );
+			}
+		}
+		return ret;
+	}
 
 	public void remove( int index ) {
 		ApkListData apkData = filteredData.remove( index );		
@@ -146,7 +157,9 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 
 			viewHolder.check		= (CheckBox)  convertView.findViewById( R.id.apps_cell_check_box );
 			viewHolder.icon 		= (ImageView) convertView.findViewById( R.id.apps_cell_icon );
-			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apps_cell_app_name );
+			viewHolder.appName 	= (TextView)  convertView.findViewById( R.id.apps_cell_app_name );
+
+			viewHolder.check.setOnClickListener( this );
 
 			convertView.setTag( viewHolder );
 		} else {
@@ -161,8 +174,10 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 		}
 		viewHolder.appName.setText( data.getAppName());
 		viewHolder.appName.setSelected( true );
+
 		viewHolder.check.setVisibility( isSelectMode() ? View.VISIBLE : View.GONE );
 		viewHolder.check.setChecked( data.isSelected() );
+		viewHolder.check.setTag( data );
 
 		return convertView;
 	}
@@ -182,6 +197,9 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 			viewHolder.appName 		= (TextView)  convertView.findViewById( R.id.apps_cell_app_name );
 			viewHolder.packageName 	= (TextView)  convertView.findViewById( R.id.apps_cell_package_name );
 			viewHolder.versionName	= (TextView)  convertView.findViewById( R.id.apps_cell_version_name );
+
+			viewHolder.check.setOnClickListener( this );
+
 			convertView.setTag( viewHolder );
 		} else {
 			viewHolder = ( ViewHolder ) convertView.getTag();
@@ -214,8 +232,25 @@ public class ApkListAdapter extends BaseAdapter implements Filterable
 
 		viewHolder.check.setVisibility( isSelectMode() ? View.VISIBLE : View.GONE );
 		viewHolder.check.setChecked( data.isSelected() );
+		viewHolder.check.setTag( data );
 
 		return convertView;
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		ApkListData data = ( ApkListData ) buttonView.getTag();
+		data.setSelected( isChecked );
+	}
+
+	@Override
+	public void onClick(View v) {
+		if( v instanceof CheckBox ) {
+			ApkListData data = (ApkListData) v.getTag();
+			CheckBox cb = ( CheckBox ) v;
+
+			data.setSelected( cb.isChecked());
+		}
 	}
 
 	class ViewHolder

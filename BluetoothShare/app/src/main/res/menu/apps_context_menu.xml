@@ -8,9 +8,9 @@
 		android:icon="@android:drawable/ic_dialog_email"
 	    android:title="@string/extract" />
 	<item 
-	    android:id="@+id/APK_MENU_DELETE"
+	    android:id="@+id/APK_MENU_UNINSTALL"
 		android:icon="@android:drawable/ic_delete"
-	    android:title="@string/delete" />
+	    android:title="@string/uninstall" />
 	<item 
 	    android:id="@+id/APK_MENU_SHARE"
 		android:icon="@android:drawable/ic_dialog_alert"
