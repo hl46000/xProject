@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -248,20 +249,24 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				return true;
 
 			case R.id.apps_action_bluetooth_share :
+				apk_bluetooth_share( appsAdapter.getSelectedItem());
 				return true;
 
             case R.id.apps_action_share :
-                context.openContextMenu(progressBar);
-				progressBar.showContextMenu();
+				apk_share( appsAdapter.getSelectedItem());
                 return true;
 
 			case R.id.apps_action_select_mode :
 			    appsAdapter.setSelectMode( true );
 				context.invalidateOptionsMenu();
 				return true;
+
+			case R.id.action_bluetooth_admin :
+				startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
+				return true;
 		}
 
-		return super.onOptionsItemSelected(item);
+		return false;
 	}
 
 	@Override
@@ -325,9 +330,9 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		ret=true; break;
 		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	ret=true; break;
 		case R.id.APK_MENU_UNINSTALL 	: apk_uninstall( datas ); 	ret=true; break;
-		case R.id.APK_MENU_SHARE			: apk_share( datas ); ret=true; break;
-		case R.id.APK_MENU_EXTRACT 		: apk_extract( datas ); ret=true; break;
-		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); ret=true; break;
+		case R.id.APK_MENU_SHARE		: apk_share( datas ); 		ret=true; break;
+		case R.id.APK_MENU_EXTRACT 		: apk_extract( datas ); 	ret=true; break;
+		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); 	ret=true; break;
 		}
 					
 		return ret;
@@ -380,10 +385,29 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		}
 	}
 
+	private void apk_bluetooth_share( List<ApkListData> datas ) {
+		Intent shareIntent = new Intent();
+		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		shareIntent.setPackage("com.android.bluetooth");
+		shareIntent.setType("*/*");
 
+        try {
+			ArrayList<Uri> shareDatas = new ArrayList<Uri>();
+			for( ApkListData data : datas ) {
+				shareDatas.add( Uri.fromFile( new File( data.getApkFilepath()) ));
+			}
+
+			shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//startActivityForResult(Intent.createChooser(shareIntent, "Share APK File via Bluetooth" ), R_ID_APK_MENU_SHARE);
+        startActivityForResult( shareIntent, R_ID_APK_MENU_SHARE);
+	}
 
 	/**
-	 * @param data
+	 * @param datas
 	 */
 	private void apk_share( List<ApkListData> datas ) {
 		workStack.clear();
@@ -395,10 +419,11 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		try {
 			ArrayList<Uri> shareDatas = new ArrayList<Uri>();
 			for( ApkListData data : datas ) {
-				String extension = getFileExt( data.getApkFilepath() );
-				String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
-				shareDatas.add( Uri.fromFile( new File( data.getApkFilepath() )) );
-				//shareIntent.setDataAndType( , mimeType );
+				//File dest = new File( context.getCacheDir(), data.getAppName() + ".apk" );
+				//if( dest.exists()) dest.delete();
+				//G.copy_file( new File( data.getApkFilepath()), dest );
+				//shareDatas.add( Uri.fromFile( dest ));
+				shareDatas.add( Uri.fromFile( new File( data.getApkFilepath()) ));
 			}
 
 			shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
@@ -406,11 +431,6 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 			e.printStackTrace();
 		}
 
-		//shareIntent.setType("application/vnd.android.package-archive");
-		//shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile( new File( data.getApkFilepath() )));
-		//shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Sharing File..." );
-		//shareIntent.putExtra(Intent.EXTRA_TEXT, "Sharing File..." );
-		
 		startActivityForResult(Intent.createChooser(shareIntent, "Share APK File" ), R_ID_APK_MENU_SHARE);
 	}
 
@@ -422,7 +442,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	/**
 	 * APK을 단말기에서 Uninstall 합니다. 
 	 * 
-	 * @param data
+	 * @param datas
 	 */	
 	private void apk_uninstall( List<ApkListData> datas ) {
 		workStack.clear();

@@ -18,7 +18,12 @@ import android.util.Log;
 import android.widget.EditText;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -76,6 +81,28 @@ public class G {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static void copy_file(File src, File dest ) {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream( src );
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[102400];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+            os.flush();
+
+        } catch( IOException e ) {
+            e.printStackTrace();
+
+        } finally {
+            safe_close( is );
+            safe_close( os );
         }
     }
 }
