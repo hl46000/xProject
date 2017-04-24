@@ -246,6 +246,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 				return true;
 
 			case R.id.apps_action_delete :
+				apk_uninstall( appsAdapter.getSelectedItem());
 				return true;
 
 			case R.id.apps_action_bluetooth_share :
@@ -445,10 +446,10 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	 * @param datas
 	 */	
 	private void apk_uninstall( List<ApkListData> datas ) {
-		workStack.clear();
-		workStack.push( datas.get(0));
-
 		for( ApkListData data : datas ) {
+			workStack.clear();
+			workStack.push( data );
+
 			Uri packageURI = Uri.parse("package:" + data.getPackageName());
 			Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
 			startActivityForResult(uninstallIntent, R_ID_APK_MENU_DELETE);
