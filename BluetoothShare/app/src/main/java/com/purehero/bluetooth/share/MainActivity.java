@@ -74,6 +74,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
+        if( fragment.onOptionsItemSelected( item )) {
+            return true;
+        }
+
         int id = item.getItemId();
         switch (id ) {
             case R.id.action_settings:
@@ -86,7 +91,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.action_bluetooth_identity :
                 return true;
-
         }
 
         return super.onOptionsItemSelected(item);

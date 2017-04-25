@@ -42,8 +42,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 	private final Activity context;
 	private List<ContactData> listDatas 	= new ArrayList<ContactData>();
 	private List<ContactData> filteredData 	= new ArrayList<ContactData>();
-	private boolean showCheckBox = false;
-	
+
 	public ContactAdapter( Activity context ) {
 		this.context = context;
 	}
@@ -107,7 +106,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		viewHolder.checkBox.setVisibility( showCheckBox ? View.VISIBLE : View.GONE );
+		viewHolder.checkBox.setVisibility( isSelectMode() ? View.VISIBLE : View.GONE );
 		viewHolder.checkBox.setId( position );
 
 		ContactData data = ( ContactData ) getItem( position );
@@ -121,6 +120,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 		viewHolder.name.setVisibility( View.VISIBLE );
 		viewHolder.name.setText( data.getDisplayName());
 		viewHolder.checkBox.setChecked( data.isSelected() );
+        viewHolder.checkBox.setTag( data );
 
 		return convertView;
 	}

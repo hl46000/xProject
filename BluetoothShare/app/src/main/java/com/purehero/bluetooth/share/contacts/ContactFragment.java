@@ -25,7 +25,10 @@ import android.widget.ProgressBar;
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
+import com.purehero.module.common.DialogUtils;
 import com.purehero.module.fragment.FragmentEx;
+
+import java.util.List;
 
 public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener, View.OnClickListener {
 	final int VIEW_MODE_LIST = 0;
@@ -156,28 +159,86 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
+		int selectedCount = adapter.getSelectedItemCount();
 
+		MenuItem item = menu.findItem( R.id.contacts_action_select_mode );
+		if( item != null ) {
+			item.setVisible( !adapter.isSelectMode() );
+		}
+
+		item = menu.findItem( R.id.contacts_action_delete );
+		if( item != null ) {
+			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );
+		}
+
+		item = menu.findItem( R.id.contacts_action_share );
+		if( item != null ) {
+			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );
+		}
+
+		item = menu.findItem( R.id.contacts_action_bluetooth_share );
+		if( item != null ) {
+			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );
+		}
+
+		item = menu.findItem( R.id.contacts_action_backup );
+		if( item != null ) {
+			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );
+		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
+		if( id == R.id.contacts_action_view_mode ) {
+			if (view_layout_mode == VIEW_MODE_LIST) {
+				item.setIcon(R.drawable.ic_view_headline_white_24dp);
+				view_layout_mode = VIEW_MODE_GRID;
+			} else {
+				item.setIcon(R.drawable.ic_view_module_white_24dp);
+				view_layout_mode = VIEW_MODE_LIST;
+			}
+			context.runOnUiThread( init_ui_runnable );
+			return true;
 
-		//noinspection SimplifiableIfStatement
-		switch (id ) {
-			case R.id.action_view_mode :
-				if( view_layout_mode == VIEW_MODE_LIST ) {
-					item.setIcon( R.drawable.ic_view_headline_white_24dp);
-					view_layout_mode = VIEW_MODE_GRID;
-				} else {
-					item.setIcon( R.drawable.ic_view_module_white_24dp);
-					view_layout_mode = VIEW_MODE_LIST;
-				}
-				new Thread( init_ui_runnable ).start();
-				return true;
+		} else if( id == R.id.contacts_action_bluetooth_share ) {
+			contacts_bluetooth_share( adapter.getSelectedItem());
+			return true;
+
+		} else if( id == R.id.contacts_action_share ) {
+			contacts_share( adapter.getSelectedItem());
+			return true;
+
+		} else if( id == R.id.contacts_action_select_mode ) {
+			adapter.setSelectMode( true );
+			return true;
+
+		} else if( id == R.id.contacts_action_delete ) {
+			contacts_deletes( adapter.getSelectedItem());
+			return true;
+
+		} else if( id == R.id.contacts_action_backup ) {
+			contacts_backup( adapter.getSelectedItem());
+			return true;
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void contacts_backup(List<ContactData> selectedItem) {
+
+	}
+
+	private void contacts_deletes(List<ContactData> selectedItem) {
+
+	}
+
+	private void contacts_share(List<ContactData> selectedItem) {
+
+	}
+
+	private void contacts_bluetooth_share(List<ContactData> selectedItem) {
+
 	}
 
 
@@ -218,8 +279,12 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		G.Log( "onContextItemSelected index : " + info.position );
+
+		int id = item.getItemId();
+		if( id == R.id.contacts_action_view_mode ) {
+		}
 		
-		switch( item.getItemId()) {
+
 			/*
 		case R.id.menu_delete :
 			strTemp = context.getString( R.string.delete_info );
@@ -290,7 +355,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 			ret = true;	
 			break;
 			*/
-		}
+
 							
 		return ret;
 	}

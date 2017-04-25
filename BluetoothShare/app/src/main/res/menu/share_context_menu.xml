@@ -4,7 +4,7 @@
 	<item 
 	    android:id="@+id/share_bluetooth"
 		android:icon="@android:drawable/ic_menu_share"
-	    android:title="@string/action_bluetooth_share" />
+	    android:title="@string/share_via_bluetooth" />
 	<item 
 	    android:id="@+id/share_all"
 		android:icon="@android:drawable/ic_menu_more"

@@ -234,41 +234,34 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 
-		//noinspection SimplifiableIfStatement
-		switch (id ) {
-			case R.id.apps_action_view_mode :
-				if( view_layout_mode == VIEW_MODE_LIST ) {
-					item.setIcon( R.drawable.ic_format_list_bulleted_white_24dp);
-					view_layout_mode = VIEW_MODE_GRID;
-				} else {
-					item.setIcon( R.drawable.ic_view_module_white_24dp);
-					view_layout_mode = VIEW_MODE_LIST;
-				}
-				// 수집된 데이터 화면에 보여 주기
-				init_ui_runnable.run();
+		if( id == R.id.apps_action_view_mode ) {
+			if (view_layout_mode == VIEW_MODE_LIST) {
+				item.setIcon(R.drawable.ic_format_list_bulleted_white_24dp);
+				view_layout_mode = VIEW_MODE_GRID;
+			} else {
+				item.setIcon(R.drawable.ic_view_module_white_24dp);
+				view_layout_mode = VIEW_MODE_LIST;
+			}
+			// 수집된 데이터 화면에 보여 주기
+			init_ui_runnable.run();
+			return true;
 
-				return true;
+		} else if( id == R.id.apps_action_delete ) {
+			apk_uninstall(appsAdapter.getSelectedItem());
+			return true;
 
-			case R.id.apps_action_delete :
-				apk_uninstall( appsAdapter.getSelectedItem());
-				return true;
+		} else if( id == R.id.apps_action_bluetooth_share ) {
+			apk_bluetooth_share(appsAdapter.getSelectedItem());
+			return true;
 
-			case R.id.apps_action_bluetooth_share :
-				apk_bluetooth_share( appsAdapter.getSelectedItem());
-				return true;
+		} else if( id == R.id.apps_action_share ) {
+			apk_share(appsAdapter.getSelectedItem());
+			return true;
 
-            case R.id.apps_action_share :
-				apk_share( appsAdapter.getSelectedItem());
-                return true;
-
-			case R.id.apps_action_select_mode :
-			    appsAdapter.setSelectMode( true );
-				context.invalidateOptionsMenu();
-				return true;
-
-			case R.id.action_bluetooth_admin :
-				startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
-				return true;
+		} else if( id == R.id.apps_action_select_mode ) {
+			appsAdapter.setSelectMode( true );
+			context.invalidateOptionsMenu();
+			return true;
 		}
 
 		return false;

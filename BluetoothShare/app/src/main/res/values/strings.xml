@@ -4,9 +4,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="action_bluetooth_admin">Bluetooth Admin</string>
-    <string name="action_bluetooth_identity">Bluetooth Identity</string>
+    <string name="settings">Settings</string>
+    <string name="bluetooth_admin">Bluetooth Admin</string>
+    <string name="bluetooth_identity">Bluetooth Identity</string>
     <string name="contact">Contacts</string>
     <string name="files">Files</string>
     <string name="photos">Photos</string>
@@ -15,9 +15,11 @@
     <string name="my_files">MY FILES</string>
     <string name="audios">Audios</string>
     <string name="documents">Documents</string>
-    <string name="action_bluetooth_share">Bluetooth Share</string>
-    <string name="action_search">Search</string>
-    <string name="action_view_mode">View mode</string>
+    <string name="share_via_bluetooth">Share via Bluetooth</string>
+    <string name="share_via_apps">Share via Apps</string>
+    <string name="share_select_app">Share via Select Apps( e.g E-Mail )</string>
+    <string name="search">Search</string>
+    <string name="view_mode">View mode</string>
     <string name="extract">Extract</string>
     <string name="share">Share</string>
     <string name="execute">Execute</string>
@@ -28,13 +30,12 @@
     <string name="ok">OK</string>
     <string name="apps_search_hint">Search( App name or Package name )</string>
 
-    <string name="contacts_selected_backup">Backup selected contacts</string>
     <string name="contacts_backup_info">Backup the xxxxx selected contacts.</string>
     <string name="contacts_enter_backup_name">Please enter backup name</string>
     <string name="contacts_backup_result">backed up xxxxx contacts with the name yyyyy</string>
-    <string name="contacts_menu_backup_selected">Backup selected contacts</string>
-    <string name="share_select_app">Select Apps( e.g E-Mail )</string>
-    <string name="share_via">Share via</string>
-    <string name="action_delete">Delete</string>
+    <string name="contacts_backup_selected">Backup selected contacts</string>
+
+    <string name="delete">Delete</string>
     <string name="uninstall">Uninstall</string>
+
 </resources>
