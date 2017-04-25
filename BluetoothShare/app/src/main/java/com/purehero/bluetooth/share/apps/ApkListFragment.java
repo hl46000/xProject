@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLongClickListener {
+public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLongClickListener, View.OnClickListener {
 	final int VIEW_MODE_LIST = 0;
 	final int VIEW_MODE_GRID = 1;
 
@@ -74,6 +74,14 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
         if( aBar != null ) {
             aBar.setTitle( R.string.apps );
         }
+
+		progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
+		apkListView = (ListView) layout.findViewById(R.id.apkListView);
+		apkGridView = (GridView) layout.findViewById(R.id.apkGridView);
+
+		progressBar.setVisibility( View.VISIBLE );
+		apkListView.setVisibility( View.GONE );
+		apkGridView.setVisibility( View.GONE );
 
 		new Thread( apk_info_load_runnable ).start();
 		return layout;	
@@ -141,12 +149,8 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		@Override
 		public void run() {
 			// Progress bar 사라지게 하기
-			progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
 			progressBar.setVisibility( View.GONE );
 			registerForContextMenu(progressBar);
-
-			apkListView = (ListView) layout.findViewById(R.id.apkListView);
-			apkGridView = (GridView) layout.findViewById(R.id.apkGridView);
 
 			if( view_layout_mode == VIEW_MODE_LIST ) {
 				// ListView 나타나게 하기
@@ -304,12 +308,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	// 메뉴 생성
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if ( v.getId() == R.id.apkListView ) {
-			context.getMenuInflater().inflate(R.menu.apps_context_menu, menu);
-		} else if ( v.getId() == R.id.progressBar ) {
-            context.getMenuInflater().inflate(R.menu.share_context_menu, menu);
-			menu.setHeaderTitle( R.string.share_via );
-        }
+		context.getMenuInflater().inflate(R.menu.apps_context_menu, menu);
 	}
 	
 	// 메뉴 클릭 
@@ -363,7 +362,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 
 	@SuppressLint("SdCardPath")
 	private void apk_extract( List<ApkListData> datas ) {
-		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "YeeunApps" );
+		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "BluetoothShare" );
 		File extratedFolder = new File( baseFolder, "ExtratedApps" );
 		if( !extratedFolder.exists()) {
 			extratedFolder.mkdirs();
@@ -512,5 +511,17 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if( appsAdapter.isSelectMode()) return true;
 		return false;
+	}
+
+	@Override
+	public void onClick(View v) {
+		int viewId = v.getId();
+		if( viewId == R.id.refresh ) {
+			progressBar.setVisibility( View.VISIBLE );
+			apkListView.setVisibility( View.GONE );
+			apkGridView.setVisibility( View.GONE );
+
+			new Thread( apk_info_load_runnable ).start();
+		}
 	}
 }

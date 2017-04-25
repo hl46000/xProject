@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +46,9 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.refresh);
+        fab.setOnClickListener( this );
+
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -153,5 +148,15 @@ public class MainActivity extends AppCompatActivity
             return request_permissions.size();
         }
         return 0;
+    }
+
+    @Override
+    public void onClick(View view) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
+        if( fragment instanceof View.OnClickListener ) {
+            ((View.OnClickListener) fragment).onClick( view );
+        }
+
+        //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 }

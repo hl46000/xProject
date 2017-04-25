@@ -35,10 +35,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.share.apps.ApkListData;
 
-public class ContactAdapter extends BaseAdapter 
-	implements Filterable, OnCheckedChangeListener
-{
+public class ContactAdapter extends BaseAdapter implements Filterable, View.OnClickListener {
 	
 	private final Activity context;
 	private List<ContactData> listDatas 	= new ArrayList<ContactData>();
@@ -101,7 +100,7 @@ public class ContactAdapter extends BaseAdapter
 			viewHolder.icon	= (ImageView) convertView.findViewById( R.id.contact_icon );
 			viewHolder.name	= (TextView)  convertView.findViewById( R.id.contact_name );
 
-			viewHolder.checkBox.setOnCheckedChangeListener( this );
+			viewHolder.checkBox.setOnClickListener( this );
 
 			convertView.setTag( viewHolder );
 		} else {
@@ -124,6 +123,16 @@ public class ContactAdapter extends BaseAdapter
 		viewHolder.checkBox.setChecked( data.isSelected() );
 
 		return convertView;
+	}
+
+	@Override
+	public void onClick(View v) {
+		if( v instanceof CheckBox ) {
+			ContactData data = (ContactData) v.getTag();
+			CheckBox cb = ( CheckBox ) v;
+
+			data.setSelected( cb.isChecked());
+		}
 	}
 
 	class ViewHolder {
@@ -183,15 +192,49 @@ public class ContactAdapter extends BaseAdapter
         iconUpdateThreadFlag = true;
         IconUpdateThread.start();
 	}
-	
-	public boolean isShowCheckBox() {
-		return showCheckBox;
+
+
+	boolean bSelectMode = false;
+	public boolean isSelectMode() {
+		return bSelectMode;
 	}
-	public void setShowCheckBox( boolean show ) {
-		showCheckBox = show;
-		notifyDataSetChanged();
+	public void setSelectMode( boolean bMode ) {
+		boolean bChanged = bSelectMode != bMode;
+
+		bSelectMode = bMode;
+		if( bChanged ) {
+			for( ContactData data : filteredData ) {
+				data.setSelected( false );
+			}
+			notifyDataSetChanged();
+		}
 	}
-	
+
+	public int getSelectedItemCount() {
+		int ret = 0;
+		for( ContactData data : filteredData ) {
+			if( data.isSelected()) ++ ret;
+		}
+		return ret;
+	}
+
+	public List<ContactData> getSelectedItem() {
+		List<ContactData> ret = new ArrayList<ContactData>();
+
+		for( ContactData data : filteredData ) {
+			if( data.isSelected()) {
+				ret.add( data );
+			}
+		}
+		return ret;
+	}
+
+	public synchronized void setAllSelected( boolean bSelect ) {
+		for( ContactData data : filteredData ) {
+			data.setSelected( bSelect );
+		}
+	}
+
 	@Override
 	public Filter getFilter() {
 		return new ItemFilter();
@@ -237,27 +280,8 @@ public class ContactAdapter extends BaseAdapter
             notifyDataSetChanged();
         }
     }
-	
-	@Override
-	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
-		ContactData data = filteredData.get( arg0.getId());
-		data.setSelected( arg1 );
-		//G.Log( data.toString());
-	}
 
-	public synchronized int getCheckedCount() {
-		int ret = 0;
-		for( ContactData data : filteredData ) {
-			if( data.isSelected()) ++ret;
-		}
-		return ret;
-	}
-	
-	public synchronized void setAllChecked( boolean checked ) {
-		for( ContactData data : filteredData ) {
-			data.setSelected( checked );
-		}
-	}
+
 
 	/**
 	 * 모든 Contact 을 표시할 수 있는 리스트 정보를 반환한다. ( 아이콘은 제외 )
@@ -352,8 +376,8 @@ public class ContactAdapter extends BaseAdapter
 				new Runnable(){
 					@Override
 					public void run() {
-						setAllChecked( false );
-						setShowCheckBox( false );					
+						setAllSelected( false );
+						setSelectMode( false );
 					}
 				}
 			);

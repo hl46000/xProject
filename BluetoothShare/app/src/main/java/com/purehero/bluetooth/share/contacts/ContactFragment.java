@@ -27,7 +27,7 @@ import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
 import com.purehero.module.fragment.FragmentEx;
 
-public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
+public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener, View.OnClickListener {
 	final int VIEW_MODE_LIST = 0;
 	final int VIEW_MODE_GRID = 1;
 
@@ -43,6 +43,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 
 	public ContactFragment setMainActivity(MainActivity mainActivity) {
 		context = mainActivity;
+		adapter = new ContactAdapter( context );
 
 		return this;
 	}
@@ -60,23 +61,18 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		if( aBar != null ) {
 			aBar.setTitle( R.string.contact );
 		}
+
 		layout 	= inflater.inflate( R.layout.contacts_layout, container, false );
 
 		progressBar	= ( ProgressBar ) layout.findViewById( R.id.progressBar );
+		listView	= ( ListView ) layout.findViewById( R.id.contactListView );
+		gridView	= ( GridView ) layout.findViewById( R.id.contactGridView );
+
 		progressBar.setVisibility( View.VISIBLE );
+		listView.setVisibility( View.GONE );
+		listView.setVisibility( View.GONE );
 
-		new Thread( getContactRunnable ).start();
-
-		/*
-		int btnIDs [] = { R.id.btnReload, R.id.btnBluetooth};
-		for( int id : btnIDs ) {
-			Button btn = ( Button ) layout.findViewById( id );
-			if( btn != null ) {
-				btn.setOnClickListener( this );
-			}
-		}
-		*/
-		
+		new Thread( contacts_info_load_runnable ).start();
 		return layout;
 	}
 
@@ -86,71 +82,65 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		getActivity().invalidateOptionsMenu();
 	}
 
-	Runnable getContactRunnable = new Runnable() {
+	Runnable contacts_info_load_runnable = new Runnable() {
 		@Override
 		public void run() {
-			G.Log( "run" );
+			adapter.getContactDatas();
 
-			if( adapter == null ) {
-				adapter = new ContactAdapter( context );
-				adapter.getContactDatas();
-			}
-
-			context.runOnUiThread( new Runnable(){
-				@Override
-				public void run() {
-					G.Log( "runOnUiThread run" );
-
-					listView	= ( ListView ) layout.findViewById( R.id.contactListView );
-					gridView	= ( GridView ) layout.findViewById( R.id.contactGridView );
-
-					if( view_layout_mode == VIEW_MODE_LIST ) {
-						gridView.setVisibility( View.GONE );
-						listView.setVisibility( View.VISIBLE );
-						listView.setOnItemClickListener( ContactFragment.this );
-						listView.setOnItemLongClickListener( ContactFragment.this );
-						registerForContextMenu( listView );
-
-						listView.setAdapter( adapter );
-
-					} else {
-						listView.setVisibility( View.GONE);
-						gridView.setVisibility( View.VISIBLE );
-						gridView.setOnItemClickListener( ContactFragment.this );
-						gridView.setOnItemLongClickListener( ContactFragment.this );
-						registerForContextMenu(gridView);
-
-						gridView.setAdapter( adapter );
-					}
-
-					adapter.notifyDataSetChanged();
-					progressBar.setVisibility( View.INVISIBLE );
-					
-					// 검색
-					EditText search = (EditText) layout.findViewById( R.id.txt_search );
-					if( search != null ) {
-						search.addTextChangedListener(new TextWatcher() {
-					        @Override
-					        public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-					        	adapter.getFilter().filter(cs);
-					        }
-					        @Override
-					        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
-					        @Override
-					        public void afterTextChanged(Editable arg0) { }
-					    });
-					}
-				}});
+			context.runOnUiThread( init_ui_runnable );
 		}
 	};
 
-	
-	
+	Runnable init_ui_runnable = new Runnable() {
+
+		@Override
+		public void run() {
+			G.Log( "runOnUiThread run" );
+
+			if( view_layout_mode == VIEW_MODE_LIST ) {
+				gridView.setVisibility( View.GONE );
+				listView.setVisibility( View.VISIBLE );
+				listView.setOnItemClickListener( ContactFragment.this );
+				listView.setOnItemLongClickListener( ContactFragment.this );
+				registerForContextMenu( listView );
+
+				listView.setAdapter( adapter );
+
+			} else {
+				listView.setVisibility( View.GONE);
+				gridView.setVisibility( View.VISIBLE );
+				gridView.setOnItemClickListener( ContactFragment.this );
+				gridView.setOnItemLongClickListener( ContactFragment.this );
+				registerForContextMenu(gridView);
+
+				gridView.setAdapter( adapter );
+			}
+
+			adapter.notifyDataSetChanged();
+			progressBar.setVisibility( View.INVISIBLE );
+
+			// 검색
+			EditText search = (EditText) layout.findViewById( R.id.txt_search );
+			if( search != null ) {
+				search.addTextChangedListener(new TextWatcher() {
+					@Override
+					public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+						adapter.getFilter().filter(cs);
+					}
+					@Override
+					public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+					@Override
+					public void afterTextChanged(Editable arg0) { }
+				});
+			}
+		}
+	};
+
 	@Override
 	public boolean onBackPressed() {
-		if( adapter.isShowCheckBox()) {
-			adapter.setAllChecked( false );
-			adapter.setShowCheckBox( false );
+		if( adapter.isSelectMode()) {
+			adapter.setSelectMode( false );
+			context.invalidateOptionsMenu();
 			return true;
 		}
 		
@@ -158,6 +148,16 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	}
 
 
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.contacts_option_menu, menu);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -173,49 +173,38 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 					item.setIcon( R.drawable.ic_view_module_white_24dp);
 					view_layout_mode = VIEW_MODE_LIST;
 				}
-				new Thread( getContactRunnable ).start();
+				new Thread( init_ui_runnable ).start();
 				return true;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.contacts_option_menu, menu);
-	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		ContactData data = ( ContactData ) adapter.getItem( position );
 		
-		if( adapter.isShowCheckBox() ) {
-			data.setSelected( !data.isSelected() );
+		if( adapter.isSelectMode() ) {
+			data.setSelected(!data.isSelected());
 			adapter.notifyDataSetChanged();
-		} else {		
-			ContactUtils.openDetailView( context, data.getContactID() );
+			context.invalidateOptionsMenu();
+			return;
 		}
+
+		ContactUtils.openDetailView( context, data.getContactID() );
 	}
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		if( adapter.isShowCheckBox()) {
-			return false;			
-		}
-		ContactData data = ( ContactData ) adapter.getItem( position );
-		data.setSelected( true );
-		
-		adapter.setShowCheckBox( !adapter.isShowCheckBox() );
-		return true;
+		if( adapter.isSelectMode()) return true;
+		return false;
 	}
 	
 	// 메뉴 생성
 	@Override
 	public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		if ( v.getId() == R.id.listView ) {
-			context.getMenuInflater().inflate(R.menu.contacts_context_menu, menu);
-		}
+		context.getMenuInflater().inflate(R.menu.contacts_context_menu, menu);
 	}
 	
 	// 메뉴 클릭 
@@ -307,13 +296,14 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	}
 
 	@Override
-	public void onClick(View arg0) {
-		switch( arg0.getId()) {
-		case R.id.btnReload :
-			adapter.getContactDatas();
-			adapter.notifyDataSetChanged();
-			break;
+	public void onClick(View view) {
+		int viewId = view.getId();
+		if( viewId == R.id.refresh ) {
+			progressBar.setVisibility( View.VISIBLE );
+			listView.setVisibility( View.GONE );
+			listView.setVisibility( View.GONE );
 
+			new Thread( contacts_info_load_runnable ).start();
 		}
 	}
 }
