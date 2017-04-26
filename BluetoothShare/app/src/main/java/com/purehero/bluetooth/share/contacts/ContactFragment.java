@@ -1,6 +1,8 @@
 package com.purehero.bluetooth.share.contacts;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,9 +30,15 @@ import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
 import com.purehero.module.common.CancelableProgressDialog;
 import com.purehero.module.common.DialogUtils;
+import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.ProgressRunnable;
 import com.purehero.module.fragment.FragmentEx;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContactFragment extends FragmentEx implements OnItemClickListener, OnItemLongClickListener, View.OnClickListener {
@@ -269,9 +277,9 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 								@Override
 								public void run() {
 									cancelableProgressDialog.setMessage( message_format.replace( "xxxxx", data.getDisplayName() ));
-									try { Thread.sleep( 50 ); } catch (InterruptedException e) {}
 								}
 							});
+							try { Thread.sleep( 100 ); } catch (InterruptedException e) {}
 						}
 
 						new Thread( contacts_info_load_runnable ).start();
@@ -283,11 +291,67 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	}
 
 	private void contacts_share(List<ContactData> selectedItem) {
+		File sharing_file = new File( context.getCacheDir(), "sharing_file.vcf" );
+		if( sharing_file.exists()) {
+			sharing_file.delete();
+		}
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream( sharing_file );
+			for( ContactData data : adapter.getSelectedItem()) {
+				fos.write( data.readVCardString().getBytes());
+			}
+			fos.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return ;
 
+		} finally {
+			G.safe_close( fos );
+		}
+
+		Intent shareIntent = new Intent();
+		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		shareIntent.setType("*/*");
+
+		ArrayList<Uri> shareDatas = new ArrayList<Uri>();
+		shareDatas.add( Uri.fromFile( sharing_file ));
+		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
+
+		startActivityForResult(Intent.createChooser(shareIntent, "Share Contacts" ), 100 );
 	}
 
 	private void contacts_bluetooth_share(List<ContactData> selectedItem) {
+		File sharing_file = new File( context.getCacheDir(), "sharing_file.vcf" );
+		if( sharing_file.exists()) {
+			sharing_file.delete();
+		}
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream( sharing_file );
+			for( ContactData data : adapter.getSelectedItem()) {
+				fos.write( data.readVCardString().getBytes());
+			}
+			fos.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return ;
 
+		} finally {
+			G.safe_close( fos );
+		}
+
+		Intent shareIntent = new Intent();
+		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		shareIntent.setType("*/*");
+		shareIntent.setPackage("com.android.bluetooth");
+
+		ArrayList<Uri> shareDatas = new ArrayList<Uri>();
+		shareDatas.add( Uri.fromFile( sharing_file ));
+		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
+
+		//startActivityForResult(Intent.createChooser(shareIntent, "Share Contacts" ), 100 );
+		startActivityForResult( shareIntent, 100 );
 	}
 
 
