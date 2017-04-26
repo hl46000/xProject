@@ -1,5 +1,6 @@
 package com.purehero.bluetooth.share.contacts;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -226,7 +227,16 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	}
 
 	private void contacts_backup(List<ContactData> selectedItem) {
-
+		String strTemp = context.getString( R.string.contacts_backup_info );
+		strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getSelectedItemCount() ));
+		DialogUtils.TextInputDialog( context, context.getString( R.string.contacts_backup ), strTemp, context.getString(R.string.contacts_enter_backup_name), 0, new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if( which == DialogUtils.DIALOG_BUTTON_ID_YES ) {
+					adapter.backupCheckedItems( DialogUtils.getTextInputDialogResult() );
+				}
+			}
+		});
 	}
 
 	private void contacts_deletes(List<ContactData> selectedItem) {

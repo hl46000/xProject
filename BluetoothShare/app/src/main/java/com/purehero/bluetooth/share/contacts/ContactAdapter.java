@@ -345,7 +345,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 			return;
 		}
 
-		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "YeeunApps" );
+		File baseFolder 	= new File( Environment.getExternalStorageDirectory(), "BluetoothShare" );
 		File backupFolder 	= new File( baseFolder, "BackupContacts" );
 		if( !backupFolder.exists()) {
 			backupFolder.mkdirs();
@@ -383,7 +383,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 			);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText( context, String.format("'%s' 오류가 발생하였습니다.", e.getMessage()), Toast.LENGTH_LONG ).show();
+			Toast.makeText( context, String.format("'%s' Error", e.getMessage()), Toast.LENGTH_LONG ).show();
 			
 		} finally {
 			if( fos != null ) {
