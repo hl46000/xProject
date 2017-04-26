@@ -26,7 +26,9 @@ import android.widget.ProgressBar;
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
+import com.purehero.module.common.CancelableProgressDialog;
 import com.purehero.module.common.DialogUtils;
+import com.purehero.module.common.ProgressRunnable;
 import com.purehero.module.fragment.FragmentEx;
 
 import java.util.List;
@@ -240,6 +242,43 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	}
 
 	private void contacts_deletes(List<ContactData> selectedItem) {
+		final int selectedItemCount = adapter.getSelectedItemCount();
+		final List<ContactData> selectedItems = adapter.getSelectedItem();
+
+		String alert_message = String.format( "%d %s", selectedItemCount, getString( R.string.delete_message ));
+
+		DialogUtils.no_string_res 	= R.string.cancel;
+		DialogUtils.yes_string_res	= R.string.delete;
+		DialogUtils.confirmDialog( context, R.string.delete, alert_message, R.drawable.ic_delete_white_24dp, new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(final DialogInterface dialog, int which) {
+				if( which != DialogUtils.DIALOG_BUTTON_ID_YES ) return;
+
+				DialogUtils.progressDialog(context, R.string.delete, "", new ProgressRunnable() {
+					@Override
+					public void run(final CancelableProgressDialog cancelableProgressDialog) {
+						cancelableProgressDialog.setMax( selectedItemCount );
+
+						final String message_format = getString( R.string.delete_format );
+						int progress_count = 0;
+						for( final ContactData data : selectedItems ) {
+							data.delete();
+							cancelableProgressDialog.setProgress( ++ progress_count );
+
+							context.runOnUiThread( new Runnable(){
+								@Override
+								public void run() {
+									cancelableProgressDialog.setMessage( message_format.replace( "xxxxx", data.getDisplayName() ));
+									try { Thread.sleep( 50 ); } catch (InterruptedException e) {}
+								}
+							});
+						}
+
+						new Thread( contacts_info_load_runnable ).start();
+					}
+				});
+			}
+		} );
 
 	}
 

@@ -38,5 +38,6 @@
     <string name="delete">Delete</string>
     <string name="uninstall">Uninstall</string>
     <string name="contacts_backup">Backup Contacts</string>
+    <string name="delete_format">Deleted( xxxxx )</string>
 
 </resources>
