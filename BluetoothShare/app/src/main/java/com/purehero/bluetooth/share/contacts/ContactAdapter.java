@@ -314,30 +314,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 		return ret.toString();
 	}
 
-	/*
-	public synchronized void deleteCheckedItems() {
-		List<ContactData> deleteDatas 	= new ArrayList<ContactData>();
-		for( ContactData data : listDatas ) {
-			if( data.isSelected()) {
-				deleteDatas.add( data );
-				data.delete();
-			}
-		}
-		
-		listDatas.removeAll( deleteDatas );
-		filteredData.removeAll( deleteDatas );
-		
-		context.runOnUiThread( 
-				new Runnable(){
-					@Override
-					public void run() {
-						setAllChecked( false );
-						setShowCheckBox( false );					
-					}
-				}
-			);
-	}
-	*/
 
 	public void backupCheckedItems(String backupName ) {
 		if( backupName.length() < 1 ) {

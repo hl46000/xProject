@@ -237,8 +237,9 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	}
 
 	private void contacts_backup(List<ContactData> selectedItem) {
+		String xxxxx = selectedItem.size() == 1 ? String.format( "'%s'", selectedItem.get(0).getDisplayName()) : ""+selectedItem.size();
 		String strTemp = context.getString( R.string.contacts_backup_info );
-		strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getSelectedItemCount() ));
+		strTemp = strTemp.replace( "xxxxx", xxxxx );
 		DialogUtils.TextInputDialog( context, context.getString( R.string.contacts_backup ), strTemp, context.getString(R.string.contacts_enter_backup_name), 0, new DialogInterface.OnClickListener(){
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -249,15 +250,15 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
                     });
                 }
 
-            private void contacts_deletes(List<ContactData> selectedItem) {
-                final int selectedItemCount = adapter.getSelectedItemCount();
-                final List<ContactData> selectedItems = adapter.getSelectedItem();
+            private void contacts_deletes( final List<ContactData> selectedItems) {
+                final int selectedItemCount = selectedItems.size();
+				String xxxxx = selectedItems.size() == 1 ? String.format( "'%s'", selectedItems.get(0).getDisplayName()) : ""+selectedItems.size();
 
-                String alert_message = String.format( "%d %s", selectedItemCount, getString( R.string.delete_message ));
+                String alert_message = String.format( "%s %s", xxxxx, getString( R.string.contacts_delete_message ));
 
                 DialogUtils.no_string_res 	= R.string.cancel;
                 DialogUtils.yes_string_res	= R.string.delete;
-                DialogUtils.confirmDialog( context, R.string.delete, alert_message, R.drawable.ic_delete_white_24dp, new DialogInterface.OnClickListener(){
+                DialogUtils.confirmDialog( context, R.string.delete, alert_message, 0, new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         if( which != DialogUtils.DIALOG_BUTTON_ID_YES ) return;
@@ -290,15 +291,15 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 
 	}
 
-	private void contacts_share(List<ContactData> selectedItem) {
-		File sharing_file = new File( context.getCacheDir(), "sharing_file.vcf" );
+	private void contacts_share(List<ContactData> selectedItems) {
+		File sharing_file = new File( context.getExternalCacheDir(), "sharing_file.vcf" );
 		if( sharing_file.exists()) {
 			sharing_file.delete();
 		}
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream( sharing_file );
-			for( ContactData data : adapter.getSelectedItem()) {
+			for( ContactData data : selectedItems ) {
 				fos.write( data.readVCardString().getBytes());
 			}
 			fos.flush();
@@ -318,18 +319,19 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		shareDatas.add( Uri.fromFile( sharing_file ));
 		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 
-		startActivityForResult(Intent.createChooser(shareIntent, "Share Contacts" ), 100 );
+		String temp = selectedItems.size() == 1 ? String.format( "'%s'", selectedItems.get(0).getDisplayName()) : "" + selectedItems.size();
+		startActivityForResult(Intent.createChooser(shareIntent, String.format( "Share %s Contacts via", temp )), 100 );
 	}
 
-	private void contacts_bluetooth_share(List<ContactData> selectedItem) {
-		File sharing_file = new File( context.getCacheDir(), "sharing_file.vcf" );
+	private void contacts_bluetooth_share(List<ContactData> selectedItems) {
+		File sharing_file = new File( context.getExternalCacheDir(), "sharing_file.vcf" );
 		if( sharing_file.exists()) {
 			sharing_file.delete();
 		}
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream( sharing_file );
-			for( ContactData data : adapter.getSelectedItem()) {
+			for( ContactData data : selectedItems ) {
 				fos.write( data.readVCardString().getBytes());
 			}
 			fos.flush();
@@ -387,89 +389,29 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		G.Log( "onContextItemSelected" );
 		
 		boolean ret = false;	// 메뉴의 처리 여부 
-		String strTemp;
-		
+
 		// 클릭된 APK 정보
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		G.Log( "onContextItemSelected index : " + info.position );
+		ContactData data = ( ContactData ) adapter.getItem( info.position );
+
+		List<ContactData> datas = new ArrayList<ContactData>();
+		datas.add( data );
 
 		int id = item.getItemId();
-		if( id == R.id.contacts_action_view_mode ) {
-		}
-		
-
-			/*
-		case R.id.menu_delete :
-			strTemp = context.getString( R.string.delete_info );
-			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() )); 
-			G.confirmDialog( context, context.getString( R.string.delete ), strTemp, 0, new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-					switch( arg1 ) {
-					case G.DIALOG_BUTTON_ID_YES :
-						final String title 				= context.getString( R.string.delete );
-						final String delete_format_msg 	= context.getString( R.string.delete_format );
-						G.progressDialog( context, title, "", new ProgressRunnable(){
-
-							@Override
-							public void run(final ProgressDialog dialog) {
-								dialog.setMax( adapter.getCheckedCount() );
-								int count = 0;
-								
-								for( int i = 0; i < adapter.getCount(); i++ ) {
-									final ContactData data = ( ContactData ) adapter.getItem(i);
-									if( data.isSelected()) {
-										data.delete();
-										dialog.setProgress( ++count );
-										
-										context.runOnUiThread( new Runnable(){
-											@Override
-											public void run() {
-												dialog.setMessage( delete_format_msg.replace( "xxxxx", data.getDisplayName() ));
-												try {
-													Thread.sleep( 50 );
-												} catch (InterruptedException e) {
-												}
-											}});
-										
-										try {
-											Thread.sleep( 50 );
-										} catch (InterruptedException e) {
-										}
-									}
-								}
-								context.runOnUiThread( new Runnable(){
-									@Override
-									public void run() {
-										adapter.setAllChecked( false );
-										adapter.setShowCheckBox( false );										
-									}});
-							}});
-						
-						break;
-					}
-				}});			
+		if( id == R.id.contacts_menu_delete ) {
+			contacts_deletes( datas );
 			ret = true;
-			break;
-		case R.id.contacts_menu_backup_selected :
-			strTemp = context.getString( R.string.backup_info );
-			strTemp = strTemp.replace( "xxxxx", String.valueOf( adapter.getCheckedCount() ));
-			G.textInputDialog( context, context.getString( R.string.backup ), strTemp,  
-					context.getString(R.string.enter_backup_name), 0, new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-					switch( arg1 ) {
-					case G.DIALOG_BUTTON_ID_YES :
-						adapter.backupCheckedItems( G.getTextInputDialogResult() );
-						break;
-					}
-				}});
-			
-			ret = true;	
-			break;
-			*/
 
-							
+		} else if( id == R.id.contacts_menu_bluetooth_share ) {
+			contacts_bluetooth_share( datas );
+			ret = true;
+
+		} else if( id == R.id.contacts_menu_share ) {
+			contacts_share( datas );
+			ret = true;
+		}
+
 		return ret;
 	}
 

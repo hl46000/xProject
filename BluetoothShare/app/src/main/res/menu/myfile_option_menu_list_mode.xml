@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity">
+
+    <!-- 검색 버튼 -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        android:title="@string/myfile_filter_hint"/>
+
+    <!-- 붙여넣기 버튼 -->
+    <item android:id="@+id/action_paste"
+        android:title="@string/paste"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <!-- 선택 버튼 -->
+    <item android:id="@+id/action_select_mode"
+        android:title="@string/action_select_mode"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <!-- 선택 버튼 -->
+    <item android:id="@+id/action_create_folder"
+        android:title="@string/create_folder"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+</menu>

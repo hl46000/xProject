@@ -1,13 +1,12 @@
 package com.purehero.bluetooth.share;
 
 import android.Manifest;
-
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,14 +17,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.purehero.bluetooth.share.apps.ApkListFragment;
 import com.purehero.bluetooth.share.contacts.ContactFragment;
+import com.purehero.bluetooth.share.files.FileListFragment;
 import com.purehero.module.fragment.FragmentEx;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,12 +108,32 @@ public class MainActivity extends AppCompatActivity
         switch( id ) {
             case R.id.nav_apps      : fragmentTransaction.replace(R.id.fragment_area, new ApkListFragment().setMainActivity(this)); break;
             case R.id.nav_contact   : fragmentTransaction.replace(R.id.fragment_area, new ContactFragment().setMainActivity( this )); break;
-            case R.id.nav_files     : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Files Fragments")); break;
-            case R.id.nav_audios    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Audios Fragments")); break;
-            case R.id.nav_documents : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Documents Fragments")); break;
-            case R.id.nav_photos    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Photos Fragments")); break;
-            case R.id.nav_videos    : fragmentTransaction.replace(R.id.fragment_area, new FragmentText().setText("Videos Fragments")); break;
+            case R.id.nav_files     :
+                FileListFragment myFiles = new FileListFragment().setMainActivity(this);
+                myFiles.setRootFolder( new File( "/"));
+                fragmentTransaction.replace(R.id.fragment_area, myFiles ); break;
+
+            case R.id.nav_audios    :
+                FileListFragment myAudios = new FileListFragment().setMainActivity(this);
+                myAudios.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MUSIC ) );
+                fragmentTransaction.replace(R.id.fragment_area, myAudios ); break;
+
+            case R.id.nav_documents :
+                FileListFragment myDocuments = new FileListFragment().setMainActivity(this);
+                myDocuments.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_DOCUMENTS ) );
+                fragmentTransaction.replace(R.id.fragment_area, myDocuments ); break;
+
+            case R.id.nav_photos    :
+                FileListFragment myPhotos = new FileListFragment().setMainActivity(this);
+                myPhotos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES ) );
+                fragmentTransaction.replace(R.id.fragment_area, myPhotos ); break;
+
+            case R.id.nav_videos    :
+                FileListFragment myVideos = new FileListFragment().setMainActivity(this);
+                myVideos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MOVIES ) );
+                fragmentTransaction.replace(R.id.fragment_area, myVideos ); break;
         }
+
 
         fragmentTransaction.commit();
 

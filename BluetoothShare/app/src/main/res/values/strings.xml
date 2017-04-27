@@ -28,7 +28,8 @@
     <string name="extracting">Extracting</string>
     <string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
     <string name="ok">OK</string>
-    <string name="apps_search_hint">Search( App name or Package name )</string>
+    <string name="apps_search_hint">Filter( App name or Package name )</string>
+    <string name="contacts_search_hint">Filter( name or phone number or email)</string>
 
     <string name="contacts_backup_info">Backup the xxxxx selected contacts.</string>
     <string name="contacts_enter_backup_name">Please enter backup name</string>
@@ -39,5 +40,18 @@
     <string name="uninstall">Uninstall</string>
     <string name="contacts_backup">Backup Contacts</string>
     <string name="delete_format">Deleted( xxxxx )</string>
+    <string name="contacts_delete_message">contacts will be deleted</string>
+    <string name="action_select_mode">Select</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_message">items will be deleted</string>
+    <string name="create_folder">Create Folder</string>
+    <string name="new_folder">New Folder</string>
+    <string name="create">Create</string>
+    <string name="paste">Paste</string>
+    <string name="myfile_filter_hint">Filter</string>
+    <string name="read_only">ReadOnly</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="rename">Rename</string>
 
 </resources>
