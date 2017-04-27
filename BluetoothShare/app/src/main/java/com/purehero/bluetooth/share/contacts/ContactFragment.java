@@ -245,33 +245,33 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 				if( which == DialogUtils.DIALOG_BUTTON_ID_YES ) {
 					adapter.backupCheckedItems( DialogUtils.getTextInputDialogResult() );
 				}
-			}
-		});
-	}
+                        }
+                    });
+                }
 
-	private void contacts_deletes(List<ContactData> selectedItem) {
-		final int selectedItemCount = adapter.getSelectedItemCount();
-		final List<ContactData> selectedItems = adapter.getSelectedItem();
+            private void contacts_deletes(List<ContactData> selectedItem) {
+                final int selectedItemCount = adapter.getSelectedItemCount();
+                final List<ContactData> selectedItems = adapter.getSelectedItem();
 
-		String alert_message = String.format( "%d %s", selectedItemCount, getString( R.string.delete_message ));
+                String alert_message = String.format( "%d %s", selectedItemCount, getString( R.string.delete_message ));
 
-		DialogUtils.no_string_res 	= R.string.cancel;
-		DialogUtils.yes_string_res	= R.string.delete;
-		DialogUtils.confirmDialog( context, R.string.delete, alert_message, R.drawable.ic_delete_white_24dp, new DialogInterface.OnClickListener(){
-			@Override
-			public void onClick(final DialogInterface dialog, int which) {
-				if( which != DialogUtils.DIALOG_BUTTON_ID_YES ) return;
+                DialogUtils.no_string_res 	= R.string.cancel;
+                DialogUtils.yes_string_res	= R.string.delete;
+                DialogUtils.confirmDialog( context, R.string.delete, alert_message, R.drawable.ic_delete_white_24dp, new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+                        if( which != DialogUtils.DIALOG_BUTTON_ID_YES ) return;
 
-				DialogUtils.progressDialog(context, R.string.delete, "", new ProgressRunnable() {
-					@Override
-					public void run(final CancelableProgressDialog cancelableProgressDialog) {
-						cancelableProgressDialog.setMax( selectedItemCount );
+                        DialogUtils.progressDialog(context, R.string.delete, "", new ProgressRunnable() {
+                            @Override
+                            public void run(final CancelableProgressDialog cancelableProgressDialog) {
+                                cancelableProgressDialog.setMax( selectedItemCount );
 
-						final String message_format = getString( R.string.delete_format );
-						int progress_count = 0;
-						for( final ContactData data : selectedItems ) {
-							data.delete();
-							cancelableProgressDialog.setProgress( ++ progress_count );
+                                final String message_format = getString( R.string.delete_format );
+                                int progress_count = 0;
+                                for( final ContactData data : selectedItems ) {
+                                    data.delete();
+                                    cancelableProgressDialog.setProgress( ++ progress_count );
 
 							context.runOnUiThread( new Runnable(){
 								@Override
