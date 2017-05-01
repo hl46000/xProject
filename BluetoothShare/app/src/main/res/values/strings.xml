@@ -53,5 +53,7 @@
     <string name="copy">Copy</string>
     <string name="move">Move</string>
     <string name="rename">Rename</string>
+    <string name="bluetooth">BLUETOOTH</string>
+    <string name="category">Category</string>
 
 </resources>
