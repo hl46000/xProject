@@ -27,23 +27,23 @@ public class FileIntentUtils {
     /**
      * File 을 실행 시킨다.
      *
-     * @param file
-     */
-    public static Intent Running( File file ) {
+             * @param file
+        */
+public static Intent Running( File file ) {
         Intent myIntent = new Intent(Intent.ACTION_VIEW);
         myIntent.addCategory(Intent.CATEGORY_DEFAULT);
         myIntent.setDataAndType( Uri.fromFile( file ), getMimeType( file.getName() ));
 
         myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return myIntent;
-    }
+        }
 
-    private static String getMimeType(String url) {
+private static String getMimeType(String url) {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
         if (extension != null) {
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return type;
-    }
-}
+        }
+        }
