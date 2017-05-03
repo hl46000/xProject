@@ -55,5 +55,7 @@
     <string name="rename">Rename</string>
     <string name="bluetooth">BLUETOOTH</string>
     <string name="category">Category</string>
+    <string name="my_device">My Device</string>
+    <string name="enternal_sdcard">Internal Storage</string>
 
 </resources>
