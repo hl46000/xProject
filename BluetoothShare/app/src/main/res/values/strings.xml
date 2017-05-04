@@ -12,7 +12,7 @@
     <string name="photos">Photos</string>
     <string name="videos">Videos</string>
     <string name="apps">Apps</string>
-    <string name="my_files">MY FILES</string>
+    <string name="my_files">My Files</string>
     <string name="audios">Audios</string>
     <string name="documents">Documents</string>
     <string name="share_via_bluetooth">Share via Bluetooth</string>
@@ -57,5 +57,8 @@
     <string name="category">Category</string>
     <string name="my_device">My Device</string>
     <string name="enternal_sdcard">Internal Storage</string>
+    <string name="downloads">Downloads</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
 
 </resources>

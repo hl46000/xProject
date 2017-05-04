@@ -9,6 +9,7 @@
     android:layout_margin="15dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- bluetooth Text line -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="35dp"
@@ -31,6 +32,7 @@
             android:background="@android:color/darker_gray" />
     </LinearLayout>
 
+    <!-- bluetooth content -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="75dp"
@@ -39,40 +41,35 @@
 
         <ImageView
             android:id="@+id/imageView2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="15dp"
-            app:srcCompat="@drawable/bluetooth" />
+            app:srcCompat="@drawable/fl_ic_bluetooth_gray" />
 
         <TextView
             android:id="@+id/textView3"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical|left"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="5dp"
-            android:text="TextView"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_weight="1" />
+            android:text="@string/off"
+            android:textColor="@android:color/darker_gray"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/textView5"
+        <Switch
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical|right"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="5dp"
-            android:text="연결됨"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_weight="1" />
+            android:gravity="center_vertical|right"/>
     </LinearLayout>
 
+    <!-- category Text line -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
         android:orientation="horizontal" >
 
@@ -91,143 +88,77 @@
             android:background="@android:color/darker_gray" />
     </LinearLayout>
 
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:columnCount="3"
-        android:useDefaultMargins="true" >
-
-        <LinearLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+    <!-- category contents first line -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+        <!-- photo content -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/fl_ic_image" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="10dp"
-                android:text="@string/photos"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/photos" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+        <!-- video content -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/fl_ic_movies" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="10dp"
-                android:text="@string/videos"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/videos" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+        <!-- audio content -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/fl_ic_music" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="10dp"
-                android:text="@string/audios"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/audios" />
         </LinearLayout>
+    </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/fl_ic_text" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="10dp"
-                android:text="@string/documents"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+    <!-- category contents second line -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
+        <!-- document content -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/fl_ic_document" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/documents" />
         </LinearLayout>
-    </GridLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:gravity="center"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="75dp"
-            android:gravity="center"
-            android:layout_marginRight="5dp"
-            android:layout_marginLeft="5dp"
-            android:text="@string/my_device"
-            android:textColor="@android:color/darker_gray"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/fl_ic_download" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/downloads" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/fl_ic_apps" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/apps" />
+        </LinearLayout>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:orientation="horizontal"
-        android:layout_margin="3dp" >
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:layout_marginLeft="15dp"
-            app:srcCompat="@drawable/fl_ic_folder" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical|left"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="5dp"
-            android:text="TextView"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical|right"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="5dp"
-            android:text="@string/enternal_sdcard"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_weight="1" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
+        <!-- document content -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/fl_ic_contact" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/contact" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/fl_ic_my_files" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/my_files" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <!-- ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/fl_ic_apk" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/apps" / -->
+        </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>
 
