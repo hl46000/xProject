@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         checkPermission();
+
+        onHomeFragment();
     }
 
     @Override
@@ -67,6 +69,10 @@ public class MainActivity extends AppCompatActivity
                 if( ((FragmentEx) fragment).onBackPressed()) {
                     return;
                 }
+            }
+            if(!( fragment instanceof HomeFragment )) {
+                onHomeFragment();
+                return;
             }
             super.onBackPressed();
         }
@@ -96,51 +102,69 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void onHomeFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+        HomeFragment fragment = new HomeFragment().setMainActivity(this);
+        fragmentTransaction.replace(R.id.fragment_area, fragment );
+        fragmentTransaction.commit();
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        replaceFragmentById(item.getItemId());
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    public void replaceFragmentById( int id ) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
-        int id = item.getItemId();
         switch( id ) {
+            case R.id.btnApps       :
             case R.id.nav_apps      : fragmentTransaction.replace(R.id.fragment_area, new ApkListFragment().setMainActivity(this)); break;
+            case R.id.btnContacts   :
             case R.id.nav_contact   : fragmentTransaction.replace(R.id.fragment_area, new ContactFragment().setMainActivity( this )); break;
+            case R.id.btnMyFiles    :
             case R.id.nav_files     :
                 FileListFragment myFiles = new FileListFragment().setMainActivity(this);
                 myFiles.setRootFolder( new File( "/"));
                 fragmentTransaction.replace(R.id.fragment_area, myFiles ); break;
 
+            case R.id.btnAudios     :
             case R.id.nav_audios    :
                 FileListFragment myAudios = new FileListFragment().setMainActivity(this);
                 myAudios.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MUSIC ) );
                 fragmentTransaction.replace(R.id.fragment_area, myAudios ); break;
 
+            case R.id.btnDocuments  :
             case R.id.nav_documents :
                 FileListFragment myDocuments = new FileListFragment().setMainActivity(this);
                 myDocuments.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_DOCUMENTS ) );
                 fragmentTransaction.replace(R.id.fragment_area, myDocuments ); break;
 
+            case R.id.btnPhotos     :
             case R.id.nav_photos    :
                 FileListFragment myPhotos = new FileListFragment().setMainActivity(this);
                 myPhotos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES ) );
                 fragmentTransaction.replace(R.id.fragment_area, myPhotos ); break;
 
+            case R.id.btnVideos     :
             case R.id.nav_videos    :
                 FileListFragment myVideos = new FileListFragment().setMainActivity(this);
                 myVideos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MOVIES ) );
                 fragmentTransaction.replace(R.id.fragment_area, myVideos ); break;
         }
 
-
         fragmentTransaction.commit();
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         if( requestCode == ACTIVITY_PERMISSION_REQUEST ) {

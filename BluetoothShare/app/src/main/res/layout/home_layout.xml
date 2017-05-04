@@ -24,12 +24,11 @@
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"
             android:text="@string/bluetooth"
-            android:textColor="@android:color/darker_gray"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/black" />
     </LinearLayout>
 
     <!-- bluetooth content -->
@@ -37,31 +36,55 @@
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:orientation="horizontal"
-        android:layout_margin="3dp" >
+        android:layout_margin="3dp"
+        android:clickable="true" >
 
         <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
+            android:id="@+id/imgBluetoothStatus"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="15dp"
-            app:srcCompat="@drawable/ic_bluetooth_gray" />
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            app:srcCompat="@drawable/ic_bluetooth_gray"
+            android:layout_weight="1"
+            />
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical|left"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="5dp"
-            android:text="@string/off"
-            android:textColor="@android:color/darker_gray"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <Switch
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical|right"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|left"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="@string/off"
+                android:textColor="@android:color/darker_gray"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|right"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|left"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:text="@string/on"
+                android:textColor="@android:color/darker_gray"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <!-- category Text line -->
@@ -80,18 +103,17 @@
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"
             android:text="@string/category"
-            android:textColor="@android:color/darker_gray"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/black" />
     </LinearLayout>
 
     <!-- category contents first line -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
         <!-- photo content -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout android:id="@+id/btnPhotos" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground" >
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_image" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
@@ -99,7 +121,7 @@
         </LinearLayout>
 
         <!-- video content -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout android:id="@+id/btnVideos"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_movies" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
@@ -107,7 +129,7 @@
         </LinearLayout>
 
         <!-- audio content -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout  android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_music" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
@@ -118,19 +140,19 @@
     <!-- category contents second line -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
         <!-- document content -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout  android:id="@+id/btnDocuments" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_document" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/documents" />
         </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout  android:id="@+id/btnDownloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_download" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/downloads" />
         </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout  android:id="@+id/btnApps" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_apps" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
@@ -139,14 +161,14 @@
     </LinearLayout>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
-        <!-- document content -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <!-- Contacts content -->
+        <LinearLayout  android:id="@+id/btnContacts" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_contact" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/contact" />
         </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <LinearLayout  android:id="@+id/btnMyFiles"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_my_files" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
