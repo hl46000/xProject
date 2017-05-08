@@ -323,7 +323,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		case R.id.APK_MENU_RUNNING		: apk_running( data ); 		ret=true; break;
 		case R.id.APK_MENU_GOTO_MARKET	: apk_goto_market( data ); 	ret=true; break;
 		case R.id.APK_MENU_UNINSTALL 	: apk_uninstall( datas ); 	ret=true; break;
-		case R.id.APK_MENU_SHARE		: apk_share( datas ); 		ret=true; break;
+		case R.id.APK_MENU_SHARE			: apk_share( datas ); 		ret=true; break;
 		case R.id.APK_MENU_EXTRACT 		: apk_extract( datas ); 	ret=true; break;
 		case R.id.APK_MENU_INFOMATION	: apk_infomation( data ); 	ret=true; break;
 		}

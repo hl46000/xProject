@@ -9,8 +9,11 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -19,13 +22,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.share.apps.ApkListFragment;
 import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.fragment.CheckPermissionListener;
@@ -49,15 +56,22 @@ import java.util.Vector;
  */
 
 public class FileListFragment extends FragmentEx
-        implements SearchTextChangeListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, CheckPermissionListener {
+        implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, View.OnClickListener, CheckPermissionListener {
+
+    final int VIEW_MODE_LIST = 0;
+    final int VIEW_MODE_GRID = 1;
 
     private View layout = null;
-    private ListView listView = null;
+    private ListView listView       = null;
+    private GridView gridView	        = null;
+    private ProgressBar progressBar  		= null;
+
     private FileListAdapter listAdapter = null;
     private LinearLayout pathList = null;
     private HorizontalScrollView pathScrollView = null;
     private Activity context;
     private File root_folder = new File( "/" );
+    int view_layout_mode = VIEW_MODE_LIST;
 
     public FileListFragment setMainActivity( Activity activity ) {
         context = activity;
@@ -66,7 +80,14 @@ public class FileListFragment extends FragmentEx
 
     public FileListFragment setRootFolder( File root_folder ) {
         this.root_folder = root_folder;
+        this.listAdapter = new FileListAdapter( context );;
+
         return this;
+    }
+
+    private int nActionBarTitleResId = -1;
+    public void setnActionBarTitleResId( int resId ) {
+        nActionBarTitleResId = resId;
     }
 
     @Override
@@ -76,24 +97,36 @@ public class FileListFragment extends FragmentEx
         layout 		= inflater.inflate( R.layout.myfile_layout, container, false);
         if( layout == null ) return null;
 
-        setHasOptionsMenu( true );
+        // Fragment 가 option menu을 가지고 있음을 알림
+        setHasOptionsMenu(true);
 
-        listView	= ( ListView ) layout.findViewById( R.id.listView );
-        if( listView != null ) {
-            pathList        = ( LinearLayout ) layout.findViewById( R.id.pathList ) ;
-            pathScrollView = ( HorizontalScrollView ) layout.findViewById( R.id.pathScrollView ) ;
+        progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
+        listView    = ( ListView ) layout.findViewById( R.id.listView );
+        gridView    = ( GridView ) layout.findViewById( R.id.gridView );
 
-            listAdapter = new FileListAdapter( context );;
-            listAdapter.push_folder( root_folder, "" );
+        progressBar.setVisibility( View.VISIBLE );
+        listView.setVisibility( View.GONE );
+        gridView.setVisibility( View.GONE );
 
-            listView.setAdapter( listAdapter );
-            listView.setOnItemClickListener( this );
-            listView.setOnItemLongClickListener( this );
+        pathList        = ( LinearLayout ) layout.findViewById( R.id.pathList ) ;
+        pathScrollView = ( HorizontalScrollView ) layout.findViewById( R.id.pathScrollView ) ;
 
-            listUpdateRunnable.run();
-        }
-
+        new Thread( listUpdateRunnable ).start();
         return layout;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if( nActionBarTitleResId != -1 ) {
+            // ActionBar Title 변경
+            AppCompatActivity ACActivity = (AppCompatActivity) getActivity();
+            ActionBar aBar = ACActivity.getSupportActionBar();
+            if (aBar != null) {
+                aBar.setTitle(nActionBarTitleResId);
+            }
+        }
     }
 
     @Override
@@ -196,7 +229,10 @@ public class FileListFragment extends FragmentEx
     Runnable listUpdateRunnable = new Runnable() {
         @Override
         public void run() {
+            listAdapter.push_folder( root_folder, "" );
             listAdapter.reload();
+
+            context.runOnUiThread( init_list_runnable );
             context.runOnUiThread( pathListUpdateRunnable );
             listView.smoothScrollToPosition(0);
         }
@@ -206,6 +242,54 @@ public class FileListFragment extends FragmentEx
         @Override
         public void handleMessage(Message msg) {
             pathScrollView.fullScroll(ScrollView.FOCUS_RIGHT);
+        }
+    };
+
+    Runnable init_list_runnable = new Runnable() {
+
+        @Override
+        public void run() {
+            // Progress bar 사라지게 하기
+            progressBar.setVisibility( View.GONE );
+
+            if( view_layout_mode == VIEW_MODE_LIST ) {
+                // ListView 나타나게 하기
+                gridView.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+                listView.setAdapter( listAdapter );
+
+                registerForContextMenu(listView);
+
+                listView.setOnItemClickListener( FileListFragment.this );
+                listView.setOnItemLongClickListener( FileListFragment.this );
+
+            } else {
+                // GridView 나타나게 하기
+                listView.setVisibility(View.GONE);
+                gridView.setVisibility(View.VISIBLE);
+                gridView.setAdapter( listAdapter );
+
+                registerForContextMenu(gridView);
+
+                gridView.setOnItemClickListener( FileListFragment.this );
+                gridView.setOnItemLongClickListener( FileListFragment.this );
+            }
+
+            EditText apk_search = (EditText) layout.findViewById( R.id.txt_search );
+            if( apk_search != null ) {
+                apk_search.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                        FileListFragment.this.listAdapter.getFilter().filter(cs);
+                    }
+                    @Override
+                    public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+                    @Override
+                    public void afterTextChanged(Editable arg0) { }
+                });
+            }
+
+            listAdapter.sort();
         }
     };
 
@@ -268,20 +352,6 @@ public class FileListFragment extends FragmentEx
             //context.getSupportActionBar().setDisplayHomeAsUpEnabled(listAdapter.is_next_pop_folder());
         }
     };
-
-    @Override
-    public boolean onQueryTextSubmit(String s) {
-        listAdapter.getFilter().filter(s);
-        return true;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String s) {
-        listAdapter.getFilter().filter(s);
-        return true;
-    }
-
-
 
     private void function_paste_items() {
         /*

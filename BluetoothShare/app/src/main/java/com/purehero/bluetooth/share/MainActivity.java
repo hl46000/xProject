@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_files     :
                 FileListFragment myFiles = new FileListFragment().setMainActivity(this);
                 myFiles.setRootFolder( new File( "/"));
+                myFiles.setnActionBarTitleResId( R.string.my_files );
                 fragmentTransaction.replace(R.id.fragment_area, myFiles ); break;
 
             case R.id.btnAudios     :

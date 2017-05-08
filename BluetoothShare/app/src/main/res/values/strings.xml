@@ -60,5 +60,6 @@
     <string name="downloads">Downloads</string>
     <string name="off">OFF</string>
     <string name="on">ON</string>
+    <string name="file_search_hint">Filter( file name )</string>
 
 </resources>
