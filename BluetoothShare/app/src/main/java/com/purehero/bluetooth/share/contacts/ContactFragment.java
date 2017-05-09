@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -15,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -30,12 +30,10 @@ import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
 import com.purehero.module.common.CancelableProgressDialog;
 import com.purehero.module.common.DialogUtils;
-import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.ProgressRunnable;
 import com.purehero.module.fragment.FragmentEx;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,6 +73,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		if( aBar != null ) {
 			aBar.setTitle( R.string.contact );
 		}
+		context.showActionBarBackButton( true );
 
 		layout 	= inflater.inflate( R.layout.contacts_layout, container, false );
 
@@ -192,18 +191,21 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );
 		}
 
+		/*
 		item = menu.findItem( R.id.contacts_action_backup );
 		if( item != null ) {
 			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );
 		}
+		*/
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
+
 		if( id == R.id.contacts_action_view_mode ) {
 			if (view_layout_mode == VIEW_MODE_LIST) {
-				item.setIcon(R.drawable.ic_view_headline_white_24dp);
+				item.setIcon(R.drawable.ic_format_list_bulleted_white_24dp);
 				view_layout_mode = VIEW_MODE_GRID;
 			} else {
 				item.setIcon(R.drawable.ic_view_module_white_24dp);
@@ -222,15 +224,18 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 
 		} else if( id == R.id.contacts_action_select_mode ) {
 			adapter.setSelectMode( true );
+            context.invalidateOptionsMenu();
 			return true;
 
 		} else if( id == R.id.contacts_action_delete ) {
 			contacts_deletes( adapter.getSelectedItem());
 			return true;
 
+			/*
 		} else if( id == R.id.contacts_action_backup ) {
 			contacts_backup( adapter.getSelectedItem());
 			return true;
+			*/
 		}
 
 		return super.onOptionsItemSelected(item);

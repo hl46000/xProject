@@ -1,6 +1,7 @@
 package com.purehero.bluetooth.share;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.purehero.bluetooth.share.apps.ApkListFragment;
 import com.purehero.bluetooth.share.contacts.ContactFragment;
@@ -32,21 +34,38 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    FloatingActionButton fab = null;
+    ActionBarDrawerToggle mDrawerToggle;
+    private boolean mToolBarNavigationListenerIsRegistered = false;
+
+    private BluetoothAdapter btAdapter 	= null;
+    public static final int REQUEST_ENABLE_BT 				= 1023;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if( btAdapter != null ) {
+            if (!btAdapter.isEnabled()) {
+                Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(i, REQUEST_ENABLE_BT);
+            }
+        } else {
+            Toast.makeText( this, R.string.bluetooth_not_enable, Toast.LENGTH_LONG ).show();
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        mDrawerToggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        drawer.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.refresh);
+        fab = (FloatingActionButton) findViewById(R.id.refresh);
         fab.setOnClickListener( this );
 
 
@@ -56,6 +75,14 @@ public class MainActivity extends AppCompatActivity
         checkPermission();
 
         onHomeFragment();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
+        fragment.onActivityResult(requestCode, resultCode, data);
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -85,21 +112,30 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
 
+        /*
         int id = item.getItemId();
         switch (id ) {
             case R.id.action_settings:
-                startActivity(new Intent( this, SettingActivity.class));
+                openSettingPage();
                 return true;
 
             case R.id.action_bluetooth_admin :
-                startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
+                openBluetoothAdminPage();
                 return true;
 
             case R.id.action_bluetooth_identity :
                 return true;
         }
-
+        */
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openSettingPage() {
+        startActivity(new Intent( this, SettingActivity.class));
+    }
+
+    public void openBluetoothAdminPage() {
+        startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
     }
 
     private void onHomeFragment() {
@@ -107,8 +143,11 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
         HomeFragment fragment = new HomeFragment().setMainActivity(this);
+        fragment.setBluetoothAdapter( btAdapter );
         fragmentTransaction.replace(R.id.fragment_area, fragment );
         fragmentTransaction.commit();
+
+        fab.setVisibility( View.INVISIBLE );
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -128,9 +167,15 @@ public class MainActivity extends AppCompatActivity
 
         switch( id ) {
             case R.id.btnApps       :
-            case R.id.nav_apps      : fragmentTransaction.replace(R.id.fragment_area, new ApkListFragment().setMainActivity(this)); break;
+            case R.id.nav_apps      :
+                fab.setVisibility( View.VISIBLE );
+                fragmentTransaction.replace(R.id.fragment_area, new ApkListFragment().setMainActivity(this));
+                break;
             case R.id.btnContacts   :
-            case R.id.nav_contact   : fragmentTransaction.replace(R.id.fragment_area, new ContactFragment().setMainActivity( this )); break;
+            case R.id.nav_contact   :
+                fab.setVisibility( View.VISIBLE );
+                fragmentTransaction.replace(R.id.fragment_area, new ContactFragment().setMainActivity( this ));
+                break;
             case R.id.btnMyFiles    :
             case R.id.nav_files     :
                 FileListFragment myFiles = new FileListFragment().setMainActivity(this);
@@ -207,5 +252,56 @@ public class MainActivity extends AppCompatActivity
         }
 
         //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
+    /**
+     * To be semantically or contextually correct, maybe change the name
+     * and signature of this function to something like:
+     *
+     * private void showBackButton(boolean show)
+     * Just a suggestion.
+     */
+    public void showActionBarBackButton(boolean enable) {
+
+        // To keep states of ActionBar and ActionBarDrawerToggle synchronized,
+        // when you enable on one, you disable on the other.
+        // And as you may notice, the order for this operation is disable first, then enable - VERY VERY IMPORTANT.
+        if(enable) {
+            // Remove hamburger
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            // Show back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            // when DrawerToggle is disabled i.e. setDrawerIndicatorEnabled(false), navigation icon
+            // clicks are disabled i.e. the UP button will not work.
+            // We need to add a listener, as in below, so DrawerToggle will forward
+            // click events to this listener.
+            if(!mToolBarNavigationListenerIsRegistered) {
+                mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Doesn't have to be onBackPressed
+                        onBackPressed();
+                    }
+                });
+
+                mToolBarNavigationListenerIsRegistered = true;
+            }
+
+        } else {
+            // Remove back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            // Show hamburger
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            // Remove the/any drawer toggle listener
+            mDrawerToggle.setToolbarNavigationClickListener(null);
+            mToolBarNavigationListenerIsRegistered = false;
+        }
+
+        // So, one may think "Hmm why not simplify to:
+        // .....
+        // getSupportActionBar().setDisplayHomeAsUpEnabled(enable);
+        // mDrawer.setDrawerIndicatorEnabled(!enable);
+        // ......
+        // To re-iterate, the order in which you enable and disable views IS important #dontSimplify.
     }
 }

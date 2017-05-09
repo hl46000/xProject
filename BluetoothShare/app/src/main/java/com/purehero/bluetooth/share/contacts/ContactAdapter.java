@@ -112,7 +112,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 		ContactData data = ( ContactData ) getItem( position );
 		Drawable icon = data.getIcon();
 		if( icon == null ) {
-			viewHolder.icon.setImageResource( R.drawable.ic_contact );
+			viewHolder.icon.setImageResource( R.drawable.contact );
 		} else {
 			viewHolder.icon.setImageDrawable( icon );
 		}

@@ -11,28 +11,38 @@
             android:icon="@drawable/ic_apps_black_24dp"
             android:title="@string/apps" />
 
-        <item android:title="@string/my_files">
+        <item android:title="@string/my_files" android:visible="false">
 
                 <item
                     android:id="@+id/nav_files"
                     android:icon="@drawable/ic_folder_shared_black_24dp"
-                    android:title="@string/files" />
+                    android:title="@string/files"
+                    android:visible="false" />
                 <item
                     android:id="@+id/nav_photos"
                     android:icon="@drawable/ic_image_black_24dp"
-                    android:title="@string/photos" />
+                    android:title="@string/photos"
+                    android:visible="false" />
                 <item
                     android:id="@+id/nav_videos"
                     android:icon="@drawable/ic_videocam_black_24dp"
-                    android:title="@string/videos" />
+                    android:title="@string/videos"
+                    android:visible="false" />
                 <item
                     android:id="@+id/nav_audios"
                     android:icon="@drawable/ic_audiotrack_black_24dp"
-                    android:title="@string/audios" />
+                    android:title="@string/audios"
+                    android:visible="false" />
                 <item
                     android:id="@+id/nav_documents"
                     android:icon="@drawable/ic_description_black_24dp"
-                    android:title="@string/documents" />
+                    android:title="@string/documents"
+                    android:visible="false" />
+                <item
+                    android:id="@+id/nav_downloads"
+                    android:icon="@drawable/ic_description_black_24dp"
+                    android:title="@string/downloads"
+                    android:visible="false" />
 
         </item>
     </group>

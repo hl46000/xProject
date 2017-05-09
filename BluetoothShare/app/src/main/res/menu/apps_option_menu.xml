@@ -36,6 +36,7 @@
         android:title="@string/action_select_mode"
         app:showAsAction="never" />
 
+    <!--
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
@@ -53,4 +54,6 @@
         android:orderInCategory="100"
         android:title="@string/bluetooth_identity"
         app:showAsAction="never" />
+
+    -->
 </menu>

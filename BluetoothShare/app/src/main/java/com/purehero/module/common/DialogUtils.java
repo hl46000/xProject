@@ -134,6 +134,10 @@ public class DialogUtils {
      * @return
      */
     private static EditText __input = null;
+    public static void TextInputDialog( final Activity activity, final int title_res, final int message_res, String hint, final int res_icon, final DialogInterface.OnClickListener listener ) {
+        TextInputDialog( activity, activity.getString(title_res), activity.getString(message_res), hint, res_icon, listener );
+    }
+
     public static void TextInputDialog( final Activity activity, final String title, final String message, String hint, final int res_icon, final DialogInterface.OnClickListener listener ) {
         final LinearLayout layout = new LinearLayout( activity );
 

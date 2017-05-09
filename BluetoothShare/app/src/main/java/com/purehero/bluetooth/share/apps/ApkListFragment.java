@@ -9,11 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -22,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -30,7 +29,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.purehero.bluetooth.share.G;
-import com.purehero.bluetooth.share.IconizedMenu;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
 import com.purehero.module.fragment.FragmentEx;
@@ -74,6 +72,7 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
         if( aBar != null ) {
             aBar.setTitle( R.string.apps );
         }
+		context.showActionBarBackButton( true );
 
 		progressBar = ( ProgressBar ) layout.findViewById( R.id.progressBar );
 		apkListView = (ListView) layout.findViewById(R.id.apkListView);
