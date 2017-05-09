@@ -85,6 +85,10 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
+    private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
+    private long backPressedTime = 0;
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -101,7 +105,14 @@ public class MainActivity extends AppCompatActivity
                 onHomeFragment();
                 return;
             }
-            super.onBackPressed();
+
+            if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+                super.onBackPressed();
+
+            } else {
+                backPressedTime = System.currentTimeMillis();
+                Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+            }
         }
     }
 

@@ -1,0 +1,69 @@
+<resources>
+    <string name="app_name">Berbagi Bluetooth</string>
+	<string name="two_back_touch_exit_app">Untuk keluar dari aplikasi, tekan tombol Kembali lagi.</string>
+	
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="settings">Pengaturan</string>
+    <string name="bluetooth_admin">Admin Bluetooth</string>
+    <string name="bluetooth_identity">Identitas Bluetooth</string>
+    <string name="contact">Kontak</string>
+    <string name="files">Files</string>
+    <string name="photos">Foto</string>
+    <string name="videos">Videos</string>
+    <string name="apps">Aplikasi</string>
+    <string name="my_files">File saya</string>
+    <string name="audios">Audios</string>
+    <string name="documents">Dokumen</string>
+    <string name="share_via_bluetooth">Berbagi melalui Bluetooth</string>
+    <string name="share_via_apps">Bagikan melalui Apps</string>
+    <string name="share_select_app">Bagikan melalui Pilih Aplikasi( e.g E-Mail )</string>
+    <string name="search">Pencarian</string>
+    <string name="view_mode">Mode tampilan</string>
+    <string name="extract">Ekstrak</string>
+    <string name="share">Bagikan</string>
+    <string name="execute">Menjalankan</string>
+    <string name="information">Informasi</string>
+    <string name="goto_market">Buka Google Play</string>
+    <string name="extracting">Ekstrak</string>
+    <string name="send_to_sdcard_format" formatted="false">\'%s\' was copied to \'%s\'</string>
+    <string name="ok">baik</string>
+    <string name="apps_search_hint">Filter (nama aplikasi atau nama paket)</string>
+    <string name="contacts_search_hint">Filter (nama atau nomor telepon atau email)</string>
+
+    <string name="contacts_backup_info">Cadangkan xxxxx kontak yang dipilih.</string>
+    <string name="contacts_enter_backup_name">Harap masukkan nama cadangan</string>
+    <string name="contacts_backup_result">Didukung xxxxx kontak dengan nama yyyyy</string>
+    <string name="contacts_backup_selected">Backup kontak yang dipilih</string>
+
+    <string name="delete">Menghapus</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="contacts_backup">Kontak Cadangan</string>
+    <string name="delete_format">Menghapus( xxxxx )</string>
+    <string name="contacts_delete_message">Kontak akan dihapus</string>
+    <string name="action_select_mode">Pilih mode</string>
+    <string name="cancel">Membatalkan</string>
+    <string name="delete_message">Item akan dihapus</string>
+    <string name="create_folder">Membuat folder</string>
+    <string name="new_folder">folder baru</string>
+    <string name="create">Membuat</string>
+    <string name="paste">Pasta</string>
+    <string name="myfile_filter_hint">Menyaring</string>
+    <string name="read_only">ReadOnly</string>
+    <string name="copy">Salinan</string>
+    <string name="move">Pindah</string>
+    <string name="rename">Ganti nama</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="category">Kategori</string>
+    <string name="my_device">Perangkat saya</string>
+    <string name="enternal_sdcard">Penyimpanan internal</string>
+    <string name="downloads">Downloads</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="file_search_hint">Filter (nama file)</string>
+    <string name="bluetooth_not_enable">Bluetooth tidak diaktifkan</string>
+    <string name="device_name_change_contents">Anda dapat dengan mudah membedakan setiap perangkat dengan menampilkan namanya dalam daftar perangkat periferal, Bluetooth, WI-FI Direct dan perangkat lainnya.</string>
+    <string name="rename_device">Ganti nama perangkat</string>
+
+</resources>

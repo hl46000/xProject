@@ -1,0 +1,69 @@
+<resources>
+    <string name="app_name">블루투스 공유</string>
+	<string name="two_back_touch_exit_app">뒤로 버튼을 한번더 누르면 앱이 종료됩니다.</string>
+	
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="settings">설정</string>
+    <string name="bluetooth_admin">블루투스 관리</string>
+    <string name="bluetooth_identity">Bluetooth Identity</string>
+    <string name="contact">연락처</string>
+    <string name="files">파일</string>
+    <string name="photos">이미지</string>
+    <string name="videos">동영상</string>
+    <string name="apps">앱</string>
+    <string name="my_files">내 파일</string>
+    <string name="audios">오디오</string>
+    <string name="documents">문서</string>
+    <string name="share_via_bluetooth">블루투스 공유</string>
+    <string name="share_via_apps">공유</string>
+    <string name="share_select_app">공유앱 선택( 예:E-Mail )</string>
+    <string name="search">검색</string>
+    <string name="view_mode">보기모드</string>
+    <string name="extract">추출</string>
+    <string name="share">공유</string>
+    <string name="execute">실행</string>
+    <string name="information">정보</string>
+    <string name="goto_market">Google Play로 이동</string>
+    <string name="extracting">추출중</string>
+    <string name="send_to_sdcard_format" formatted="false">\'%s\'가 \'%s\'로 복사 되었습니다.</string>
+    <string name="ok">확인</string>
+    <string name="apps_search_hint">필터( 앱 이름/패키지명 )</string>
+    <string name="contacts_search_hint">필터( 이름/전화번호/이메일 )</string>
+
+    <string name="contacts_backup_info">xxxxx 의 선택된 연락처를 백업합니다.</string>
+    <string name="contacts_enter_backup_name">백업파일명을 입력해 주세요.</string>
+    <string name="contacts_backup_result">xxxxx 의 연락처가 yyyyy 로 백업 되었습니다.</string>
+    <string name="contacts_backup_selected">선택된 연락처 백업</string>
+
+    <string name="delete">삭제</string>
+    <string name="uninstall">제거</string>
+    <string name="contacts_backup">연락처 백업</string>
+    <string name="delete_format">삭제됨( xxxxx )</string>
+    <string name="contacts_delete_message">연락처가 삭제 됩니다.</string>
+    <string name="action_select_mode">선택모드</string>
+    <string name="cancel">취소</string>
+    <string name="delete_message">항목이 삭제 됩니다.</string>
+    <string name="create_folder">새 폴더 생성</string>
+    <string name="new_folder">새 폴더</string>
+    <string name="create">생성</string>
+    <string name="paste">붙여넣기</string>
+    <string name="myfile_filter_hint">필터</string>
+    <string name="read_only">읽기전용</string>
+    <string name="copy">복사</string>
+    <string name="move">이동</string>
+    <string name="rename">이름바꾸기</string>
+    <string name="bluetooth">블루투스</string>
+    <string name="category">카테고리</string>
+    <string name="my_device">내 장치</string>
+    <string name="enternal_sdcard">내부저장소</string>
+    <string name="downloads">다운로드</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="file_search_hint">필터( 파일명 )</string>
+    <string name="bluetooth_not_enable">블루투스 장치를 사용할 수 없습니다.</string>
+    <string name="device_name_change_contents">주변 장치 목록, Bluetooth, WI-FI Direct 및 기타 장치에 이름을 표시하여 각 장치를 쉽게 구별 할 수 있습니다.</string>
+    <string name="rename_device">장치 이름변경</string>
+
+</resources>

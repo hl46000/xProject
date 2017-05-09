@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Bluetooth Share</string>
-
+	<string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
+	
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
