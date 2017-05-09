@@ -145,6 +145,8 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
         } else if( id == R.id.btnBluetoothName ) {
             if( btAdapter != null ) {
                 if( btAdapter.isEnabled()) {
+                    DialogUtils.yes_string_res = R.string.ok;
+                    DialogUtils.no_string_res = R.string.cancel;
                     DialogUtils.TextInputDialog(context, R.string.rename_device, R.string.device_name_change_contents, btAdapter.getName(), 0, new DialogInterface.OnClickListener(){
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
