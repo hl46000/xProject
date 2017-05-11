@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -382,11 +384,21 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		shareIntent.setPackage("com.android.bluetooth");
 		shareIntent.setType("*/*");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		}
 
         try {
 			ArrayList<Uri> shareDatas = new ArrayList<Uri>();
 			for( ApkListData data : datas ) {
-				shareDatas.add( Uri.fromFile( new File( data.getApkFilepath()) ));
+				File dest = new File( context.getExternalCacheDir(), data.getAppName() + ".apk" );
+				//File dest = new File( context.getCacheDir(), data.getAppName() + ".apk" );
+				if( dest.exists()) dest.delete();
+				G.copy_file( new File( data.getApkFilepath()), dest );
+
+				//shareDatas.add( FileProvider.getUriForFile( context,"com.purehero.bluetooth.share.provider",new File( data.getApkFilepath()) ));
+				shareDatas.add( FileProvider.getUriForFile( context,"com.purehero.bluetooth.share.provider", dest ));
 			}
 
 			shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
@@ -408,14 +420,20 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		shareIntent.setType("*/*");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		}
 		try {
 			ArrayList<Uri> shareDatas = new ArrayList<Uri>();
 			for( ApkListData data : datas ) {
+				File dest = new File( context.getExternalCacheDir(), data.getAppName() + ".apk" );
 				//File dest = new File( context.getCacheDir(), data.getAppName() + ".apk" );
-				//if( dest.exists()) dest.delete();
-				//G.copy_file( new File( data.getApkFilepath()), dest );
+				if( dest.exists()) dest.delete();
+				G.copy_file( new File( data.getApkFilepath()), dest );
 				//shareDatas.add( Uri.fromFile( dest ));
-				shareDatas.add( Uri.fromFile( new File( data.getApkFilepath()) ));
+				//shareDatas.add( FileProvider.getUriForFile( context,"com.purehero.bluetooth.share.provider",new File( data.getApkFilepath()) ));
+				shareDatas.add( FileProvider.getUriForFile( context,"com.purehero.bluetooth.share.provider", dest ));
 			}
 
 			shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
