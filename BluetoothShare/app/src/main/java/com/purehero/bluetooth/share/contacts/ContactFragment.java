@@ -327,7 +327,11 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		}
 
 		ArrayList<Uri> shareDatas = new ArrayList<Uri>();
-		shareDatas.add( FileProvider.getUriForFile( context,"com.purehero.bluetooth.share.provider", sharing_file ));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", sharing_file));
+		} else {
+			shareDatas.add( Uri.fromFile( sharing_file ));
+		}
 		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 
 		String temp = selectedItems.size() == 1 ? String.format( "'%s'", selectedItems.get(0).getDisplayName()) : "" + selectedItems.size();
@@ -364,7 +368,11 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		}
 
 		ArrayList<Uri> shareDatas = new ArrayList<Uri>();
-		shareDatas.add( FileProvider.getUriForFile( context,"com.purehero.bluetooth.share.provider", sharing_file ));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", sharing_file));
+		} else {
+			shareDatas.add( Uri.fromFile( sharing_file ));
+		}
 		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 
 		//startActivityForResult(Intent.createChooser(shareIntent, "Share Contacts" ), 100 );
