@@ -6,8 +6,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="settings">Pengaturan</string>
-    <string name="bluetooth_admin">Admin Bluetooth</string>
-    <string name="bluetooth_identity">Identitas Bluetooth</string>
+    <string name="bluetooth_admin">administrasi Bluetooth</string>
+    <string name="bluetooth_identity">Ganti nama perangkat</string>
     <string name="contact">Kontak</string>
     <string name="files">Files</string>
     <string name="photos">Foto</string>

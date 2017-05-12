@@ -7,7 +7,7 @@
 
     <string name="settings">설정</string>
     <string name="bluetooth_admin">블루투스 관리</string>
-    <string name="bluetooth_identity">Bluetooth Identity</string>
+    <string name="bluetooth_identity">장치 이름변경</string>
     <string name="contact">연락처</string>
     <string name="files">파일</string>
     <string name="photos">이미지</string>

@@ -9,6 +9,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -131,6 +134,28 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
     };
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.home_option_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_bluetooth_admin) {
+            context.openBluetoothAdminPage();
+            return true;
+
+        } else if( id == R.id.action_bluetooth_identity ) {
+            renameBluetoothDevice();
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void onClick(View v) {
         int id = v.getId();
         if( id == R.id.btnOpenBluetoothAdmin ) {
@@ -145,23 +170,27 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
         } else if( id == R.id.btnBluetoothName ) {
             if( btAdapter != null ) {
                 if( btAdapter.isEnabled()) {
-                    DialogUtils.yes_string_res = R.string.ok;
-                    DialogUtils.no_string_res = R.string.cancel;
-                    DialogUtils.TextInputDialog(context, R.string.rename_device, R.string.device_name_change_contents, btAdapter.getName(), 0, new DialogInterface.OnClickListener(){
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            if( i == DialogUtils.DIALOG_BUTTON_ID_YES ) {
-                                String result = DialogUtils.getTextInputDialogResult();
-                                if( btAdapter != null ) {
-                                    btAdapter.setName( result );
-                                    bluetoothName.setText( btAdapter.getName() );
-                                }
-                            }
-                        }
-                    });
+                    renameBluetoothDevice();
                 }
             }
         }
+    }
+
+    private void renameBluetoothDevice() {
+        DialogUtils.yes_string_res = R.string.ok;
+        DialogUtils.no_string_res = R.string.cancel;
+        DialogUtils.TextInputDialog(context, R.string.rename_device, R.string.device_name_change_contents, btAdapter.getName(), 0, new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if( i == DialogUtils.DIALOG_BUTTON_ID_YES ) {
+                    String result = DialogUtils.getTextInputDialogResult();
+                    if( btAdapter != null ) {
+                        btAdapter.setName( result );
+                        bluetoothName.setText( btAdapter.getName() );
+                    }
+                }
+            }
+        });
     }
 
     @Override
