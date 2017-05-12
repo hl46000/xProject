@@ -3,8 +3,10 @@ package com.purehero.bluetooth.share.contacts;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -319,9 +321,17 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		Intent shareIntent = new Intent();
 		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		shareIntent.setType("*/*");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		}
 
 		ArrayList<Uri> shareDatas = new ArrayList<Uri>();
-		shareDatas.add( Uri.fromFile( sharing_file ));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", sharing_file));
+		} else {
+			shareDatas.add( Uri.fromFile( sharing_file ));
+		}
 		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 
 		String temp = selectedItems.size() == 1 ? String.format( "'%s'", selectedItems.get(0).getDisplayName()) : "" + selectedItems.size();
@@ -352,9 +362,17 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
 		shareIntent.setType("*/*");
 		shareIntent.setPackage("com.android.bluetooth");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		}
 
 		ArrayList<Uri> shareDatas = new ArrayList<Uri>();
-		shareDatas.add( Uri.fromFile( sharing_file ));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", sharing_file));
+		} else {
+			shareDatas.add( Uri.fromFile( sharing_file ));
+		}
 		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 
 		//startActivityForResult(Intent.createChooser(shareIntent, "Share Contacts" ), 100 );
