@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.purehero.bluetooth.share.apps.ApkListFragment;
 import com.purehero.bluetooth.share.contacts.ContactFragment;
 import com.purehero.bluetooth.share.files.FileListFragment;
+import com.purehero.bluetooth.share.images.ImageListFragment;
 import com.purehero.module.fragment.FragmentEx;
 
 import java.io.File;
@@ -208,8 +209,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.btnPhotos     :
             case R.id.nav_photos    :
-                FileListFragment myPhotos = new FileListFragment().setMainActivity(this);
-                myPhotos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES ) );
+                ImageListFragment myPhotos = new ImageListFragment().setMainActivity(this);
                 fragmentTransaction.replace(R.id.fragment_area, myPhotos ); break;
 
             case R.id.btnVideos     :

@@ -2,8 +2,10 @@ package com.purehero.bluetooth.share.files;
 
 import android.webkit.MimeTypeMap;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
+import com.purehero.module.common.CommonFileUtils;
+
+import java.io.File;import java.text.SimpleDateFormat;
+
 import java.util.Comparator;
 
 /**
@@ -18,8 +20,6 @@ public class FileListData {
     private int subItemCount = 0;
     private boolean selected = false;
     private int clickCount = 0;             // 사용자에 의해 선택되어지 횟수
-
-    public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
 
     public FileListData( File file ) {
         init( file );
@@ -36,17 +36,17 @@ public class FileListData {
             subTitle = String.format( "%d item", subItemCount );
 
         } else {
-            subTitle = getFilesize(file);
+            subTitle = CommonFileUtils.getFilesize(file);
 
             try {
-                String extension = getFileExt( file.getName());
+                String extension = CommonFileUtils.getFileExt( file.getName());
                 mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase() );
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat( DATE_FORMAT );
+        SimpleDateFormat sdf = new SimpleDateFormat( CommonFileUtils.DATE_FORMAT );
         fileDate = sdf.format(file.lastModified());
     }
 
@@ -54,9 +54,6 @@ public class FileListData {
         init( destFile );
     }
 
-    private String getFileExt(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-    }
 
     /**
      * filename 반환한다.
@@ -101,35 +98,6 @@ public class FileListData {
         this.clickCount = clickCount;
     }
 
-    /**
-     * 파일의 크기를 문자열로 반환한다.
-     *
-     * @param file
-     * @return
-     */
-    public static final String getFilesize( File file ) {
-        String result = "0 B";
-
-        float size = file.length();
-        if( size < 1024.0f ) {
-            result = String.format( "%d B", (int)size );
-        } else {
-            size /= 1024.0f;
-            if( size < 1024.0f ) {
-                result = String.format( "%.2f KB", size );
-            } else {
-                size /= 1024.0f;
-                if( size < 1024.0f ) {
-                    result = String.format( "%.2f MB", size );
-                } else {
-                    size /= 1024.0f;
-                    result = String.format( "%.2f GB", size );
-                }
-            }
-        }
-
-        return result;
-    }
 
     public static final Comparator<FileListData> ALPHA_COMPARATOR = new Comparator<FileListData> () {
         @Override

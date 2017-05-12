@@ -153,12 +153,12 @@
                 android:text="@string/apps" />
         </LinearLayout>
 
-        <!-- audio content -->
-        <LinearLayout  android:visibility="invisible" android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+        <!-- photo content -->
+        <LinearLayout android:id="@+id/btnPhotos" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground" >
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:src="@drawable/ic_music" />
+                android:src="@drawable/ic_image" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/audios" />
+                android:text="@string/photos" />
         </LinearLayout>
     </LinearLayout>
 
@@ -177,12 +177,12 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/downloads" />
         </LinearLayout>
-        <!-- photo content -->
-        <LinearLayout android:id="@+id/btnPhotos" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground" >
+        <!-- audio content -->
+        <LinearLayout android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:src="@drawable/ic_image" />
+                android:src="@drawable/ic_music" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/photos" />
+                android:text="@string/audios" />
         </LinearLayout>
     </LinearLayout>
 
