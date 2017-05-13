@@ -13,14 +13,14 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.R;
-import com.purehero.bluetooth.share.files.FileListAdapter;
-import com.purehero.bluetooth.share.files.FileListData;
+import com.purehero.bluetooth.share.contacts.ContactData;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,14 +56,24 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
             viewHolder = new ViewHolder();
 
             LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-            view  = inflater.inflate( R.layout.myfile_list_cell_layout, null );
+            if( viewGroup instanceof ListView) {
+                view  = inflater.inflate( R.layout.myfile_list_cell_layout, null );
+
+                viewHolder.tvSubTitle 	= (TextView)  view.findViewById( R.id.file_list_view_item_sub_title );
+                viewHolder.tvDate 		= (TextView)  view.findViewById( R.id.file_list_view_item_date );
+
+            } else if( viewGroup instanceof GridView) {
+                view  = inflater.inflate( R.layout.myfile_grid_cell_layout, null );
+
+                viewHolder.tvSubTitle 	= null;
+                viewHolder.tvDate 		= null;
+            }
 
             viewHolder.cbSelected   = (CheckBox)  view.findViewById( R.id.file_list_view_item_checkbox );
             viewHolder.cbSelected.setOnClickListener( this );
             viewHolder.ivIcon 		= (ImageView) view.findViewById( R.id.file_list_view_item_icon );
             viewHolder.tvTitle 	    = (TextView)  view.findViewById( R.id.file_list_view_item_file_name );
-            viewHolder.tvSubTitle 	= (TextView)  view.findViewById( R.id.file_list_view_item_sub_title );
-            viewHolder.tvDate 		= (TextView)  view.findViewById( R.id.file_list_view_item_date );
+
 
             view.setTag( viewHolder );
         } else {
@@ -73,10 +83,14 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
         ImageListData data = ( ImageListData ) getItem( position );
 
         viewHolder.tvTitle.setText( data.getFilename());
-        viewHolder.tvSubTitle.setVisibility( View.VISIBLE );
-        viewHolder.tvSubTitle.setText( data.getSubTitle());
-        viewHolder.tvDate.setVisibility( View.VISIBLE );
-        viewHolder.tvDate.setText( data.getFileDate());
+        if( viewHolder.tvSubTitle != null ) {
+            viewHolder.tvSubTitle.setVisibility(View.VISIBLE);
+            viewHolder.tvSubTitle.setText(data.getSubTitle());
+        }
+        if( viewHolder.tvDate != null ) {
+            viewHolder.tvDate.setVisibility(View.VISIBLE);
+            viewHolder.tvDate.setText(data.getFileDate());
+        }
 
         if( isSelectMode()) {
             viewHolder.cbSelected.setVisibility( View.VISIBLE );
@@ -95,6 +109,14 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
     @Override
     public void onClick(View view) {
 
+    }
+
+    public int getSelectedItemCount() {
+        int ret = 0;
+        for( ImageListData data : filterData ) {
+            if( data.isSelected()) ++ ret;
+        }
+        return ret;
     }
 
     class ViewHolder
@@ -132,7 +154,32 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
     private boolean selectMode = false;
     public boolean isSelectMode() { return selectMode; }
     public void setSelectMode(boolean selectMode) {
+        boolean bChanged = this.selectMode != selectMode;
+
         this.selectMode = selectMode;
+        if( bChanged ) {
+            for( ImageListData data : filterData ) {
+                data.setSelected( false );
+            }
+            notifyDataSetChanged();
+        }
+    }
+
+    public List<ImageListData> getSelectedItem() {
+        List<ImageListData> ret = new ArrayList<ImageListData>();
+
+        for( ImageListData data : filterData ) {
+            if( data.isSelected()) {
+                ret.add( data );
+            }
+        }
+        return ret;
+    }
+
+    public synchronized void setAllSelected( boolean bSelect ) {
+        for( ImageListData data : filterData ) {
+            data.setSelected( bSelect );
+        }
     }
 
     @Override

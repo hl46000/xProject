@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import android.widget.ProgressBar;
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.share.contacts.ContactData;
 import com.purehero.module.fragment.FragmentEx;
 
 /**
@@ -144,23 +147,73 @@ public class ImageListFragment extends FragmentEx {
 
     AdapterView.OnItemLongClickListener itemLongClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if( listAdapter.isSelectMode()) return true;
             return false;
         }
     };
 
     AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ImageListData data = ( ImageListData ) listAdapter.getItem( position );
 
+            if( listAdapter.isSelectMode() ) {
+                data.setSelected(!data.isSelected());
+                listAdapter.notifyDataSetChanged();
+                context.invalidateOptionsMenu();
+                return;
+            }
         }
     };
+
+    @Override
+    public boolean onBackPressed() {
+        if( listAdapter.isSelectMode()) {
+            listAdapter.setSelectMode( false );
+            context.invalidateOptionsMenu();
+            return true;
+        }
+
+        return super.onBackPressed();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.images_option_menu, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        int selectedCount = listAdapter.getSelectedItemCount();
+
+        MenuItem item = menu.findItem(R.id.images_action_select_mode);
+        if (item != null) {
+            item.setVisible(!listAdapter.isSelectMode());
+        }
+
+        item = menu.findItem( R.id.images_action_delete );
+        if( item != null ) {
+            item.setVisible( listAdapter.isSelectMode() && selectedCount > 0 );
+        }
+
+        item = menu.findItem( R.id.images_action_share );
+        if( item != null ) {
+            item.setVisible( listAdapter.isSelectMode() && selectedCount > 0 );
+        }
+
+        item = menu.findItem( R.id.images_action_bluetooth_share );
+        if( item != null ) {
+            item.setVisible( listAdapter.isSelectMode() && selectedCount > 0 );
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.apps_action_view_mode) {
+        if (id == R.id.images_action_view_mode) {
             if (view_layout_mode == VIEW_MODE_LIST) {
                 item.setIcon(R.drawable.ic_format_list_bulleted_white_24dp);
                 view_layout_mode = VIEW_MODE_GRID;
@@ -170,6 +223,12 @@ public class ImageListFragment extends FragmentEx {
             }
             // 수집된 데이터 화면에 보여 주기
             init_ui_runnable.run();
+            return true;
+        }
+
+        if( id == R.id.images_action_select_mode ) {
+            listAdapter.setSelectMode( true );
+            context.invalidateOptionsMenu();
             return true;
         }
 

@@ -46,11 +46,15 @@ public class ImageListData {
     public void setSelected(boolean selected) { this.selected = selected; }
 
     public boolean checkFilteredData(String filterString) {
+        if( file.getName().contains( filterString )) return true;
         return false;
     }
 
     public int compare( ImageListData target ) {
         //return file.getName().compareTo( target.getFile().getName());
+        int result = file.getParent().compareToIgnoreCase( target.getFile().getParent());
+        if( result != 0 ) return result;
+
         return (int)( target.getFile().lastModified() - file.lastModified() );
     }
 
