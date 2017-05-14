@@ -51,11 +51,14 @@ public class ImageListData {
     }
 
     public int compare( ImageListData target ) {
-        //return file.getName().compareTo( target.getFile().getName());
+        //return target.getFile().getName().compareTo( file.getName());
+        /*
         int result = file.getParent().compareToIgnoreCase( target.getFile().getParent());
         if( result != 0 ) return result;
-
-        return (int)( target.getFile().lastModified() - file.lastModified() );
+        */
+        long diff = target.getFile().lastModified() - file.lastModified();
+        if( diff == 0 ) return 0;
+        return diff > 0 ? 1 : -1;
     }
 
     /**

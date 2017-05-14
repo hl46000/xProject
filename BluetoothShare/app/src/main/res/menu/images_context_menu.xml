@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.purehero.contact.share.MainActivity" >
+
+    <item
+        android:id="@+id/images_menu_bluetooth_share"
+        android:orderInCategory="100"
+        android:title="@string/share_via_bluetooth"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/images_menu_share"
+        android:orderInCategory="100"
+        android:title="@string/share_select_app"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/images_menu_delete"
+        android:orderInCategory="100"
+        android:title="@string/delete"
+        app:showAsAction="never"/>
+</menu>

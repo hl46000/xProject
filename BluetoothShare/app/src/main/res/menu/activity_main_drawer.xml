@@ -11,6 +11,11 @@
             android:icon="@drawable/ic_apps_black_24dp"
             android:title="@string/apps" />
 
+        <item
+            android:id="@+id/nav_photos"
+            android:icon="@drawable/ic_image_black_24dp"
+            android:title="@string/photos" />
+
         <item android:title="@string/my_files" android:visible="false">
 
                 <item
@@ -18,11 +23,7 @@
                     android:icon="@drawable/ic_folder_shared_black_24dp"
                     android:title="@string/files"
                     android:visible="false" />
-                <item
-                    android:id="@+id/nav_photos"
-                    android:icon="@drawable/ic_image_black_24dp"
-                    android:title="@string/photos"
-                    android:visible="false" />
+
                 <item
                     android:id="@+id/nav_videos"
                     android:icon="@drawable/ic_videocam_black_24dp"

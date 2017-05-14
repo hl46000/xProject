@@ -277,6 +277,15 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 			item.setVisible( !appsAdapter.isSelectMode() );
 		}
 
+		item = menu.findItem( R.id.apps_action_view_mode );
+		if( item != null ) {
+			if (view_layout_mode == VIEW_MODE_GRID) {
+				item.setIcon(R.drawable.ic_format_list_bulleted_white_24dp);
+			} else {
+				item.setIcon(R.drawable.ic_view_module_white_24dp);
+			}
+		}
+
 		item = menu.findItem( R.id.apps_action_delete );
 		if( item != null ) {
 			item.setVisible( appsAdapter.isSelectMode() && selectedCount == 1 );

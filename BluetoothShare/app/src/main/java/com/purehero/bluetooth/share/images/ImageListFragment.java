@@ -1,10 +1,15 @@
 package com.purehero.bluetooth.share.images;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +27,14 @@ import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
 import com.purehero.bluetooth.share.contacts.ContactData;
+import com.purehero.module.common.FileIntentUtils;
+import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.fragment.FragmentEx;
+import com.purehero.module.fragment.common.FunctionDeleteSelectedItem;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by MY on 2017-05-12.
@@ -164,6 +176,8 @@ public class ImageListFragment extends FragmentEx {
                 context.invalidateOptionsMenu();
                 return;
             }
+
+            FileIntentUtils.Running( data.getFile());
         }
     };
 
@@ -191,6 +205,15 @@ public class ImageListFragment extends FragmentEx {
         MenuItem item = menu.findItem(R.id.images_action_select_mode);
         if (item != null) {
             item.setVisible(!listAdapter.isSelectMode());
+        }
+
+        item = menu.findItem( R.id.images_action_view_mode );
+        if( item != null ) {
+            if (view_layout_mode == VIEW_MODE_GRID) {
+                item.setIcon(R.drawable.ic_format_list_bulleted_white_24dp);
+            } else {
+                item.setIcon(R.drawable.ic_view_module_white_24dp);
+            }
         }
 
         item = menu.findItem( R.id.images_action_delete );
@@ -232,6 +255,134 @@ public class ImageListFragment extends FragmentEx {
             return true;
         }
 
+        if( id == R.id.images_action_delete ) {
+            delete_files( listAdapter.getSelectedItems() );
+            return true;
+        }
+
+        if( id == R.id.images_action_share ) {
+            share_files( listAdapter.getSelectedItems());
+            return true;
+        }
+
+        if( id == R.id.images_action_bluetooth_share ) {
+            bluetooth_share_files( listAdapter.getSelectedItems());
+            return true;
+        }
+
         return false;
+    }
+
+    // 메뉴 생성
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        context.getMenuInflater().inflate(R.menu.images_context_menu, menu);
+    }
+
+    // 메뉴 클릭
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        G.Log( "onContextItemSelected" );
+
+        boolean ret = false;	// 메뉴의 처리 여부
+
+        // 클릭된 APK 정보
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        G.Log( "onContextItemSelected index : " + info.position );
+        ImageListData data = ( ImageListData ) listAdapter.getItem( info.position );
+
+        List<ImageListData> datas = new ArrayList<ImageListData>();
+        datas.add( data );
+
+        int id = item.getItemId();
+        if( id == R.id.images_menu_delete ) {
+            delete_files( datas );
+            ret = true;
+
+        } else if( id == R.id.images_menu_bluetooth_share ) {
+            bluetooth_share_files( datas );
+            ret = true;
+
+        } else if( id == R.id.images_menu_share ) {
+            share_files( datas );
+            ret = true;
+        }
+
+        return ret;
+    }
+
+    protected  void delete_files( List<ImageListData> selectedItems) {
+        List<File> delete_files = new ArrayList<File>();
+        for( ImageListData fData : selectedItems ) {
+            delete_files.add( fData.getFile());
+        }
+
+        new FunctionDeleteSelectedItem( context, delete_files, new OnSuccessListener(){
+            @Override
+            public void OnSuccess() {
+                listAdapter.setSelectMode(false);
+                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
+            }
+        } ).run();
+    }
+
+    protected void bluetooth_share_files(List<ImageListData> selectedItems) {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        shareIntent.setPackage("com.android.bluetooth");
+        shareIntent.setType("*/*");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+
+        try {
+            progressBar.setVisibility( View.VISIBLE );
+
+            ArrayList<Uri> shareDatas = new ArrayList<Uri>();
+            for( ImageListData data : selectedItems ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", data.getFile()));
+                } else {
+                    shareDatas.add( Uri.fromFile( data.getFile() ));
+                }
+            }
+            progressBar.setVisibility( View.GONE );
+
+            shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        startActivity( shareIntent );
+    }
+
+    protected void share_files(List<ImageListData> selectedItems) {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        shareIntent.setType("*/*");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+        try {
+            progressBar.setVisibility( View.VISIBLE );
+
+            ArrayList<Uri> shareDatas = new ArrayList<Uri>();
+            for( ImageListData data : selectedItems ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", data.getFile()));
+                } else {
+                    shareDatas.add( Uri.fromFile( data.getFile() ));
+                }
+            }
+            progressBar.setVisibility( View.GONE );
+
+            shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "Share Image Files" ));
     }
 }

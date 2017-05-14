@@ -178,6 +178,15 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 			item.setVisible( !adapter.isSelectMode() );
 		}
 
+		item = menu.findItem( R.id.contacts_action_view_mode );
+		if( item != null ) {
+			if (view_layout_mode == VIEW_MODE_GRID) {
+				item.setIcon(R.drawable.ic_format_list_bulleted_white_24dp);
+			} else {
+				item.setIcon(R.drawable.ic_view_module_white_24dp);
+			}
+		}
+
 		item = menu.findItem( R.id.contacts_action_delete );
 		if( item != null ) {
 			item.setVisible( adapter.isSelectMode() && selectedCount > 0 );

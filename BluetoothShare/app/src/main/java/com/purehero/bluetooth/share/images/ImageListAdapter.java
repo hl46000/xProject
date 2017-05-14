@@ -108,15 +108,11 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
 
     @Override
     public void onClick(View view) {
-
-    }
-
-    public int getSelectedItemCount() {
-        int ret = 0;
-        for( ImageListData data : filterData ) {
-            if( data.isSelected()) ++ ret;
+        if( view instanceof CheckBox ) {
+            int position = view.getId();
+            ImageListData data = filterData.get( position );
+            data.setSelected( !data.isSelected());
         }
-        return ret;
     }
 
     class ViewHolder
@@ -144,6 +140,14 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
             filterData.add( data );
 
         } while (cursor.moveToNext());
+        Collections.sort( filterData, ImageListData.ALPHA_COMPARATOR );
+
+        context.runOnUiThread( new Runnable(){
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     public void sort() {
@@ -165,7 +169,15 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
         }
     }
 
-    public List<ImageListData> getSelectedItem() {
+    public int getSelectedItemCount() {
+        int ret = 0;
+        for( ImageListData data : filterData ) {
+            if( data.isSelected()) ++ ret;
+        }
+        return ret;
+    }
+
+    public List<ImageListData> getSelectedItems() {
         List<ImageListData> ret = new ArrayList<ImageListData>();
 
         for( ImageListData data : filterData ) {
