@@ -129,6 +129,9 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
         String selection = null;
         String[] projection = { "*" };
 
+        listData.clear();
+        filterData.clear();
+
         Cursor cursor = context.getContentResolver().query( uri, projection, selection, null, null);
         if (cursor == null) return;
         if (!cursor.moveToFirst()) return;
@@ -140,19 +143,18 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
             filterData.add( data );
 
         } while (cursor.moveToNext());
-        Collections.sort( filterData, ImageListData.ALPHA_COMPARATOR );
 
+        sort();
+    }
+
+    public void sort() {
+        Collections.sort( filterData, ImageListData.ALPHA_COMPARATOR );
         context.runOnUiThread( new Runnable(){
             @Override
             public void run() {
                 notifyDataSetChanged();
             }
         });
-    }
-
-    public void sort() {
-        Collections.sort( filterData, ImageListData.ALPHA_COMPARATOR );
-        notifyDataSetChanged();
     }
 
     private boolean selectMode = false;
@@ -165,7 +167,12 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
             for( ImageListData data : filterData ) {
                 data.setSelected( false );
             }
-            notifyDataSetChanged();
+            context.runOnUiThread( new Runnable(){
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 

@@ -72,6 +72,7 @@ public class ImageListFragment extends FragmentEx {
         if (aBar != null) {
             aBar.setTitle(R.string.photos);
         }
+        // ActionBar 에 뒤로 가기 버튼 아이콘 표시
         context.showActionBarBackButton(true);
 
         layout = inflater.inflate(R.layout.myfile_layout, container, false);
@@ -177,7 +178,7 @@ public class ImageListFragment extends FragmentEx {
                 return;
             }
 
-            FileIntentUtils.Running( data.getFile());
+            startActivity( FileIntentUtils.Running( data.getFile()));
         }
     };
 
@@ -321,7 +322,14 @@ public class ImageListFragment extends FragmentEx {
             @Override
             public void OnSuccess() {
                 listAdapter.setSelectMode(false);
-                listAdapter.reload();                                               // 리스트를 갱신 시킨다.
+
+                context.runOnUiThread( new Runnable(){
+                    @Override
+                    public void run() {
+                        listAdapter.reload();                                               // 리스트를 갱신 시킨다.
+                        context.invalidateOptionsMenu();
+                    }
+                });
             }
         } ).run();
     }
