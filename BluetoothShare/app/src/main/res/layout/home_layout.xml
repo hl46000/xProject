@@ -163,22 +163,23 @@
     </LinearLayout>
 
     <!-- category contents second line -->
-    <LinearLayout android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
-        <!-- document content -->
-        <LinearLayout  android:id="@+id/btnDocuments" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+    <LinearLayout android:visibility="visible" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
+        <!-- video content -->
+        <LinearLayout android:id="@+id/btnVideos"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:src="@drawable/ic_document" />
+                android:src="@drawable/ic_movies" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/documents" />
+                android:text="@string/videos" />
         </LinearLayout>
-        <LinearLayout  android:id="@+id/btnDownloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+
+        <LinearLayout android:visibility="invisible" android:id="@+id/btnDownloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_download" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/downloads" />
         </LinearLayout>
         <!-- audio content -->
-        <LinearLayout android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+        <LinearLayout android:visibility="invisible" android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_music" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
@@ -187,12 +188,12 @@
     </LinearLayout>
 
     <LinearLayout android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
-        <!-- video content -->
-        <LinearLayout android:id="@+id/btnVideos"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+        <!-- document content -->
+        <LinearLayout  android:id="@+id/btnDocuments" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:src="@drawable/ic_movies" />
+                android:src="@drawable/ic_document" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/videos" />
+                android:text="@string/documents" />
         </LinearLayout>
         <LinearLayout  android:id="@+id/btnMyFiles"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"

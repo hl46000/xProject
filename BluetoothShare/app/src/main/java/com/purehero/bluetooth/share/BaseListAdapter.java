@@ -1,11 +1,7 @@
-package com.purehero.bluetooth.share.images;
-
+package com.purehero.bluetooth.share;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,24 +15,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.purehero.bluetooth.share.R;
-import com.purehero.bluetooth.share.contacts.ContactData;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by MY on 2017-05-12.
+ * Created by purehero on 2017-05-16.
  */
 
-public class ImageListAdapter extends BaseAdapter implements Filterable, View.OnClickListener {
-    private List<ImageListData> listData = new ArrayList<ImageListData>();    // 전체 데이터
-    private List<ImageListData> filterData = new ArrayList<ImageListData>();  // 검색이 적용된 데이터
+public abstract class BaseListAdapter extends BaseAdapter implements Filterable, View.OnClickListener {
+    private List<BaseListData> listData = new ArrayList<BaseListData>();    // 전체 데이터
+    private List<BaseListData> filterData = new ArrayList<BaseListData>();  // 검색이 적용된 데이터
 
-    private Activity context;
-    public ImageListAdapter(Activity context) {
+    protected Activity context;
+    public BaseListAdapter(Activity context) {
         this.context = context;
     }
 
@@ -51,9 +44,9 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
-        ViewHolder viewHolder;
+        BaseListAdapter.ViewHolder viewHolder;
         if( view == null ) {
-            viewHolder = new ViewHolder();
+            viewHolder = new BaseListAdapter.ViewHolder();
 
             LayoutInflater inflater = ( LayoutInflater ) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
             if( viewGroup instanceof ListView) {
@@ -77,10 +70,10 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
 
             view.setTag( viewHolder );
         } else {
-            viewHolder = (ViewHolder) view.getTag();
+            viewHolder = (BaseListAdapter.ViewHolder) view.getTag();
         }
 
-        ImageListData data = ( ImageListData ) getItem( position );
+        BaseListData data = ( BaseListData ) getItem( position );
 
         viewHolder.tvTitle.setText( data.getFilename());
         if( viewHolder.tvSubTitle != null ) {
@@ -110,8 +103,9 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
     public void onClick(View view) {
         if( view instanceof CheckBox ) {
             int position = view.getId();
-            ImageListData data = filterData.get( position );
+            BaseListData data = filterData.get( position );
             data.setSelected( !data.isSelected());
+            context.invalidateOptionsMenu();
         }
     }
 
@@ -124,31 +118,17 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
         public TextView tvDate;
     }
 
+    public abstract void setListDatas( List<BaseListData> listDatas );
     public void reload() {
-        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String selection = null;
-        String[] projection = { "*" };
-
         listData.clear();
-        filterData.clear();
+        setListDatas( listData );
 
-        Cursor cursor = context.getContentResolver().query( uri, projection, selection, null, null);
-        if (cursor == null) return;
-        if (!cursor.moveToFirst()) return;
-        do {
-            String path = cursor.getString( cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-
-            ImageListData data = new ImageListData( new File( path ));
-            listData.add( data );
-            filterData.add( data );
-
-        } while (cursor.moveToNext());
-
+        filterData = new ArrayList<>( listData );
         sort();
     }
 
     public void sort() {
-        Collections.sort( filterData, ImageListData.ALPHA_COMPARATOR );
+        Collections.sort( filterData, BaseListData.ALPHA_COMPARATOR );
         context.runOnUiThread( new Runnable(){
             @Override
             public void run() {
@@ -164,7 +144,7 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
 
         this.selectMode = selectMode;
         if( bChanged ) {
-            for( ImageListData data : filterData ) {
+            for( BaseListData data : filterData ) {
                 data.setSelected( false );
             }
             context.runOnUiThread( new Runnable(){
@@ -178,16 +158,16 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
 
     public int getSelectedItemCount() {
         int ret = 0;
-        for( ImageListData data : filterData ) {
+        for( BaseListData data : filterData ) {
             if( data.isSelected()) ++ ret;
         }
         return ret;
     }
 
-    public List<ImageListData> getSelectedItems() {
-        List<ImageListData> ret = new ArrayList<ImageListData>();
+    public List<BaseListData> getSelectedItems() {
+        List<BaseListData> ret = new ArrayList<BaseListData>();
 
-        for( ImageListData data : filterData ) {
+        for( BaseListData data : filterData ) {
             if( data.isSelected()) {
                 ret.add( data );
             }
@@ -196,14 +176,14 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
     }
 
     public synchronized void setAllSelected( boolean bSelect ) {
-        for( ImageListData data : filterData ) {
+        for( BaseListData data : filterData ) {
             data.setSelected( bSelect );
         }
     }
 
     @Override
     public Filter getFilter() {
-        return new ItemFilter();
+        return new BaseListAdapter.ItemFilter();
     }
 
     class ItemFilter extends Filter {
@@ -224,9 +204,9 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
                 return results;
             }
 
-            ArrayList<ImageListData> nlist = new ArrayList<ImageListData>();
+            ArrayList<BaseListData> nlist = new ArrayList<BaseListData>();
             for (int i = 0; i < listData.size(); i++) {
-                final ImageListData item = listData.get(i);
+                final BaseListData item = listData.get(i);
 
                 if (item.checkFilteredData( filterString )) {
                     nlist.add( item );
@@ -242,7 +222,7 @@ public class ImageListAdapter extends BaseAdapter implements Filterable, View.On
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            filterData = (List<ImageListData>) results.values;
+            filterData = (List<BaseListData>) results.values;
 
             sort();
         }

@@ -1,24 +1,25 @@
-package com.purehero.bluetooth.share.images;
+package com.purehero.bluetooth.share;
 
 import android.webkit.MimeTypeMap;
 
 import com.purehero.module.common.CommonFileUtils;
-import java.text.SimpleDateFormat;
+
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 
 /**
- * Created by MY on 2017-05-12.
+ * Created by purehero on 2017-05-16.
  */
 
-public class ImageListData {
+public class BaseListData {
     private File file;
     private String subTitle = "";
     private String fileDate = "";
     private String mimeType = "";
 
-    public ImageListData(){}
-    public ImageListData( File file ) { init( file ); }
+    public BaseListData(){}
+    public BaseListData( File file ) { init( file ); }
 
     private void init( File file ) {
         this.file = file;
@@ -50,7 +51,7 @@ public class ImageListData {
         return false;
     }
 
-    public int compare( ImageListData target ) {
+    public int compare( BaseListData target ) {
         //return target.getFile().getName().compareTo( file.getName());
         /*
         int result = file.getParent().compareToIgnoreCase( target.getFile().getParent());
@@ -64,9 +65,9 @@ public class ImageListData {
     /**
      * ContactData 의 list 을 정렬에 필요한 비교자
      */
-    public static final Comparator<ImageListData> ALPHA_COMPARATOR = new Comparator<ImageListData> () {
+    public static final Comparator<BaseListData> ALPHA_COMPARATOR = new Comparator<BaseListData> () {
         @Override
-        public int compare(ImageListData arg0, ImageListData arg1) {
+        public int compare(BaseListData arg0, BaseListData arg1) {
             return arg0.compare( arg1 );
         }
     };

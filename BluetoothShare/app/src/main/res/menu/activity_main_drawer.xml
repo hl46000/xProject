@@ -16,6 +16,11 @@
             android:icon="@drawable/ic_image_black_24dp"
             android:title="@string/photos" />
 
+        <item
+            android:id="@+id/nav_videos"
+            android:icon="@drawable/ic_videocam_black_24dp"
+            android:title="@string/videos" />
+
         <item android:title="@string/my_files" android:visible="false">
 
                 <item
@@ -24,11 +29,7 @@
                     android:title="@string/files"
                     android:visible="false" />
 
-                <item
-                    android:id="@+id/nav_videos"
-                    android:icon="@drawable/ic_videocam_black_24dp"
-                    android:title="@string/videos"
-                    android:visible="false" />
+
                 <item
                     android:id="@+id/nav_audios"
                     android:icon="@drawable/ic_audiotrack_black_24dp"

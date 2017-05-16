@@ -1,4 +1,4 @@
-package com.purehero.bluetooth.share.images;
+package com.purehero.bluetooth.share;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -23,10 +23,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.purehero.bluetooth.share.G;
-import com.purehero.bluetooth.share.MainActivity;
-import com.purehero.bluetooth.share.R;
-import com.purehero.bluetooth.share.contacts.ContactData;
 import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.fragment.FragmentEx;
@@ -37,12 +33,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by MY on 2017-05-12.
+ * Created by purehero on 2017-05-16.
  */
 
-public class ImageListFragment extends FragmentEx {
+public class BaseListFragment extends FragmentEx {
     private MainActivity context;
-    private ImageListAdapter listAdapter = null;
+    private BaseListAdapter listAdapter = null;
 
     final int VIEW_MODE_LIST = 0;
     final int VIEW_MODE_GRID = 1;
@@ -51,11 +47,18 @@ public class ImageListFragment extends FragmentEx {
     private ListView listView = null;
     private GridView gridView = null;
     private ProgressBar progressBar = null;
-    int view_layout_mode = VIEW_MODE_LIST;
+    private int view_layout_mode = VIEW_MODE_LIST;
+    private int title_res_id = -1;
 
-    public ImageListFragment setMainActivity(MainActivity mainActivity) {
+    public BaseListFragment setMainActivity(MainActivity mainActivity, int title_res_id ) {
         context = mainActivity;
-        listAdapter = new ImageListAdapter(context);
+        this.title_res_id = title_res_id;
+
+        return this;
+    }
+
+    public BaseListFragment setBaseListAdapter( BaseListAdapter adapter ) {
+        listAdapter = adapter;
         return this;
     }
 
@@ -69,8 +72,8 @@ public class ImageListFragment extends FragmentEx {
         // ActionBar Title 변경
         AppCompatActivity ACActivity = (AppCompatActivity) getActivity();
         ActionBar aBar = ACActivity.getSupportActionBar();
-        if (aBar != null) {
-            aBar.setTitle(R.string.photos);
+        if (aBar != null && title_res_id != -1 ) {
+            aBar.setTitle( title_res_id );
         }
         // ActionBar 에 뒤로 가기 버튼 아이콘 표시
         context.showActionBarBackButton(true);
@@ -169,7 +172,7 @@ public class ImageListFragment extends FragmentEx {
     AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ImageListData data = ( ImageListData ) listAdapter.getItem( position );
+            BaseListData data = ( BaseListData ) listAdapter.getItem( position );
 
             if( listAdapter.isSelectMode() ) {
                 data.setSelected(!data.isSelected());
@@ -290,9 +293,9 @@ public class ImageListFragment extends FragmentEx {
         // 클릭된 APK 정보
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         G.Log( "onContextItemSelected index : " + info.position );
-        ImageListData data = ( ImageListData ) listAdapter.getItem( info.position );
+        BaseListData data = ( BaseListData ) listAdapter.getItem( info.position );
 
-        List<ImageListData> datas = new ArrayList<ImageListData>();
+        List<BaseListData> datas = new ArrayList<BaseListData>();
         datas.add( data );
 
         int id = item.getItemId();
@@ -312,9 +315,9 @@ public class ImageListFragment extends FragmentEx {
         return ret;
     }
 
-    protected  void delete_files( List<ImageListData> selectedItems) {
+    protected  void delete_files( List<BaseListData> selectedItems) {
         List<File> delete_files = new ArrayList<File>();
-        for( ImageListData fData : selectedItems ) {
+        for( BaseListData fData : selectedItems ) {
             delete_files.add( fData.getFile());
         }
 
@@ -334,7 +337,7 @@ public class ImageListFragment extends FragmentEx {
         } ).run();
     }
 
-    protected void bluetooth_share_files(List<ImageListData> selectedItems) {
+    protected void bluetooth_share_files(List<BaseListData> selectedItems) {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
         shareIntent.setPackage("com.android.bluetooth");
@@ -348,7 +351,7 @@ public class ImageListFragment extends FragmentEx {
             progressBar.setVisibility( View.VISIBLE );
 
             ArrayList<Uri> shareDatas = new ArrayList<Uri>();
-            for( ImageListData data : selectedItems ) {
+            for( BaseListData data : selectedItems ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", data.getFile()));
                 } else {
@@ -365,7 +368,7 @@ public class ImageListFragment extends FragmentEx {
         startActivity( shareIntent );
     }
 
-    protected void share_files(List<ImageListData> selectedItems) {
+    protected void share_files(List<BaseListData> selectedItems) {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
         shareIntent.setType("*/*");
@@ -377,7 +380,7 @@ public class ImageListFragment extends FragmentEx {
             progressBar.setVisibility( View.VISIBLE );
 
             ArrayList<Uri> shareDatas = new ArrayList<Uri>();
-            for( ImageListData data : selectedItems ) {
+            for( BaseListData data : selectedItems ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     shareDatas.add(FileProvider.getUriForFile(context, "com.purehero.bluetooth.share.provider", data.getFile()));
                 } else {
@@ -391,6 +394,6 @@ public class ImageListFragment extends FragmentEx {
             e.printStackTrace();
         }
 
-        startActivity(Intent.createChooser(shareIntent, "Share Image Files" ));
+        startActivity(Intent.createChooser(shareIntent, String.format( "Share %s Files", context.getString( title_res_id)) ));
     }
 }

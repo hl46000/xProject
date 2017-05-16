@@ -23,9 +23,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.purehero.bluetooth.share.apps.ApkListFragment;
+import com.purehero.bluetooth.share.categorys.VideoListAdapter;
 import com.purehero.bluetooth.share.contacts.ContactFragment;
 import com.purehero.bluetooth.share.files.FileListFragment;
-import com.purehero.bluetooth.share.images.ImageListFragment;
+import com.purehero.bluetooth.share.categorys.ImageListAdapter;
 import com.purehero.module.fragment.FragmentEx;
 
 import java.io.File;
@@ -209,13 +210,14 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.btnPhotos     :
             case R.id.nav_photos    :
-                ImageListFragment myPhotos = new ImageListFragment().setMainActivity(this);
+                BaseListFragment myPhotos = new BaseListFragment().setBaseListAdapter(new ImageListAdapter(this)).setMainActivity(this, R.string.photos);
                 fragmentTransaction.replace(R.id.fragment_area, myPhotos ); break;
 
             case R.id.btnVideos     :
             case R.id.nav_videos    :
-                FileListFragment myVideos = new FileListFragment().setMainActivity(this);
-                myVideos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MOVIES ) );
+                BaseListFragment myVideos = new BaseListFragment().setBaseListAdapter(new VideoListAdapter(this)).setMainActivity(this, R.string.videos);
+                //FileListFragment myVideos = new FileListFragment().setMainActivity(this);
+                //myVideos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MOVIES ) );
                 fragmentTransaction.replace(R.id.fragment_area, myVideos ); break;
         }
 
