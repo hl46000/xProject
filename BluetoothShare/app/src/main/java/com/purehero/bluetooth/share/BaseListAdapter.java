@@ -95,9 +95,12 @@ public abstract class BaseListAdapter extends BaseAdapter implements Filterable,
         }
         viewHolder.cbSelected.setId( position );
 
-        Glide.with( context ).load( data.getFile()).centerCrop().placeholder( R.drawable.fl_ic_image ).into( viewHolder.ivIcon );
+        drawIcon( context, data, viewHolder.ivIcon );
+        //Glide.with( context ).load( data.getFile()).centerCrop().placeholder( R.drawable.fl_ic_image ).into( viewHolder.ivIcon );
         return view;
     }
+
+    protected abstract void drawIcon(Activity context, BaseListData data, ImageView ivIcon);
 
     @Override
     public void onClick(View view) {

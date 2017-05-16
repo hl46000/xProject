@@ -21,20 +21,24 @@
             android:icon="@drawable/ic_videocam_black_24dp"
             android:title="@string/videos" />
 
+        <item
+            android:id="@+id/nav_audios"
+            android:icon="@drawable/ic_audiotrack_black_24dp"
+            android:title="@string/audios"
+            android:visible="true" />
+
+        <item
+            android:id="@+id/nav_files"
+            android:icon="@drawable/ic_folder_shared_black_24dp"
+            android:title="@string/files"
+            android:visible="false" />
+
         <item android:title="@string/my_files" android:visible="false">
 
-                <item
-                    android:id="@+id/nav_files"
-                    android:icon="@drawable/ic_folder_shared_black_24dp"
-                    android:title="@string/files"
-                    android:visible="false" />
 
 
-                <item
-                    android:id="@+id/nav_audios"
-                    android:icon="@drawable/ic_audiotrack_black_24dp"
-                    android:title="@string/audios"
-                    android:visible="false" />
+
+
                 <item
                     android:id="@+id/nav_documents"
                     android:icon="@drawable/ic_description_black_24dp"

@@ -5,9 +5,12 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.purehero.bluetooth.share.BaseListAdapter;
 import com.purehero.bluetooth.share.BaseListData;
+import com.purehero.bluetooth.share.R;
 
 import java.io.File;
 import java.util.List;
@@ -19,6 +22,11 @@ import java.util.List;
 public class VideoListAdapter extends BaseListAdapter {
     public VideoListAdapter(Activity context) {
         super(context);
+    }
+
+    @Override
+    protected void drawIcon(Activity context, BaseListData data, ImageView ivIcon) {
+        Glide.with( context ).load( data.getFile()).centerCrop().placeholder( R.drawable.fl_ic_movies ).into( ivIcon );
     }
 
     @Override

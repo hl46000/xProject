@@ -19,19 +19,20 @@ import java.util.List;
  * Created by MY on 2017-05-12.
  */
 
-public class ImageListAdapter extends BaseListAdapter {
-    public ImageListAdapter(Activity context) {
+public class MyFileListAdapter extends BaseListAdapter {
+    public MyFileListAdapter(Activity context) {
         super(context);
     }
 
     @Override
     protected void drawIcon(Activity context, BaseListData data, ImageView ivIcon) {
-        Glide.with( context ).load( data.getFile()).centerCrop().placeholder( R.drawable.fl_ic_image ).into( ivIcon );
+        Glide.with( context ).load( data.getFile()).centerCrop().placeholder( R.drawable.fl_ic_text ).into( ivIcon );
     }
 
     @Override
     public void setListDatas(List<BaseListData> listDatas) {
-        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        // External 스토리지의 URI 획득
+        final Uri uri = MediaStore.Files.getContentUri("external");
         String selection = null;
         String[] projection = { "*" };
 
@@ -39,7 +40,7 @@ public class ImageListAdapter extends BaseListAdapter {
         if (cursor == null) return;
         if (!cursor.moveToFirst()) return;
         do {
-            String path = cursor.getString( cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            String path = cursor.getString( cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
 
             BaseListData data = new BaseListData( new File( path ));
             listDatas.add( data );

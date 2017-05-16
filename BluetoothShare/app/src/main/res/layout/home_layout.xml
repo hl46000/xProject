@@ -172,19 +172,22 @@
                 android:text="@string/videos" />
         </LinearLayout>
 
-        <LinearLayout android:visibility="invisible" android:id="@+id/btnDownloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
-            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:src="@drawable/ic_download" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/downloads" />
-        </LinearLayout>
         <!-- audio content -->
-        <LinearLayout android:visibility="invisible" android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+        <LinearLayout android:visibility="visible" android:id="@+id/btnAudios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/ic_music" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/audios" />
         </LinearLayout>
+
+        <!-- myFiles content -->
+        <LinearLayout  android:visibility="invisible" android:id="@+id/btnMyFiles"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+            <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:src="@drawable/ic_my_files" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/my_files" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp">
@@ -195,12 +198,14 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/documents" />
         </LinearLayout>
-        <LinearLayout  android:id="@+id/btnMyFiles"  android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
+
+        <LinearLayout android:visibility="invisible" android:id="@+id/btnDownloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clickable="true" android:background="?android:attr/selectableItemBackground">
             <ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:src="@drawable/ic_my_files" />
+                android:src="@drawable/ic_download" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="5dp" android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/my_files" />
+                android:text="@string/downloads" />
         </LinearLayout>
+
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
             <!-- ImageView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:src="@drawable/fl_ic_apk" />

@@ -23,6 +23,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.purehero.bluetooth.share.apps.ApkListFragment;
+import com.purehero.bluetooth.share.categorys.AudioListAdapter;
+import com.purehero.bluetooth.share.categorys.MyFileListAdapter;
 import com.purehero.bluetooth.share.categorys.VideoListAdapter;
 import com.purehero.bluetooth.share.contacts.ContactFragment;
 import com.purehero.bluetooth.share.files.FileListFragment;
@@ -191,15 +193,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnMyFiles    :
             case R.id.nav_files     :
-                FileListFragment myFiles = new FileListFragment().setMainActivity(this);
-                myFiles.setRootFolder( new File( "/"));
-                myFiles.setnActionBarTitleResId( R.string.my_files );
+                BaseListFragment myFiles = new BaseListFragment().setBaseListAdapter(new MyFileListAdapter(this)).setMainActivity(this, R.string.my_files);
                 fragmentTransaction.replace(R.id.fragment_area, myFiles ); break;
 
             case R.id.btnAudios     :
             case R.id.nav_audios    :
-                FileListFragment myAudios = new FileListFragment().setMainActivity(this);
-                myAudios.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MUSIC ) );
+                BaseListFragment myAudios = new BaseListFragment().setBaseListAdapter(new AudioListAdapter(this)).setMainActivity(this, R.string.audios );
                 fragmentTransaction.replace(R.id.fragment_area, myAudios ); break;
 
             case R.id.btnDocuments  :
