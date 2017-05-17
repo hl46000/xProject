@@ -27,7 +27,12 @@ public class AudioListAdapter extends BaseListAdapter {
 
     @Override
     protected void drawIcon(Activity context, BaseListData data, ImageView ivIcon) {
-        Glide.with(context).load(getArtUriFromMusicFile(data.getFile())).centerCrop().placeholder(R.drawable.fl_ic_music).into(ivIcon);
+        Uri iconUri = data.getIconUri();
+        if( iconUri == null ) {
+            Glide.with(context).load( getArtUriFromMusicFile(data.getFile())).centerCrop().placeholder(R.drawable.fl_ic_music).into(ivIcon);
+        } else {
+            Glide.with(context).load(iconUri).centerCrop().placeholder(R.drawable.fl_ic_music).into(ivIcon);
+        }
     }
 
     @Override
@@ -40,9 +45,27 @@ public class AudioListAdapter extends BaseListAdapter {
         if (cursor == null) return;
         if (!cursor.moveToFirst()) return;
         do {
-            String path = cursor.getString( cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+            String path     = cursor.getString( cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+            Long totalSecs  = cursor.getLong( cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+
+            Long albumId    = cursor.getLong( cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+            Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+            Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
 
             BaseListData data = new BaseListData( new File( path ));
+            data.setIconUri( albumArtUri );
+
+            totalSecs /= 1000;
+            int hours   = (int)( totalSecs / 3600 );
+            int minutes = (int)( (totalSecs % 3600) / 60 );
+            int seconds = (int)( totalSecs % 60 );
+
+            if( hours > 0 ) {
+                data.setPlayDuration(String.format("%d:%02d:%02d", hours, minutes, seconds));
+            } else {
+                data.setPlayDuration(String.format("%02d:%02d", minutes, seconds));
+            }
+
             listDatas.add( data );
 
         } while (cursor.moveToNext());

@@ -39,9 +39,23 @@ public class VideoListAdapter extends BaseListAdapter {
         if (cursor == null) return;
         if (!cursor.moveToFirst()) return;
         do {
-            String path = cursor.getString( cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+
+            String path     = cursor.getString( cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+            Long totalSecs  = cursor.getLong( cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION));
 
             BaseListData data = new BaseListData( new File( path ));
+
+            totalSecs /= 1000;
+            int hours   = (int)( totalSecs / 3600 );
+            int minutes = (int)( (totalSecs % 3600) / 60 );
+            int seconds = (int)( totalSecs % 60 );
+
+            if( hours > 0 ) {
+                data.setPlayDuration(String.format("%d:%02d:%02d", hours, minutes, seconds));
+            } else {
+                data.setPlayDuration(String.format("%02d:%02d", minutes, seconds));
+            }
+
             listDatas.add( data );
 
         } while (cursor.moveToNext());

@@ -1,5 +1,6 @@
 package com.purehero.bluetooth.share;
 
+import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
 import com.purehero.module.common.CommonFileUtils;
@@ -18,6 +19,7 @@ public class BaseListData {
     private String fileDate = "";
     private String mimeType = "";
 
+
     public BaseListData(){}
     public BaseListData( File file ) { init( file ); }
 
@@ -35,6 +37,18 @@ public class BaseListData {
 
         SimpleDateFormat sdf = new SimpleDateFormat( CommonFileUtils.DATE_FORMAT );
         fileDate = sdf.format(file.lastModified());
+    }
+
+    private String playDuration = null;
+    public String getPlayDuration() { return playDuration; }
+    public void setPlayDuration( String duration ) {
+        playDuration = duration;
+    }
+
+    private Uri iconUrl = null;
+    public Uri getIconUri() { return iconUrl; }
+    public void setIconUri( Uri iconUri ) {
+        this.iconUrl = iconUri;
     }
 
     public void setFile(File destFile) {

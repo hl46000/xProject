@@ -36,7 +36,7 @@ import java.util.List;
  * Created by purehero on 2017-05-16.
  */
 
-public class BaseListFragment extends FragmentEx {
+public class BaseListFragment extends FragmentEx implements View.OnClickListener{
     private MainActivity context;
     private BaseListAdapter listAdapter = null;
 
@@ -395,5 +395,17 @@ public class BaseListFragment extends FragmentEx {
         }
 
         startActivity(Intent.createChooser(shareIntent, String.format( "Share %s Files", context.getString( title_res_id)) ));
+    }
+
+    @Override
+    public void onClick(View view) {
+        int viewId = view.getId();
+        if( viewId == R.id.refresh ) {
+            progressBar.setVisibility( View.VISIBLE );
+            listView.setVisibility( View.GONE );
+            listView.setVisibility( View.GONE );
+
+            new Thread(list_data_load_runnable).start();
+        }
     }
 }

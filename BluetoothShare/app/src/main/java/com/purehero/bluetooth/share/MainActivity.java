@@ -176,6 +176,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private ApkListFragment apkListFragment = null;
+    private ContactFragment contactListFragment = null;
+    private BaseListFragment audioListFragment = null;
+    private BaseListFragment photoListFragment = null;
+    private BaseListFragment videoListFragment = null;
     public void replaceFragmentById( int id ) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
@@ -184,22 +189,35 @@ public class MainActivity extends AppCompatActivity
             case R.id.btnApps       :
             case R.id.nav_apps      :
                 fab.setVisibility( View.VISIBLE );
-                fragmentTransaction.replace(R.id.fragment_area, new ApkListFragment().setMainActivity(this));
+                if( apkListFragment == null ) {
+                    apkListFragment = new ApkListFragment().setMainActivity(this);
+                }
+                fragmentTransaction.replace(R.id.fragment_area, apkListFragment );
                 break;
+
             case R.id.btnContacts   :
             case R.id.nav_contact   :
                 fab.setVisibility( View.VISIBLE );
-                fragmentTransaction.replace(R.id.fragment_area, new ContactFragment().setMainActivity( this ));
+                if( contactListFragment == null ) {
+                    contactListFragment = new ContactFragment().setMainActivity( this );
+                }
+                fragmentTransaction.replace(R.id.fragment_area, contactListFragment );
                 break;
+
             case R.id.btnMyFiles    :
             case R.id.nav_files     :
+                fab.setVisibility( View.VISIBLE );
                 BaseListFragment myFiles = new BaseListFragment().setBaseListAdapter(new MyFileListAdapter(this)).setMainActivity(this, R.string.my_files);
                 fragmentTransaction.replace(R.id.fragment_area, myFiles ); break;
 
             case R.id.btnAudios     :
             case R.id.nav_audios    :
-                BaseListFragment myAudios = new BaseListFragment().setBaseListAdapter(new AudioListAdapter(this)).setMainActivity(this, R.string.audios );
-                fragmentTransaction.replace(R.id.fragment_area, myAudios ); break;
+                fab.setVisibility( View.VISIBLE );
+                if( audioListFragment == null ) {
+                    audioListFragment = new BaseListFragment().setBaseListAdapter(new AudioListAdapter(this)).setMainActivity(this, R.string.audios );
+                }
+                fragmentTransaction.replace(R.id.fragment_area, audioListFragment );
+                break;
 
             case R.id.btnDocuments  :
             case R.id.nav_documents :
@@ -209,15 +227,21 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.btnPhotos     :
             case R.id.nav_photos    :
-                BaseListFragment myPhotos = new BaseListFragment().setBaseListAdapter(new ImageListAdapter(this)).setMainActivity(this, R.string.photos);
-                fragmentTransaction.replace(R.id.fragment_area, myPhotos ); break;
+                fab.setVisibility( View.VISIBLE );
+                if( photoListFragment == null ) {
+                    photoListFragment = new BaseListFragment().setBaseListAdapter(new ImageListAdapter(this)).setMainActivity(this, R.string.photos);
+                }
+                fragmentTransaction.replace(R.id.fragment_area, photoListFragment );
+                break;
 
             case R.id.btnVideos     :
             case R.id.nav_videos    :
-                BaseListFragment myVideos = new BaseListFragment().setBaseListAdapter(new VideoListAdapter(this)).setMainActivity(this, R.string.videos);
-                //FileListFragment myVideos = new FileListFragment().setMainActivity(this);
-                //myVideos.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_MOVIES ) );
-                fragmentTransaction.replace(R.id.fragment_area, myVideos ); break;
+                fab.setVisibility( View.VISIBLE );
+                if( videoListFragment == null ) {
+                    videoListFragment = new BaseListFragment().setBaseListAdapter(new VideoListAdapter(this)).setMainActivity(this, R.string.videos);
+                }
+                fragmentTransaction.replace(R.id.fragment_area, videoListFragment );
+                break;
         }
 
         fragmentTransaction.commit();

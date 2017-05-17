@@ -52,8 +52,8 @@ public abstract class BaseListAdapter extends BaseAdapter implements Filterable,
             if( viewGroup instanceof ListView) {
                 view  = inflater.inflate( R.layout.myfile_list_cell_layout, null );
 
-                viewHolder.tvSubTitle 	= (TextView)  view.findViewById( R.id.file_list_view_item_sub_title );
-                viewHolder.tvDate 		= (TextView)  view.findViewById( R.id.file_list_view_item_date );
+                viewHolder.tvSubTitle 	    = (TextView)  view.findViewById( R.id.file_list_view_item_sub_title );
+                viewHolder.tvDate 		    = (TextView)  view.findViewById( R.id.file_list_view_item_date );
 
             } else if( viewGroup instanceof GridView) {
                 view  = inflater.inflate( R.layout.myfile_grid_cell_layout, null );
@@ -66,7 +66,7 @@ public abstract class BaseListAdapter extends BaseAdapter implements Filterable,
             viewHolder.cbSelected.setOnClickListener( this );
             viewHolder.ivIcon 		= (ImageView) view.findViewById( R.id.file_list_view_item_icon );
             viewHolder.tvTitle 	    = (TextView)  view.findViewById( R.id.file_list_view_item_file_name );
-
+            viewHolder.tvDuration     = (TextView)  view.findViewById( R.id.file_list_view_item_duration );
 
             view.setTag( viewHolder );
         } else {
@@ -96,6 +96,14 @@ public abstract class BaseListAdapter extends BaseAdapter implements Filterable,
         viewHolder.cbSelected.setId( position );
 
         drawIcon( context, data, viewHolder.ivIcon );
+
+        String playDuration = data.getPlayDuration();
+        if( playDuration == null ) {
+            viewHolder.tvDuration.setVisibility( View.GONE );
+        } else {
+            viewHolder.tvDuration.setVisibility( View.VISIBLE );
+            viewHolder.tvDuration.setText( playDuration );
+        }
         //Glide.with( context ).load( data.getFile()).centerCrop().placeholder( R.drawable.fl_ic_image ).into( viewHolder.ivIcon );
         return view;
     }
@@ -119,6 +127,7 @@ public abstract class BaseListAdapter extends BaseAdapter implements Filterable,
         public TextView tvTitle;
         public TextView tvSubTitle;
         public TextView tvDate;
+        public TextView tvDuration;
     }
 
     public abstract void setListDatas( List<BaseListData> listDatas );
