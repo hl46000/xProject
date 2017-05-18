@@ -2,6 +2,7 @@ package com.purehero.bluetooth.share.categorys;
 
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -39,9 +40,14 @@ public class ImageListAdapter extends BaseListAdapter {
         if (cursor == null) return;
         if (!cursor.moveToFirst()) return;
         do {
-            String path = cursor.getString( cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Long _ID      = cursor.getLong( cursor.getColumnIndex(MediaStore.Images.Media._ID));
+            String path   = cursor.getString( cursor.getColumnIndex(MediaStore.Images.Media.DATA));
 
             BaseListData data = new BaseListData( new File( path ));
+
+            Uri fileUri = ContentUris.withAppendedId( uri, _ID );
+            data.setFileUri( fileUri );
+
             listDatas.add( data );
 
         } while (cursor.moveToNext());

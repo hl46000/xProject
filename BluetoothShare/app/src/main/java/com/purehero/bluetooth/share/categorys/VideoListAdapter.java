@@ -39,7 +39,7 @@ public class VideoListAdapter extends BaseListAdapter {
         if (cursor == null) return;
         if (!cursor.moveToFirst()) return;
         do {
-
+            String _ID      = cursor.getString( cursor.getColumnIndex(MediaStore.Video.Media._ID));
             String path     = cursor.getString( cursor.getColumnIndex(MediaStore.Video.Media.DATA));
             Long totalSecs  = cursor.getLong( cursor.getColumnIndex(MediaStore.Video.VideoColumns.DURATION));
 
@@ -55,6 +55,9 @@ public class VideoListAdapter extends BaseListAdapter {
             } else {
                 data.setPlayDuration(String.format("%02d:%02d", minutes, seconds));
             }
+
+            Uri fileUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, _ID );
+            data.setFileUri( fileUri );
 
             listDatas.add( data );
 

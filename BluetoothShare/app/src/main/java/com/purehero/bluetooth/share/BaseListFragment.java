@@ -181,7 +181,12 @@ public class BaseListFragment extends FragmentEx implements View.OnClickListener
                 return;
             }
 
-            startActivity( FileIntentUtils.Running( data.getFile()));
+            if( data.getFileUri() != null ) {
+                startActivity(FileIntentUtils.Running(context, data.getFileUri()));
+            } else {
+                FileIntentUtils.FileShareProviderName = "com.purehero.bluetooth.share.provider";
+                startActivity(FileIntentUtils.Running(context, data.getFile()));
+            }
         }
     };
 

@@ -45,6 +45,10 @@ public class BaseListData {
         playDuration = duration;
     }
 
+    private Uri fileUri = null;
+    public Uri getFileUri() { return fileUri; }
+    public void setFileUri( Uri fileUri ) { this.fileUri = fileUri; }
+
     private Uri iconUrl = null;
     public Uri getIconUri() { return iconUrl; }
     public void setIconUri( Uri iconUri ) {

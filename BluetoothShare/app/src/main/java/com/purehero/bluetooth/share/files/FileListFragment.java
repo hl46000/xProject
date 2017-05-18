@@ -194,7 +194,8 @@ public class FileListFragment extends FragmentEx
             reloadListView();
 
         } else {
-            Intent sendIntent = FileIntentUtils.Running( data.getFile() );
+            FileIntentUtils.FileShareProviderName = "com.purehero.bluetooth.share.provider";
+            Intent sendIntent = FileIntentUtils.Running( context, data.getFile() );
             if (sendIntent.resolveActivity( context.getPackageManager()) != null) {
                 context.startActivity( Intent.createChooser( sendIntent, getString( R.string.share_select_app )) );
             }
