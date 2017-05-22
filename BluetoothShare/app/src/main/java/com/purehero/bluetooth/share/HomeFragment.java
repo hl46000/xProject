@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StatFs;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -101,6 +103,30 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
             }
         }
 
+        TextView tvAvailSize = ( TextView ) layout.findViewById( R.id.tvDiskSpace) ;
+        if( tvAvailSize != null ) {
+            StatFs externalStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+            StatFs internalStat = new StatFs(context.getFilesDir().getPath());
+
+            long total_external_memory = 0, free_external_memory = 0;
+            long total_internal_memory = 0, free_internal_memory = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                total_external_memory   = externalStat.getTotalBytes();        //return value is in bytes
+                total_internal_memory   = internalStat.getTotalBytes();
+                free_external_memory    = externalStat.getFreeBytes();         //return value is in bytes
+                free_internal_memory    = internalStat.getFreeBytes();
+            } else {
+                total_external_memory = ( externalStat.getFreeBlocks() + externalStat.getBlockCount() ) * externalStat.getBlockSize(); //return value is in bytes
+                total_internal_memory = ( internalStat.getFreeBlocks() + internalStat.getBlockCount() ) * internalStat.getBlockSize(); //return value is in bytes
+                free_external_memory  = externalStat.getFreeBlocks() * externalStat.getBlockSize();     //return value is in bytes
+                free_internal_memory  = internalStat.getFreeBlocks() * internalStat.getBlockSize();     //return value is in bytes
+            }
+
+            //One binary gigabyte equals 1,073,741,824 bytes.
+            final double GBSyze = 1024.0f * 1024.0f * 1024.0f;
+            tvAvailSize.setText( String.format( "%.2fGB / %.2fGB ", (double)free_external_memory / GBSyze, (double)total_external_memory / GBSyze));
+            tvAvailSize.setText( String.format( "%.2fGB / %.2fGB ", (double)free_internal_memory / GBSyze, (double)total_internal_memory / GBSyze));
+        }
 
         return layout ;
     }
