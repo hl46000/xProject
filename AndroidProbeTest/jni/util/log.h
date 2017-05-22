@@ -10,7 +10,7 @@
 
 #include <android/log.h>
 
-#if 0
+#if 1
 #define  LOGV(...)  __android_log_print(ANDROID_LOG_VERBOSE,get_logTag(),__VA_ARGS__)
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,get_logTag(),__VA_ARGS__)
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,get_logTag(),__VA_ARGS__)
