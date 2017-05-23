@@ -33,7 +33,7 @@
 	extern "C" {
 #endif
 
-#if 0
+#if 1
 #ifdef LOGI
 #undef LOGI
 #endif
@@ -148,7 +148,6 @@ void * start_anti_speed_hack_thread_function1 ( void * )
 
 		if( abs( d2 - d1 ) > 2 ) {
 			exit_timeout_15Sec_after_toast_show( "TIME VALUE CHANGED ( gettimeofday )" );
-			break;
 		}
 
 		// LOGI("Base time : %d, gTime : %d, cTime : %d", d1, d2, d3 );
@@ -196,7 +195,6 @@ void * start_anti_speed_hack_thread_function2 ( void * )
 
 		if( abs( d3 - d1 ) > 2 ) {
 			exit_timeout_15Sec_after_toast_show( "TIME VALUE CHANGED ( clock_gettime )" );
-			break;
 		}
 
 		// LOGI("Base time : %d, gTime : %d, cTime : %d", d1, d2, d3 );
@@ -219,16 +217,16 @@ void start_anti_speed_hack2()
 /**************************************************
 * ANTI Debugging hack								  *
 ***************************************************/
-pthread_t anti_debugging_thread_id1 = 0;
+pthread_t anti_debugging_thread_id2 = 0;
 
 #include <stdio.h>
 #include <unistd.h>
 #include <dirent.h>
-void * start_anti_debugging_thread_function1 ( void * )
+void * start_anti_debugging_thread_function2 ( void * )
 {
 	LOGT();
 
-	LOGI("Started anti debugging module1");
+	LOGI("Started anti debugging module2");
 
 	char line[1024];
 	char folder[256], filename[256];
@@ -308,6 +306,46 @@ void * start_anti_debugging_thread_function1 ( void * )
 
 
 
+void start_anti_debugging2()
+{
+	LOGT();
+	pthread_create( &anti_debugging_thread_id2, NULL, start_anti_debugging_thread_function2, NULL );
+}
+
+
+#include <sys/ptrace.h>
+#include <sys/wait.h>
+void * start_anti_debugging_thread_function1 ( void * )
+{
+	LOGT();
+
+	LOGI("Started anti debugging module1");
+	pid_t ppid = getpid();
+	pid_t pid = fork();
+	if( pid == 0 ) {
+		// child process
+		int status;
+		if (ptrace(PTRACE_ATTACH, ppid, NULL, NULL) == 0) {
+			waitpid(ppid, &status, 0);
+
+			ptrace(PTRACE_CONT, ppid, NULL, NULL);
+
+			while (waitpid(ppid, &status, 0)) {
+				if (WIFSTOPPED(status)) {
+					ptrace(PTRACE_CONT, ppid, NULL, NULL);
+
+				} else {
+					break;
+				}
+			}
+		}
+		_exit(0);
+	}
+
+	return NULL;
+}
+
+pthread_t anti_debugging_thread_id1 = 0;
 void start_anti_debugging1()
 {
 	LOGT();
@@ -346,7 +384,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 	pthread_create( &anti_speed_thread_id2, NULL, start_anti_speed_hack_thread_function2, NULL );
 	pthread_create( &anti_speed_thread_id1, NULL, start_anti_speed_hack_thread_function1, NULL );
 
-
+	start_anti_debugging2();
 	//SMC_END_TAG( JNI_OnLoad );
 
 	return JNI_VERSION_1_4;

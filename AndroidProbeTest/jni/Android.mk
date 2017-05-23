@@ -30,9 +30,9 @@ LOCAL_LDLIBS	+= -llog -lz -latomic
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := ash
-LOCAL_SRC_FILES := AntiSpeedHack.cpp ./util/log.cpp
+LOCAL_SRC_FILES := AntiSpeedHack/AntiSpeedHackMain.cpp AntiSpeedHack/game_process_main.cpp AntiSpeedHack/child_process_main.cpp
 LOCAL_CFLAGS	+= -DOS_ANDROID -DFILE_OFFSET_BITS=64 -DLARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -Wno-psabi -O1
-LOCAL_CFLAGS	+= -I$(STATIC_LOCAL_PATH)/util -I$(STATIC_LOCAL_PATH)/smc
+#LOCAL_CFLAGS	+= -I$(STATIC_LOCAL_PATH)/util -I$(STATIC_LOCAL_PATH)/smc
 LOCAL_CFLAGS	+= -fvisibility=hidden
 
 LOCAL_CFLAGS	+= -DANDROID_ARM_LINKER
