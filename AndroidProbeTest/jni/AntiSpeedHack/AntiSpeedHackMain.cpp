@@ -11,11 +11,20 @@ pid_t g_child_pid = -1;
 void child_process_main( pid_t game_pid, pid_t child_pid );
 void game_process_main( pid_t game_pid, pid_t child_pid );
 
+extern pthread_t anti_speed_thread_id;
+extern pthread_t child_debugger_detect_thread_id;
+
+void * child_debugger_detect_thread( void * );
+void * anti_speed_hack_thread_function( void * );
+
 __attribute__((constructor))
 void JNI_OnPreLoad()
 {
 	LOGT();
 	g_game_pid = getpid();
+
+	pthread_create( &anti_speed_thread_id, NULL, anti_speed_hack_thread_function, 0 );
+	pthread_create( &child_debugger_detect_thread_id, NULL, child_debugger_detect_thread, 0 );
 
 	pid_t pid = fork();
 	if( pid == 0 ) { 		// child process

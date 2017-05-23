@@ -8,22 +8,31 @@
 extern "C" {
 #endif
 
-void * child_debugger_detect_thread( void * );
+extern pid_t g_child_pid;
 
-void game_process_main( pid_t game_pid, pid_t child_pid ) {
-	LOGT();
+pthread_t anti_speed_thread_id = -1;
+pthread_t child_debugger_detect_thread_id = -1;
 
-	pthread_t thread_id;
-	pthread_create( &thread_id, NULL, child_debugger_detect_thread, (void*) child_pid );
+void game_process_main( pid_t game_pid, pid_t child_pid )
+{
+	if( anti_speed_thread_id == -1 ) {
+		EXIT_TIMER( 5, "Anti-Speed Thread not running" );
+	}
+
+	if( child_debugger_detect_thread_id == -1 ) {
+		EXIT_TIMER( 5, "Child debugger detect Thread not running" );
+	}
 }
 
-
-void * child_debugger_detect_thread( void * param ) {
+void * child_debugger_detect_thread( void * param )
+{
 	LOGT();
 
-	pid_t child_pid = ( pid_t ) param;
+	while( g_child_pid == -1 ) usleep( 100000 );
 
-	char line[1024];
+	pid_t child_pid = g_child_pid;
+
+	char buffer[1024];
 	char folder[256], filename[256];
 	sprintf( folder, "/proc/%d/task", child_pid );
 	LOGI( "ChildPid Task : %s", folder );
@@ -59,10 +68,28 @@ void * child_debugger_detect_thread( void * param ) {
 				continue;
 			}
 
-			while( fgets( line, 1024, fp )) {
+#if 1
+			fread( buffer, 1024, 1, fp );
+			fclose( fp );
+			fp = NULL;
+
+			char * find_ptr = strstr( buffer, "TracerPid");
+			if( find_ptr != NULL ) {
+				int tracerPid = atoi( find_ptr + 10 );
+				LOGI( "%s : %d", filename, tracerPid );
+
+				if( tracerPid != 0 && tracerPid != child_pid ) {
+					sprintf( filename, "Detected Game Thread TracerPid %s : %d", entry->d_name, tracerPid );
+					EXIT_TIMER( 5, filename );
+
+					closedir(dir);
+				}
+			}
+#else
+			while( fgets( buffer, 1024, fp )) {
 				usleep( 1000 );
 
-				if( strncmp( line, "TracerPid", 9 ) == 0 ) {
+				if( strncmp( buffer, "TracerPid", 9 ) == 0 ) {
 					int tracerPid = atoi( &line[10]);
 					//LOGI( "%s : %d", filename, tracerPid );
 
@@ -77,7 +104,7 @@ void * child_debugger_detect_thread( void * param ) {
 
 			fclose( fp );
 			fp = NULL;
-
+#endif
 			usleep( 1000 );
 		}
 
@@ -88,6 +115,56 @@ void * child_debugger_detect_thread( void * param ) {
 	sprintf( filename, "Exit ChildPid Task : %s", folder );
 	EXIT_TIMER( 1, filename );
 }
+
+#include <linux/kernel.h>       /* for struct sysinfo */
+#include <sys/sysinfo.h>
+
+void * anti_speed_hack_thread_function( void * )
+{
+	LOGT();
+
+	char strTemp[64] = { 0, };
+	struct timeval 	_timeval;
+	struct timespec _timespec;
+	struct sysinfo 	_s_info;
+
+	gettimeofday( &_timeval, NULL );
+	clock_gettime(CLOCK_MONOTONIC, &_timespec);
+	sysinfo(&_s_info);
+
+	unsigned long t1 = _s_info.uptime;
+	unsigned long t2 = _timeval.tv_sec;
+	unsigned long t3 = _timespec.tv_sec;
+
+	long d1 = 0;
+	long d2 = 0;
+	long d3 = 0;
+
+	while( t1 > 0 ) {
+		sleep( 1 );
+
+		sysinfo(&_s_info);
+		gettimeofday( &_timeval, NULL );
+		clock_gettime(CLOCK_MONOTONIC, &_timespec);
+
+		d1 = _s_info.uptime 	- t1;
+		d2 = _timeval.tv_sec  	- t2;
+		d3 = _timespec.tv_sec 	- t3;
+
+		if( abs( d2 - d1 ) > 2 ) {
+			EXIT_TIMER( 10, "TIME VALUE CHANGED ( gettimeofday )" );
+		}
+
+		if( abs( d3 - d1 ) > 2 ) {
+			EXIT_TIMER( 10, "TIME VALUE CHANGED ( clock_gettime )" );
+		}
+
+		// LOGD("Base time : %d, gTime : %d, cTime : %d", d1, d2, d3 );
+	}
+
+	return NULL;
+}
+
 
 #ifdef __cplusplus
 }
