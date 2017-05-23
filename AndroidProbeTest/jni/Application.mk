@@ -9,7 +9,7 @@ APP_CPPFLAGS += -Wformat
 #APP_STL := gnustl_shared
 APP_STL := gnustl_static
 
-NDK_TOOLCHAIN_VERSION := clang
+#NDK_TOOLCHAIN_VERSION := clang
 #APP_CXXFLAGS := -Wall -Werror -fpermissive
 
 #APP_ABI := armeabi x86

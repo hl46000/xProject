@@ -38,8 +38,22 @@ LOCAL_CFLAGS	+= -fvisibility=hidden
 LOCAL_CFLAGS	+= -DANDROID_ARM_LINKER
 
 LOCAL_LDLIBS	+= -llog -lz -latomic
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
 
+
+##############################################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := smc
+LOCAL_SRC_FILES := MainSmcTest.cpp ./util/log.cpp ./smc/smc_module.cpp
+LOCAL_CFLAGS	+= -DOS_ANDROID -DFILE_OFFSET_BITS=64 -DLARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -Wno-psabi -O1
+LOCAL_CFLAGS	+= -I$(STATIC_LOCAL_PATH)/util -I$(STATIC_LOCAL_PATH)/smc
+LOCAL_CFLAGS	+= -fvisibility=hidden
+
+LOCAL_CFLAGS	+= -DANDROID_ARM_LINKER
+
+LOCAL_LDLIBS	+= -llog -lz
+include $(BUILD_SHARED_LIBRARY)
 
 ##############################################################
 include $(CLEAR_VARS)

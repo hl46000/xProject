@@ -13,31 +13,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 실제 코드에서 SMC 영역을 나타내기 위한 TAG
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define SMC_START_TAG(tagID) 											\
-		LOGD("SMC START TAG : " #tagID );								\
-		static int __s_tag_start_size = get_smc_start_tag_size();		\
-		static int __e_tag_start_size = get_smc_end_tag_size();			\
-		static unsigned long __s_##tagID_addr, __e_##tagID_addr;		\
-		static unsigned char * __##tagID_values[5];						\
-		static bool __b_##tagID_tag_enable = __s_tag_start_size != NOT_APPLIED_SMC_TAG_SIZE_VALUE;	\
-		usleep( 1 );						\
-		while( __b_##tagID_tag_enable )		\
-		{									\
-			SMC_PREPARE_START_TAG(tagID);	\
-			SMC_PURE_START_TAG(tagID); 		\
-			break;							\
-		}
+#define SMC_START_TAG(tagID)				\
+	unsigned long s_addr = (unsigned long)&&S_##tagID_S;	\
+	unsigned long e_addr = (unsigned long)&&E_##tagID_E;	\
+	LOGD( #tagID " s_addr(0x%lx), e_addr(0x%lx)", s_addr, e_addr );	\
+	S_##tagID_S:
+
 
 // SMC Tag 의 끝을 나타내는 값
-#define SMC_END_TAG(tagID) 					\
-		LOGD("SMC END TAG : " #tagID );	    \
-		usleep( 1 );						\
-		while( __b_##tagID_tag_enable )		\
-		{									\
-			SMC_PURE_END_TAG(tagID);		\
-			SMC_POST_END_TAG(tagID);		\
-			break;							\
-		}
+#define SMC_END_TAG(tagID)	\
+	E_##tagID_E:
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif /* SMC_MODULE_H_ */
