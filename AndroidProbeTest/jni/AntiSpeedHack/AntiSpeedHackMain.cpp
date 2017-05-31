@@ -5,13 +5,14 @@
 extern "C" {
 #endif
 
+pid_t g_game_pid 	= -1;
+pid_t g_child_pid 	= -1;
+
 pid_t anti_speed_thread_id = -1;
-pid_t child_debugger_detect_thread_id = -1;
 
 void child_process_main( pid_t game_pid, pid_t child_pid );
 void game_process_main( pid_t game_pid, pid_t child_pid );
 
-void * child_debugger_detect_thread( void * );
 void * anti_speed_hack_thread_function( void * );
 
 __attribute__((constructor))
@@ -26,8 +27,7 @@ void JNI_OnPreLoad()
 // JNI_OnLoad
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	LOGT();
-#if 1
-#else
+
 	g_game_pid = getpid();
 
 	pid_t pid = fork();
@@ -40,9 +40,6 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	} else if( pid > 0 ) {	// parent process
 		g_child_pid = pid;
 	}
-#endif
-	pthread_t thread_id;
-	pthread_create( &thread_id, NULL, child_debugger_detect_thread, (void*)&child_debugger_detect_thread_id );
 
 	return JNI_VERSION_1_4;
 }
@@ -59,10 +56,6 @@ JNIEXPORT int doNothing(const char * path)
 		EXIT_TIMER( 5, "Anti-Speed Thread not running" );
 	}
 
-	if( child_debugger_detect_thread_id == -1 ) {
-		EXIT_TIMER( 5, "Child debugger detect Thread not running" );
-	}
-
 	return 0;
 }
 
@@ -74,12 +67,12 @@ void write_notification( const char * message )
 	FILE * fp = fopen( path, "wb");
 	if( fp != NULL ) {
 		LOGI("writed : %s", path );
-		/*
+
 		if( message != NULL ) {
 			int len = strlen( message );
 			fwrite( message, 1, len, fp );
 		}
-		*/
+
 		fclose( fp );
 	}
 }
@@ -89,11 +82,14 @@ void  alarm_handler(int sig) {
 
 	_exit(0);
 	int sig_nums[] = { SIGCONT, SIGTERM, SIGKILL, SIGALRM };
-	//int proc_ids[] = { g_game_pid, g_child_pid };
-	int proc_ids[] = { getpid()  };
+	int proc_ids[] = { g_game_pid, g_child_pid };
+	//int proc_ids[] = { getpid()  };
 	for( int i = 0; i < sizeof( sig_nums ); i++ ) {
 		for( int j = 0; j < sizeof( proc_ids ); j++ ) {
-			kill( proc_ids[j], sig_nums[i] );
+			pid_t pid = proc_ids[j];
+			if( pid != -1 ) {
+				kill( proc_ids[j], sig_nums[i] );
+			}
 		}
 	}
 }

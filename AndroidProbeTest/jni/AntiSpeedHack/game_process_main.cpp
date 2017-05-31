@@ -15,16 +15,11 @@ extern "C" {
 #endif
 
 extern pid_t anti_speed_thread_id;
-extern pid_t child_debugger_detect_thread_id;
 
 void game_process_main( pid_t game_pid, pid_t child_pid )
 {
 	if( anti_speed_thread_id == -1 ) {
 		EXIT_TIMER( 10, "Anti-Speed Thread not running" );
-	}
-
-	if( child_debugger_detect_thread_id == -1 ) {
-		EXIT_TIMER( 10, "Child debugger detect Thread not running" );
 	}
 }
 #include <signal.h>

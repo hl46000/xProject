@@ -10,7 +10,13 @@ public class OrderingByKoreanEnglishNumbuerSpecial {
     public static Comparator<String> getComparator() {
         return  new Comparator<String>() {
             public int compare(String left, String right) {
-                return OrderingByKoreanEnglishNumbuerSpecial.compare(left, right);
+            	try {
+            		return OrderingByKoreanEnglishNumbuerSpecial.compare(left, right);
+            	} catch( Exception e ) {
+            		e.printStackTrace();
+            		
+            		return LEFT_FIRST;
+            	}
             }
         };
     }
