@@ -417,9 +417,6 @@ at.markushi.ui.action.PlusAction
 at.markushi.ui.util.UiHelper:
     7:7:public UiHelper()
     19:24:public static void postInvalidateOnAnimation(android.view.View)
-com.google.android.gms.analytics.HitBuilders$HitBuilder:
-    protected com.google.android.gms.analytics.HitBuilders$HitBuilder setHitType(java.lang.String)
-    protected java.lang.String get(java.lang.String)
 com.purehero.bluetooth.BluetoothManager:
     public static final int REQUEST_ENABLE_BT
     public static final int REQUEST_CONNECT_DEVICE
@@ -437,7 +434,6 @@ com.purehero.bluetooth.contact_share.R$id
 com.purehero.bluetooth.contact_share.R$integer
 com.purehero.bluetooth.contact_share.R$layout
 com.purehero.bluetooth.contact_share.R$menu
-com.purehero.bluetooth.contact_share.R$raw
 com.purehero.bluetooth.contact_share.R$string
 com.purehero.bluetooth.contact_share.R$style
 com.purehero.bluetooth.contact_share.R$styleable
@@ -454,9 +450,7 @@ com.purehero.bluetooth.contact_share.RemoteContactAdapter:
     private static final byte OPCODE_REQUEST_CONTACT_DATAS
     private static final byte OPCODE_RESPONSE_CONTACT_DATAS
 com.purehero.common.BaseTabMainActivity:
-    72:103:public void showFullAd()
-    24:24:static synthetic com.google.android.gms.ads.InterstitialAd access$1(com.purehero.common.BaseTabMainActivity)
-com.purehero.common.BaseTabMainActivity$2
+    66:98:public void showFullAd()
 com.purehero.common.FragmentText
 com.purehero.common.G:
     public static final int DIALOG_BUTTON_ID_YES

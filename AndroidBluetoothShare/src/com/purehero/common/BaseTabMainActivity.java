@@ -1,29 +1,22 @@
 package com.purehero.common;
 
-import it.neokree.materialtabs.MaterialTab;
-import it.neokree.materialtabs.MaterialTabHost;
-import it.neokree.materialtabs.MaterialTabListener;
+import com.purehero.bluetooth.contact_share.R;
+
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.view.View;
 import android.widget.Toast;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.purehero.bluetooth.contact_share.R;
+import it.neokree.materialtabs.MaterialTab;
+import it.neokree.materialtabs.MaterialTabHost;
+import it.neokree.materialtabs.MaterialTabListener;
 
 abstract public class BaseTabMainActivity extends ActionBarActivity implements MaterialTabListener {
 	private MaterialTabHost tabHost;
 	private ViewPager pager;
     private ViewPagerAdapter adapter;
     
-    private InterstitialAd interstitialAd	= null;	// 전면 광고
-    private AdView bannerAdView = null;
-	
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,7 +42,7 @@ abstract public class BaseTabMainActivity extends ActionBarActivity implements M
             );
 
         }
-		
+		/*
         bannerAdView = (AdView) findViewById(R.id.adView);
         if( bannerAdView != null ) {
 			bannerAdView.setVisibility( View.GONE );
@@ -64,13 +57,14 @@ abstract public class BaseTabMainActivity extends ActionBarActivity implements M
 			
 			bannerAdView.loadAd(adRequest);
 		}
+		*/
 	}
 	
 	public abstract void addTabItems( ViewPagerAdapter adapter );
 	
 	public void showFullAd() {
 		G.Log( "showFullAd" );
-		
+		/*
 		if( interstitialAd != null ) {
 			if( interstitialAd.isLoaded()) {
 				if( System.currentTimeMillis() % 10 < 3 ) {
@@ -100,6 +94,7 @@ abstract public class BaseTabMainActivity extends ActionBarActivity implements M
 				interstitialAd.loadAd(adRequest);
 			}
 		});
+		*/
 	}
 	
 	@Override
