@@ -272,7 +272,12 @@ public class ContactData {
 	public static final Comparator<ContactData> ALPHA_COMPARATOR = new Comparator<ContactData> () {
 		@Override
 		public int compare(ContactData arg0, ContactData arg1) {
-			return OrderingByKoreanEnglishNumbuerSpecial.compare( arg0.getDisplayName(), arg1.getDisplayName());
+			try {
+				return OrderingByKoreanEnglishNumbuerSpecial.compare( arg0.getDisplayName(), arg1.getDisplayName());
+			} catch( Exception e ) {
+				e.printStackTrace();
+				return 1;
+			}
 		}
 	};
 }
