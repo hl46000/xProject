@@ -14,7 +14,7 @@
 #define SETRWX(addr, len) mprotect((void*)((addr) & ~0xFFF), (len) + ((addr) - ((addr) &~0xFFF)), PROT_READ | PROT_EXEC | PROT_WRITE);usleep(100);
 #define SETRX(addr, len) mprotect((void*)((addr) & ~0xFFF), (len) + ((addr) - ((addr) &~0xFFF)), PROT_READ | PROT_EXEC);usleep(100);
 
-
+#if 0
 /*
  * SMC target area 에 대한 복호화 작업을 진행한다.
  */
@@ -109,3 +109,4 @@ void load_tag_values( const unsigned long offset, unsigned char ** values )
 	values[3] = ( unsigned char * )( pAddr + indexOfs[3] );
 	values[4] = ( unsigned char * )( pAddr + indexOfs[4] );
 }
+#endif

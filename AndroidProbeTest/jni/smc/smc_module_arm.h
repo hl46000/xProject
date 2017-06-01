@@ -8,32 +8,21 @@
 #ifndef SMC_MODULE_ARM_H_
 #define SMC_MODULE_ARM_H_
 
-#define CONSTANT		"#"
-#define ACC_REG			"r0"
-#define STACK_ACC_REG	"{" ACC_REG "}"
-#define ASM_PUSH		"push"
-#define ASM_POP			"pop"
-#define LINE_FEED		"\n\t"
 #define ASM				__asm__ __volatile__
 
-#if 1
-// asm label 을 이용한 현재 주소를 얻는 방법
-#define SET_LABEL(lb) 				ASM( #lb ":")
-#define SET_LABEL2(lb) 				ASM( lb ":")
-#define LOAD_LABEL(lb,val)			ASM("ldr %0,=" #lb LINE_FEED :"=r"(val))
-#define LOAD_LABEL2(lb,val)			ASM("ldr %0,=" lb LINE_FEED :"=r"(val))
+#define PUSH_ACC		ASM ("push {R0}")
+#define MOVE(x)			ASM ("mov R0, #"#x)
+#define POP_ACC			ASM ("pop {R0}")
 
-#define GET_CURRENT_ADDR(value) 	\
-		LOAD_LABEL( #value "_current_pos_label", value); \
-		SET_LABEL(  #value "_current_pos_label" )
+//begin_marker 	= 	0x01,0xB4,
+//					0x62,0x20,0x65,0x20,0x67,0x20,0x69,0x20,
+//					0x6E,0x20,0x5F,0x20,0x6D,0x20,0x61,0x20,
+//					0x72,0x20,0x6B,0x20,0x65,0x20,0x72,0x20,
+//					0x01,0xBC
+//end_marker	=	0x01,0xB4,
+//					0x65,0x20,0x6E,0x20,0x64,0x20,0x5F,0x20,
+//					0x6D,0x20,0x61,0x20,0x72,0x20,0x6B,0x20,
+//					0x65,0x20,0x72,0x20,0x65,0x20,0x72,0x20,
+//					0x01,0xBC
 
-#else
-// PC 값을 이용한 현재 주소를 얻는 방법
-
-// ARM은 r15 register가 program counter 값임
-// 아래 로직도 정상동작 함
-#define GET_CURRENT_ADDR(addr) \
-			ASM("mov %0, r15\n\t":"=r"(addr)); \
-			addr-=sizeof( short );
-#endif
 #endif /* SMC_MODULE_ARM_H_ */

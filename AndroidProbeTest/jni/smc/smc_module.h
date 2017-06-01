@@ -13,16 +13,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 실제 코드에서 SMC 영역을 나타내기 위한 TAG
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define SMC_START_TAG(tagID)				\
-	unsigned long s_addr = (unsigned long)&&S_##tagID_S;	\
-	unsigned long e_addr = (unsigned long)&&E_##tagID_E;	\
-	LOGD( #tagID " s_addr(0x%lx), e_addr(0x%lx)", s_addr, e_addr );	\
-	S_##tagID_S:
+#define SMC_START_TAG	\
+	unsigned long s_addr = (unsigned long)&&S_SMC_BEGIN_TAG_S;	\
+	unsigned long e_addr = (unsigned long)&&E_SMC_END_TAG_E;	\
+	LOGD( "s_addr(0x%lx), e_addr(0x%lx)", s_addr, e_addr );	\
+	S_SMC_BEGIN_TAG_S: \
+	SMC_BEGIN_MARKER
 
 
 // SMC Tag 의 끝을 나타내는 값
-#define SMC_END_TAG(tagID)	\
-	E_##tagID_E:
+#define SMC_END_TAG	\
+	E_SMC_END_TAG_E:	\
+	SMC_END_MARKER
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

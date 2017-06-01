@@ -11,7 +11,7 @@
 
 __attribute__((constructor)) int JNI_OnPreLoad()
 {
-	SMC_START_TAG( JNI_OnPreLoad );
+	SMC_START_TAG;
 
 	change_logTag( "SMC_TEST" );
 	LOGT();
@@ -19,7 +19,7 @@ __attribute__((constructor)) int JNI_OnPreLoad()
 	LOGD( "PID[%d] : TID[%d]", getpid(), gettid() );
 
 
-	SMC_END_TAG( JNI_OnPreLoad );
+	SMC_END_TAG;
 	return 0;
 }
 
@@ -28,7 +28,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
 	LOGT();
 
-	SMC_START_TAG( JNI_OnLoad );
+	SMC_START_TAG;
 
 	JNIEnv * env = NULL;
 	jint result = -1;
@@ -42,7 +42,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 		return JNI_VERSION_1_4;
 	}
 
-	SMC_END_TAG( JNI_OnLoad );
+	SMC_END_TAG;
 
 	return -1;
 }
