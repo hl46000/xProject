@@ -7083,6 +7083,7 @@ com.purehero.bluetooth.contact_share.R$styleable: int[] View
 com.purehero.bluetooth.contact_share.R$styleable: int View_android_focusable
 com.purehero.bluetooth.contact_share.R$styleable: int View_paddingEnd
 com.purehero.bluetooth.contact_share.R$styleable: int View_paddingStart
+com.purehero.bluetooth.contact_share.R$xml: int provider_paths
 com.purehero.common.BaseTabMainActivity: BaseTabMainActivity()
 it.neokree.materialtabs.MaterialTabHost
 it.neokree.materialtabs.MaterialTabHost: MaterialTabHost(android.content.Context)

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.purehero.bluetooth.contact_share.R;
+import com.purehero.common.G;
 import com.purehero.common.Utils;
 
 import android.app.Activity;
@@ -31,7 +32,7 @@ public class ContactBackupAdapter extends BaseAdapter {
 	public synchronized void getBackupContactDatas() {
 		listDatas.clear();
 		
-		File backup_folder = new File( context.getString( R.string.backup_folder) );
+		File backup_folder = new File( G.getCacheFolderPath( context, context.getString( R.string.backup_folder), true ));
 		if( backup_folder.exists()) {
 			File files [] = backup_folder.listFiles();
 			for( File file : files ) {

@@ -437,6 +437,7 @@ com.purehero.bluetooth.contact_share.R$menu
 com.purehero.bluetooth.contact_share.R$string
 com.purehero.bluetooth.contact_share.R$style
 com.purehero.bluetooth.contact_share.R$styleable
+com.purehero.bluetooth.contact_share.R$xml
 com.purehero.bluetooth.contact_share.RemoteContactAdapter:
     private static final byte OPCODE_MASK_REQUEST
     private static final byte OPCODE_MASK_RESPONSE
@@ -455,9 +456,9 @@ com.purehero.common.FragmentText
 com.purehero.common.G:
     public static final int DIALOG_BUTTON_ID_YES
     public static final int DIALOG_BUTTON_ID_NO
-    17:17:public G()
-    34:35:public static void Log()
-    131:132:public static void waitDialog(android.app.Activity,java.lang.String,java.lang.String,com.purehero.common.ProgressRunnable)
+    20:20:public G()
+    37:38:public static void Log()
+    152:153:public static void waitDialog(android.app.Activity,java.lang.String,java.lang.String,com.purehero.common.ProgressRunnable)
 com.purehero.common.OrderingByKoreanEnglishNumbuerSpecial:
     private static final int REVERSE
     private static final int LEFT_FIRST

@@ -10,6 +10,7 @@ import java.util.List;
 import org.json.JSONException;
 
 import com.purehero.bluetooth.contact_share.R;
+import com.purehero.common.G;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -317,7 +318,7 @@ public class ContactAdapter extends BaseAdapter
 			return;
 		}
 		
-		File backup_folder = new File( context.getString( R.string.backup_folder) );
+		File backup_folder = new File( G.getCacheFolderPath( context, context.getString( R.string.backup_folder), true ));
 		if( !backup_folder.exists()) {
 			backup_folder.mkdirs();
 		}

@@ -9,8 +9,11 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.EditText;
+
+import java.io.File;
 
 import com.purehero.bluetooth.contact_share.R;
 
@@ -53,7 +56,25 @@ public class G {
 		return sb.toString(); 
 	}
 
-	
+	public static String getCacheFolderPath( Context context, String folder_name, boolean mkdirs ) {
+		File folder = null;
+		
+		String ext = Environment.getExternalStorageState();
+		if( ext.equals( Environment.MEDIA_MOUNTED)) {
+			//folder = new File( Environment.getExternalStorageDirectory(), folder_name );
+			folder = new File( context.getExternalCacheDir(), folder_name );
+		} else { 
+			//folder = new File( Environment.getDataDirectory(), folder_name );
+			//folder = new File( context.getFilesDir(), folder_name );
+			folder = new File( context.getCacheDir(), folder_name );
+		}
+		
+		if( mkdirs && !folder.exists()) {
+			folder.mkdirs();
+		}
+		
+		return folder.getAbsolutePath();
+	}
 	
 	
 	

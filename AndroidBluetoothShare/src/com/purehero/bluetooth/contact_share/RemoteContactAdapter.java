@@ -16,6 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -321,12 +323,12 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable, OnC
 		File vcf_file = null;
 		FileOutputStream fos = null;
 		try {
-			File backup_folder = new File( context.getString( R.string.backup_folder) );
+			File backup_folder = new File( G.getCacheFolderPath( context, context.getString( R.string.backup_folder), true ));
 			File tmp_folder = new File( backup_folder, "tmp");
 			if( !tmp_folder.exists()) {
 				tmp_folder.mkdirs();
 			}
-			vcf_file = new File( tmp_folder, "Received Contacts" );
+			vcf_file = new File( tmp_folder, "received_contacts.vcf" );
 			
 			fos = new FileOutputStream( vcf_file );
 			fos.write( received_datas );
@@ -334,7 +336,13 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable, OnC
 			fos = null;
 			
 			Intent intent = new Intent(Intent.ACTION_VIEW);
-	        intent.setDataAndType(Uri.fromFile( vcf_file ), "text/x-vcard");
+			if (Build.VERSION.SDK_INT >= 21 ) {
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				intent.setDataAndType( FileProvider.getUriForFile(context, context.getPackageName() +".provider", vcf_file), "text/x-vcard" );
+	        } else {
+	        	intent.setDataAndType(Uri.fromFile( vcf_file ), "text/x-vcard");
+	        }
+			
 	        context.startActivityForResult( intent, 100 );
 	        
 		} catch ( Exception e) {
@@ -348,8 +356,8 @@ public class RemoteContactAdapter extends BaseAdapter implements Filterable, OnC
 	}
 
 	public void deleteCacheFiles() {
-		G.Log( "deleteCacheFiles" );
-		File backup_folder = new File( context.getString( R.string.backup_folder) );
+		G.Log( "deleteCacheFiles" );		
+		File backup_folder = new File( G.getCacheFolderPath( context, context.getString( R.string.backup_folder), true ));
 		File tmp_folder = new File( backup_folder, "tmp");
 		if( tmp_folder.exists()) {
 			File fileList [] = tmp_folder.listFiles();

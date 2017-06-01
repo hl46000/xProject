@@ -8963,6 +8963,7 @@ com.purehero.common.G -> com.purehero.a.c:
     void Log(java.lang.String,java.lang.Object[]) -> a
     void Log(java.lang.String) -> a
     java.lang.String buildLogMsg(java.lang.String) -> b
+    java.lang.String getCacheFolderPath(android.content.Context,java.lang.String,boolean) -> a
     void confirmDialog(android.app.Activity,java.lang.String,java.lang.String,int,android.content.DialogInterface$OnClickListener) -> a
     void textInputDialog(android.app.Activity,java.lang.String,java.lang.String,java.lang.String,int,android.content.DialogInterface$OnClickListener) -> a
     java.lang.String getTextInputDialogResult() -> a
