@@ -10,6 +10,10 @@ public class OrderingByKoreanEnglishNumbuerSpecial {
     public static Comparator<String> getComparator() {
         return  new Comparator<String>() {
             public int compare(String left, String right) {
+            	if( left == right ) return 0;
+    			if( left == null ) return 1;
+    			if( right == null ) return -1;
+    			
             	try {
             		return OrderingByKoreanEnglishNumbuerSpecial.compare(left, right);
             	} catch( Exception e ) {
@@ -28,7 +32,10 @@ public class OrderingByKoreanEnglishNumbuerSpecial {
      * @return
      */
     public static int compare(String left, String right) {
-
+    	if( left == right ) return 0;
+		if( left == null ) return 1;
+		if( right == null ) return -1;
+		
         left 	= left.toUpperCase().replaceAll(" ", "");
         right 	= right.toUpperCase().replaceAll(" ", "");
 

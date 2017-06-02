@@ -231,6 +231,8 @@ public class BluetoothDeviceListActivity extends ActionBarActivity implements On
 
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
+            if( !info.contains(":")) return;
+            
             String address = info.substring(info.length() - 17);
 
             BluetoothDevice device = BluetoothManager.getInstance().getDevice( address );
