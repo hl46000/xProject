@@ -1,37 +1,13 @@
 LOCAL_PATH := $(call my-dir)
 
-include $(CLEAR_VARS)
-APP_PLATFORM := android-8
+LOCAL_MODULE    := sample01
+LOCAL_SRC_FILES := sample01.cpp
 
-LOCAL_MODULE    := LazencaS
-LOCAL_SRC_FILES := lazencaS/detect/Engine.cpp
-
-LOCAL_CFLAGS    := -Wall -Wextra -Wreorder -Ijni/lazencaS
-LOCAL_LDLIBS 	:= -llog -landroid -lz
-
+LOCAL_CFLAGS    := -Wall -Wextra -Wreorder
+LOCAL_LDLIBS	+= -llog -ldl -lz
+ 
+LOCAL_DEX_PREOPT := true
 include $(BUILD_SHARED_LIBRARY)
-
-include $(CLEAR_VARS)
-
-APP_PLATFORM := android-8
-
-LOCAL_MODULE    := LoadEngine
-LOCAL_SRC_FILES := lazencaS/LoadEngine.cpp
-
-LOCAL_CFLAGS    := -fvisibility=hidden -Ijni/lazencaS
-LOCAL_LDLIBS := -llog -landroid -lz
-
-include $(BUILD_SHARED_LIBRARY)
-
-
-#LOCAL_MODULE    := sample01
-#LOCAL_SRC_FILES := sample01.cpp
-#
-#LOCAL_CFLAGS    := -Wall -Wextra -Wreorder
-#LOCAL_LDLIBS	+= -llog -ldl -lz
-# 
-#LOCAL_DEX_PREOPT := true
-#include $(BUILD_SHARED_LIBRARY)
 #
 #
 #include $(CLEAR_VARS)

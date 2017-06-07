@@ -15,13 +15,9 @@ extern "C" {
 #endif
 
 extern pid_t anti_speed_thread_id;
+pid_t debugger_detect_thread_id;
 
-void game_process_main( pid_t game_pid, pid_t child_pid )
-{
-	if( anti_speed_thread_id == -1 ) {
-		EXIT_TIMER( 10, "Anti-Speed Thread not running" );
-	}
-}
+
 #include <signal.h>
 void * child_debugger_detect_thread( void * param )
 {
@@ -169,6 +165,16 @@ void * anti_speed_hack_thread_function( void * param )
 	return NULL;
 }
 
+
+void game_process_main( pid_t game_pid, pid_t child_pid )
+{
+	if( anti_speed_thread_id == -1 ) {
+		EXIT_TIMER( 10, "Anti-Speed Thread not running" );
+	}
+
+	pthread_t thread_id;
+	pthread_create( &thread_id, NULL, child_debugger_detect_thread, (void*)&debugger_detect_thread_id );
+}
 
 #ifdef __cplusplus
 }

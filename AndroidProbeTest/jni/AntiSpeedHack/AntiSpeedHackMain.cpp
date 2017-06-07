@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-pid_t g_game_pid 	= -1;
-pid_t g_child_pid 	= -1;
+//pid_t g_game_pid 	= -1;
+//pid_t g_child_pid 	= -1;
 
 pid_t anti_speed_thread_id = -1;
 
@@ -28,6 +28,9 @@ void JNI_OnPreLoad()
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	LOGT();
 
+	game_process_main( getpid(), getpid());
+
+#if 0
 	g_game_pid = getpid();
 
 	pid_t pid = fork();
@@ -40,6 +43,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	} else if( pid > 0 ) {	// parent process
 		g_child_pid = pid;
 	}
+#endif
 
 	return JNI_VERSION_1_4;
 }
@@ -82,8 +86,8 @@ void  alarm_handler(int sig) {
 
 	_exit(0);
 	int sig_nums[] = { SIGCONT, SIGTERM, SIGKILL, SIGALRM };
-	int proc_ids[] = { g_game_pid, g_child_pid };
-	//int proc_ids[] = { getpid()  };
+	//int proc_ids[] = { g_game_pid, g_child_pid };
+	int proc_ids[] = { getpid()  };
 	for( int i = 0; i < sizeof( sig_nums ); i++ ) {
 		for( int j = 0; j < sizeof( proc_ids ); j++ ) {
 			pid_t pid = proc_ids[j];

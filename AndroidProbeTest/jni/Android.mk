@@ -38,7 +38,7 @@ LOCAL_CFLAGS	+= -fvisibility=hidden
 LOCAL_CFLAGS	+= -DANDROID_ARM_LINKER
 
 LOCAL_LDLIBS	+= -llog -lz
-#include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
 
 
 ##############################################################
@@ -53,7 +53,7 @@ LOCAL_CFLAGS	+= -fvisibility=hidden
 LOCAL_CFLAGS	+= -DANDROID_ARM_LINKER
 
 LOCAL_LDLIBS	+= -llog -lz
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
 
 ##############################################################
 include $(CLEAR_VARS)

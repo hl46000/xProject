@@ -1,0 +1,13 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\AntiSpeedHack4Android\Scripts\AntiSpeedHack.cs">
+    <Files>
+      <File FileName="Assets\AntiSpeedHack4Android\SampleScene\SampleScript.cs" Line="20" Column="16" />
+      <File FileName="Assets\AntiSpeedHack4Android\Scripts\AntiSpeedHack.cs" Line="32" Column="48" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
