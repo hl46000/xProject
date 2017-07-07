@@ -30,6 +30,8 @@ import com.purehero.bluetooth.share.contacts.ContactFragment;
 import com.purehero.bluetooth.share.files.FileListFragment;
 import com.purehero.bluetooth.share.categorys.ImageListAdapter;
 import com.purehero.module.fragment.FragmentEx;
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StartAppSDK.init(this, "206482942", true);
+        StartAppAd.disableSplash();
+
         setContentView(R.layout.activity_main);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -91,26 +96,27 @@ public class MainActivity extends AppCompatActivity
 
     // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
     private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
-    private long backPressedTime = 0;
+                private long backPressedTime = 0;
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
-            if( fragment instanceof FragmentEx ) {
-                if( ((FragmentEx) fragment).onBackPressed()) {
-                    return;
-                }
-            }
-            if(!( fragment instanceof HomeFragment )) {
-                onHomeFragment();
-                return;
+                @Override
+                public void onBackPressed() {
+                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                    if (drawer.isDrawerOpen(GravityCompat.START)) {
+                        drawer.closeDrawer(GravityCompat.START);
+                    } else {
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
+                        if( fragment instanceof FragmentEx ) {
+                            if( ((FragmentEx) fragment).onBackPressed()) {
+                                return;
+                            }
+                        }
+                        if(!( fragment instanceof HomeFragment )) {
+                            onHomeFragment();
+                            return;
             }
 
             if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+                StartAppAd.onBackPressed(this);
                 super.onBackPressed();
 
             } else {
@@ -189,6 +195,10 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
         switch( id ) {
+            case R.id.nav_show_ads :
+                StartAppAd.showAd(this);
+                break;
+
             case HOME_FRAGMENT      :
                 fab.setVisibility( View.INVISIBLE );
                 if( homeFragment == null ) {

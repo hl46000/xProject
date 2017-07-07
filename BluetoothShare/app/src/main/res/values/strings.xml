@@ -65,5 +65,6 @@
     <string name="bluetooth_not_enable">Bluetooth is not enabled</string>
     <string name="device_name_change_contents">You can easily distinguish each device by displaying its name in the list of peripheral devices, Bluetooth, WI-FI Direct and other devices.</string>
     <string name="rename_device">Rename device</string>
+    <string name="show_ads">Show Ads</string>
 
 </resources>

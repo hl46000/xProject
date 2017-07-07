@@ -65,5 +65,6 @@
     <string name="bluetooth_not_enable">Bluetooth tidak diaktifkan</string>
     <string name="device_name_change_contents">Anda dapat dengan mudah membedakan setiap perangkat dengan menampilkan namanya dalam daftar perangkat periferal, Bluetooth, WI-FI Direct dan perangkat lainnya.</string>
     <string name="rename_device">Ganti nama perangkat</string>
+    <string name="show_ads">Show Ads</string>
 
 </resources>

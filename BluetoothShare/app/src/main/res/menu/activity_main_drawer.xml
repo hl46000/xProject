@@ -34,22 +34,23 @@
             android:visible="false" />
 
         <item android:title="@string/my_files" android:visible="false">
-
-
-
-
-
-                <item
-                    android:id="@+id/nav_documents"
-                    android:icon="@drawable/ic_description_black_24dp"
-                    android:title="@string/documents"
-                    android:visible="false" />
-                <item
-                    android:id="@+id/nav_downloads"
-                    android:icon="@drawable/ic_description_black_24dp"
-                    android:title="@string/downloads"
-                    android:visible="false" />
-
+            <item
+                android:id="@+id/nav_documents"
+                android:icon="@drawable/ic_description_black_24dp"
+                android:title="@string/documents"
+                android:visible="false" />
+            <item
+                android:id="@+id/nav_downloads"
+                android:icon="@drawable/ic_description_black_24dp"
+                android:title="@string/downloads"
+                android:visible="false" />
         </item>
+    </group>
+    <group android:id="@+id/ads_menu" android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_show_ads"
+            android:icon="@drawable/ic_tag_faces_black_24dp"
+            android:title="@string/show_ads"
+            />
     </group>
 </menu>
