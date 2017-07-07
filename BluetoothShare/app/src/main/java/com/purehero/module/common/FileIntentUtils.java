@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
@@ -37,7 +38,6 @@ public class FileIntentUtils {
         } else {
             shareIntent.setDataAndType( Uri.fromFile( file ), getMimeType( file.getName() ));
         }
-
 
         return shareIntent;
     }

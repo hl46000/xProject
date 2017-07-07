@@ -154,38 +154,50 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onHomeFragment() {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-
-        HomeFragment fragment = new HomeFragment().setMainActivity(this);
-        fragment.setBluetoothAdapter( btAdapter );
-        fragmentTransaction.replace(R.id.fragment_area, fragment );
-        fragmentTransaction.commit();
-
-        fab.setVisibility( View.INVISIBLE );
+        try {
+            replaceFragmentById( HOME_FRAGMENT );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        replaceFragmentById(item.getItemId());
+        try {
+            replaceFragmentById(item.getItemId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private ApkListFragment apkListFragment = null;
+    private HomeFragment    homeFragment        = null;
+    private ApkListFragment apkListFragment     = null;
     private ContactFragment contactListFragment = null;
-    private BaseListFragment audioListFragment = null;
-    private BaseListFragment photoListFragment = null;
-    private BaseListFragment videoListFragment = null;
-    public void replaceFragmentById( int id ) {
+    private BaseListFragment audioListFragment  = null;
+    private BaseListFragment photoListFragment  = null;
+    private BaseListFragment videoListFragment  = null;
+
+    private final int HOME_FRAGMENT             = 10000;
+    public void replaceFragmentById( int id ) throws Exception {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
         switch( id ) {
+            case HOME_FRAGMENT      :
+                fab.setVisibility( View.INVISIBLE );
+                if( homeFragment == null ) {
+                    homeFragment = new HomeFragment().setMainActivity(this);
+                    homeFragment.setBluetoothAdapter( btAdapter );
+                }
+                fragmentTransaction.replace(R.id.fragment_area, homeFragment );
+                break;
+
             case R.id.btnApps       :
             case R.id.nav_apps      :
                 fab.setVisibility( View.VISIBLE );

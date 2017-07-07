@@ -1,5 +1,6 @@
 package com.purehero.bluetooth.share.contacts;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
@@ -385,7 +387,11 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		shareIntent.putParcelableArrayListExtra( Intent.EXTRA_STREAM, shareDatas );
 
 		//startActivityForResult(Intent.createChooser(shareIntent, "Share Contacts" ), 100 );
-		startActivityForResult( shareIntent, 100 );
+		try {
+			startActivityForResult(shareIntent, 100);
+		} catch( ActivityNotFoundException e ) {
+			Toast.makeText( context,"No bluetooth share app found!",Toast.LENGTH_SHORT).show();
+		}
 	}
 
 

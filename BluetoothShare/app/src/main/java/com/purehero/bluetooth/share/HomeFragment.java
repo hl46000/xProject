@@ -105,6 +105,8 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
 
         TextView tvAvailSize = ( TextView ) layout.findViewById( R.id.tvDiskSpace) ;
         if( tvAvailSize != null ) {
+            tvAvailSize.setVisibility( View.GONE );
+            /*
             StatFs externalStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
             StatFs internalStat = new StatFs(context.getFilesDir().getPath());
 
@@ -126,6 +128,7 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
             final double GBSyze = 1024.0f * 1024.0f * 1024.0f;
             tvAvailSize.setText( String.format( "%.2fGB / %.2fGB ", (double)free_external_memory / GBSyze, (double)total_external_memory / GBSyze));
             tvAvailSize.setText( String.format( "%.2fGB / %.2fGB ", (double)free_internal_memory / GBSyze, (double)total_internal_memory / GBSyze));
+            */
         }
 
         return layout ;
@@ -155,7 +158,11 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
         @Override
         public void onClick(View view) {
             int id = view.getId();
-            context.replaceFragmentById( id );
+            try {
+                context.replaceFragmentById( id );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     };
 

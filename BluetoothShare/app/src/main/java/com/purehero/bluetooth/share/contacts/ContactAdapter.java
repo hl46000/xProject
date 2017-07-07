@@ -52,11 +52,19 @@ public class ContactAdapter extends BaseAdapter implements Filterable, View.OnCl
 	 */
 	@Override
 	public synchronized int getCount() {
+		if( filteredData == null ) {
+			filteredData = new ArrayList<ContactData>();
+			return 0;
+		}
 		return filteredData.size();
 	}
 
 	@Override
 	public synchronized Object getItem(int index) {
+		if( filteredData == null ) {
+			filteredData = new ArrayList<ContactData>();
+			return null;
+		}
 		return filteredData.get( index );
 	}
 
