@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
-                StartAppAd.onBackPressed(this);
+                //StartAppAd.onBackPressed(this);
                 super.onBackPressed();
 
             } else {
