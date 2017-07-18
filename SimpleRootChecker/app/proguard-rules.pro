@@ -23,6 +23,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+
+-keep class com.purehero.module.** {
+    public *;
+}
+
 -keep class com.purehero.root.checker.** {
 }
 
@@ -33,3 +43,11 @@
 -keep class com.google.** {
    public *;
 }
+
+-keep class com.startapp.** {
+      *;
+}
+
+-keepattributes Exceptions, InnerClasses, Signature, Deprecated, SourceFile, LineNumberTable, *Annotation*, EnclosingMethod
+-dontwarn android.webkit.JavascriptInterface
+-dontwarn com.startapp.**

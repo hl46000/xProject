@@ -7,8 +7,8 @@ android {
         applicationId "share.file.purehero.com.fileshare"
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 7
-        versionName "1.0.5"
+        versionCode 9
+        versionName "1.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -43,7 +43,10 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.startapp:inapp-sdk:3.6.2'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'it.neokree:MaterialTabs:0.11'
     compile 'org.apache.commons:commons-io:1.3.2'
     compile 'com.android.support:support-v4:25.2.0'

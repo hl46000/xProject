@@ -33,6 +33,10 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,6 +61,10 @@ public class MainActivity extends PreferenceActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         super.onCreate(savedInstanceState);
+
+        StartAppSDK.init(this, "206231365", true);
+        StartAppAd.disableSplash();
+
         //this.setContentView(R.layout.ftp_server_settings);
 
         //root_folder = this.getIntent().getStringExtra("lastFolder");
@@ -64,6 +72,22 @@ public class MainActivity extends PreferenceActivity {
                 .beginTransaction()
                 .replace(android.R.id.content,
                         new MyPreferenceFragment()).commit();
+    }
+
+    // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
+    private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
+    private long backPressedTime = 0;
+
+    @Override
+    public void onBackPressed() {
+        if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+            StartAppAd.onBackPressed( this );
+            super.onBackPressed();
+
+        } else {
+            backPressedTime = System.currentTimeMillis();
+            Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+        }
     }
 
     public static class MyPreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceClickListener {

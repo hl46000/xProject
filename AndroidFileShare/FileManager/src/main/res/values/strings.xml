@@ -51,5 +51,6 @@
     <string name="connection_address">Connection address</string>
     <string name="internal_sdcard">Internal Sdcard</string>
     <string name="sdcard">Sdcard</string>
+    <string name="show_ads">Show Ads</string>
 
 </resources>

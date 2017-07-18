@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.purehero.module.tabhost.FragmentEx;
+import com.purehero.module.fragment.FragmentEx;
 
 public class CheckRootFragment extends FragmentEx implements OnClickListener {
 		

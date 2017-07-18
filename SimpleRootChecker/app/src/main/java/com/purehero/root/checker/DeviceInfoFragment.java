@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.purehero.module.tabhost.FragmentEx;
+import com.purehero.module.fragment.FragmentEx;
 
 public class DeviceInfoFragment extends FragmentEx {
 		

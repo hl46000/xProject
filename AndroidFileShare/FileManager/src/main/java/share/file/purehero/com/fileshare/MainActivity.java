@@ -12,10 +12,14 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,6 +38,8 @@ import com.purehero.common.FragmentText;
 import com.purehero.common.G;
 import com.purehero.common.StorageUtils;
 import com.purehero.common.ViewPagerAdapter;
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,7 +52,7 @@ import it.neokree.materialtabs.MaterialTabHost;
 import it.neokree.materialtabs.MaterialTabListener;
 
 
-public class MainActivity extends AppCompatActivity implements MaterialTabListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements MaterialTabListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
     public static int ACTION_BAR_LIST_MODE = 0;
     public static int ACTION_BAR_SELECTE_MODE = 1;
 
@@ -62,6 +68,10 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StartAppSDK.init(this, "206728665", true);
+        StartAppAd.disableSplash();
+
         setContentView(R.layout.activity_main);
 
         checkPermission();
@@ -165,6 +175,9 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 }
             }, 3000);
         }
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         /*
         bannerAdView = (AdView) findViewById(R.id.adView);
@@ -406,6 +419,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( pager.getCurrentItem());
             if( !fragment.onBackPressed()) {
                 if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+                    StartAppAd.onBackPressed(this);
                     super.onBackPressed();
 
                 } else {
@@ -510,6 +524,20 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 fileListFragment.setSelectALL( b );
             }
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch( id ) {
+            case R.id.nav_show_ads :
+                StartAppAd.showAd(this);
+                break;
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     /*

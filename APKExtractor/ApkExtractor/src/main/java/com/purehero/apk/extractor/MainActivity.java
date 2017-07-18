@@ -30,6 +30,8 @@ import com.purehero.common.FragmentText;
 import com.purehero.common.ViewPagerAdapter;
 import com.purehero.file.browser.FileListData;
 import com.purehero.file.browser.FileListFragment;
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,6 +53,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StartAppSDK.init(this, "205888323", true);
+        StartAppAd.disableSplash();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -187,6 +193,7 @@ public class MainActivity extends AppCompatActivity
             FragmentEx fragment = (FragmentEx) pagerAdapter.getItem( pager.getCurrentItem());
             if( !fragment.onBackPressed()) {
                 if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+                    StartAppAd.onBackPressed(this);
                     super.onBackPressed();
 
                 } else {

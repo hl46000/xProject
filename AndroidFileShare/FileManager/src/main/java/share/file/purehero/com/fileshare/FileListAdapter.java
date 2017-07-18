@@ -40,11 +40,13 @@ import java.util.Vector;
 public class FileListAdapter extends BaseAdapter implements Filterable, View.OnClickListener {
     private List<FileListData> listData = new ArrayList<FileListData>();    // 전체 데이터
     private List<FileListData> filterData = new ArrayList<FileListData>();  // 검색이 적용된 데이터
+    private final StartAppNativeAds nativeAds;
     //private boolean selectMode = false;
 
     private MainActivity context;
     public FileListAdapter( MainActivity context) {
         this.context = context;
+        nativeAds = new StartAppNativeAds( context );
     }
 
     @Override

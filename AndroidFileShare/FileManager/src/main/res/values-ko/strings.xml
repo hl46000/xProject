@@ -51,5 +51,6 @@
     <string name="connection_address">접속 주소</string>
     <string name="internal_sdcard">내부저장소</string>
     <string name="sdcard">외부저장소</string>
+    <string name="show_ads">광고보기</string>
 
 </resources>

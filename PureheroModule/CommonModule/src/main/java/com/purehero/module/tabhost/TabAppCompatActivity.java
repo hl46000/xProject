@@ -30,10 +30,10 @@ import java.util.Set;
  * Created by purehero on 2017-03-27.
  */
 
-    public abstract class TabAppCompatActivity extends AppCompatActivity {
-        private TabLayout tabHost;
-        private ViewPager pager;
-        private ViewPagerAdapter pagerAdapter;
+public abstract class TabAppCompatActivity extends AppCompatActivity {
+    protected TabLayout tabHost;
+    protected ViewPager pager;
+    protected ViewPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,26 +157,6 @@ import java.util.Set;
         }
 
         return request_permissions.size();
-    }
-
-    // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
-    private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
-    private long backPressedTime = 0;
-
-    @Override
-    public void onBackPressed() {
-        FragmentEx fragment = ( FragmentEx ) pagerAdapter.getItem( pager.getCurrentItem());
-        if( fragment.onBackPressed()) {
-            return;
-        }
-
-        if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
-            super.onBackPressed();
-
-        } else {
-            backPressedTime = System.currentTimeMillis();
-            Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
-        }
     }
 
     @Override

@@ -16,4 +16,5 @@
     <string name="connection_address">Connection address</string>
     <string name="ftp_server_addr">Server Address</string>
     <string name="ftp_server_home">Home Directory</string>
+    <string name="two_back_touch_exit_app">To exit the app, press the Back button again.</string>
 </resources>

@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.webkit.MimeTypeMap;
 
 import com.purehero.common.G;
+import com.startapp.android.publish.ads.nativead.NativeAdDetails;
 
 import org.apache.commons.io.FileUtils;
 
@@ -28,8 +29,15 @@ public class FileListData {
     private int subItemCount = 0;
     private boolean selected = false;
     private int clickCount = 0;             // 사용자에 의해 선택되어지 횟수
+    private boolean isAds = false;
 
     public static final String DATE_FORMAT = "MM/dd/yy H:mm a";
+
+    public FileListData(Context context, NativeAdDetails ads ) {
+        this.context = context;
+        this.file = null;
+        isAds = true;
+    }
 
     public FileListData(Context context, File file ) {
         this.context = context;
