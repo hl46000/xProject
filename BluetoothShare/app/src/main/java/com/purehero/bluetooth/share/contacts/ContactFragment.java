@@ -53,7 +53,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	private ListView listView = null;
 	private GridView gridView = null;
 	private ProgressBar progressBar = null;
-	private ContactAdapter adapter;
+	private ContactAdapter adapter = null;
 
 	int view_layout_mode = VIEW_MODE_LIST;
 
@@ -68,6 +68,10 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		G.Log( "onCreateView" );
 
+		context = MainActivity.getInstance();
+		if( adapter == null ) {
+			adapter = new ContactAdapter( context );
+		}
 		// Fragment 가 option menu을 가지고 있음을 알림
 		setHasOptionsMenu(true);
 
@@ -77,6 +81,7 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 		if( aBar != null ) {
 			aBar.setTitle( R.string.contact );
 		}
+
 		context.showActionBarBackButton( true );
 
 		layout 	= inflater.inflate( R.layout.contacts_layout, container, false );

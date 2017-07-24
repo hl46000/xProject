@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.startapp.android.publish.adsCommon.StartAppAd;
+import com.startapp.android.publish.adsCommon.StartAppSDK;
+
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private FlashLightInterface flashLight = null;
@@ -20,6 +23,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StartAppSDK.init(this, "206559557", true);  // Flash Light
+        StartAppAd.disableSplash();
+
         setContentView(R.layout.activity_main);
 
         SeekBar speedBar = ( SeekBar ) findViewById( R.id.speedBar );
@@ -113,6 +120,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     public void onBackPressed()
     {
         if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+            StartAppAd.onBackPressed( this );
             super.onBackPressed();
 
         } else {

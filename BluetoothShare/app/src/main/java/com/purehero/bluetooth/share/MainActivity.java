@@ -47,11 +47,18 @@ public class MainActivity extends AppCompatActivity
     private BluetoothAdapter btAdapter 	= null;
     public static final int REQUEST_ENABLE_BT 				= 1023;
 
+    private static MainActivity instance = null;
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StartAppSDK.init(this, "206482942", true);
         StartAppAd.disableSplash();
+
+        instance = this;
 
         setContentView(R.layout.activity_main);
 

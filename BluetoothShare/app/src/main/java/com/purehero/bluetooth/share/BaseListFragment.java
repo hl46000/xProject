@@ -23,6 +23,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.purehero.bluetooth.share.apps.ApkListAdapter;
 import com.purehero.module.common.FileIntentUtils;
 import com.purehero.module.common.OnSuccessListener;
 import com.purehero.module.fragment.FragmentEx;
@@ -65,6 +66,8 @@ public class BaseListFragment extends FragmentEx implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         G.Log("onCreateView");
+
+        context = MainActivity.getInstance();
 
         // Fragment 가 option menu을 가지고 있음을 알림
         setHasOptionsMenu(true);

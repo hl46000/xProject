@@ -87,7 +87,7 @@ public class FileListAdapter extends BaseAdapter implements Filterable, View.OnC
             }
         }
         return ret;
-    }
+}
 
     Runnable listDataUpdateRunnable = new Runnable(){
         @Override

@@ -68,6 +68,9 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if( context == null ) {
+            context = ( MainActivity ) this.getActivity();
+        }
         layout 		= inflater.inflate( R.layout.file_list, container, false);
         if( layout == null ) return null;
 
@@ -85,6 +88,7 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
             //new Thread( listUpdateRunnable ).start();
             listUpdateRunnable.run();
+            //context.runOnUiThread( listUpdateRunnable );
 
             int btnIDs[] = { R.id.btnFtpServerSW };
             for( int id : btnIDs ) {
@@ -139,19 +143,27 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
     }
 
     public void reflashListView() {
-        listAdapter.notifyDataSetChanged();
+        if( listAdapter != null ) {
+            listAdapter.notifyDataSetChanged();
+        }
     }
 
     public void reloadListView() {
-        listUpdateRunnable.run();
+        if( listUpdateRunnable != null ) {
+            listUpdateRunnable.run();
+        }
     }
 
     Runnable listUpdateRunnable = new Runnable() {
         @Override
         public void run() {
-            listAdapter.reload();
-            context.runOnUiThread( pathListUpdateRunnable );
-            listView.smoothScrollToPosition(0);
+            try {
+                listAdapter.reload();
+                context.runOnUiThread(pathListUpdateRunnable);
+                listView.smoothScrollToPosition(0);
+            } catch( Exception e ) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -224,12 +236,14 @@ public class FileListFragment extends FragmentEx implements SearchTextChangeList
 
     @Override
     public boolean onQueryTextSubmit(String s) {
+        if( listAdapter == null ) return false;
         listAdapter.getFilter().filter(s);
         return true;
     }
 
     @Override
     public boolean onQueryTextChange(String s) {
+        if( listAdapter == null ) return false;
         listAdapter.getFilter().filter(s);
         return true;
     }

@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     private MaterialTabHost tabHost;
     private ViewPager pager;
     private ViewPagerAdapter pagerAdapter;
-    private SearchView searchView;
+    private SearchView searchView = null;
     private List<Toolbar> toolbarList = new ArrayList<Toolbar>();
     private int toolbarIndex = ACTION_BAR_LIST_MODE;
     private boolean selectionALL = false;
@@ -141,8 +141,10 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
                 }
 
                 // ActionBar에 검색바가 활성되어 있으면 검색바를 사라지게 한다.
-                if (!searchView.isIconified()) {
-                    searchView.setIconified(true);
+                if( searchView != null ) {
+                    if (!searchView.isIconified()) {
+                        searchView.setIconified(true);
+                    }
                 }
             }
         });
@@ -412,7 +414,8 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
 
     @Override
     public void onBackPressed() {
-        if (!searchView.isIconified()) {
+
+        if ( searchView != null &&  !searchView.isIconified()) {
             searchView.setIconified(true);
             changeFileListModeToolbar();
         } else {

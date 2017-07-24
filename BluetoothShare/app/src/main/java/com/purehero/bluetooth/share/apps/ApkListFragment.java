@@ -33,6 +33,7 @@ import android.widget.ProgressBar;
 import com.purehero.bluetooth.share.G;
 import com.purehero.bluetooth.share.MainActivity;
 import com.purehero.bluetooth.share.R;
+import com.purehero.bluetooth.share.contacts.ContactAdapter;
 import com.purehero.module.fragment.FragmentEx;
 
 import java.io.File;
@@ -64,6 +65,11 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		layout = inflater.inflate( R.layout.apps_layout, container, false);
+
+		context = MainActivity.getInstance();
+		if( appsAdapter == null ) {
+			appsAdapter = new ApkListAdapter( context );
+		}
 
         // Fragment 가 option menu을 가지고 있음을 알림
         setHasOptionsMenu(true);
