@@ -6,6 +6,7 @@ public class NativeLibrary2 {
 	public native void init( Context context );
 	
 	static {
-		System.loadLibrary( "sample01" );
+		//System.loadLibrary( "sample01" );
+		System.loadLibrary( "sample02" );
 	}
 }

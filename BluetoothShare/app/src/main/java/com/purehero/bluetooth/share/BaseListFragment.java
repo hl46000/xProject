@@ -78,6 +78,8 @@ public class BaseListFragment extends FragmentEx implements View.OnClickListener
         if (aBar != null && title_res_id != -1 ) {
             aBar.setTitle( title_res_id );
         }
+        context     = MainActivity.getInstance();
+
         // ActionBar 에 뒤로 가기 버튼 아이콘 표시
         context.showActionBarBackButton(true);
 

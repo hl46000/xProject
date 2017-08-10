@@ -55,13 +55,6 @@ public class ApkListFragment extends FragmentEx implements AdapterView.OnItemLon
 	private MainActivity context = null;
 	private View layout = null;
 	
-	public ApkListFragment setMainActivity( MainActivity activity ) {
-		context = activity;
-		appsAdapter = new ApkListAdapter( context );
-
-		return this;
-	}
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		layout = inflater.inflate( R.layout.apps_layout, container, false);

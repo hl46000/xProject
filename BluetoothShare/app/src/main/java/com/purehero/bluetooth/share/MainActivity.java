@@ -44,7 +44,9 @@ public class MainActivity extends AppCompatActivity
     ActionBarDrawerToggle mDrawerToggle;
     private boolean mToolBarNavigationListenerIsRegistered = false;
 
-    private BluetoothAdapter btAdapter 	= null;
+    private static BluetoothAdapter btAdapter 	= null;
+    public static BluetoothAdapter getBtAdapter() { return btAdapter; }
+
     public static final int REQUEST_ENABLE_BT 				= 1023;
 
     private static MainActivity instance = null;
@@ -209,8 +211,7 @@ public class MainActivity extends AppCompatActivity
             case HOME_FRAGMENT      :
                 fab.setVisibility( View.INVISIBLE );
                 if( homeFragment == null ) {
-                    homeFragment = new HomeFragment().setMainActivity(this);
-                    homeFragment.setBluetoothAdapter( btAdapter );
+                    homeFragment = new HomeFragment();
                 }
                 fragmentTransaction.replace(R.id.fragment_area, homeFragment );
                 break;
@@ -219,7 +220,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_apps      :
                 fab.setVisibility( View.VISIBLE );
                 if( apkListFragment == null ) {
-                    apkListFragment = new ApkListFragment().setMainActivity(this);
+                    apkListFragment = new ApkListFragment();
                 }
                 fragmentTransaction.replace(R.id.fragment_area, apkListFragment );
                 break;
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_contact   :
                 fab.setVisibility( View.VISIBLE );
                 if( contactListFragment == null ) {
-                    contactListFragment = new ContactFragment().setMainActivity( this );
+                    contactListFragment = new ContactFragment();
                 }
                 fragmentTransaction.replace(R.id.fragment_area, contactListFragment );
                 break;

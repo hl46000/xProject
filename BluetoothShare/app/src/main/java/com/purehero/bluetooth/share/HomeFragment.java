@@ -38,19 +38,12 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
     private TextView bluetoothName = null;
     private BluetoothAdapter btAdapter = null;
 
-    public HomeFragment setMainActivity(MainActivity mainActivity) {
-        context = mainActivity;
-
-        return this;
-    }
-
-    public void setBluetoothAdapter(BluetoothAdapter btAdapter) {
-        this.btAdapter = btAdapter;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         G.Log( "onCreateView" );
+
+        context     = MainActivity.getInstance();
+        btAdapter   = MainActivity.getBtAdapter();
 
         // Fragment 가 option menu을 가지고 있음을 알림
         setHasOptionsMenu(true);
@@ -61,6 +54,7 @@ public class HomeFragment extends FragmentEx implements View.OnClickListener, Co
         if( aBar != null ) {
             aBar.setTitle( R.string.app_name );
         }
+
         context.showActionBarBackButton( false );
 
         layout 	= inflater.inflate( R.layout.home_layout, container, false );

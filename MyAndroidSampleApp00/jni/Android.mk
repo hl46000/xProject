@@ -1,12 +1,12 @@
 LOCAL_PATH := $(call my-dir)
 
-LOCAL_MODULE    := sample01
-LOCAL_SRC_FILES := sample01.cpp
+include $(CLEAR_VARS)
+LOCAL_MODULE    := sample02
+LOCAL_SRC_FILES := sample02.cpp
 
 LOCAL_CFLAGS    := -Wall -Wextra -Wreorder
 LOCAL_LDLIBS	+= -llog -ldl -lz
  
-LOCAL_DEX_PREOPT := true
 include $(BUILD_SHARED_LIBRARY)
 #
 #

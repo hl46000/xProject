@@ -57,13 +57,6 @@ public class ContactFragment extends FragmentEx implements OnItemClickListener, 
 
 	int view_layout_mode = VIEW_MODE_LIST;
 
-	public ContactFragment setMainActivity(MainActivity mainActivity) {
-		context = mainActivity;
-		adapter = new ContactAdapter( context );
-
-		return this;
-	}
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		G.Log( "onCreateView" );
