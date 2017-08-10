@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity
     ActionBarDrawerToggle mDrawerToggle;
     private boolean mToolBarNavigationListenerIsRegistered = false;
 
+    private StartAppAd startAppAd = null;
+
     private static BluetoothAdapter btAdapter 	= null;
     public static BluetoothAdapter getBtAdapter() { return btAdapter; }
 
@@ -59,6 +61,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         StartAppSDK.init(this, "206482942", true);
         StartAppAd.disableSplash();
+
+        startAppAd = new StartAppAd(this);
+        startAppAd.loadAd(StartAppAd.AdMode.REWARDED_VIDEO);
 
         instance = this;
 
@@ -205,7 +210,8 @@ public class MainActivity extends AppCompatActivity
 
         switch( id ) {
             case R.id.nav_show_ads :
-                StartAppAd.showAd(this);
+                startAppAd.showAd();
+                //StartAppAd.showAd(this);
                 break;
 
             case HOME_FRAGMENT      :
