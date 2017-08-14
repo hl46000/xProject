@@ -32,6 +32,7 @@ import com.purehero.bluetooth.share.categorys.ImageListAdapter;
 import com.purehero.module.fragment.FragmentEx;
 import com.startapp.android.publish.adsCommon.StartAppAd;
 import com.startapp.android.publish.adsCommon.StartAppSDK;
+import com.startapp.android.publish.adsCommon.VideoListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -64,6 +65,12 @@ public class MainActivity extends AppCompatActivity
 
         startAppAd = new StartAppAd(this);
         startAppAd.loadAd(StartAppAd.AdMode.REWARDED_VIDEO);
+        startAppAd.setVideoListener(new VideoListener() {
+            @Override
+            public void onVideoCompleted() {
+
+            }
+        });
 
         instance = this;
 
@@ -211,6 +218,7 @@ public class MainActivity extends AppCompatActivity
         switch( id ) {
             case R.id.nav_show_ads :
                 startAppAd.showAd();
+                startAppAd.loadAd(StartAppAd.AdMode.REWARDED_VIDEO);
                 //StartAppAd.showAd(this);
                 break;
 

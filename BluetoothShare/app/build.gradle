@@ -7,8 +7,8 @@ android {
         applicationId "com.purehero.bluetooth.share"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 11
-        versionName "1.1.2"
+        versionCode 12
+        versionName "1.1.3"
     }
     buildTypes {
         release {
