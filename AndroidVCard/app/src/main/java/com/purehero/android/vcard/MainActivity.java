@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.startapp.android.publish.adsCommon.StartAppAd;
 import com.startapp.android.publish.adsCommon.StartAppSDK;
@@ -20,7 +21,7 @@ import com.startapp.android.publish.adsCommon.VideoListener;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private StartAppAd startAppAd = null;
+    private StartAppAd startAppAd = new StartAppAd(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +30,12 @@ public class MainActivity extends AppCompatActivity
         StartAppSDK.init(this, "206482942", true);
         StartAppAd.disableSplash();
 
-        startAppAd = new StartAppAd(this);
         startAppAd.loadAd(StartAppAd.AdMode.REWARDED_VIDEO);
         startAppAd.setVideoListener(new VideoListener() {
             @Override
             public void onVideoCompleted() {
+                Toast.makeText( MainActivity.this, "Thanks!!", Toast.LENGTH_LONG ).show();
+                startAppAd.loadAd(StartAppAd.AdMode.REWARDED_VIDEO);
             }
         });
 
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            startAppAd.onBackPressed();
             super.onBackPressed();
         }
     }
