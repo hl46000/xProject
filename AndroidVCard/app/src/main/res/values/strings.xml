@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AndroidVCard</string>
+    <string name="dev_email">yeeunhong09@gmail.com</string>
+
+    <string name="show_ads">Show Ads</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+</resources>
