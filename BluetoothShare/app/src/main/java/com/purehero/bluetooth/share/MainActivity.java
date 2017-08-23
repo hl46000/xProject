@@ -47,12 +47,16 @@ public class MainActivity extends AppCompatActivity
 
     private StartAppAd startAppAd = null;
 
-    private static BluetoothAdapter btAdapter 	= null;
-    public static BluetoothAdapter getBtAdapter() { return btAdapter; }
+    private static BluetoothAdapter btAdapter = null;
 
-    public static final int REQUEST_ENABLE_BT 				= 1023;
+    public static BluetoothAdapter getBtAdapter() {
+        return btAdapter;
+    }
+
+    public static final int REQUEST_ENABLE_BT = 1023;
 
     private static MainActivity instance = null;
+
     public static MainActivity getInstance() {
         return instance;
     }
@@ -77,13 +81,13 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if( btAdapter != null ) {
+        if (btAdapter != null) {
             if (!btAdapter.isEnabled()) {
                 Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(i, REQUEST_ENABLE_BT);
             }
         } else {
-            Toast.makeText( this, R.string.bluetooth_not_enable, Toast.LENGTH_LONG ).show();
+            Toast.makeText(this, R.string.bluetooth_not_enable, Toast.LENGTH_LONG).show();
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -96,7 +100,7 @@ public class MainActivity extends AppCompatActivity
         mDrawerToggle.syncState();
 
         fab = (FloatingActionButton) findViewById(R.id.refresh);
-        fab.setOnClickListener( this );
+        fab.setOnClickListener(this);
 
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -116,33 +120,34 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Back 버튼을 두번 연속으로 눌렸을때 앱을 종료하기 위해 필요한 변수 및 값
-    private final int BACK_PRESSED_TIME_INTERVAL = 2000;	// 2sec
-                private long backPressedTime = 0;
+    private final int BACK_PRESSED_TIME_INTERVAL = 2000;    // 2sec
+    private long backPressedTime = 0;
 
-                @Override
-                public void onBackPressed() {
-                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                    if (drawer.isDrawerOpen(GravityCompat.START)) {
-                        drawer.closeDrawer(GravityCompat.START);
-                    } else {
-                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
-                        if( fragment instanceof FragmentEx ) {
-                            if( ((FragmentEx) fragment).onBackPressed()) {
-                                return;
-                            }
-                        }
-                        if(!( fragment instanceof HomeFragment )) {
-                            onHomeFragment();
-                            return;
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
+            if (fragment instanceof FragmentEx) {
+                if (((FragmentEx) fragment).onBackPressed()) {
+                    return;
+                }
+            }
+            if (!(fragment instanceof HomeFragment)) {
+                onHomeFragment();
+                return;
             }
 
-            if( backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
+            if (backPressedTime + BACK_PRESSED_TIME_INTERVAL > System.currentTimeMillis()) {
                 //StartAppAd.onBackPressed(this);
                 super.onBackPressed();
 
             } else {
                 backPressedTime = System.currentTimeMillis();
-                Toast.makeText( this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT ).show();;
+                Toast.makeText(this, R.string.two_back_touch_exit_app, Toast.LENGTH_SHORT).show();
+                ;
             }
         }
     }
@@ -150,7 +155,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
-        if( fragment.onOptionsItemSelected( item )) {
+        if (fragment.onOptionsItemSelected(item)) {
             return true;
         }
 
@@ -173,7 +178,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void openSettingPage() {
-        startActivity(new Intent( this, SettingActivity.class));
+        startActivity(new Intent(this, SettingActivity.class));
     }
 
     public void openBluetoothAdminPage() {
@@ -182,7 +187,7 @@ public class MainActivity extends AppCompatActivity
 
     private void onHomeFragment() {
         try {
-            replaceFragmentById( HOME_FRAGMENT );
+            replaceFragmentById(HOME_FRAGMENT);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -203,88 +208,91 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private HomeFragment    homeFragment        = null;
-    private ApkListFragment apkListFragment     = null;
+    private HomeFragment homeFragment = null;
+    private ApkListFragment apkListFragment = null;
     private ContactFragment contactListFragment = null;
-    private BaseListFragment audioListFragment  = null;
-    private BaseListFragment photoListFragment  = null;
-    private BaseListFragment videoListFragment  = null;
+    private BaseListFragment audioListFragment = null;
+    private BaseListFragment photoListFragment = null;
+    private BaseListFragment videoListFragment = null;
 
-    private final int HOME_FRAGMENT             = 10000;
-    public void replaceFragmentById( int id ) throws Exception {
+    private final int HOME_FRAGMENT = 10000;
+
+    public void replaceFragmentById(int id) throws Exception {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
-        switch( id ) {
-            case R.id.nav_show_ads :
+        switch (id) {
+            case R.id.nav_show_ads:
                 startAppAd.showAd();
                 startAppAd.loadAd(StartAppAd.AdMode.REWARDED_VIDEO);
                 //StartAppAd.showAd(this);
                 break;
 
-            case HOME_FRAGMENT      :
-                fab.setVisibility( View.INVISIBLE );
-                if( homeFragment == null ) {
+            case HOME_FRAGMENT:
+                fab.setVisibility(View.INVISIBLE);
+                if (homeFragment == null) {
                     homeFragment = new HomeFragment();
                 }
-                fragmentTransaction.replace(R.id.fragment_area, homeFragment );
+                fragmentTransaction.replace(R.id.fragment_area, homeFragment);
                 break;
 
-            case R.id.btnApps       :
-            case R.id.nav_apps      :
-                fab.setVisibility( View.VISIBLE );
-                if( apkListFragment == null ) {
+            case R.id.btnApps:
+            case R.id.nav_apps:
+                fab.setVisibility(View.VISIBLE);
+                if (apkListFragment == null) {
                     apkListFragment = new ApkListFragment();
                 }
-                fragmentTransaction.replace(R.id.fragment_area, apkListFragment );
+                fragmentTransaction.replace(R.id.fragment_area, apkListFragment);
                 break;
 
-            case R.id.btnContacts   :
-            case R.id.nav_contact   :
-                fab.setVisibility( View.VISIBLE );
-                if( contactListFragment == null ) {
+            case R.id.btnContacts:
+            case R.id.nav_contact:
+                fab.setVisibility(View.VISIBLE);
+                if (contactListFragment == null) {
                     contactListFragment = new ContactFragment();
                 }
-                fragmentTransaction.replace(R.id.fragment_area, contactListFragment );
+                fragmentTransaction.replace(R.id.fragment_area, contactListFragment);
                 break;
 
-            case R.id.btnMyFiles    :
-            case R.id.nav_files     :
-                fab.setVisibility( View.VISIBLE );
+            case R.id.btnMyFiles:
+            case R.id.nav_files:
+                fab.setVisibility(View.VISIBLE);
                 BaseListFragment myFiles = new BaseListFragment().setBaseListAdapter(new MyFileListAdapter(this)).setMainActivity(this, R.string.my_files);
-                fragmentTransaction.replace(R.id.fragment_area, myFiles ); break;
-
-            case R.id.btnAudios     :
-            case R.id.nav_audios    :
-                fab.setVisibility( View.VISIBLE );
-                if( audioListFragment == null ) {
-                    audioListFragment = new BaseListFragment().setBaseListAdapter(new AudioListAdapter(this)).setMainActivity(this, R.string.audios );
-                }
-                fragmentTransaction.replace(R.id.fragment_area, audioListFragment );
+                fragmentTransaction.replace(R.id.fragment_area, myFiles);
                 break;
 
-            case R.id.btnDocuments  :
-            case R.id.nav_documents :
-                FileListFragment myDocuments = new FileListFragment().setMainActivity(this);
-                myDocuments.setRootFolder( Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_DOCUMENTS ) );
-                fragmentTransaction.replace(R.id.fragment_area, myDocuments ); break;
+            case R.id.btnAudios:
+            case R.id.nav_audios:
+                fab.setVisibility(View.VISIBLE);
+                if (audioListFragment == null) {
+                    audioListFragment = new BaseListFragment().setBaseListAdapter(new AudioListAdapter(this)).setMainActivity(this, R.string.audios);
+                }
+                fragmentTransaction.replace(R.id.fragment_area, audioListFragment);
+                break;
 
-            case R.id.btnPhotos     :
-            case R.id.nav_photos    :
-                fab.setVisibility( View.VISIBLE );
-                if( photoListFragment == null ) {
+            case R.id.btnDocuments:
+            case R.id.nav_documents:
+                FileListFragment myDocuments = new FileListFragment().setMainActivity(this);
+                myDocuments.setRootFolder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS));
+                fragmentTransaction.replace(R.id.fragment_area, myDocuments);
+                break;
+
+            case R.id.btnPhotos:
+            case R.id.nav_photos:
+                fab.setVisibility(View.VISIBLE);
+                if (photoListFragment == null) {
                     photoListFragment = new BaseListFragment().setBaseListAdapter(new ImageListAdapter(this)).setMainActivity(this, R.string.photos);
                 }
-                fragmentTransaction.replace(R.id.fragment_area, photoListFragment );
+                fragmentTransaction.replace(R.id.fragment_area, photoListFragment);
                 break;
 
-            case R.id.btnVideos     :
-            case R.id.nav_videos    :
-                fab.setVisibility( View.VISIBLE );
-                if( videoListFragment == null ) {
+            case R.id.btnVideos:
+            case R.id.nav_videos:
+                fab.setVisibility(View.VISIBLE);
+                if (videoListFragment == null) {
                     videoListFragment = new BaseListFragment().setBaseListAdapter(new VideoListAdapter(this)).setMainActivity(this, R.string.videos);
                 }
-                fragmentTransaction.replace(R.id.fragment_area, videoListFragment );
+                fragmentTransaction.replace(R.id.fragment_area, videoListFragment);
                 break;
         }
 
@@ -293,12 +301,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if( requestCode == ACTIVITY_PERMISSION_REQUEST ) {
-            checkPermission() ;
+        if (requestCode == ACTIVITY_PERMISSION_REQUEST) {
+            checkPermission();
         }
     }
 
     final int ACTIVITY_PERMISSION_REQUEST = 1004;
+
     private int checkPermission() {
         String permissions[] = {
                 Manifest.permission.BLUETOOTH,
@@ -311,13 +320,13 @@ public class MainActivity extends AppCompatActivity
                 Manifest.permission.WRITE_CONTACTS
         };
         List<String> request_permissions = new ArrayList<String>();
-        for( String permission : permissions ) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED ) {
-                request_permissions.add( permission );
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                request_permissions.add(permission);
             }
         }
-        if( request_permissions.size() > 0 ) {
-            ActivityCompat.requestPermissions(this, permissions, ACTIVITY_PERMISSION_REQUEST );
+        if (request_permissions.size() > 0) {
+            ActivityCompat.requestPermissions(this, permissions, ACTIVITY_PERMISSION_REQUEST);
 
             return request_permissions.size();
         }
@@ -327,8 +336,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View view) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_area);
-        if( fragment instanceof View.OnClickListener ) {
-            ((View.OnClickListener) fragment).onClick( view );
+        if (fragment instanceof View.OnClickListener) {
+            ((View.OnClickListener) fragment).onClick(view);
         }
 
         //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
@@ -337,7 +346,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * To be semantically or contextually correct, maybe change the name
      * and signature of this function to something like:
-     *
+     * <p>
      * private void showBackButton(boolean show)
      * Just a suggestion.
      */
@@ -346,7 +355,7 @@ public class MainActivity extends AppCompatActivity
         // To keep states of ActionBar and ActionBarDrawerToggle synchronized,
         // when you enable on one, you disable on the other.
         // And as you may notice, the order for this operation is disable first, then enable - VERY VERY IMPORTANT.
-        if(enable) {
+        if (enable) {
             // Remove hamburger
             mDrawerToggle.setDrawerIndicatorEnabled(false);
             // Show back button
@@ -355,7 +364,7 @@ public class MainActivity extends AppCompatActivity
             // clicks are disabled i.e. the UP button will not work.
             // We need to add a listener, as in below, so DrawerToggle will forward
             // click events to this listener.
-            if(!mToolBarNavigationListenerIsRegistered) {
+            if (!mToolBarNavigationListenerIsRegistered) {
                 mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
