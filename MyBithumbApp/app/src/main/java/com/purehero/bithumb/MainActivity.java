@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity
     TextView tvPrice = null;
     TextView tvDate = null;
     TextView tvTransactionsCount = null;
+    TextView tvDateValue = null;
 
     String m_reqCurrency = "BTC";
 
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity
         tvPrice = ( TextView ) findViewById( R.id.txCurrentPrice );
         tvDate  = ( TextView ) findViewById( R.id.txCurrentDate );
         tvTransactionsCount = ( TextView ) findViewById( R.id.txTransactionsCount );
+        tvDateValue = ( TextView ) findViewById( R.id.txDateValue );
 
         pollingHandler.postDelayed ( pollingHandlerRunnable, 10000 );
     }
@@ -191,6 +193,7 @@ public class MainActivity extends AppCompatActivity
             tvPrice.setText(String.valueOf(price));
             tvDate.setText(data.getTransaction_date());
             tvTransactionsCount.setText( String.valueOf( recentTransactions.getTransactionCount()));
+            tvDateValue.setText( String.valueOf( data.getTransaction_date_value()));
 
             pollingHandler.postDelayed(pollingHandlerRunnable, 10000);
             super.onPostExecute(o);
@@ -229,7 +232,8 @@ public class MainActivity extends AppCompatActivity
     };
 
     class BithumbRecentTransactionsData {
-        String transaction_date;    //	거래 채결 시간( 2015-04-17 11:36:13 )
+        String transaction_date;        //	거래 채결 시간( 2015-04-17 11:36:13 )
+        long transaction_date_value;    //	거래 채결 시간( 2015-04-17 11:36:13 )
         String type;                // 판/구매 (ask, bid)
         double units_traded;        // 거래 Currency 수량
         long price;                  // 1Currency 거래 금액
@@ -241,10 +245,13 @@ public class MainActivity extends AppCompatActivity
             units_traded        = jsonObject.getDouble("units_traded");
             price               = jsonObject.getLong("price");
             total               = jsonObject.getLong("total");
+
+            transaction_date_value = DateUtil.ConvertToDate( transaction_date, "yyyy-MM-dd hh:mm:ss" ).getTime();
         }
 
         public long getPrice() { return price; }
         public String getTransaction_date() { return transaction_date; }
+        public long getTransaction_date_value() { return transaction_date_value; }
     };
 
     final String CURRENCY_STRINGS[] = { "BTC", "ETH", "DASH", "LTC", "ETC", "XRP", "BCH", "ALL" };
