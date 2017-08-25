@@ -126,35 +126,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private String getBithumbCurrencyInfo( CURRENCY currency ) {
-        InputStream in = null;
-        ByteArrayOutputStream baos = null;
-
-        try {
-            URL url = new URL("https://api.bithumb.com/public/ticker/" + CURRENCY_STRINGS[currency.ordinal()]);
-            URLConnection urlConnection = url.openConnection();
-            in = urlConnection.getInputStream();
-
-            baos = new ByteArrayOutputStream();
-            copyInputStreamToOutputStream(in, baos);
-
-            byte byteArray [] = baos.toByteArray();
-            return new String( byteArray, 0, byteArray.length );
-
-        } catch( Exception e ) {
-            e.printStackTrace();
-
-        } finally {
-            if( in != null ) {
-                try { in.close(); } catch ( IOException e ){}
-                in = null;
-            }
-
-            if( baos != null ) {
-                try { baos.close(); } catch ( IOException e ){}
-                baos = null;
-            }
-        }
-        return null;
+        return HttpRequest.get( "https://api.bithumb.com/public/recent_transactions/" + CURRENCY_STRINGS[currency.ordinal()] );
     }
 
     Runnable myTestRunnable = new Runnable() {
@@ -234,22 +206,5 @@ public class MainActivity extends AppCompatActivity
         BTC, ETH, DASH, LTC, ETC, XRP, BCH, ALL
     };
 
-    private void copyInputStreamToOutputStream(InputStream in, String msgTag ) throws IOException {
-        InputStreamReader isr = new InputStreamReader( in );
-        BufferedReader br = new BufferedReader( isr );
 
-        String line;
-        while(( line = br.readLine()) != null ) {
-            Log.d( msgTag, line );
-        }
-    }
-
-    private void copyInputStreamToOutputStream(InputStream in, OutputStream os ) throws IOException {
-        byte buffer[] = new byte[ 10240 ];
-
-        int nBytes = 0;
-        while(( nBytes = in.read( buffer, 0, 10240 )) > 0 ) {
-            os.write( buffer, 0, nBytes );
-        }
-    }
 }
