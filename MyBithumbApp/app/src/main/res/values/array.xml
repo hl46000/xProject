@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="CURRENCY">
+        <item>BTC - 비트코인</item>
+        <item>ETH - 이더리움</item>
+        <item>DASH - 대시</item>
+        <item>LTC - 라이트코인</item>
+        <item>ETC - 이더리움 클래식</item>
+        <item>XRP - 리플</item>
+        <item>BCH - 비트코인캐시</item>
+    </string-array>
+</resources>

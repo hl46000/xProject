@@ -16,6 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +44,8 @@ import static com.purehero.bithumb.MainActivity.CURRENCY.XRP;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    ArrayAdapter sAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,21 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Spinner spinner = (Spinner) findViewById(R.id.cmbCurrency);
+        sAdapter = ArrayAdapter.createFromResource(this, R.array.CURRENCY, android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter( sAdapter );;
+        spinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText( MainActivity.this, (String) sAdapter.getItem( position ), Toast.LENGTH_LONG ).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -139,15 +160,6 @@ public class MainActivity extends AppCompatActivity
             try {
                 JSONObject json = new JSONObject( strCurrencyInfo );
 
-                // {"status":"0000","data":{
-                // "BTC":{"opening_price":"4625000","closing_price":"4418000","min_price":"4090000","max_price":"4655000","average_price":"4435401.5138","units_traded":"32014.21812327","volume_1day":"32014.21812327","volume_7day":"228820.59661624","buy_price":"4418000","sell_price":"4421000"},
-                // "ETH":{"opening_price":"378650","closing_price":"347600","min_price":"335400","max_price":"391050","average_price":"360392.5480","units_traded":"907338.51381387955174996","volume_1day":"907338.51381387955174996","volume_7day":"4507815.666466573214152560","buy_price":"347550","sell_price":"347600"},
-                // "DASH":{"opening_price":"318900","closing_price":"339950","min_price":"291100","max_price":"357750","average_price":"321904.7360","units_traded":"95628.30217223","volume_1day":"95628.30217223","volume_7day":"983222.192139220000000000","buy_price":"337950","sell_price":"338000"},
-                // "LTC":{"opening_price":"53990","closing_price":"52600","min_price":"50000","max_price":"54950","average_price":"52671.3116","units_traded":"541909.37921105","volume_1day":"541909.37921105","volume_7day":"4361818.296157530000000000","buy_price":"52590","sell_price":"52600"},
-                // "ETC":{"opening_price":"16195","closing_price":"15840","min_price":"15500","max_price":"17990","average_price":"16295.1651","units_traded":"2329113.285344800573358","volume_1day":"2329113.285344800573358","volume_7day":"6748089.378433459754746000","buy_price":"15810","sell_price":"15840"},
-                // "XRP":{"opening_price":"181","closing_price":"218","min_price":"179","max_price":"240","average_price":"211.9860","units_traded":"1917261100.591941","volume_1day":"1917261100.591941","volume_7day":"3065065511.020950000000000000","buy_price":"218","sell_price":"219"},
-                // "BCH":{"opening_price":"714100","closing_price":"767800","min_price":"633000","max_price":"861000","average_price":"747488.4905","units_traded":"828259.49266315","volume_1day":"828259.49266315","volume_7day":"5980375.163381360000000000","buy_price":"767700","sell_price":"767800"},
-                // "date":"1503412052017"}}
                 int status = json.getInt("status");
                 if( status != 0 ) return;
 
