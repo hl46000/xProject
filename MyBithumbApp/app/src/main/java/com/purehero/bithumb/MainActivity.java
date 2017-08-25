@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity
                 tvPrice.setText( "Loading" );
                 tvDate.setText( "Loading" );
                 tvTransactionsCount.setText( "Loading" );
+                tvDateValue.setText( "Loading" );
             }
 
             @Override
