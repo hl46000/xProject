@@ -1,51 +1,43 @@
 package com.purehero.bithumb;
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.text.format.DateFormat;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import static com.purehero.bithumb.MainActivity.CURRENCY.XRP;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     ArrayAdapter sAdapter;
+    TextView tvPrice = null;
+    TextView tvDate = null;
+    TextView tvTransactionsCount = null;
+
+    String m_reqCurrency = "BTC";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +50,6 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread( myTestRunnable ).start();
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -75,11 +66,15 @@ public class MainActivity extends AppCompatActivity
 
         Spinner spinner = (Spinner) findViewById(R.id.cmbCurrency);
         sAdapter = ArrayAdapter.createFromResource(this, R.array.CURRENCY, android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter( sAdapter );;
+        spinner.setAdapter( sAdapter );
         spinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText( MainActivity.this, (String) sAdapter.getItem( position ), Toast.LENGTH_LONG ).show();
+                m_reqCurrency = ((String) sAdapter.getItem( position )).substring(0,3).trim();
+
+                tvPrice.setText( "Loading" );
+                tvDate.setText( "Loading" );
+                tvTransactionsCount.setText( "Loading" );
             }
 
             @Override
@@ -87,6 +82,12 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
+        tvPrice = ( TextView ) findViewById( R.id.txCurrentPrice );
+        tvDate  = ( TextView ) findViewById( R.id.txCurrentDate );
+        tvTransactionsCount = ( TextView ) findViewById( R.id.txTransactionsCount );
+
+        pollingHandler.postDelayed ( pollingHandlerRunnable, 10000 );
     }
 
     @Override
@@ -146,71 +147,104 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private String getBithumbCurrencyInfo( CURRENCY currency ) {
-        return HttpRequest.get( "https://api.bithumb.com/public/recent_transactions/" + CURRENCY_STRINGS[currency.ordinal()] );
-    }
-
-    Runnable myTestRunnable = new Runnable() {
-
+    Handler pollingHandler = new Handler() {
         @Override
-        public void run() {
-            String strCurrencyInfo = getBithumbCurrencyInfo( CURRENCY.ALL );
-            Log.d( "TEST", ">>>> " +  strCurrencyInfo );
+        public void handleMessage(Message msg) {
+            if(msg.what == 0){   // Message id 가 0 이면
 
-            try {
-                JSONObject json = new JSONObject( strCurrencyInfo );
-
-                int status = json.getInt("status");
-                if( status != 0 ) return;
-
-                JSONObject data = json.getJSONObject("data");
-                CurrencyData currencyData = new CurrencyData( data, CURRENCY.XRP );
-                Log.d( "TEST", currencyData.toDisplayString());
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
     };
 
-    class CurrencyData {
-        CURRENCY currency;
-        long opening_price;
-        long closing_price;
-        double average_price;
-        long min_price;
-        long max_price;
-        long date;
+    Runnable pollingHandlerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            PollingTask pollingTask = new PollingTask();
+            pollingTask.execute();
+        }
+    };
 
-        public CurrencyData( JSONObject currencyJsonData, CURRENCY _currency ) throws JSONException {
-            currency = _currency;
-            JSONObject currency_data = currencyJsonData.getJSONObject( CURRENCY_STRINGS[currency.ordinal()] );
+    class PollingTask extends AsyncTask {
+        BithumbRecentTransactions recentTransactions = new BithumbRecentTransactions();
 
-            opening_price   = currency_data.getLong( "opening_price" );
-            closing_price   = currency_data.getLong( "closing_price" );
-            min_price       = currency_data.getLong( "min_price" );
-            max_price       = currency_data.getLong( "max_price" );
-            average_price   = currency_data.getDouble( "average_price" );
+        @Override
+        protected void onPreExecute() { super.onPreExecute(); }
 
-            date            = currencyJsonData.getLong( "date" );
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            String strTransactions = getBithumbCurrencyInfo( CURRENCY.XRP );
+            Log.d( "TEST", ">>>> " +  strTransactions );
+
+            try {
+                recentTransactions.reload( strTransactions );
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return recentTransactions;
         }
 
-        public String toDisplayString() {
-            String ret = CURRENCY_STRINGS[currency.ordinal() ];
-            ret += "[";
+        @Override
+        protected void onPostExecute(Object o) {
+            BithumbRecentTransactionsData data = recentTransactions.getLastData();
+            long price = data.getPrice();
 
-            ret += String.format( "opening_price:%d, ", opening_price );
-            ret += String.format( "closing_price:%d, ", closing_price );
-            ret += String.format( "min_price:%d, ", min_price );
-            ret += String.format( "max_price:%d, ", max_price );
-            ret += String.format( "average_price:%f,", average_price );
+            tvPrice.setText(String.valueOf(price));
+            tvDate.setText(data.getTransaction_date());
+            tvTransactionsCount.setText( String.valueOf( recentTransactions.getTransactionCount()));
 
-            ret += String.format( "date:%s", DateUtil.getModifiedDate( Locale.KOREA, date ));
-
-            ret += "]";
-            return ret;
+            pollingHandler.postDelayed(pollingHandlerRunnable, 10000);
+            super.onPostExecute(o);
         }
 
+        private String getBithumbCurrencyInfo( CURRENCY currency ) {
+            return HttpRequest.get( "https://api.bithumb.com/public/recent_transactions/" + m_reqCurrency );
+        }
+    };
+
+    class BithumbRecentTransactions {
+        int status;                 // 결과 상태 코드 (정상 : 0000, 정상이외 코드는 에러 코드 참조)
+        List<BithumbRecentTransactionsData> datas = new ArrayList<BithumbRecentTransactionsData>();
+
+        public void reload( String strJson ) throws JSONException {
+            JSONObject json = new JSONObject( strJson );
+
+            int status = json.getInt("status");
+            if( status != 0 ) return;
+
+            datas.clear();
+
+            JSONArray dataArray = json.getJSONArray("data");
+            for( int i = 0; i < dataArray.length(); i++ ) {
+                datas.add( new BithumbRecentTransactionsData( dataArray.getJSONObject(i)));
+            }
+        }
+
+        public BithumbRecentTransactionsData getLastData() {
+            return datas.get(0);
+        }
+
+        public int getTransactionCount() {
+            return datas.size();
+        }
+    };
+
+    class BithumbRecentTransactionsData {
+        String transaction_date;    //	거래 채결 시간( 2015-04-17 11:36:13 )
+        String type;                // 판/구매 (ask, bid)
+        double units_traded;        // 거래 Currency 수량
+        long price;                  // 1Currency 거래 금액
+        long total;                  // 총 거래금액
+
+        public BithumbRecentTransactionsData( JSONObject jsonObject ) throws JSONException {
+            transaction_date    = jsonObject.getString("transaction_date");
+            type                = jsonObject.getString("type");
+            units_traded        = jsonObject.getDouble("units_traded");
+            price               = jsonObject.getLong("price");
+            total               = jsonObject.getLong("total");
+        }
+
+        public long getPrice() { return price; }
+        public String getTransaction_date() { return transaction_date; }
     };
 
     final String CURRENCY_STRINGS[] = { "BTC", "ETH", "DASH", "LTC", "ETC", "XRP", "BCH", "ALL" };
