@@ -1,4 +1,4 @@
-package com.purehero.bithumb;
+package com.purehero.bithumb.bithumb;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -15,10 +15,10 @@ import java.util.Map;
  * Created by MY on 2017-08-26.
  */
 
-public class TenSecondDBTable extends SQLiteOpenHelper {
+public class BithumbRecentTransactionsDbTable extends SQLiteOpenHelper {
     final String TABLE_NAME = "TEN_SECOND_DATA";
 
-    public TenSecondDBTable( Context context, String name, int version) {
+    public BithumbRecentTransactionsDbTable(Context context, String name, int version) {
         super(context, name, null, version);
     }
 
@@ -57,7 +57,7 @@ public class TenSecondDBTable extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String sqlCreateTbl = "CREATE TABLE IF NOT EXIST %s (currency TEXT, time TEXT, price INTEGER)";
+        String sqlCreateTbl = "CREATE TABLE IF NOT EXISTS %s (currency TEXT, time TEXT, price INTEGER)";
         sqLiteDatabase.execSQL( String.format( sqlCreateTbl, TABLE_NAME )) ;
     }
 

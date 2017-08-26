@@ -9,4 +9,13 @@
         <item>XRP - 리플</item>
         <item>BCH - 비트코인캐시</item>
     </string-array>
+
+    <string-array name="POLLING_TIME">
+        <item>1 초간격</item>
+        <item>5 초간격</item>
+        <item>10 초간격</item>
+        <item>15 초간격</item>
+        <item>30 초간격</item>
+    </string-array>
+
 </resources>

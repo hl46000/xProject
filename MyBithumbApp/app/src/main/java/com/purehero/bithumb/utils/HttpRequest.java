@@ -1,4 +1,4 @@
-package com.purehero.bithumb;
+package com.purehero.bithumb.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

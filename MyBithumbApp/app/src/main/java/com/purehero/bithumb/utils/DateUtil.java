@@ -1,4 +1,4 @@
-package com.purehero.bithumb;
+package com.purehero.bithumb.utils;
 
 import android.annotation.TargetApi;
 import android.os.Build;
