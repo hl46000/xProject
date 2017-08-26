@@ -39,6 +39,13 @@ public class MainActivity extends AppCompatActivity
     TextView tvDateValue = null;
 
     String m_reqCurrency = "BTC";
+    final int ONE_SECOND_POLLING_TIME = 1000;                           // ms
+    final int TEN_SECOND_POLLING_TIME = 10 * ONE_SECOND_POLLING_TIME;   // ms
+    final int ONE_MINUTE_POLLING_TIME =  6 * TEN_SECOND_POLLING_TIME;   // ms
+    final int TEN_MINUTE_POLLING_TIME = 10 * ONE_MINUTE_POLLING_TIME;   // ms
+
+    TenSecondDBTable oneSecondDB = null;
+    TenSecondDBTable tenSecondDB = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +79,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 m_reqCurrency = ((String) sAdapter.getItem( position )).substring(0,3).trim();
-
-                tvPrice.setText( "Loading" );
-                tvDate.setText( "Loading" );
-                tvTransactionsCount.setText( "Loading" );
-                tvDateValue.setText( "Loading" );
+                callTenSecondPollingFunction();
             }
 
             @Override
@@ -90,7 +93,11 @@ public class MainActivity extends AppCompatActivity
         tvTransactionsCount = ( TextView ) findViewById( R.id.txTransactionsCount );
         tvDateValue = ( TextView ) findViewById( R.id.txDateValue );
 
-        pollingHandler.postDelayed ( pollingHandlerRunnable, 10000 );
+        oneSecondDB = new TenSecondDBTable( this, "one_second_data.db", 1 );
+        tenSecondDB = new TenSecondDBTable( this, "ten_second_data.db", 1 );
+
+        callOneSecondPollingFunction();
+        callTenMinutePollingFunction();
     }
 
     @Override
@@ -150,36 +157,59 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    Handler pollingHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if(msg.what == 0){   // Message id 가 0 이면
 
-            }
-        }
-    };
+    private synchronized void callOneSecondPollingFunction() {
+        oneSecondPollingHandler.postDelayed( tenSecondPollingHandlerRunnable, ONE_SECOND_POLLING_TIME );
+    }
+    private synchronized void callTenSecondPollingFunction() {
+        tenSecondPollingHandler.postDelayed( tenSecondPollingHandlerRunnable, TEN_SECOND_POLLING_TIME );
+    }
 
-    Runnable pollingHandlerRunnable = new Runnable() {
+    private synchronized void callTenMinutePollingFunction() {
+        tenMinutePollingHandler.postDelayed( tenMinutePollingHandlerRunnable, TEN_MINUTE_POLLING_TIME );
+    }
+
+
+    Handler oneSecondPollingHandler = new Handler();
+    Handler tenSecondPollingHandler = new Handler();
+    Handler tenMinutePollingHandler = new Handler();
+
+    Runnable oneSecondPollingHandlerRunnable = new Runnable() {
         @Override
         public void run() {
-            PollingTask pollingTask = new PollingTask();
-            pollingTask.execute();
+            new oneSecondPollingTask().execute();
         }
     };
 
-    class PollingTask extends AsyncTask {
-        BithumbRecentTransactions recentTransactions = new BithumbRecentTransactions();
+    Runnable tenSecondPollingHandlerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            new tenSecondPollingTask().execute();
+        }
+    };
+
+    Runnable tenMinutePollingHandlerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            new tenMinutePollingTask().execute();
+        }
+    };
+
+    class oneSecondPollingTask extends AsyncTask {
+        protected BithumbRecentTransactions recentTransactions = new BithumbRecentTransactions();
 
         @Override
         protected void onPreExecute() { super.onPreExecute(); }
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            String strTransactions = getBithumbCurrencyInfo( CURRENCY.XRP );
-            Log.d( "TEST", ">>>> " +  strTransactions );
+            Log.d( G.LOG_TAG, "ONE SECOND - doInBackground " );
+
+            String strTransactions = getBithumbCurrencyInfo( m_reqCurrency );
+            Log.d( G.LOG_TAG, ">>>> " +  strTransactions );
 
             try {
-                recentTransactions.reload( strTransactions );
+                recentTransactions.reload( m_reqCurrency, strTransactions );
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -189,27 +219,93 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(Object o) {
             BithumbRecentTransactionsData data = recentTransactions.getLastData();
-            long price = data.getPrice();
+            uiUpdate( recentTransactions, data );
 
-            tvPrice.setText(String.valueOf(price));
-            tvDate.setText(data.getTransaction_date());
-            tvTransactionsCount.setText( String.valueOf( recentTransactions.getTransactionCount()));
-            tvDateValue.setText( String.valueOf( data.getTransaction_date_value()));
+            oneSecondDB.insertData( recentTransactions.getCurrency(), data.getTransaction_date_value(), data.getPrice());
 
-            pollingHandler.postDelayed(pollingHandlerRunnable, 10000);
+            callOneSecondPollingFunction();
             super.onPostExecute(o);
         }
 
-        private String getBithumbCurrencyInfo( CURRENCY currency ) {
-            return HttpRequest.get( "https://api.bithumb.com/public/recent_transactions/" + m_reqCurrency );
+        private String getBithumbCurrencyInfo( String currency ) {
+            return HttpRequest.get( "https://api.bithumb.com/public/recent_transactions/" + currency );
+        }
+    }
+
+    class tenSecondPollingTask extends oneSecondPollingTask {
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            Log.d( G.LOG_TAG, "TEN SECOND - doInBackground " );
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            /*BithumbRecentTransactionsData data = recentTransactions.getLastData();
+            uiUpdate( recentTransactions, data );
+
+            tenSecondDB.insertData( recentTransactions.getCurrency(), data.getTransaction_date_value(), data.getPrice());*/
+
+            callTenSecondPollingFunction();
+            super.onPostExecute(o);
         }
     };
 
+    class oneMinutePollingTask extends oneSecondPollingTask {
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            Log.d( G.LOG_TAG, "TEN SECOND - doInBackground " );
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            /*BithumbRecentTransactionsData data = recentTransactions.getLastData();
+            uiUpdate( recentTransactions, data );
+
+            tenSecondDB.insertData( recentTransactions.getCurrency(), data.getTransaction_date_value(), data.getPrice());*/
+
+            callTenSecondPollingFunction();
+            super.onPostExecute(o);
+        }
+    };
+
+    class tenMinutePollingTask extends AsyncTask {
+        @Override
+        protected void onPreExecute() { super.onPreExecute(); }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            Log.d( G.LOG_TAG, "TEN MINUTE - doInBackground " );
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            callTenMinutePollingFunction();
+            super.onPostExecute(o);
+        }
+    };
+
+    private void uiUpdate(BithumbRecentTransactions recentTransactions, BithumbRecentTransactionsData data) {
+        long price = data.getPrice();
+
+        tvPrice.setText(String.valueOf(price));
+        tvDate.setText(data.getTransaction_date());
+        tvTransactionsCount.setText( String.valueOf( recentTransactions.getTransactionCount()));
+        tvDateValue.setText( String.valueOf( data.getTransaction_date_value()));
+    }
+
+
+
     class BithumbRecentTransactions {
+        String currency;
+
         int status;                 // 결과 상태 코드 (정상 : 0000, 정상이외 코드는 에러 코드 참조)
         List<BithumbRecentTransactionsData> datas = new ArrayList<BithumbRecentTransactionsData>();
 
-        public void reload( String strJson ) throws JSONException {
+        public void reload( String _currency, String strJson ) throws JSONException {
+            currency        = _currency;
             JSONObject json = new JSONObject( strJson );
 
             int status = json.getInt("status");
@@ -230,6 +326,7 @@ public class MainActivity extends AppCompatActivity
         public int getTransactionCount() {
             return datas.size();
         }
+        public String getCurrency()      { return currency; }
     };
 
     class BithumbRecentTransactionsData {
