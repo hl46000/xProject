@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <TableView prefHeight="150.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="자산" />
+                <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="수량" />
+                  <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="시세" />
+              </columns>
+            </TableView>
+         </center>
+      </BorderPane>
+   </top>
+   <center>
+      <BorderPane maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <left>
+            <TableView BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="이전시간" />
+                <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="가격" />
+                  <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="변동" />
+              </columns>
+            </TableView>
+         </left>
+         <center>
+            <BorderPane prefHeight="300.0" prefWidth="507.0" BorderPane.alignment="CENTER">
+               <top>
+                  <TableView prefHeight="197.0" prefWidth="552.0" BorderPane.alignment="CENTER">
+                    <columns>
+                      <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="판매" />
+                      <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="가격" />
+                        <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="잔여수량" />
+                    </columns>
+                  </TableView>
+               </top>
+               <center>
+                  <TableView BorderPane.alignment="CENTER">
+                    <columns>
+                      <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="구매" />
+                      <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="가격" />
+                        <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="잔여수량" />
+                    </columns>
+                  </TableView>
+               </center>
+            </BorderPane>
+         </center>
+      </BorderPane>
+   </center>
+   <bottom>
+      <BorderPane prefHeight="101.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+         <top>
+            <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <items>
+                  <Label text="진행 중인 내역" />
+               </items>
+               <opaqueInsets>
+                  <Insets left="10.0" />
+               </opaqueInsets>
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+            </ToolBar>
+         </top>
+         <center>
+            <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="자산" />
+                <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="판매/구매" />
+                  <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="수량" />
+                  <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="금액" />
+                  <TableColumn editable="false" prefWidth="75.0" resizable="false" sortable="false" text="금액" />
+              </columns>
+            </TableView>
+         </center>
+      </BorderPane>
+   </bottom>
+</BorderPane>
