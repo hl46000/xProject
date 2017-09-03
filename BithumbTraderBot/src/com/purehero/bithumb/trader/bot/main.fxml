@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.bithumb.trader.bot.Main">
+   <top>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <TableView fx:id="tvPriceTable" minHeight="220.0" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn editable="false" prefWidth="106.0" resizable="false" sortable="false" text="자산" />
+                <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="수량" />
+                  <TableColumn editable="false" prefWidth="197.0" resizable="false" sortable="false" text="시세" />
+                  <TableColumn editable="false" prefWidth="235.0" resizable="false" sortable="false" text="금액(KRW)" />
+              </columns>
+            </TableView>
+         </center>
+         <top>
+            <BorderPane BorderPane.alignment="CENTER">
+               <right>
+                  <ComboBox prefWidth="150.0" BorderPane.alignment="CENTER" />
+               </right>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <left>
+                  <Label text="빗썸캐시 : " BorderPane.alignment="CENTER" />
+               </left>
+               <center>
+                  <HBox alignment="CENTER_LEFT" prefWidth="200.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Label fx:id="lbTotalCache" text="0" />
+                        <Label text="원">
+                           <padding>
+                              <Insets left="10.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </HBox>
+               </center>
+            </BorderPane>
+         </top>
+      </BorderPane>
+   </top>
+   <center>
+      <LineChart fx:id="lcLineChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" prefHeight="300.0" prefWidth="800.0" title="Title" verticalGridLinesVisible="false" verticalZeroLineVisible="false" BorderPane.alignment="CENTER">
+        <xAxis>
+          <CategoryAxis side="BOTTOM" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis side="LEFT" />
+        </yAxis>
+      </LineChart>
+   </center>
+</BorderPane>

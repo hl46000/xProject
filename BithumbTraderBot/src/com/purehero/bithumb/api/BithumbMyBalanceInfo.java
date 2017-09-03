@@ -11,6 +11,8 @@ public class BithumbMyBalanceInfo extends BithumbBaseClass {
 	long krw = 0;
 	
 	public long getKrw() { return krw; }
+	public double [] getBalances() { return balances; }
+	
 	public String toInfoString() {
 		String ret = String.format( "KRW : %d", krw );
 		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
@@ -18,7 +20,7 @@ public class BithumbMyBalanceInfo extends BithumbBaseClass {
 		}
 		return ret;
 	}
-
+	
 	@Override
 	protected String getApiUri() {
 		return "/info/balance";
@@ -38,7 +40,12 @@ public class BithumbMyBalanceInfo extends BithumbBaseClass {
 		krw = (Long) jsonData.get("total_krw");
 		
 		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
-			balances[i] = Double.valueOf( (String) jsonData.get("total_" + CURRENCY_DEF.strCurrencies[i] ));
+			Object objValue = jsonData.get( "total_" + CURRENCY_DEF.strCurrencies[i].toLowerCase() );
+			if( objValue != null ) {
+				balances[i] = Double.valueOf( (String) objValue );
+			} else {
+				balances[i] = 0.0f;
+			}
 		}
 	}
 }

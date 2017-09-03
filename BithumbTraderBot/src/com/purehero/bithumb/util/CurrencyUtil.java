@@ -1,5 +1,7 @@
 package com.purehero.bithumb.util;
 
+import java.text.DecimalFormat;
+
 public class CurrencyUtil {
 	
 	public static int priceStringToInteger( String strPrice ) {
@@ -11,5 +13,10 @@ public class CurrencyUtil {
 		}
 		
 		return nPrice;
+	}
+	
+	private static DecimalFormat decimalFormat = new DecimalFormat("###,###,###,###,###");
+	public static String getIntegerToFormatString( int value ) {
+		return decimalFormat.format( value );
 	}
 }

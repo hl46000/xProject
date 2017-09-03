@@ -26,7 +26,9 @@ public abstract class BithumbBaseClass {
 			parser( jsonData );
 		} catch (Exception e) {
 		    e.printStackTrace();
-		    
+		    if( responseJsonString != null ) {
+		    	System.err.println( responseJsonString );
+		    }
 		    responseJsonString = null;
 		}
 		
