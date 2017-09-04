@@ -12,10 +12,13 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -49,6 +52,9 @@ public class Main extends javafx.application.Application {
 	
 	@FXML
 	private LineChart<NumberAxis, NumberAxis> lcLineChart;
+	
+	@SuppressWarnings("rawtypes")
+	Series series [] = new Series[ CURRENCY_DEF.MAX_CURRENCY ];
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -103,7 +109,12 @@ public class Main extends javafx.application.Application {
 		priceTableDatas = FXCollections.observableArrayList( new ArrayList<PriceData>() ); 
 		tvPriceTable.setItems( priceTableDatas );
 		
-		new Thread( traderBotThreadRunnable ).start();		
+		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
+			series [i] = new Series();
+		}
+		lcLineChart.getData().add( series[ selectedCurrency ] );
+		
+		new Thread( traderBotThreadRunnable ).start();
 	}
 		
 	Runnable traderBotThreadRunnable = new Runnable() {
@@ -112,9 +123,9 @@ public class Main extends javafx.application.Application {
 			
 			while( threadFlag ) {
 				if( requestLastTicker.requestAPI( api )) {
-					System.out.println( requestLastTicker.toInfoString() );
-					lastPrices = requestLastTicker.getLastPriceInfos();
-					
+					//System.out.println( requestLastTicker.toInfoString() );
+					lastPrices 		= requestLastTicker.getLastPriceInfos();
+
 					/*
 					sleepMillisecond( 300 );
 					if( requestOrderBook.requestAPI( api )) {
@@ -129,15 +140,12 @@ public class Main extends javafx.application.Application {
 		}
 	};
 	
-	XYChart.Series series = new XYChart.Series();
+	
 	Runnable uiUpdateRunnable = new Runnable() {
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public void run() {
 			priceTableDatas.clear();
-			
-			if( lcLineChart.getData().size() < 1 ) {
-				lcLineChart.getData().add( series );
-			}
 			
 			int myTotalCache = 0;
 			double balances[] = balanceInfo.getBalances();
@@ -153,7 +161,9 @@ public class Main extends javafx.application.Application {
 				myTotalCache += cache;
 				
 				priceTableDatas.add( priceData );
-				series.getData().add(new XYChart.Data( ""+tmpCount, cache ));
+				XYChart.Data newData = new XYChart.Data( ""+tmpCount, ( lastPrices[ idxCurrency ] ));					
+				
+				series[idxCurrency].getData().add( newData );				
 			}
 			
 			tmpCount++;
@@ -165,6 +175,25 @@ public class Main extends javafx.application.Application {
 	
 	private void sleepMillisecond( int millisecond ) {
 		try { Thread.sleep( millisecond ); } catch (InterruptedException e) { e.printStackTrace();}
+	}
+	
+	@FXML
+	private void event_handle_mouse(MouseEvent e) {
+		Control ctrl = ( Control ) e.getSource();
+		
+		switch( ctrl.getId()) {
+		case "tvPriceTable" 				: mouse_handler_table_view(e, ctrl); break;
+		}		
+	}
+
+	int selectedCurrency = CURRENCY_DEF.BTC;
+	private void mouse_handler_table_view(MouseEvent e, Control ctrl) {
+		selectedCurrency = tvPriceTable.getSelectionModel().getSelectedIndex();
+		
+		lcLineChart.getData().clear();
+		lcLineChart.getData().add( series[ selectedCurrency ] );
+		
+		lcLineChart.setTitle( CURRENCY_DEF.strCurrenciesKOR[ selectedCurrency ]  );
 	}
 }
 

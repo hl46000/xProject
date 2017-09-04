@@ -16,11 +16,13 @@ import com.purehero.bithumb.util.CurrencyUtil;
  *
  */
 public class BithumbLastTicker extends BithumbBaseClass {
-	int lastPriceInfos [] 	= new int[ CURRENCY_DEF.MAX_CURRENCY ];  
+	int lastPriceInfos [] 	= new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 최근 24시간 내 마지막 거래금액  
+	int lastMinPriceInfos[] = new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 최근 24시간 내 최저 거래금액
 	Date lastPriceDate = new Date();
 	
-	public int[] getLastPriceInfos() { return lastPriceInfos; }
-	public Date  getLastPriceDate()  { return lastPriceDate; }
+	public int[] getLastPriceInfos() 	{ return lastPriceInfos; }
+	public int[] getLastMinPriceInfos()	{ return lastMinPriceInfos; }
+	public Date  getLastPriceDate()  	{ return lastPriceDate; }
 	
 	public String toInfoString() {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm.ss"); 
@@ -42,7 +44,10 @@ public class BithumbLastTicker extends BithumbBaseClass {
 			if( jsonCurrency == null ) continue;
 			
 			String strPrice = ( String )jsonCurrency.get( "closing_price" );
-			lastPriceInfos[idxCurrency] = CurrencyUtil.priceStringToInteger( strPrice );			
+			lastPriceInfos[idxCurrency] 	= CurrencyUtil.priceStringToInteger( strPrice );
+			
+			String strMinPrice = ( String )jsonCurrency.get( "min_price" );
+			lastMinPriceInfos[idxCurrency]	= CurrencyUtil.priceStringToInteger( strMinPrice );
 		}
 		
 		String strDate = ( String ) jsonData.get( "date" );

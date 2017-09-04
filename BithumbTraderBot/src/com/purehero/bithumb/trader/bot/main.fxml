@@ -11,7 +11,7 @@
    <top>
       <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <center>
-            <TableView fx:id="tvPriceTable" minHeight="220.0" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="tvPriceTable" minHeight="220.0" onMousePressed="#event_handle_mouse" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn editable="false" prefWidth="106.0" resizable="false" sortable="false" text="자산" />
                 <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="수량" />
@@ -48,12 +48,12 @@
       </BorderPane>
    </top>
    <center>
-      <LineChart fx:id="lcLineChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" legendVisible="false" prefHeight="300.0" prefWidth="800.0" title="Title" verticalGridLinesVisible="false" verticalZeroLineVisible="false" BorderPane.alignment="CENTER">
+      <LineChart fx:id="lcLineChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalZeroLineVisible="false" legendVisible="false" prefHeight="300.0" prefWidth="800.0" title="Title" verticalGridLinesVisible="false" verticalZeroLineVisible="false" BorderPane.alignment="CENTER">
         <xAxis>
           <CategoryAxis side="BOTTOM" />
         </xAxis>
         <yAxis>
-          <NumberAxis side="LEFT" />
+          <NumberAxis forceZeroInRange="false" side="LEFT" />
         </yAxis>
       </LineChart>
    </center>
