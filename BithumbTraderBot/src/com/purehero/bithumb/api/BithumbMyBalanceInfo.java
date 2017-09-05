@@ -8,9 +8,9 @@ import com.purehero.bithumb.util.CURRENCY_DEF;
 
 public class BithumbMyBalanceInfo extends BithumbBaseClass {
 	double balances[] = new double[CURRENCY_DEF.MAX_CURRENCY];
-	long krw = 0;
+	int krw = 0;
 	
-	public long getKrw() { return krw; }
+	public int getKrw() { return krw; }
 	public double [] getBalances() { return balances; }
 	
 	public String toInfoString() {
@@ -37,7 +37,7 @@ public class BithumbMyBalanceInfo extends BithumbBaseClass {
 
 	@Override
 	protected void parser(JSONObject jsonData) {
-		krw = (Long) jsonData.get("total_krw");
+		krw = ((Long) jsonData.get("total_krw")).intValue();
 		
 		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
 			Object objValue = jsonData.get( "total_" + CURRENCY_DEF.strCurrencies[i].toLowerCase() );

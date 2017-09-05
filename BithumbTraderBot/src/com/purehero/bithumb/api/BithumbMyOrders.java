@@ -26,7 +26,7 @@ public class BithumbMyOrders extends BithumbBaseClass {
 	@Override
 	protected HashMap<String, String> getApiRequestParams() {
 		HashMap<String, String> rgParams = new HashMap<String, String>();
-		rgParams.put("order_currency", CURRENCY_DEF.strCurrencies[currency.ordinal()] );
+		rgParams.put("order_currency", CURRENCY_DEF.strCurrencies[currency] );
 		
 		return rgParams;
 	}

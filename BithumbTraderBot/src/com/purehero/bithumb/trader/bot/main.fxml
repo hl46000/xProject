@@ -14,9 +14,11 @@
             <TableView fx:id="tvPriceTable" minHeight="220.0" onMousePressed="#event_handle_mouse" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn editable="false" prefWidth="106.0" resizable="false" sortable="false" text="자산" />
-                <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="수량" />
-                  <TableColumn editable="false" prefWidth="197.0" resizable="false" sortable="false" text="시세" />
-                  <TableColumn editable="false" prefWidth="235.0" resizable="false" sortable="false" text="금액(KRW)" />
+                <TableColumn editable="false" prefWidth="113.0" resizable="false" sortable="false" text="수량" />
+                  <TableColumn editable="false" prefWidth="151.0" resizable="false" sortable="false" text="시세" />
+                  <TableColumn editable="false" prefWidth="160.0" resizable="false" sortable="false" text="금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="160.0" resizable="false" sortable="false" text="기준금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="100.0" resizable="false" sortable="false" text="증가률(%)" />
               </columns>
             </TableView>
          </center>

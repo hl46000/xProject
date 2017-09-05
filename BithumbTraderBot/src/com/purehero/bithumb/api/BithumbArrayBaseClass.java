@@ -1,23 +1,14 @@
 package com.purehero.bithumb.api;
 
-import java.util.HashMap;
-
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.purehero.bithumb.util.Api_Client;
-import com.purehero.bithumb.util.CURRENCY_DEF;
-import com.purehero.bithumb.util.Currency;
 import com.purehero.bithumb.util.Util;
 
-public abstract class BithumbBaseClass {
-	protected String responseJsonString = null;
-	
-	public String getResponseJSonString() {
-		return responseJsonString;
-	}
-	
+public abstract class BithumbArrayBaseClass extends BithumbBaseClass {
 	public boolean requestAPI( Api_Client api ) {
 		responseJsonString = null;
 		try {
@@ -26,7 +17,7 @@ public abstract class BithumbBaseClass {
 			// 이를 어기면 불이익을 받기 때문에 1초에 10번이상 호출되지 않게 하기 위해  API 1회 호출당 100ms 을 강제로 쉬게 한다.  
 			
 			responseJsonString = api.callApi( getApiUri(), getApiRequestParams() );
-			JSONObject jsonData = preParser( responseJsonString );
+			JSONArray jsonData = preParser( responseJsonString );
 			if( jsonData == null ) return false;
 			
 			parser( jsonData );
@@ -41,7 +32,7 @@ public abstract class BithumbBaseClass {
 		return responseJsonString != null;
 	}
 	
-	private JSONObject preParser( String jsonString ) throws ParseException {
+	private JSONArray preParser( String jsonString ) throws ParseException {
 		JSONParser parser = new JSONParser();
 		JSONObject json = ( JSONObject ) parser.parse( jsonString );
 	
@@ -51,18 +42,10 @@ public abstract class BithumbBaseClass {
 			return null;
 		}
 		
-		return ( JSONObject ) json.get( "data" );
+		return ( JSONArray ) json.get( "data" );
 	}
 	
-	protected abstract String getApiUri();
-	protected abstract HashMap<String, String> getApiRequestParams();
-	protected abstract void parser( JSONObject jsonData );
-	
-	int currency = CURRENCY_DEF.BCH;
-	public void setCurrency( Currency currency ) {
-		this.currency = currency.ordinal();
-	}
-	public void setCurrency( int currency ) {
-		this.currency = currency;
-	}
+	@Override
+	protected void parser(JSONObject jsonData) {}
+	protected abstract void parser( JSONArray jsonData );
 }

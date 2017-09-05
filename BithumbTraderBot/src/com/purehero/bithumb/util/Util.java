@@ -79,4 +79,8 @@ public class Util {
 	
 		return string.toString();
     }
+    
+    public static void sleepMillisecond( int millisecond ) {
+		try { Thread.sleep( millisecond ); } catch (InterruptedException e) { e.printStackTrace();}
+	}
 }

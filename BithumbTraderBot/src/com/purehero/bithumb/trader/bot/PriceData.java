@@ -25,7 +25,7 @@ public class PriceData {
 		return decimalFormat.format(currencyUnits);
 	}
 	
-	private int currencyLastPrice;
+	private int currencyLastPrice = 0;
 	public int getCurrencyLastPrice() {
 		return currencyLastPrice;
 	}
@@ -36,7 +36,7 @@ public class PriceData {
 		return CurrencyUtil.getIntegerToFormatString( currencyLastPrice );		
 	}
 	
-	private int currencyPrice;
+	private int currencyPrice = 0;
 	public int getCurrencyPrice() {
 		return currencyPrice;
 	}
@@ -45,6 +45,28 @@ public class PriceData {
 	}
 	public String getCurrencyPriceFormatString() {
 		return CurrencyUtil.getIntegerToFormatString( currencyPrice );
+	}
+	
+	private int currencyBasePrice = 0;
+	public int getCurrencyBasePrice() {
+		return currencyBasePrice;
+	}
+	public void setCurrencyBasePrice( int currencyBasePrice ) {
+		this.currencyBasePrice = currencyBasePrice;
+	}
+	public String getCurrencyBasePriceFormatString() {
+		return CurrencyUtil.getIntegerToFormatString( currencyBasePrice );
+	}
+	
+	public double getRate() { 
+		if( currencyBasePrice == 0 || currencyLastPrice == 0 ) return 0;
+		double dVal = currencyLastPrice - currencyBasePrice;
+		dVal *= 100.0d;
+		dVal /= currencyBasePrice;
+		return dVal;
+	}
+	public String getRateString() { 
+		return String.format( "%.2f%%", ( getRate() * 100 + 5 ) / 100.0d );
 	}
 }
 

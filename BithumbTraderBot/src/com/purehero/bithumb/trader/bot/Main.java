@@ -24,9 +24,11 @@ import javafx.stage.WindowEvent;
 
 import com.purehero.bithumb.api.BithumbLastTicker;
 import com.purehero.bithumb.api.BithumbMyBalanceInfo;
+import com.purehero.bithumb.api.BithumbMyTransactions;
 import com.purehero.bithumb.util.Api_Client;
 import com.purehero.bithumb.util.CURRENCY_DEF;
 import com.purehero.bithumb.util.CurrencyUtil;
+import com.purehero.bithumb.util.Util;
 
 
 public class Main extends javafx.application.Application {
@@ -35,14 +37,16 @@ public class Main extends javafx.application.Application {
 	private final String secure_key = "79639ec221ba0c958eef5d66a7f8fdaa";
 	private Api_Client api = new Api_Client( apk_key, secure_key );
 	
-	private BithumbMyBalanceInfo balanceInfo = new BithumbMyBalanceInfo(); 
+	private BithumbMyBalanceInfo 	balanceInfo 		= new BithumbMyBalanceInfo(); 
 	//private BithumbMyTicker tickerInfo = new BithumbMyTicker();
-	private BithumbLastTicker requestLastTicker = new BithumbLastTicker();
+	private BithumbLastTicker 		requestLastTicker 	= new BithumbLastTicker();
+	private BithumbMyTransactions 	requestTransaction 	= new BithumbMyTransactions();
 	//private BithumbOrderBook  requestOrderBook 	= new BithumbOrderBook();
 	
 	private ObservableList<PriceData> priceTableDatas;
 	private boolean threadFlag = true;
 	private int lastPrices [] = null;
+	private int basePrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
 	
 	@FXML
 	private TableView<PriceData> tvPriceTable;
@@ -98,13 +102,21 @@ public class Main extends javafx.application.Application {
 		tcCurrencyUnits.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyUnitsString" ));
 		tcCurrencyUnits.setStyle("-fx-alignment: CENTER-RIGHT;");
 	
-		TableColumn<PriceData, Integer> tcCurrencyLastPrice = (TableColumn<PriceData, Integer>) tvPriceTable.getColumns().get(column_index++);
-		tcCurrencyLastPrice.setCellValueFactory( new PropertyValueFactory<PriceData, Integer>( "currencyLastPriceFormatString" ));
+		TableColumn<PriceData, String> tcCurrencyLastPrice = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
+		tcCurrencyLastPrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyLastPriceFormatString" ));
 		tcCurrencyLastPrice.setStyle("-fx-alignment: CENTER-RIGHT;");
 		
-		TableColumn<PriceData, Integer> tcCurrencyPrice = (TableColumn<PriceData, Integer>) tvPriceTable.getColumns().get(column_index++);
-		tcCurrencyPrice.setCellValueFactory( new PropertyValueFactory<PriceData, Integer>( "currencyPriceFormatString" ));
+		TableColumn<PriceData, String> tcCurrencyPrice = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
+		tcCurrencyPrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyPriceFormatString" ));
 		tcCurrencyPrice.setStyle("-fx-alignment: CENTER-RIGHT;");
+		
+		TableColumn<PriceData, String> tcCurrencyBasePrice = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
+		tcCurrencyBasePrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyBasePriceFormatString" ));
+		tcCurrencyBasePrice.setStyle("-fx-alignment: CENTER-RIGHT;");
+		
+		TableColumn<PriceData, String> tcCurrencyRate = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
+		tcCurrencyRate.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "rateString" ));
+		tcCurrencyRate.setStyle("-fx-alignment: CENTER-RIGHT;");
 		
 		priceTableDatas = FXCollections.observableArrayList( new ArrayList<PriceData>() ); 
 		tvPriceTable.setItems( priceTableDatas );
@@ -121,6 +133,15 @@ public class Main extends javafx.application.Application {
 		public void run() {
 			balanceInfo.requestAPI( api );
 			
+			// 각 코인별 마지막 구매 금액을 설정한다. 
+			for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
+				requestTransaction.setCurrency( idxCurrency );
+				if( requestTransaction.requestAPI(api)) {
+					basePrices[ idxCurrency ] = requestTransaction.getLastUnitPrice();					
+				}
+			}
+			
+			// 실시간 거래 금액을 가지고 온다. 
 			while( threadFlag ) {
 				if( requestLastTicker.requestAPI( api )) {
 					//System.out.println( requestLastTicker.toInfoString() );
@@ -135,7 +156,7 @@ public class Main extends javafx.application.Application {
 					*/
 				}
 				Platform.runLater( uiUpdateRunnable );
-				sleepMillisecond( 500 );
+				Util.sleepMillisecond( 500 );
 			}
 		}
 	};
@@ -147,7 +168,7 @@ public class Main extends javafx.application.Application {
 		public void run() {
 			priceTableDatas.clear();
 			
-			int myTotalCache = 0;
+			int myTotalCache = balanceInfo.getKrw();
 			double balances[] = balanceInfo.getBalances();
 			for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
 				int cache = (int)( balances[ idxCurrency ] * lastPrices[ idxCurrency ]);
@@ -157,6 +178,7 @@ public class Main extends javafx.application.Application {
 				priceData.setCurrencyUnits( balances[ idxCurrency ] );
 				priceData.setCurrencyLastPrice( lastPrices[ idxCurrency ] );
 				priceData.setCurrencyPrice( cache );
+				priceData.setCurrencyBasePrice( basePrices[ idxCurrency ] );
 				
 				myTotalCache += cache;
 				
@@ -172,10 +194,6 @@ public class Main extends javafx.application.Application {
 		}
 	};
 	int tmpCount = 0;
-	
-	private void sleepMillisecond( int millisecond ) {
-		try { Thread.sleep( millisecond ); } catch (InterruptedException e) { e.printStackTrace();}
-	}
 	
 	@FXML
 	private void event_handle_mouse(MouseEvent e) {
@@ -194,6 +212,11 @@ public class Main extends javafx.application.Application {
 		lcLineChart.getData().add( series[ selectedCurrency ] );
 		
 		lcLineChart.setTitle( CURRENCY_DEF.strCurrenciesKOR[ selectedCurrency ]  );
+		
+		requestTransaction.setCurrency( selectedCurrency );
+		if( requestTransaction.requestAPI(api)) {
+			System.out.println( requestTransaction.getResponseJSonString() );
+		}
 	}
 }
 
