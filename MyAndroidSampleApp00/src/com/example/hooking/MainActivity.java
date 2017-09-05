@@ -2,7 +2,7 @@ package com.example.hooking;
 
 import java.io.File;
 
-import com.example.myandroidsampleapp00.R;
+import com.example.myandroidsampleapp.R;
 
 import android.app.Activity;
 import android.os.Bundle;
