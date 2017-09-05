@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myandroidsampleapp00"
+    package="com.example.myandroidsampleapp"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -24,21 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <service android:name=".MainService" />
-        
-        <receiver
-	        android:name=".InstallBroadcastReceiver"
-	        android:enabled="true"
-	        android:exported="true">
-		    <intent-filter>
-		        <category android:name="android.intent.category.DEFAULT"/>
-		        <action android:name="android.intent.action.BOOT_COMPLETED"/>
-		        <action android:name="android.intent.action.PACKAGE_ADDED"/>
-		        <action android:name="android.intent.action.PACKAGE_INSTALL" />
-		        <data android:scheme="package"/>
-		    </intent-filter>
-		</receiver>        
     </application>
 	<uses-permission android:name="cydia.permission.SUBSTRATE" />
 </manifest>
