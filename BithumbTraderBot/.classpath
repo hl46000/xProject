@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/jackson-all-1.9.11.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jfxrt.jar"/>
+	<classpathentry kind="lib" path="lib/openjfx-dialogs-1.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

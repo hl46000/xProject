@@ -1,9 +1,13 @@
 package com.purehero.bithumb.trader.bot;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,8 +17,13 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -23,6 +32,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import com.purehero.bithumb.api.BithumbLastTicker;
+import com.purehero.bithumb.api.BithumbMarketBuy;
+import com.purehero.bithumb.api.BithumbMarketSell;
 import com.purehero.bithumb.api.BithumbMyBalanceInfo;
 import com.purehero.bithumb.api.BithumbMyTransactions;
 import com.purehero.bithumb.util.Api_Client;
@@ -55,10 +66,15 @@ public class Main extends javafx.application.Application {
 	private Label lbTotalCache;
 	
 	@FXML
+	private Label lbKrwCache;
+		
+	@FXML
 	private LineChart<NumberAxis, NumberAxis> lcLineChart;
 	
 	@SuppressWarnings("rawtypes")
-	Series series [] = new Series[ CURRENCY_DEF.MAX_CURRENCY ];
+	//Series series [] 		= new Series[ CURRENCY_DEF.MAX_CURRENCY ];
+	Series seriesFiveSec [] = new Series[ CURRENCY_DEF.MAX_CURRENCY ];
+	List<Queue<Integer>> fiveSecValue = new ArrayList<Queue<Integer>>(); 
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -122,23 +138,47 @@ public class Main extends javafx.application.Application {
 		tvPriceTable.setItems( priceTableDatas );
 		
 		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
-			series [i] = new Series();
+			//series [i] 		 = new Series();
+			seriesFiveSec[i] = new Series();
+			fiveSecValue.add( new LinkedList<Integer>());
 		}
-		lcLineChart.getData().add( series[ selectedCurrency ] );
-		
+		//lcLineChart.getData().add( series[ 			selectedCurrency ] );
+		lcLineChart.getData().add( seriesFiveSec[ 	selectedCurrency ] );
+				
 		new Thread( traderBotThreadRunnable ).start();
 	}
 		
+	private void changedMyTransactions() {
+		balanceInfo.requestAPI( api );
+		
+		for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
+			requestTransaction.setCurrency( idxCurrency );
+			if( requestTransaction.requestAPI(api)) {
+				basePrices[ idxCurrency ] = requestTransaction.getLastUnitPrice();					
+			}
+		}
+		
+		Platform.runLater( new Runnable(){
+			@Override
+			public void run() {
+				lbKrwCache.setText( CurrencyUtil.getIntegerToFormatString( balanceInfo.getKrw() ));
+			}} );
+	}
+	
 	Runnable traderBotThreadRunnable = new Runnable() {
 		public void run() {
-			balanceInfo.requestAPI( api );
+			changedMyTransactions();
+						
+			if( requestLastTicker.requestAPI( api )) {
+				lastPrices 		= requestLastTicker.getLastPriceInfos();
+			}
 			
 			// 각 코인별 마지막 구매 금액을 설정한다. 
 			for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
-				requestTransaction.setCurrency( idxCurrency );
-				if( requestTransaction.requestAPI(api)) {
-					basePrices[ idxCurrency ] = requestTransaction.getLastUnitPrice();					
-				}
+				Queue<Integer> eachCurrencyFiveSecValues = fiveSecValue.get( idxCurrency );
+				for( int i = 0; i < 10; i++ ) {
+					eachCurrencyFiveSecValues.add( lastPrices[idxCurrency] );
+				}				
 			}
 			
 			// 실시간 거래 금액을 가지고 온다. 
@@ -146,14 +186,6 @@ public class Main extends javafx.application.Application {
 				if( requestLastTicker.requestAPI( api )) {
 					//System.out.println( requestLastTicker.toInfoString() );
 					lastPrices 		= requestLastTicker.getLastPriceInfos();
-
-					/*
-					sleepMillisecond( 300 );
-					if( requestOrderBook.requestAPI( api )) {
-						System.out.println( requestOrderBook.getResponseJSonString() );
-					}
-					OrderBookData lastOrderBookDatas [] = requestOrderBook.getOrderBookDatas();
-					*/
 				}
 				Platform.runLater( uiUpdateRunnable );
 				Util.sleepMillisecond( 500 );
@@ -168,8 +200,11 @@ public class Main extends javafx.application.Application {
 		public void run() {
 			priceTableDatas.clear();
 			
+			int nTempValue = 0;
 			int myTotalCache = balanceInfo.getKrw();
 			double balances[] = balanceInfo.getBalances();
+			
+			String strXTitle = "";
 			for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
 				int cache = (int)( balances[ idxCurrency ] * lastPrices[ idxCurrency ]);
 				
@@ -182,10 +217,21 @@ public class Main extends javafx.application.Application {
 				
 				myTotalCache += cache;
 				
+				strXTitle = String.valueOf( tmpCount );
 				priceTableDatas.add( priceData );
-				XYChart.Data newData = new XYChart.Data( ""+tmpCount, ( lastPrices[ idxCurrency ] ));					
+				//XYChart.Data newData = new XYChart.Data( strXTitle, lastPrices[ idxCurrency ] );					
+				//series[idxCurrency].getData().add( newData );
 				
-				series[idxCurrency].getData().add( newData );				
+				nTempValue = 0;
+				Queue<Integer> eachCurrencyFiveSecValues = fiveSecValue.get( idxCurrency );
+				for( Integer eachPrice : eachCurrencyFiveSecValues ) {
+					nTempValue += eachPrice;					
+				}
+				XYChart.Data fiveSecNewData = new XYChart.Data( strXTitle, nTempValue / eachCurrencyFiveSecValues.size()  );
+				seriesFiveSec[idxCurrency].getData().add( fiveSecNewData );
+				
+				eachCurrencyFiveSecValues.poll();
+				eachCurrencyFiveSecValues.add( lastPrices[ idxCurrency ] );
 			}
 			
 			tmpCount++;
@@ -203,14 +249,52 @@ public class Main extends javafx.application.Application {
 		case "tvPriceTable" 				: mouse_handler_table_view(e, ctrl); break;
 		}		
 	}
-
+	
+	@FXML
+	private void action_event_handler( ActionEvent e) {
+		Object obj = e.getSource();
+		
+		String ctrl_id = null;
+		if( obj instanceof Button) 			ctrl_id = (( Button ) obj ).getId();
+		else if( obj instanceof MenuItem ) 	ctrl_id = (( MenuItem ) obj).getId();
+				
+		if( ctrl_id == null ) return;
+		
+		switch( ctrl_id ) {
+		case "btnMarketBuy" 	: // 시장가 구매
+			BithumbMarketBuy marketBuy = new BithumbMarketBuy();
+			if( marketBuy.checkEnableOrder( selectedCurrency, requestLastTicker, balanceInfo)) {
+				if( marketBuy.requestAPI(api)) {
+					changedMyTransactions();
+				}
+			} else {
+				Alert alert = new Alert(AlertType.NONE, "구매 금액이 부족하여 주문에 실패하였습니다.", ButtonType.OK );
+				alert.showAndWait();
+			}
+			break;
+			
+		case "btnMarketSell" 	: // 시장가 판매
+			BithumbMarketSell marketSell = new BithumbMarketSell();
+			if( marketSell.checkEnableOrder( selectedCurrency, balanceInfo)) {
+				if( marketSell.requestAPI(api)) {
+					changedMyTransactions();
+				}
+			} else {
+				Alert alert = new Alert(AlertType.NONE, String.format( "판매할 %s 코인이 부족하여 주문에 실패하였습니다.", CURRENCY_DEF.strCurrenciesKOR[selectedCurrency] ), ButtonType.OK );
+				alert.showAndWait();
+			}
+			break;
+		}
+	}
+	
 	int selectedCurrency = CURRENCY_DEF.BTC;
 	private void mouse_handler_table_view(MouseEvent e, Control ctrl) {
 		selectedCurrency = tvPriceTable.getSelectionModel().getSelectedIndex();
 		
 		lcLineChart.getData().clear();
-		lcLineChart.getData().add( series[ selectedCurrency ] );
-		
+		//lcLineChart.getData().add( series		[ selectedCurrency ] );
+		lcLineChart.getData().add( seriesFiveSec[ selectedCurrency ] );
+				
 		lcLineChart.setTitle( CURRENCY_DEF.strCurrenciesKOR[ selectedCurrency ]  );
 		
 		requestTransaction.setCurrency( selectedCurrency );

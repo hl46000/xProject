@@ -18,7 +18,7 @@ public abstract class BithumbBaseClass {
 		return responseJsonString;
 	}
 	
-	public boolean requestAPI( Api_Client api ) {
+	public synchronized boolean requestAPI( Api_Client api ) {
 		responseJsonString = null;
 		try {
 			Util.sleepMillisecond( 100 );	
