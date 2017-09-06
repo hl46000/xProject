@@ -1,5 +1,9 @@
 package com.purehero.bithumb.api;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert.AlertType;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -38,7 +42,12 @@ public abstract class BithumbArrayBaseClass extends BithumbBaseClass {
 	
 		int status = Integer.valueOf(( String ) json.get("status"));
 		if( status != 0 ) {
-			System.err.println( jsonString);
+			String errMessage = ( String ) json.get("message");
+			Alert alert = new Alert(AlertType.NONE, errMessage, ButtonType.OK );
+			alert.showAndWait();
+			
+			System.err.println( jsonString );
+			System.err.println( errMessage );			
 			return null;
 		}
 		
