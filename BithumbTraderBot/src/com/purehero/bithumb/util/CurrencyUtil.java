@@ -15,8 +15,12 @@ public class CurrencyUtil {
 		return nPrice;
 	}
 	
-	private static DecimalFormat decimalFormat = new DecimalFormat("###,###,###,###,###");
+	private static final DecimalFormat decimalFormat = new DecimalFormat("###,###,###,###,###");
 	public static String getIntegerToFormatString( int value ) {
 		return decimalFormat.format( value );
+	}
+	
+	public static String getDoubleToSellFormatString( double value ) {
+		return String.format( "%.4f", value );
 	}
 }

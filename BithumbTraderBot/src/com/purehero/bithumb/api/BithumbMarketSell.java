@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.json.simple.JSONArray;
 
 import com.purehero.bithumb.util.CURRENCY_DEF;
+import com.purehero.bithumb.util.CurrencyUtil;
 
 
 /**
@@ -85,7 +86,7 @@ public class BithumbMarketSell extends BithumbArrayBaseClass {
 	protected HashMap<String, String> getApiRequestParams() {
 		HashMap<String, String> rgParams = new HashMap<String, String>();
 		rgParams.put("currency", CURRENCY_DEF.strCurrencies[currency] );
-		rgParams.put("units", String.valueOf( balanceInfo.getBalances()[currency] ));
+		rgParams.put("units", CurrencyUtil.getDoubleToSellFormatString( balanceInfo.getBalances()[currency] ));
 		
 		return rgParams;
 	}
