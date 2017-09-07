@@ -1,4 +1,5 @@
-package com.purehero.bithumb.util;
+package com.bithumb.sample;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -25,17 +26,6 @@ public class Api_Client {
     protected String api_key;
     protected String api_secret;
 
-    private boolean bLogEnabled = false;
-    public void setLogEnabled( boolean bEnabled ) {
-    	bLogEnabled = bEnabled;
-    }
-    
-    private void printMessage( String message ) {
-    	if( !bLogEnabled ) return;
-    	
-    	System.out.println( message );
-    }
-    
     public Api_Client(String api_key, String api_secret) {
 	this.api_key = api_key;
 	this.api_secret = api_secret;
@@ -84,23 +74,23 @@ public class Api_Client {
 			request = new HttpRequest(strHost, "POST");
 			request.readTimeout(10000);
 	
-			printMessage("POST ==> " + request.url());
+			System.out.println("POST ==> " + request.url());
 	
 			if (httpHeaders != null && !httpHeaders.isEmpty()) {
 			    httpHeaders.put("api-client-type", "2");
 			    request.headers(httpHeaders);
-			    printMessage(httpHeaders.toString());
+			    System.out.println(httpHeaders.toString());
 			}
 			if (rgParams != null && !rgParams.isEmpty()) {
 			    request.form(rgParams);
-			    printMessage(rgParams.toString());
+			    System.out.println(rgParams.toString());
 			}
 		    } else {
 			request = HttpRequest.get(strHost
 				+ Util.mapToQueryString(rgParams));
 			request.readTimeout(10000);
 	
-			printMessage("Response was: " + response);
+			System.out.println("Response was: " + response);
 		    }
 	
 		    if (request.ok()) {
@@ -149,7 +139,7 @@ public class Api_Client {
 		strData = strData.substring(0, strData.length()-1);
 	
 	
-		printMessage("1 : " + strData);
+		System.out.println("1 : " + strData);
 		
 		strData = encodeURIComponent(strData);
 		
@@ -161,8 +151,8 @@ public class Api_Client {
 		
         String encoded = asHex(hmacSha512(str, apiSecret));
 		
-        printMessage("strData was: " + str);
-        printMessage("apiSecret was: " + apiSecret);
+		System.out.println("strData was: " + str);
+		System.out.println("apiSecret was: " + apiSecret);
 		array.put("Api-Key", apiKey);
 		array.put("Api-Sign", encoded);
 		array.put("Api-Nonce", String.valueOf(nNonce));
@@ -224,8 +214,8 @@ public class Api_Client {
 			result = new ObjectMapper().readValue(rgResultDecode,
 				HashMap.class);
 	
-			printMessage("==== 결과 출력 ====");
-			printMessage(result.get("status"));
+			System.out.println("==== 결과 출력 ====");
+			System.out.println(result.get("status"));
 		    } catch (IOException e) {
 			e.printStackTrace();
 		    }
