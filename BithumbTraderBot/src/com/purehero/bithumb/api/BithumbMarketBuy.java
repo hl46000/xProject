@@ -67,7 +67,9 @@ public class BithumbMarketBuy extends BithumbArrayBaseClass {
 		this.lastTicker 	= lastTicker;
 		this.balanceInfo 	= balanceInfo;
 		
-		double units = balanceInfo.getKrw() / lastTicker.getLastMinSellPrice()[currency];
+		double units = balanceInfo.getKrw();
+		units /= lastTicker.getLastMinSellPrice()[currency];
+		
 		return units >= CURRENCY_DEF.minUnits[currency];
 	}
 	
@@ -78,7 +80,7 @@ public class BithumbMarketBuy extends BithumbArrayBaseClass {
 
 	@Override
 	protected HashMap<String, String> getApiRequestParams() {
-		double cache = (double)( balanceInfo.getKrw() * 0.15d );
+		double cache = (double)balanceInfo.getKrw();
 		Double units = CurrencyUtil.getCurrencyUnits( getCurrency(), (double)( cache / lastTicker.getLastMinSellPrice()[currency]));
 
 		HashMap<String, String> rgParams = new HashMap<String, String>();
