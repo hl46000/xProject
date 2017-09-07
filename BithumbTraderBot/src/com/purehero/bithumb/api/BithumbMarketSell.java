@@ -58,23 +58,12 @@ https://api.bithumb.com/trade/market_sell			시장가 판매
 
  */
 public class BithumbMarketSell extends BithumbArrayBaseClass {
-	double minUnits[] = { 
-			0.001d, // BTC 
-			0.01d,	// ETH
-			0.01d,	// DASH
-			0.1d,	// LTC
-			0.1d,	// ETC
-			10.0d,	// XRP
-			0.01d,	// BCH
-			0.01d	// XMR
-	};
-	
 	private BithumbMyBalanceInfo balanceInfo = null;
 	public boolean checkEnableOrder( int currency, BithumbMyBalanceInfo balanceInfo ) {
 		this.setCurrency(currency);
 	
 		this.balanceInfo 	= balanceInfo;
-		return balanceInfo.getBalances()[currency] >= minUnits[currency];
+		return balanceInfo.getBalances()[currency] >= CURRENCY_DEF.minUnits[currency];
 	}
 	
 	@Override

@@ -1,12 +1,11 @@
 package com.purehero.bithumb.api;
 
-import java.util.Date;
 import java.util.HashMap;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import com.purehero.bithumb.util.CURRENCY_DEF;
+import com.purehero.bithumb.util.CurrencyUtil;
 
 
 /**
@@ -59,17 +58,6 @@ https://api.bithumb.com/trade/market_buy			시장가 구매
 
  */
 public class BithumbMarketBuy extends BithumbArrayBaseClass {
-	double minUnits[] = { 
-			0.001d, // BTC 
-			0.01d,	// ETH
-			0.01d,	// DASH
-			0.1d,	// LTC
-			0.1d,	// ETC
-			10.0d,	// XRP
-			0.01d,	// BCH
-			0.01d	// XMR
-	};
-	
 	// 마지막 거래금액( 시장가격  )
 	private BithumbLastTicker lastTicker = null;
 	private BithumbMyBalanceInfo balanceInfo = null;
@@ -79,7 +67,8 @@ public class BithumbMarketBuy extends BithumbArrayBaseClass {
 		this.lastTicker 	= lastTicker;
 		this.balanceInfo 	= balanceInfo;
 		
-		return balanceInfo.getKrw() / lastTicker.getLastMinSellPrice()[currency] >= minUnits[currency];
+		double units = balanceInfo.getKrw() / lastTicker.getLastMinSellPrice()[currency];
+		return units >= CURRENCY_DEF.minUnits[currency];
 	}
 	
 	@Override
@@ -89,9 +78,12 @@ public class BithumbMarketBuy extends BithumbArrayBaseClass {
 
 	@Override
 	protected HashMap<String, String> getApiRequestParams() {
+		double cache = (double)( balanceInfo.getKrw() * 0.15d );
+		Double units = CurrencyUtil.getCurrencyUnits( getCurrency(), (double)( cache / lastTicker.getLastMinSellPrice()[currency]));
+
 		HashMap<String, String> rgParams = new HashMap<String, String>();
 		rgParams.put("currency", CURRENCY_DEF.strCurrencies[currency] );
-		rgParams.put("units", String.valueOf( balanceInfo.getKrw() / lastTicker.getLastMinSellPrice()[currency] ));
+		rgParams.put("units", units.toString() );
 		
 		return rgParams;
 	}

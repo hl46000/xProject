@@ -1,5 +1,7 @@
 package com.purehero.bithumb.trader.bot;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -193,7 +195,7 @@ public class Main extends javafx.application.Application {
 		}
 	};
 	
-	
+	SimpleDateFormat xTitleFormat = new SimpleDateFormat("HH:mm:ss");
 	Runnable uiUpdateRunnable = new Runnable() {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
@@ -217,7 +219,7 @@ public class Main extends javafx.application.Application {
 				
 				myTotalCache += cache;
 				
-				strXTitle = String.valueOf( tmpCount );
+				strXTitle = xTitleFormat.format( new Date());
 				priceTableDatas.add( priceData );
 				//XYChart.Data newData = new XYChart.Data( strXTitle, lastPrices[ idxCurrency ] );					
 				//series[idxCurrency].getData().add( newData );
@@ -234,13 +236,10 @@ public class Main extends javafx.application.Application {
 				eachCurrencyFiveSecValues.add( lastPrices[ idxCurrency ] );
 			}
 			
-			tmpCount++;
-			
 			lbTotalCache.setText( CurrencyUtil.getIntegerToFormatString( myTotalCache ));
 		}
 	};
-	int tmpCount = 0;
-	
+		
 	@FXML
 	private void event_handle_mouse(MouseEvent e) {
 		Control ctrl = ( Control ) e.getSource();
@@ -268,7 +267,8 @@ public class Main extends javafx.application.Application {
 					changedMyTransactions();
 				}
 			} else {
-				Alert alert = new Alert(AlertType.NONE, "구매 금액이 부족하여 주문에 실패하였습니다.", ButtonType.OK );
+				String errMsg = String.format( "%d, %d, %.4f", balanceInfo.getKrw(), requestLastTicker.getLastMinSellPrice()[selectedCurrency], CURRENCY_DEF.minUnits[selectedCurrency] );
+				Alert alert = new Alert(AlertType.NONE, String.format( "구매 금액이 부족하여 주문에 실패하였습니다.\n(%s)", errMsg ), ButtonType.OK );
 				alert.showAndWait();
 			}
 			break;
@@ -276,9 +276,11 @@ public class Main extends javafx.application.Application {
 		case "btnMarketSell" 	: // 시장가 판매
 			BithumbMarketSell marketSell = new BithumbMarketSell();
 			if( marketSell.checkEnableOrder( selectedCurrency, balanceInfo)) {
+				api.setLogEnabled( true );
 				if( marketSell.requestAPI(api)) {
 					changedMyTransactions();
 				}
+				api.setLogEnabled( false );
 			} else {
 				Alert alert = new Alert(AlertType.NONE, String.format( "판매할 %s 코인이 부족하여 주문에 실패하였습니다.", CURRENCY_DEF.strCurrenciesKOR[selectedCurrency] ), ButtonType.OK );
 				alert.showAndWait();
@@ -298,9 +300,7 @@ public class Main extends javafx.application.Application {
 		lcLineChart.setTitle( CURRENCY_DEF.strCurrenciesKOR[ selectedCurrency ]  );
 		
 		requestTransaction.setCurrency( selectedCurrency );
-		if( requestTransaction.requestAPI(api)) {
-			System.out.println( requestTransaction.getResponseJSonString() );
-		}
+		requestTransaction.requestAPI(api);			
 	}
 }
 

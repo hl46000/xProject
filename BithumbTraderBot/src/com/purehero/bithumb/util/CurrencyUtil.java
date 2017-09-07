@@ -21,6 +21,14 @@ public class CurrencyUtil {
 	}
 	
 	public static String getDoubleToSellFormatString( double value ) {
-		return String.format( "%.4f", value );
+		return String.format( "%.4f", Math.floor( value * 10000.0d ) / 10000.0d );
+	}
+	
+	public static double getCurrencyUnits( int currency, double units ) {
+		switch( currency ) {
+		default :
+		case CURRENCY_DEF.XMR : 
+			return Math.floor( units * 10000d ) / 10000d;
+		}
 	}
 }

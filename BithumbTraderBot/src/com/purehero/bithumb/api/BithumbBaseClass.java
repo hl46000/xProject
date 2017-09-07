@@ -74,4 +74,5 @@ public abstract class BithumbBaseClass {
 	public void setCurrency( int currency ) {
 		this.currency = currency;
 	}
+	public int getCurrency() { return currency; } 
 }
