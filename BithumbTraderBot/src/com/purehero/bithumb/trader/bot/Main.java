@@ -59,7 +59,8 @@ public class Main extends javafx.application.Application {
 	private ObservableList<PriceData> priceTableDatas;
 	private boolean threadFlag = true;
 	private int lastPrices [] = null;
-	private int basePrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
+	private int lastBuyPrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
+	private int lastSellPrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
 	
 	@FXML
 	private TableView<PriceData> tvPriceTable;
@@ -128,13 +129,13 @@ public class Main extends javafx.application.Application {
 		tcCurrencyPrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyPriceFormatString" ));
 		tcCurrencyPrice.setStyle("-fx-alignment: CENTER-RIGHT;");
 		
-		TableColumn<PriceData, String> tcCurrencyBasePrice = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
-		tcCurrencyBasePrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyBasePriceFormatString" ));
-		tcCurrencyBasePrice.setStyle("-fx-alignment: CENTER-RIGHT;");
+		TableColumn<PriceData, String> tcCurrencyLastBuyPrice = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
+		tcCurrencyLastBuyPrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyLastBuyPriceFormatString" ));
+		tcCurrencyLastBuyPrice.setStyle("-fx-alignment: CENTER-RIGHT;");
 		
-		TableColumn<PriceData, String> tcCurrencyRate = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
-		tcCurrencyRate.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "rateString" ));
-		tcCurrencyRate.setStyle("-fx-alignment: CENTER-RIGHT;");
+		TableColumn<PriceData, String> tcCurrencyLastSellPrice = (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
+		tcCurrencyLastSellPrice.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyLastSellPriceFormatString" ));
+		tcCurrencyLastSellPrice.setStyle("-fx-alignment: CENTER-RIGHT;");
 		
 		priceTableDatas = FXCollections.observableArrayList( new ArrayList<PriceData>() ); 
 		tvPriceTable.setItems( priceTableDatas );
@@ -153,10 +154,12 @@ public class Main extends javafx.application.Application {
 	private void changedMyTransactions() {
 		balanceInfo.requestAPI( api );
 		
+		// 각 코인별 마지막 구매 금액을 설정한다.
 		for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
 			requestTransaction.setCurrency( idxCurrency );
 			if( requestTransaction.requestAPI(api)) {
-				basePrices[ idxCurrency ] = requestTransaction.getLastUnitPrice();					
+				lastBuyPrices	[ idxCurrency ] = requestTransaction.getLastBuyPrice();
+				lastSellPrices	[ idxCurrency ] = requestTransaction.getLastSellPrice();
 			}
 		}
 		
@@ -175,7 +178,7 @@ public class Main extends javafx.application.Application {
 				lastPrices 		= requestLastTicker.getLastPriceInfos();
 			}
 			
-			// 각 코인별 마지막 구매 금액을 설정한다. 
+			// 10초간 데이터를 초기화 시킨다.  
 			for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
 				Queue<Integer> eachCurrencyFiveSecValues = fiveSecValue.get( idxCurrency );
 				for( int i = 0; i < 10; i++ ) {
@@ -215,7 +218,8 @@ public class Main extends javafx.application.Application {
 				priceData.setCurrencyUnits( balances[ idxCurrency ] );
 				priceData.setCurrencyLastPrice( lastPrices[ idxCurrency ] );
 				priceData.setCurrencyPrice( cache );
-				priceData.setCurrencyBasePrice( basePrices[ idxCurrency ] );
+				priceData.setCurrencyLastBuyPrice( lastBuyPrices[ idxCurrency ] );
+				priceData.setCurrencyLastSellPrice( lastSellPrices[ idxCurrency ] );
 				
 				myTotalCache += cache;
 				
@@ -292,6 +296,7 @@ public class Main extends javafx.application.Application {
 	int selectedCurrency = CURRENCY_DEF.BTC;
 	private void mouse_handler_table_view(MouseEvent e, Control ctrl) {
 		selectedCurrency = tvPriceTable.getSelectionModel().getSelectedIndex();
+		if( selectedCurrency < 0 || selectedCurrency > CURRENCY_DEF.MAX_CURRENCY ) return;
 		
 		lcLineChart.getData().clear();
 		//lcLineChart.getData().add( series		[ selectedCurrency ] );

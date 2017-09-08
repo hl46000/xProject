@@ -13,12 +13,12 @@
          <center>
             <TableView fx:id="tvPriceTable" minHeight="220.0" onMousePressed="#event_handle_mouse" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn editable="false" prefWidth="106.0" resizable="false" sortable="false" text="자산" />
+                <TableColumn editable="false" prefWidth="130.0" resizable="false" sortable="false" text="자산" />
                 <TableColumn editable="false" prefWidth="113.0" resizable="false" sortable="false" text="수량" />
-                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="시세" />
-                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="금액(KRW)" />
-                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="기준금액(KRW)" />
-                  <TableColumn editable="false" prefWidth="100.0" resizable="false" sortable="false" text="증가률(%)" />
+                  <TableColumn editable="false" prefWidth="120.0" resizable="false" sortable="false" text="시세" />
+                  <TableColumn editable="false" prefWidth="120.0" resizable="false" sortable="false" text="금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="마지막구매금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="마지막판매금액(KRW)" />
               </columns>
             </TableView>
          </center>
@@ -69,6 +69,16 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
+            <Button mnemonicParsing="false" text="최저가 구매">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" text="최고가 판매">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+            </Button>
             <Button fx:id="btnMarketBuy" mnemonicParsing="false" onAction="#action_event_handler" prefWidth="100.0" text="시장가 구매">
                <HBox.margin>
                   <Insets right="5.0" />

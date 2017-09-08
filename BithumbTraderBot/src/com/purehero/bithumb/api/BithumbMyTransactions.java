@@ -79,7 +79,7 @@ public class BithumbMyTransactions extends BithumbArrayBaseClass {
 	protected HashMap<String, String> getApiRequestParams() {
 		HashMap<String, String> rgParams = new HashMap<String, String>();
 		rgParams.put("offset", String.valueOf(0));
-		rgParams.put("searchGb", String.valueOf(1));
+		rgParams.put("searchGb", String.valueOf(0));
 		rgParams.put("currency", CURRENCY_DEF.strCurrencies[currency] );
 		
 		return rgParams;
@@ -87,10 +87,20 @@ public class BithumbMyTransactions extends BithumbArrayBaseClass {
 
 	@Override
 	protected void parser(JSONArray jsonArray) {
-		lastUnitPrice = 0;
+		lastBuyPrice = 0;
+		lastSellPrice = 0;
 		
-		JSONObject jsonObject = ( JSONObject ) jsonArray.get(0);
-		lastUnitPrice = Integer.valueOf((String) jsonObject.get( CURRENCY_DEF.strCurrencies[currency].toLowerCase() + "1krw" ));
+		for( int i = 0; i < jsonArray.size(); i++ ) {
+			JSONObject jsonObject = ( JSONObject ) jsonArray.get(i);
+			
+			int serarch = Integer.valueOf((String)jsonObject.get("search"));
+			if( serarch == 1 ) 			{ 	// 구매 완료
+				lastBuyPrice = Integer.valueOf((String) jsonObject.get( CURRENCY_DEF.strCurrencies[currency].toLowerCase() + "1krw" ));
+			} else if( serarch == 2 ) 	{	// 판매 완료
+				lastSellPrice = Integer.valueOf((String) jsonObject.get( CURRENCY_DEF.strCurrencies[currency].toLowerCase() + "1krw" ));
+			}
+			
+		}
 		
 		/*
 		for( int i = 0; i < jsonArray.size(); i++ ) {
@@ -99,8 +109,13 @@ public class BithumbMyTransactions extends BithumbArrayBaseClass {
 		*/
 	}
 
-	int lastUnitPrice = 0;
-	public int getLastUnitPrice() {
-		return lastUnitPrice;
+	int lastBuyPrice = 0;
+	public int getLastBuyPrice() {
+		return lastBuyPrice;
+	}
+	
+	int lastSellPrice = 0;
+	public int getLastSellPrice() {
+		return lastSellPrice;
 	}
 }

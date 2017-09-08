@@ -25,6 +25,7 @@ public class PriceData {
 		return decimalFormat.format(currencyUnits);
 	}
 	
+	// 시세
 	private int currencyLastPrice = 0;
 	public int getCurrencyLastPrice() {
 		return currencyLastPrice;
@@ -35,7 +36,9 @@ public class PriceData {
 	public String getCurrencyLastPriceFormatString() {
 		return CurrencyUtil.getIntegerToFormatString( currencyLastPrice );		
 	}
+	///////////////////////////////////////////////////
 	
+	// 나의 소유 금액
 	private int currencyPrice = 0;
 	public int getCurrencyPrice() {
 		return currencyPrice;
@@ -46,27 +49,37 @@ public class PriceData {
 	public String getCurrencyPriceFormatString() {
 		return CurrencyUtil.getIntegerToFormatString( currencyPrice );
 	}
+	/////////////////////////////////////
 	
-	private int currencyBasePrice = 0;
-	public int getCurrencyBasePrice() {
-		return currencyBasePrice;
+	// 나의 마지막 구매 금액
+	private int currencyLastBuyPrice = 0;
+	public int getCurrencyLastBuyPrice() { return currencyLastBuyPrice; }
+	public void setCurrencyLastBuyPrice( int currencyLastBuyPrice ) { this.currencyLastBuyPrice = currencyLastBuyPrice; }
+	public String getCurrencyLastBuyPriceFormatString() {
+		return CurrencyUtil.getIntegerToFormatString( currencyLastBuyPrice ) + String.format( "(%.2f%%)", ( getCurrencyPriceRate( currencyLastBuyPrice ) * 100 + 5 ) / 100.0d );
 	}
-	public void setCurrencyBasePrice( int currencyBasePrice ) {
-		this.currencyBasePrice = currencyBasePrice;
+	//////////////////////////////////////////////////////
+	
+	// 나의 마지막 판매 금액
+	private int currencyLastSellPrice = 0;
+	public int getCurrencyLastSellPrice() {
+		return currencyLastSellPrice;
 	}
-	public String getCurrencyBasePriceFormatString() {
-		return CurrencyUtil.getIntegerToFormatString( currencyBasePrice );
+	public void setCurrencyLastSellPrice( int currencyLastSellPrice ) {
+		this.currencyLastSellPrice = currencyLastSellPrice;
 	}
 	
-	public double getRate() { 
-		if( currencyBasePrice == 0 || currencyLastPrice == 0 ) return 0;
-		double dVal = currencyLastPrice - currencyBasePrice;
+	public String getCurrencyLastSellPriceFormatString() {
+		return CurrencyUtil.getIntegerToFormatString( currencyLastSellPrice ) + String.format( "(%.2f%%)", ( getCurrencyPriceRate( currencyLastSellPrice ) * 100 + 5 ) / 100.0d );
+	}
+	////////////////////////////////////////////////////
+	
+	private double getCurrencyPriceRate( double price ) { 
+		if( price == 0 || currencyLastPrice == 0 ) return 0;
+		double dVal = currencyLastPrice - price;
 		dVal *= 100.0d;
-		dVal /= currencyBasePrice;
+		dVal /= price;
 		return dVal;
-	}
-	public String getRateString() { 
-		return String.format( "%.2f%%", ( getRate() * 100 + 5 ) / 100.0d );
 	}
 }
 
