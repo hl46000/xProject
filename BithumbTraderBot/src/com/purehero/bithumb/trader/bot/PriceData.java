@@ -55,19 +55,21 @@ public class PriceData {
 	private int currencyLastBuyPrice = 0;
 	public int getCurrencyLastBuyPrice() { return currencyLastBuyPrice; }
 	public void setCurrencyLastBuyPrice( int currencyLastBuyPrice ) { this.currencyLastBuyPrice = currencyLastBuyPrice; }
+	
+	// 나의 마지막 판매 금액
+	private int currencyLastSellPrice = 0;
+	public int getCurrencyLastSellPrice() { return currencyLastSellPrice; }
+	public void setCurrencyLastSellPrice( int currencyLastSellPrice ) {
+		this.currencyLastSellPrice = currencyLastSellPrice;
+	}
+	
+	
 	public String getCurrencyLastBuyPriceFormatString() {
 		return CurrencyUtil.getIntegerToFormatString( currencyLastBuyPrice ) + String.format( "(%.2f%%)", ( getCurrencyPriceRate( currencyLastBuyPrice ) * 100 + 5 ) / 100.0d );
 	}
 	//////////////////////////////////////////////////////
 	
-	// 나의 마지막 판매 금액
-	private int currencyLastSellPrice = 0;
-	public int getCurrencyLastSellPrice() {
-		return currencyLastSellPrice;
-	}
-	public void setCurrencyLastSellPrice( int currencyLastSellPrice ) {
-		this.currencyLastSellPrice = currencyLastSellPrice;
-	}
+	
 	
 	public String getCurrencyLastSellPriceFormatString() {
 		return CurrencyUtil.getIntegerToFormatString( currencyLastSellPrice ) + String.format( "(%.2f%%)", ( getCurrencyPriceRate( currencyLastSellPrice ) * 100 + 5 ) / 100.0d );
