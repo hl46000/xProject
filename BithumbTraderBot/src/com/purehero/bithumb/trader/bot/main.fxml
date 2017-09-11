@@ -97,9 +97,9 @@
    <right>
       <TableView fx:id="tvOderBookView" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn text="구매/판매" />
-          <TableColumn prefWidth="110.0" text="가격" />
-            <TableColumn prefWidth="110.0" text="수량" />
+          <TableColumn editable="false" resizable="false" sortable="false" text="구매/판매" />
+          <TableColumn editable="false" prefWidth="110.0" resizable="false" sortable="false" text="가격" />
+            <TableColumn editable="false" prefWidth="110.0" resizable="false" sortable="false" text="수량" />
         </columns>
       </TableView>
    </right>
