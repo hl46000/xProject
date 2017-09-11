@@ -20,6 +20,11 @@ public class CurrencyUtil {
 		return decimalFormat.format( value );
 	}
 	
+	private static DecimalFormat unitsDecimalFormat = new DecimalFormat("0.00000000  ");
+	public static String getUnitsToFormatString( double units ) {
+		return unitsDecimalFormat.format( units );
+	}
+	
 	public static String getDoubleToSellFormatString( double value ) {
 		return String.format( "%.4f", Math.floor( value * 10000.0d ) / 10000.0d );
 	}

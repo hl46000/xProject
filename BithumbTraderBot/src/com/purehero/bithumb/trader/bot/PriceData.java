@@ -21,8 +21,7 @@ public class PriceData {
 		this.currencyUnits = currencyUnits;
 	}
 	public String getCurrencyUnitsString() {
-		DecimalFormat decimalFormat = new DecimalFormat("0.##########");
-		return decimalFormat.format(currencyUnits);
+		return CurrencyUtil.getUnitsToFormatString( currencyUnits );
 	}
 	
 	// ½Ã¼¼

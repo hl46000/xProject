@@ -78,7 +78,8 @@ public class BithumbMyTransactions extends BithumbArrayBaseClass {
 	@Override
 	protected HashMap<String, String> getApiRequestParams() {
 		HashMap<String, String> rgParams = new HashMap<String, String>();
-		rgParams.put("offset", String.valueOf(0));
+		//rgParams.put("offset", String.valueOf(0));
+		rgParams.put("count", String.valueOf(50));
 		rgParams.put("searchGb", String.valueOf(0));
 		rgParams.put("currency", CURRENCY_DEF.strCurrencies[currency] );
 		
@@ -90,16 +91,24 @@ public class BithumbMyTransactions extends BithumbArrayBaseClass {
 		lastBuyPrice = 0;
 		lastSellPrice = 0;
 		
+		long lastBuyDate = 0;
+		long lastSellDate = 0;
+		long tempDate = 0;
+		
 		for( int i = 0; i < jsonArray.size(); i++ ) {
 			JSONObject jsonObject = ( JSONObject ) jsonArray.get(i);
 			
+			tempDate = Long.valueOf( (String)jsonObject.get("transfer_date") );
 			int serarch = Integer.valueOf((String)jsonObject.get("search"));
-			if( serarch == 1 ) 			{ 	// 구매 완료
+			if( serarch == 1 && tempDate > lastBuyDate ) 			{ 	// 구매 완료
 				lastBuyPrice = Integer.valueOf((String) jsonObject.get( CURRENCY_DEF.strCurrencies[currency].toLowerCase() + "1krw" ));
-			} else if( serarch == 2 ) 	{	// 판매 완료
+				lastBuyDate = tempDate;
+				break;
+				
+			} else if( serarch == 2 && tempDate > lastSellDate ) 	{	// 판매 완료
 				lastSellPrice = Integer.valueOf((String) jsonObject.get( CURRENCY_DEF.strCurrencies[currency].toLowerCase() + "1krw" ));
+				lastSellDate = tempDate;
 			}
-			
 		}
 		
 		/*

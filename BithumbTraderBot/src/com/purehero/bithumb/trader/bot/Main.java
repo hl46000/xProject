@@ -26,18 +26,24 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 
 import com.purehero.bithumb.api.BithumbLastTicker;
 import com.purehero.bithumb.api.BithumbMarketBuy;
 import com.purehero.bithumb.api.BithumbMarketSell;
 import com.purehero.bithumb.api.BithumbMyBalanceInfo;
 import com.purehero.bithumb.api.BithumbMyTransactions;
+import com.purehero.bithumb.api.BithumbOrderBook;
+import com.purehero.bithumb.api.OrderBookData;
+import com.purehero.bithumb.api.OrderData;
 import com.purehero.bithumb.util.Api_Client;
 import com.purehero.bithumb.util.CURRENCY_DEF;
 import com.purehero.bithumb.util.CurrencyUtil;
@@ -54,16 +60,21 @@ public class Main extends javafx.application.Application {
 	//private BithumbMyTicker tickerInfo = new BithumbMyTicker();
 	private BithumbLastTicker 		requestLastTicker 	= new BithumbLastTicker();
 	private BithumbMyTransactions 	requestTransaction 	= new BithumbMyTransactions();
-	//private BithumbOrderBook  requestOrderBook 	= new BithumbOrderBook();
+	private BithumbOrderBook  		requestOrderBook 	= new BithumbOrderBook();
 	
 	private ObservableList<PriceData> priceTableDatas;
+	private ObservableList<OrderData> orderBookTableDatas;
 	private boolean threadFlag = true;
 	private int lastPrices [] = null;
 	private int lastBuyPrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
 	private int lastSellPrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
+	private OrderBookData [] orderBooks = null;
 	
 	@FXML
 	private TableView<PriceData> tvPriceTable;
+	
+	@FXML
+	private TableView<OrderData> tvOderBookView;
 	
 	@FXML
 	private Label lbTotalCache;
@@ -112,6 +123,81 @@ public class Main extends javafx.application.Application {
 	@SuppressWarnings("unchecked")
 	@FXML
     public void initialize() {
+		initPriceTableView();
+		initOrderBookTableView();
+		
+		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
+			seriesFiveSec[i] = new Series();
+			fiveSecValue.add( new LinkedList<Integer>());
+		}
+
+		lcLineChart.getData().add( seriesFiveSec[ 	selectedCurrency ] );
+				
+		new Thread( traderBotThreadRunnable ).start();
+	}
+		
+	@SuppressWarnings("unchecked")
+	private void initOrderBookTableView() {
+		int column_index = 0;
+		TableColumn<OrderData, String> tcType 	= (TableColumn<OrderData, String>) tvOderBookView.getColumns().get(column_index++);
+		tcType.setCellValueFactory( new PropertyValueFactory<OrderData, String>( "typeString" ));
+		tcType.setStyle("-fx-alignment: CENTER;");
+		tcType.setCellFactory( TextColorCallBack );
+		
+		TableColumn<OrderData, String> tcPrice 	= (TableColumn<OrderData, String>) tvOderBookView.getColumns().get(column_index++);
+		tcPrice.setCellValueFactory( new PropertyValueFactory<OrderData, String>( "priceFormatString" ));
+		tcPrice.setStyle("-fx-alignment: CENTER;");
+		tcPrice.setCellFactory( TextColorCallBack );
+		
+		TableColumn<OrderData, String> tcQuantity 	= (TableColumn<OrderData, String>) tvOderBookView.getColumns().get(column_index++);
+		tcQuantity.setCellValueFactory( new PropertyValueFactory<OrderData, String>( "quantityString" ));
+		tcQuantity.setStyle("-fx-alignment: CENTER-RIGHT;");
+		tcQuantity.setCellFactory( TextColorCallBack );
+		
+		orderBookTableDatas = FXCollections.observableArrayList( requestOrderBook.getOrderBookDatas()[selectedCurrency].getOrderDatas() );
+		tvOderBookView.setItems( orderBookTableDatas );
+	}
+
+	Callback TextColorCallBack = new Callback<TableColumn<OrderData, String>, TableCell<OrderData, String>>() {
+		@Override
+		public TableCell<OrderData, String> call( TableColumn<OrderData, String> arg0) {
+			return new TableCell<OrderData, String>() {
+
+                @Override
+                public void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    
+                    if (!isEmpty()) {
+                    	int rowIndex = getTableRow().getIndex();
+                        if( getTableView().getItems().get(rowIndex).getType() == 0 ) {
+                        	this.setTextFill(Color.RED);
+                        } else {
+                        	this.setTextFill(Color.GREEN);
+                        }
+                        		
+                        setText(item);
+                    }
+                }                
+            };
+		}
+		
+		
+	};
+	class ColorTextTableCell extends TableCell<OrderData, String> {
+		protected void updateItem(String item, boolean empty) {
+			super.updateItem(item, empty);
+			
+			if (item == null || empty) {
+                setText(null);
+                setStyle("");
+            } else {
+            	setStyle("-fx-background-color: blue");                
+            }
+		}
+	};
+	
+	@SuppressWarnings("unchecked")
+	private void initPriceTableView() {
 		int column_index = 0;
 		TableColumn<PriceData, String> tcCurrencyName 	= (TableColumn<PriceData, String>) tvPriceTable.getColumns().get(column_index++);
 		tcCurrencyName.setCellValueFactory( new PropertyValueFactory<PriceData, String>( "currencyName" ));
@@ -140,17 +226,8 @@ public class Main extends javafx.application.Application {
 		priceTableDatas = FXCollections.observableArrayList( new ArrayList<PriceData>() ); 
 		tvPriceTable.setItems( priceTableDatas );
 		
-		for( int i = 0; i < CURRENCY_DEF.MAX_CURRENCY; i++ ) {
-			//series [i] 		 = new Series();
-			seriesFiveSec[i] = new Series();
-			fiveSecValue.add( new LinkedList<Integer>());
-		}
-		//lcLineChart.getData().add( series[ 			selectedCurrency ] );
-		lcLineChart.getData().add( seriesFiveSec[ 	selectedCurrency ] );
-				
-		new Thread( traderBotThreadRunnable ).start();
 	}
-		
+
 	private void changedMyTransactions() {
 		balanceInfo.requestAPI( api );
 		
@@ -158,6 +235,7 @@ public class Main extends javafx.application.Application {
 		for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
 			requestTransaction.setCurrency( idxCurrency );
 			if( requestTransaction.requestAPI(api)) {
+				System.out.println( requestTransaction.getResponseJSonString());
 				lastBuyPrices	[ idxCurrency ] = requestTransaction.getLastBuyPrice();
 				lastSellPrices	[ idxCurrency ] = requestTransaction.getLastSellPrice();
 			}
@@ -192,6 +270,11 @@ public class Main extends javafx.application.Application {
 					//System.out.println( requestLastTicker.toInfoString() );
 					lastPrices 		= requestLastTicker.getLastPriceInfos();
 				}
+				
+				if( requestOrderBook.requestAPI( api )) {
+					orderBooks = requestOrderBook.getOrderBookDatas();
+				}
+				
 				Platform.runLater( uiUpdateRunnable );
 				Util.sleepMillisecond( 500 );
 			}
@@ -234,13 +317,20 @@ public class Main extends javafx.application.Application {
 					nTempValue += eachPrice;					
 				}
 				XYChart.Data fiveSecNewData = new XYChart.Data( strXTitle, nTempValue / eachCurrencyFiveSecValues.size()  );
-				seriesFiveSec[idxCurrency].getData().add( fiveSecNewData );
+				ObservableList list = seriesFiveSec[idxCurrency].getData(); 
+				list.add( fiveSecNewData );
+				
+				// 최근 5분 데이터만을 유지 시킨다. 
+				if( list.size() > 60 * 5 ) list.remove(0);
 				
 				eachCurrencyFiveSecValues.poll();
 				eachCurrencyFiveSecValues.add( lastPrices[ idxCurrency ] );
 			}
 			
 			lbTotalCache.setText( CurrencyUtil.getIntegerToFormatString( myTotalCache ));
+			
+			orderBookTableDatas.clear();
+			orderBookTableDatas.addAll( requestOrderBook.getOrderBookDatas()[selectedCurrency].getOrderDatas() );
 		}
 	};
 		
@@ -305,7 +395,7 @@ public class Main extends javafx.application.Application {
 		lcLineChart.setTitle( CURRENCY_DEF.strCurrenciesKOR[ selectedCurrency ]  );
 		
 		requestTransaction.setCurrency( selectedCurrency );
-		requestTransaction.requestAPI(api);			
+		requestTransaction.requestAPI(api);	
 	}
 }
 
