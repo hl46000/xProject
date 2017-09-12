@@ -77,7 +77,7 @@ public class BithumbOrderBook extends BithumbBaseClass {
 	
 	@Override
 	protected String getApiUri() {
-		return "/public/orderbook/ALL";
+		return "/public/orderbook/" + CURRENCY_DEF.strCurrencies[getCurrency()];
 	}
 
 	@Override
@@ -90,6 +90,7 @@ public class BithumbOrderBook extends BithumbBaseClass {
 		String strTimestamp = ( String ) jsonData.get( "timestamp" );
 		timestampe.setTime( Long.valueOf( strTimestamp ));
 		
+		/*
 		for( int idxCurrency = 0; idxCurrency < CURRENCY_DEF.MAX_CURRENCY; idxCurrency++  ) {
 			JSONObject jsonCurrency = ( JSONObject ) jsonData.get( CURRENCY_DEF.strCurrencies[idxCurrency] );
 			if( jsonCurrency == null ) continue;
@@ -99,6 +100,14 @@ public class BithumbOrderBook extends BithumbBaseClass {
 			orderBookData.bids( ( JSONArray ) jsonCurrency.get( "bids" ));
 			orderBookData.asks( ( JSONArray ) jsonCurrency.get( "asks" ));
 		}
+		*/		
+		JSONObject jsonCurrency = jsonData;
+		
+		OrderBookData orderBookData = lastOrderBookDatas[getCurrency()];
+		orderBookData.clear();			
+		orderBookData.bids( ( JSONArray ) jsonCurrency.get( "bids" ));
+		orderBookData.asks( ( JSONArray ) jsonCurrency.get( "asks" ));
+		
 	}
 	
 	public OrderBookData[] getOrderBookDatas() {

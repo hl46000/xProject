@@ -142,23 +142,23 @@ public class Main extends javafx.application.Application {
 		TableColumn<OrderData, String> tcType 	= (TableColumn<OrderData, String>) tvOderBookView.getColumns().get(column_index++);
 		tcType.setCellValueFactory( new PropertyValueFactory<OrderData, String>( "typeString" ));
 		tcType.setStyle("-fx-alignment: CENTER;");
-		tcType.setCellFactory( TextColorCallBack );
+		tcType.setCellFactory( OrderDataTextColorCallBack );
 		
 		TableColumn<OrderData, String> tcPrice 	= (TableColumn<OrderData, String>) tvOderBookView.getColumns().get(column_index++);
 		tcPrice.setCellValueFactory( new PropertyValueFactory<OrderData, String>( "priceFormatString" ));
 		tcPrice.setStyle("-fx-alignment: CENTER;");
-		tcPrice.setCellFactory( TextColorCallBack );
+		tcPrice.setCellFactory( OrderDataTextColorCallBack );
 		
 		TableColumn<OrderData, String> tcQuantity 	= (TableColumn<OrderData, String>) tvOderBookView.getColumns().get(column_index++);
 		tcQuantity.setCellValueFactory( new PropertyValueFactory<OrderData, String>( "quantityString" ));
 		tcQuantity.setStyle("-fx-alignment: CENTER-RIGHT;");
-		tcQuantity.setCellFactory( TextColorCallBack );
+		tcQuantity.setCellFactory( OrderDataTextColorCallBack );
 		
 		orderBookTableDatas = FXCollections.observableArrayList( requestOrderBook.getOrderBookDatas()[selectedCurrency].getOrderDatas() );
 		tvOderBookView.setItems( orderBookTableDatas );
 	}
 
-	Callback TextColorCallBack = new Callback<TableColumn<OrderData, String>, TableCell<OrderData, String>>() {
+	Callback OrderDataTextColorCallBack = new Callback<TableColumn<OrderData, String>, TableCell<OrderData, String>>() {
 		@Override
 		public TableCell<OrderData, String> call( TableColumn<OrderData, String> arg0) {
 			return new TableCell<OrderData, String>() {
@@ -179,20 +179,6 @@ public class Main extends javafx.application.Application {
                     }
                 }                
             };
-		}
-		
-		
-	};
-	class ColorTextTableCell extends TableCell<OrderData, String> {
-		protected void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-			
-			if (item == null || empty) {
-                setText(null);
-                setStyle("");
-            } else {
-            	setStyle("-fx-background-color: blue");                
-            }
 		}
 	};
 	
@@ -271,6 +257,7 @@ public class Main extends javafx.application.Application {
 					lastPrices 		= requestLastTicker.getLastPriceInfos();
 				}
 				
+				requestOrderBook.setCurrency(selectedCurrency);
 				if( requestOrderBook.requestAPI( api )) {
 					orderBooks = requestOrderBook.getOrderBookDatas();
 				}
@@ -297,7 +284,7 @@ public class Main extends javafx.application.Application {
 				int cache = (int)( balances[ idxCurrency ] * lastPrices[ idxCurrency ]);
 				
 				PriceData priceData = new PriceData();
-				priceData.setCurrencyName( CURRENCY_DEF.strCurrencies[ idxCurrency ] );
+				priceData.setCurrencyName( CURRENCY_DEF.strCurrenciesKOR[ idxCurrency ] );
 				priceData.setCurrencyUnits( balances[ idxCurrency ] );
 				priceData.setCurrencyLastPrice( lastPrices[ idxCurrency ] );
 				priceData.setCurrencyPrice( cache );
@@ -330,7 +317,10 @@ public class Main extends javafx.application.Application {
 			lbTotalCache.setText( CurrencyUtil.getIntegerToFormatString( myTotalCache ));
 			
 			orderBookTableDatas.clear();
-			orderBookTableDatas.addAll( requestOrderBook.getOrderBookDatas()[selectedCurrency].getOrderDatas() );
+			orderBookTableDatas.addAll( orderBooks[selectedCurrency].getOrderDatas() );
+			
+			tvPriceTable.getSelectionModel().select( selectedCurrency );
+			tvPriceTable.requestFocus();
 		}
 	};
 		

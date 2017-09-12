@@ -7,65 +7,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.bithumb.trader.bot.Main">
-   <top>
-      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <center>
-            <TableView fx:id="tvPriceTable" minHeight="220.0" onMousePressed="#event_handle_mouse" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
-              <columns>
-                <TableColumn editable="false" prefWidth="130.0" resizable="false" sortable="false" text="자산" />
-                <TableColumn editable="false" prefWidth="113.0" resizable="false" sortable="false" text="수량" />
-                  <TableColumn editable="false" prefWidth="120.0" resizable="false" sortable="false" text="시세" />
-                  <TableColumn editable="false" prefWidth="120.0" resizable="false" sortable="false" text="금액(KRW)" />
-                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="마지막구매금액(KRW)" />
-                  <TableColumn editable="false" prefWidth="150.0" resizable="false" sortable="false" text="마지막판매금액(KRW)" />
-              </columns>
-            </TableView>
-         </center>
-         <top>
-            <BorderPane BorderPane.alignment="CENTER">
-               <right>
-                  <ComboBox prefWidth="150.0" BorderPane.alignment="CENTER" />
-               </right>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-               <left>
-                  <Label text="빗썸캐시 : " BorderPane.alignment="CENTER" />
-               </left>
-               <center>
-                  <HBox alignment="CENTER_LEFT" prefWidth="200.0" BorderPane.alignment="CENTER">
-                     <children>
-                        <Label fx:id="lbTotalCache" text="0" />
-                        <Label text="원">
-                           <padding>
-                              <Insets left="10.0" />
-                           </padding>
-                        </Label>
-                        <Label text="( 원화 : ">
-                           <HBox.margin>
-                              <Insets left="20.0" />
-                           </HBox.margin>
-                        </Label>
-                        <Label fx:id="lbKrwCache" text="0" />
-                        <Label text="원)" />
-                     </children>
-                  </HBox>
-               </center>
-            </BorderPane>
-         </top>
-      </BorderPane>
-   </top>
-   <center>
-      <LineChart fx:id="lcLineChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalZeroLineVisible="false" legendVisible="false" prefHeight="300.0" prefWidth="800.0" title="Title" verticalGridLinesVisible="false" verticalZeroLineVisible="false" BorderPane.alignment="CENTER">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis forceZeroInRange="false" side="LEFT" />
-        </yAxis>
-      </LineChart>
-   </center>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.purehero.bithumb.trader.bot.Main">
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -97,10 +39,68 @@
    <right>
       <TableView fx:id="tvOderBookView" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn editable="false" resizable="false" sortable="false" text="구매/판매" />
-          <TableColumn editable="false" prefWidth="110.0" resizable="false" sortable="false" text="가격" />
-            <TableColumn editable="false" prefWidth="110.0" resizable="false" sortable="false" text="수량" />
+          <TableColumn editable="false" prefWidth="70.0" resizable="false" sortable="false" text="구매/판매" />
+          <TableColumn editable="false" resizable="false" sortable="false" text="가격" />
+            <TableColumn editable="false" prefWidth="140.0" resizable="false" sortable="false" text="수량" />
         </columns>
       </TableView>
    </right>
+   <center>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <LineChart fx:id="lcLineChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalZeroLineVisible="false" legendVisible="false" prefHeight="300.0" prefWidth="800.0" title="Title" verticalGridLinesVisible="false" verticalZeroLineVisible="false" BorderPane.alignment="CENTER">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis forceZeroInRange="false" side="LEFT" />
+              </yAxis>
+            </LineChart>
+         </center>
+         <top>
+            <TableView fx:id="tvPriceTable" minHeight="220.0" onMousePressed="#event_handle_mouse" prefHeight="220.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn editable="false" prefWidth="110.0" resizable="false" sortable="false" text="자산" />
+                <TableColumn editable="false" prefWidth="113.0" resizable="false" sortable="false" text="수량" />
+                  <TableColumn editable="false" prefWidth="90.0" resizable="false" sortable="false" text="시세" />
+                  <TableColumn editable="false" prefWidth="90.0" resizable="false" sortable="false" text="금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="140.0" resizable="false" sortable="false" text="마지막구매금액(KRW)" />
+                  <TableColumn editable="false" prefWidth="140.0" resizable="false" sortable="false" text="마지막판매금액(KRW)" />
+              </columns>
+            </TableView>
+         </top>
+      </BorderPane>
+   </center>
+   <top>
+      <BorderPane BorderPane.alignment="CENTER">
+         <right>
+            <ComboBox prefWidth="150.0" BorderPane.alignment="CENTER" />
+         </right>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+         <left>
+            <Label text="빗썸캐시 : " BorderPane.alignment="CENTER" />
+         </left>
+         <center>
+            <HBox alignment="CENTER_LEFT" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label fx:id="lbTotalCache" text="0" />
+                  <Label text="원">
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+                  <Label text="( 원화 : ">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label fx:id="lbKrwCache" text="0" />
+                  <Label text="원)" />
+               </children>
+            </HBox>
+         </center>
+      </BorderPane>
+   </top>
 </BorderPane>

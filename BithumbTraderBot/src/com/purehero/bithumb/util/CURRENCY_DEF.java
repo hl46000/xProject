@@ -14,7 +14,7 @@ public class CURRENCY_DEF {
 	public static final int MAX_CURRENCY	= ALL;
 	
 	public static final String strCurrencies[] = { "BTC", "ETH", "DASH", "LTC", "ETC", "XRP", "BCH", "XMR" };
-	public static final String strCurrenciesKOR[] = { "비트코인", "이더리움", "대쉬", "라이트코인", "이더리움 클래식", "리플", "비트코인 캐쉬", "모네로" };
+	public static final String strCurrenciesKOR[] = { "비트코인", "이더리움", "대시", "라이트코인", "이더리움 클래식", "리플", "비트코인 캐쉬", "모네로" };
 	
 	public static final double minUnits[] = { 
 			0.001d, // BTC 
