@@ -57,7 +57,7 @@ https://api.bithumb.com/trade/market_sell			시장가 판매
 
 
  */
-public class BithumbMarketSell extends BithumbArrayBaseClass {
+public class BithumbHighestPriceSell extends BithumbArrayBaseClass {
 	private BithumbMyBalanceInfo balanceInfo = null;
 	public boolean checkEnableOrder( int currency, BithumbMyBalanceInfo balanceInfo ) {
 		this.setCurrency(currency);

@@ -57,10 +57,10 @@ https://api.bithumb.com/trade/market_buy			시장가 구매
 
 
  */
-public class BithumbMarketBuy extends BithumbArrayBaseClass {
+public class BithumbMarketPriceBuy extends BithumbArrayBaseClass {
 	// 마지막 거래금액( 시장가격  )
-	private BithumbLastTicker lastTicker = null;
-	private BithumbMyBalanceInfo balanceInfo = null;
+	protected BithumbLastTicker lastTicker = null;
+	protected BithumbMyBalanceInfo balanceInfo = null;
 	public boolean checkEnableOrder( int currency, BithumbLastTicker lastTicker, BithumbMyBalanceInfo balanceInfo ) {
 		this.setCurrency(currency);
 		
@@ -68,7 +68,7 @@ public class BithumbMarketBuy extends BithumbArrayBaseClass {
 		this.balanceInfo 	= balanceInfo;
 		
 		double units = balanceInfo.getKrw();
-		units /= lastTicker.getLastMinSellPrice()[currency];
+		units /= lastTicker.getLastLowestSellPrice()[currency];
 		
 		return units >= CURRENCY_DEF.minUnits[currency];
 	}
@@ -81,7 +81,7 @@ public class BithumbMarketBuy extends BithumbArrayBaseClass {
 	@Override
 	protected HashMap<String, String> getApiRequestParams() {
 		double cache = (double)balanceInfo.getKrw();
-		Double units = CurrencyUtil.getCurrencyUnits( getCurrency(), (double)( cache / lastTicker.getLastMinSellPrice()[currency]));
+		Double units = CurrencyUtil.getCurrencyUnits( getCurrency(), (double)( cache / lastTicker.getLastLowestSellPrice()[currency]));
 
 		HashMap<String, String> rgParams = new HashMap<String, String>();
 		rgParams.put("currency", CURRENCY_DEF.strCurrencies[currency] );

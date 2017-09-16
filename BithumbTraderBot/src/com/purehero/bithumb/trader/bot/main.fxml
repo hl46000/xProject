@@ -11,12 +11,12 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" text="최저가 구매">
+            <Button fx:id="btnLowestBuy" mnemonicParsing="false" text="최저가 구매">
                <HBox.margin>
                   <Insets right="5.0" />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" text="최고가 판매">
+            <Button fx:id="btnHighestSell" mnemonicParsing="false" text="최고가 판매">
                <HBox.margin>
                   <Insets right="5.0" />
                </HBox.margin>

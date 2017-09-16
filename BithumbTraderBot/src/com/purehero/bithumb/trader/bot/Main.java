@@ -37,8 +37,8 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import com.purehero.bithumb.api.BithumbLastTicker;
-import com.purehero.bithumb.api.BithumbMarketBuy;
-import com.purehero.bithumb.api.BithumbMarketSell;
+import com.purehero.bithumb.api.BithumbMarketPriceBuy;
+import com.purehero.bithumb.api.BithumbMarketPriceSell;
 import com.purehero.bithumb.api.BithumbMyBalanceInfo;
 import com.purehero.bithumb.api.BithumbMyTransactions;
 import com.purehero.bithumb.api.BithumbOrderBook;
@@ -307,8 +307,8 @@ public class Main extends javafx.application.Application {
 				ObservableList list = seriesFiveSec[idxCurrency].getData(); 
 				list.add( fiveSecNewData );
 				
-				// 최근 5분 데이터만을 유지 시킨다. 
-				if( list.size() > 60 * 5 ) list.remove(0);
+				// 최근 10분 데이터만을 유지 시킨다. 
+				if( list.size() > 600 ) list.remove(0);
 				
 				eachCurrencyFiveSecValues.poll();
 				eachCurrencyFiveSecValues.add( lastPrices[ idxCurrency ] );
@@ -344,21 +344,27 @@ public class Main extends javafx.application.Application {
 		if( ctrl_id == null ) return;
 		
 		switch( ctrl_id ) {
+		case "btnHighestSell" 	:	// 최고가 판매
+			break;
+			
+		case "btnLowestBuy"		:	// 최저가 구매
+			break;
+			
 		case "btnMarketBuy" 	: // 시장가 구매
-			BithumbMarketBuy marketBuy = new BithumbMarketBuy();
+			BithumbMarketPriceBuy marketBuy = new BithumbMarketPriceBuy();
 			if( marketBuy.checkEnableOrder( selectedCurrency, requestLastTicker, balanceInfo)) {
 				if( marketBuy.requestAPI(api)) {
 					changedMyTransactions();
 				}
 			} else {
-				String errMsg = String.format( "%d, %d, %.4f", balanceInfo.getKrw(), requestLastTicker.getLastMinSellPrice()[selectedCurrency], CURRENCY_DEF.minUnits[selectedCurrency] );
+				String errMsg = String.format( "%d, %d, %.4f", balanceInfo.getKrw(), requestLastTicker.getLastLowestSellPrice()[selectedCurrency], CURRENCY_DEF.minUnits[selectedCurrency] );
 				Alert alert = new Alert(AlertType.NONE, String.format( "구매 금액이 부족하여 주문에 실패하였습니다.\n(%s)", errMsg ), ButtonType.OK );
 				alert.showAndWait();
 			}
 			break;
 			
 		case "btnMarketSell" 	: // 시장가 판매
-			BithumbMarketSell marketSell = new BithumbMarketSell();
+			BithumbMarketPriceSell marketSell = new BithumbMarketPriceSell();
 			if( marketSell.checkEnableOrder( selectedCurrency, balanceInfo)) {
 				api.setLogEnabled( true );
 				if( marketSell.requestAPI(api)) {

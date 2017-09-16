@@ -55,14 +55,14 @@ https://api.bithumb.com/public/ticker/{currency}		bithumb 거래소 마지막 거래 정�
 public class BithumbLastTicker extends BithumbBaseClass {
 	int lastPriceInfos [] 	= new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 최근 24시간 내 마지막 거래금액  
 	int lastMinPriceInfos[] = new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 최근 24시간 내 최저 거래금액
-	int lastMaxBuyPrice[]	= new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 거래 대기건 최고 구매가
-	int lastMinSellPrice[]	= new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 거래 대기건 최소 판매가
+	int lastHighestBuyPrice[]	= new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 거래 대기건 최고 구매가
+	int lastLowestSellPrice[]	= new int[ CURRENCY_DEF.MAX_CURRENCY ];	// 거래 대기건 최소 판매가
 	Date lastPriceDate = new Date();
 	
 	public int[] getLastPriceInfos() 	{ return lastPriceInfos; }
 	public int[] getLastMinPriceInfos()	{ return lastMinPriceInfos; }
-	public int[] getLastMaxBuyPrice()	{ return lastMaxBuyPrice; }
-	public int[] getLastMinSellPrice()	{ return lastMinSellPrice; }
+	public int[] getLastHighestBuyPrice()	{ return lastHighestBuyPrice; }
+	public int[] getLastLowestSellPrice()	{ return lastLowestSellPrice; }
 	public Date  getLastPriceDate()  	{ return lastPriceDate; }
 	
 	public String toInfoString() {
@@ -91,10 +91,10 @@ public class BithumbLastTicker extends BithumbBaseClass {
 			lastMinPriceInfos[idxCurrency]	= CurrencyUtil.priceStringToInteger( strMinPrice );
 			
 			String strBuyPrice = ( String )jsonCurrency.get( "buy_price" );
-			lastMaxBuyPrice[idxCurrency]	= CurrencyUtil.priceStringToInteger( strBuyPrice );
+			lastHighestBuyPrice[idxCurrency]	= CurrencyUtil.priceStringToInteger( strBuyPrice );
 			
 			String strSellPrice = ( String )jsonCurrency.get( "sell_price" );
-			lastMinSellPrice[idxCurrency]	= CurrencyUtil.priceStringToInteger( strSellPrice );
+			lastLowestSellPrice[idxCurrency]	= CurrencyUtil.priceStringToInteger( strSellPrice );
 		}
 		
 		String strDate = ( String ) jsonData.get( "date" );
