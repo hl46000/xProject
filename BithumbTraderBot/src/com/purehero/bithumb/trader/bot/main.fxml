@@ -62,7 +62,7 @@
               <columns>
                 <TableColumn editable="false" prefWidth="110.0" resizable="false" sortable="false" text="자산" />
                 <TableColumn editable="false" prefWidth="113.0" resizable="false" sortable="false" text="수량" />
-                  <TableColumn editable="false" prefWidth="90.0" resizable="false" sortable="false" text="시세" />
+                  <TableColumn editable="false" prefWidth="90.0" resizable="false" sortable="false" text="최고구매금액" />
                   <TableColumn editable="false" prefWidth="90.0" resizable="false" sortable="false" text="금액(KRW)" />
                   <TableColumn editable="false" prefWidth="140.0" resizable="false" sortable="false" text="마지막구매금액(KRW)" />
                   <TableColumn editable="false" prefWidth="140.0" resizable="false" sortable="false" text="마지막판매금액(KRW)" />

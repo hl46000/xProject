@@ -1,7 +1,6 @@
 package com.purehero.bithumb.api;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,20 +12,26 @@ import com.purehero.bithumb.util.CurrencyUtil;
 public class OrderBookData {
 	List<OrderData> orderDatas = new ArrayList<OrderData>();	
 	
+	int highestPrice[] 	= { 0, 0 };
+	int lowestPrice[] 	= { 0, 0 };
+	
 	public void bids(JSONArray jsonArray) {
-		loadOrderDatas( 0, orderDatas, jsonArray );
+		loadOrderDatas( OrderType.BUY, orderDatas, jsonArray );
 	}
 
 	public void asks(JSONArray jsonArray) {
-		loadOrderDatas( 1, orderDatas, jsonArray );
+		loadOrderDatas( OrderType.SELL, orderDatas, jsonArray );
 	}
 	
-	private void loadOrderDatas( int type, List<OrderData> orderDatas, JSONArray jsonArray) {
+	private void loadOrderDatas( OrderType type, List<OrderData> orderDatas, JSONArray jsonArray) {
 		for( int i = 0; i < jsonArray.size(); i++ ) {
 			JSONObject jsonBid = ( JSONObject ) jsonArray.get(i);
 			
 			double quantity = Double.valueOf((String) jsonBid.get( "quantity" ));
 			int price 		= CurrencyUtil.priceStringToInteger( (String) jsonBid.get( "price" ));
+			
+			highestPrice[type.ordinal()] 	= Math.max( highestPrice[type.ordinal()], price );
+			lowestPrice[type.ordinal()]		= Math.min( lowestPrice[type.ordinal()], price );
 			
 			orderDatas.add( new OrderData( type, quantity, price ));
 		}
@@ -34,6 +39,9 @@ public class OrderBookData {
 		Collections.sort( orderDatas );		
 	}
 
+	public int getHighestPrice( OrderType type ) 	{ return highestPrice[type.ordinal()]; }
+	public int getLowestPrice( OrderType type)		{ return lowestPrice[type.ordinal()]; }
+	
 	public List<OrderData> getOrderDatas() {
 		return orderDatas;
 	}

@@ -54,7 +54,7 @@ public class TraderBotThread extends Thread implements Runnable {
 				PriceData priceData = new PriceData();
 				priceData.setCurrencyName( CURRENCY_DEF.strCurrencies[ idxCurrency ] );
 				priceData.setCurrencyUnits( balances[ idxCurrency ] );
-				priceData.setCurrencyLastPrice( lastPrices[ idxCurrency ] );
+				priceData.setCurrencyHighestBuyPrice( lastPrices[ idxCurrency ] );
 				priceData.setCurrencyPrice((int)( balances[ idxCurrency ] * lastPrices[ idxCurrency ] ));
 				
 				priceTableDatas.add( priceData );

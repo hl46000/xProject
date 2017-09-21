@@ -63,8 +63,6 @@ https://api.bithumb.com/trade/place			bithumb 회원 판/구매 거래 주문 �
 
  */
 public class BithumbTradePlace extends BithumbArrayBaseClass {
-	public static enum ORDER_TYPE { SELL, BUY, NONE } ;
-	
 	@Override
 	protected String getApiUri() {
 		return "/trade/place";
@@ -72,12 +70,12 @@ public class BithumbTradePlace extends BithumbArrayBaseClass {
 
 	@Override
 	protected HashMap<String, String> getApiRequestParams() {
-		if( ORDER_TYPE.NONE == orderType ) return null;
+		if( OrderType.NONE == orderType ) return null;
 		
 		HashMap<String, String> rgParams = new HashMap<String, String>();
 		rgParams.put("order_currency", 		CURRENCY_DEF.strCurrencies[currency] );
 		rgParams.put("Payment_currency", 	"KRW" );
-		rgParams.put("type", 	orderType == ORDER_TYPE.SELL ? "ask" : "bid" );
+		rgParams.put("type", 	orderType == OrderType.SELL ? "ask" : "bid" );
 		rgParams.put("units", 	CurrencyUtil.getDoubleToSellFormatString( orderUnits ));
 		rgParams.put("price", 	String.valueOf( orderPrice ));
 		
@@ -89,8 +87,8 @@ public class BithumbTradePlace extends BithumbArrayBaseClass {
 		orderUnits = units;
 	}
 	
-	ORDER_TYPE orderType = ORDER_TYPE.NONE; 	// 주문 종료( 구매, 판매 )
-	public void setOrderType( ORDER_TYPE type ) {
+	OrderType orderType = OrderType.NONE; 	// 주문 종료( 구매, 판매 )
+	public void setOrderType( OrderType type ) {
 		orderType = type;
 	}
 	

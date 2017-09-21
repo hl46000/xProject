@@ -1,27 +1,23 @@
-package com.bithumb.sample;
+package com.purehero.bithumb.api;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import com.purehero.bithumb.api.HttpRequest.HttpRequestException;
 
 
-@SuppressWarnings("unused")
 public class Api_Client {
     protected String api_url = "https://api.bithumb.com";
     protected String api_key;
@@ -33,7 +29,7 @@ public class Api_Client {
     }
 
     /**
-     * «ˆ¿Á¿« Ω√∞£¿ª ns∑Œ ∏Æ≈œ«—¥Ÿ.(1/1,000,000,000 √ )
+     * ÌòÑÏû¨Ïùò ÏãúÍ∞ÑÏùÑ nsÎ°ú Î¶¨ÌÑ¥ÌïúÎã§.(1/1,000,000,000 Ï¥à)
      * 
      * @return int
      */
@@ -56,7 +52,7 @@ public class Api_Client {
     private String request(String strHost, String strMemod, HashMap<String, String> rgParams,  HashMap<String, String> httpHeaders) {
     	String response = "";
 
-		// SSL ø©∫Œ
+		// SSL Ïó¨Î∂Ä
 		if (strHost.startsWith("https://")) {
 		    HttpRequest request = HttpRequest.get(strHost);
 		    // Accept all certificates
@@ -69,7 +65,7 @@ public class Api_Client {
 		} else {
 		    HttpRequest request = null;
 	
-		    // POST/GET º≥¡§
+		    // POST/GET ÏÑ§Ï†ï
 		    if (strMemod.toUpperCase().equals("POST")) {
 	
 			request = new HttpRequest(strHost, "POST");
@@ -95,15 +91,14 @@ public class Api_Client {
 		    }
 	
 		    if (request.ok()) {
-			response = request.body();
+		    	response = request.body();
 		    } else {
-			response = "error : " + request.code() + ", message : "
-				+ request.body();
+				response = "error : " + request.code() + ", message : " + request.body();				
 		    }
 		    request.disconnect();
 		}
-	
-		return response;
+		
+		return response; 
     }
     
     public static String encodeURIComponent(String s)
@@ -194,7 +189,7 @@ public class Api_Client {
 	}
 
     @SuppressWarnings("unchecked")
-    public String callApi(String endpoint, HashMap<String, String> params) {
+    public String callApi(String endpoint, Map<String, String> params) {
 		String rgResultDecode = "";
 		HashMap<String, String> rgParams = new HashMap<String, String>();
 		rgParams.put("endpoint", endpoint);
@@ -209,13 +204,13 @@ public class Api_Client {
 		rgResultDecode = request(api_host, "POST", rgParams, httpHeaders);
 	
 		if (!rgResultDecode.startsWith("error")) {
-		    // json ∆ƒΩÃ
+		    // json ÌååÏã±
 		    HashMap<String, String> result;
 		    try {
 			result = new ObjectMapper().readValue(rgResultDecode,
 				HashMap.class);
 	
-			System.out.println("==== ∞·∞˙ √‚∑¬ ====");
+			System.out.println("==== Í≤∞Í≥º Ï∂úÎ†• ====");
 			System.out.println(result.get("status"));
 		    } catch (IOException e) {
 			e.printStackTrace();

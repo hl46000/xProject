@@ -42,8 +42,10 @@ import com.purehero.bithumb.api.BithumbMarketPriceSell;
 import com.purehero.bithumb.api.BithumbMyBalanceInfo;
 import com.purehero.bithumb.api.BithumbMyTransactions;
 import com.purehero.bithumb.api.BithumbOrderBook;
+import com.purehero.bithumb.api.BithumbOrderBookALL;
 import com.purehero.bithumb.api.OrderBookData;
 import com.purehero.bithumb.api.OrderData;
+import com.purehero.bithumb.api.OrderType;
 import com.purehero.bithumb.util.Api_Client;
 import com.purehero.bithumb.util.CURRENCY_DEF;
 import com.purehero.bithumb.util.CurrencyUtil;
@@ -61,6 +63,7 @@ public class Main extends javafx.application.Application {
 	private BithumbLastTicker 		requestLastTicker 	= new BithumbLastTicker();
 	private BithumbMyTransactions 	requestTransaction 	= new BithumbMyTransactions();
 	private BithumbOrderBook  		requestOrderBook 	= new BithumbOrderBook();
+	private BithumbOrderBookALL	requestOrderBookALL = new BithumbOrderBookALL(); 
 	
 	private ObservableList<PriceData> priceTableDatas;
 	private ObservableList<OrderData> orderBookTableDatas;
@@ -69,6 +72,7 @@ public class Main extends javafx.application.Application {
 	private int lastBuyPrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
 	private int lastSellPrices [] = new int[ CURRENCY_DEF.MAX_CURRENCY ];
 	private OrderBookData [] orderBooks = null;
+	private OrderBookData [] orderBooksALL = null;
 	
 	@FXML
 	private TableView<PriceData> tvPriceTable;
@@ -169,7 +173,7 @@ public class Main extends javafx.application.Application {
                     
                     if (!isEmpty()) {
                     	int rowIndex = getTableRow().getIndex();
-                        if( getTableView().getItems().get(rowIndex).getType() == 0 ) {
+                        if( getTableView().getItems().get(rowIndex).getType() == OrderType.SELL ) {
                         	this.setTextFill(Color.RED);
                         } else {
                         	this.setTextFill(Color.GREEN);
@@ -239,7 +243,8 @@ public class Main extends javafx.application.Application {
 			changedMyTransactions();
 						
 			if( requestLastTicker.requestAPI( api )) {
-				lastPrices 		= requestLastTicker.getLastPriceInfos();
+				lastPrices 		= requestLastTicker.getLastHighestBuyPrice();
+				//lastPrices 		= requestLastTicker.getLastPriceInfos();
 			}
 			
 			// 10초간 데이터를 초기화 시킨다.  
@@ -255,6 +260,10 @@ public class Main extends javafx.application.Application {
 				if( requestLastTicker.requestAPI( api )) {
 					//System.out.println( requestLastTicker.toInfoString() );
 					lastPrices 		= requestLastTicker.getLastPriceInfos();
+				}
+				
+				if( requestOrderBookALL.requestAPI( api )) {
+					orderBooksALL = requestOrderBookALL.getOrderBookDatas(); 
 				}
 				
 				requestOrderBook.setCurrency(selectedCurrency);
@@ -286,7 +295,9 @@ public class Main extends javafx.application.Application {
 				PriceData priceData = new PriceData();
 				priceData.setCurrencyName( CURRENCY_DEF.strCurrenciesKOR[ idxCurrency ] );
 				priceData.setCurrencyUnits( balances[ idxCurrency ] );
-				priceData.setCurrencyLastPrice( lastPrices[ idxCurrency ] );
+				priceData.setCurrencyHighestBuyPrice( lastPrices[ idxCurrency ] );
+				//priceData.setCurrencyHighestBuyPrice( orderBooksALL[idxCurrency].getHighestPrice(OrderType.BUY) );
+				
 				priceData.setCurrencyPrice( cache );
 				priceData.setCurrencyLastBuyPrice( lastBuyPrices[ idxCurrency ] );
 				priceData.setCurrencyLastSellPrice( lastSellPrices[ idxCurrency ] );
@@ -307,8 +318,8 @@ public class Main extends javafx.application.Application {
 				ObservableList list = seriesFiveSec[idxCurrency].getData(); 
 				list.add( fiveSecNewData );
 				
-				// 최근 10분 데이터만을 유지 시킨다. 
-				if( list.size() > 600 ) list.remove(0);
+				// 최근 30분 데이터만을 유지 시킨다. 
+				if( list.size() > 1800 ) list.remove(0);
 				
 				eachCurrencyFiveSecValues.poll();
 				eachCurrencyFiveSecValues.add( lastPrices[ idxCurrency ] );

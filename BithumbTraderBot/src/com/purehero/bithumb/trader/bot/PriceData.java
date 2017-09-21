@@ -25,15 +25,15 @@ public class PriceData {
 	}
 	
 	// ½Ã¼¼
-	private int currencyLastPrice = 0;
+	private int currencyHighestBuyPrice = 0;
 	public int getCurrencyLastPrice() {
-		return currencyLastPrice;
+		return currencyHighestBuyPrice;
 	}
-	public void setCurrencyLastPrice( int currencyLastPrice ) {
-		this.currencyLastPrice = currencyLastPrice;
+	public void setCurrencyHighestBuyPrice( int currencyLastPrice ) {
+		this.currencyHighestBuyPrice = currencyLastPrice;
 	}
 	public String getCurrencyLastPriceFormatString() {
-		return CurrencyUtil.getIntegerToFormatString( currencyLastPrice );		
+		return CurrencyUtil.getIntegerToFormatString( currencyHighestBuyPrice );		
 	}
 	///////////////////////////////////////////////////
 	
@@ -76,8 +76,8 @@ public class PriceData {
 	////////////////////////////////////////////////////
 	
 	private double getCurrencyPriceRate( double price ) { 
-		if( price == 0 || currencyLastPrice == 0 ) return 0;
-		double dVal = currencyLastPrice - price;
+		if( price == 0 || currencyHighestBuyPrice == 0 ) return 0;
+		double dVal = currencyHighestBuyPrice - price;
 		dVal *= 100.0d;
 		dVal /= price;
 		return dVal;
