@@ -1,5 +1,6 @@
 package com.example.dexload;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,8 +8,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import com.example.myandroidsampleapp00.G;
 
 import android.app.Application;
 import android.content.Context;
@@ -74,7 +73,7 @@ public class DexLoadApplication extends Application
 		integratedDexElements.addAll( Arrays.asList( newDexElements ));
 		integratedDexElements.addAll( Arrays.asList( existDexElements ));
 		
-		// ±âÁ¸ Å¬·¡½º ·Î´õ pathList °´Ã¼¸¦ dexElements °´Ã¼¿¡ »õ·Î »ý¼ºÇÑ Å¬·¡½º ·Î´õ °´Ã¼ÀÇ dexElements °´Ã¼·Î ¹Ù²Û´Ù
+		// ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Î´ï¿½ pathList ï¿½ï¿½Ã¼ï¿½ï¿½ dexElements ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Î´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ dexElements ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ù²Û´ï¿½
 		setFieldOjbect( "dalvik.system.DexPathList", "dexElements", existPathList, integratedDexElements.toArray());
 	}
 	
@@ -146,13 +145,24 @@ public class DexLoadApplication extends Application
 			return null;
 			
 		} finally {
-			G.safe_close( is );
-			G.safe_close( fos );
+			safe_close( is );
+			safe_close( fos );
 		}
 		
 		return dexFile;
 	}
 
+	private void safe_close( Closeable obj ) {
+		if( obj != null ) {
+			try {
+				obj.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
 	/**
 	 * @param applicationContext
 	 */

@@ -21,6 +21,7 @@
 void init( JNIEnv * env, jobject, jobject appContext );
 
 void* _main_thread_routine_( void* param );
+void* _child_thread_routine_( void* param );
 
 // JNI_OnLoad
 jint JNI_OnLoad( JavaVM* vm, void* )
@@ -36,7 +37,7 @@ jint JNI_OnLoad( JavaVM* vm, void* )
 		return result;
 	}
 
-	const char * classPath = "com/example/myandroidsampleapp00/NativeLibrary2";
+	const char * classPath = "com/example/myandroidsampleapp/NativeLibrary";
 	jclass clazz = env->FindClass( classPath );
 	if (clazz == NULL)
 	{
@@ -88,7 +89,9 @@ void init( JNIEnv * /*env*/, jobject, jobject /*appContext*/ )
 	child_pid 	= fork();
 
 	struct sigaction sa;
-	sigemptyset(&sa.sa_mask);
+	//sigemptyset(&sa.sa_mask);
+
+	pthread_t threadID;
 
 	switch( child_pid ) {
 	case -1 : break;
@@ -100,16 +103,14 @@ void init( JNIEnv * /*env*/, jobject, jobject /*appContext*/ )
 		sigaction(SIGCHLD, &sa, NULL);
 
 		child_pid = getpid();
-		while( ptrace( PTRACE_ATTACH, main_pid, 0, 0 ) > 0 ) sleep(1);
-		while( ptrace( PTRACE_CONT, main_pid, 0, 0 ) > 0 ) sleep(1);
+		sleep( 1 );
 
-		for( int i = 0; i < 15; i++ ) {
-			LOGD( "child process : %d, count = %d", child_pid, i );
+		pthread_create( &threadID, NULL, _child_thread_routine_, NULL );
+
+		for( int i = 0; i < 30000; i++ ) {
+			//LOGD( "child process : %d:%d, count = %d", child_pid, gettid(), i );
 			sleep( 1 );
 		}
-		while( ptrace( PTRACE_DETACH, main_pid, 0, 0 ) > 0 ) sleep(1);
-		while( ptrace( PTRACE_CONT, main_pid, 0, 0 ) > 0 ) sleep(1);
-		sleep( 1 );
 
 		_exit(0);
 		break;
@@ -120,22 +121,37 @@ void init( JNIEnv * /*env*/, jobject, jobject /*appContext*/ )
 		sa.sa_restorer = NULL;
 		sigaction(SIGCHLD, &sa, NULL);
 
-		pthread_t threadID;
-		pthread_create( &threadID, NULL, _main_thread_routine_, NULL );
+		//pthread_create( &threadID, NULL, _main_thread_routine_, NULL );
 		break;
 	}
 }
 
+
+void* _child_thread_routine_( void * /*param*/ )
+{
+	while( ptrace( PTRACE_ATTACH, main_pid, 0, 0 ) > 0 ) sleep(1);
+	while( ptrace( PTRACE_CONT, main_pid, 0, 0 ) > 0 ) sleep(1);
+
+	for( int i = 0; i < 30000; i++ ) {
+		//LOGD( "child process : %d:%d, count = %d", child_pid, gettid(), i );
+		sleep( 1 );
+	}
+
+	//while( ptrace( PTRACE_DETACH, main_pid, 0, 0 ) > 0 ) sleep(1);
+	//while( ptrace( PTRACE_CONT, main_pid, 0, 0 ) > 0 ) sleep(1);
+}
 
 void* _main_thread_routine_( void * /*param*/ )
 {
 	while( ptrace( PTRACE_DETACH, child_pid, 0, 0 ) > 0 ) { sleep( 1 ); }
 	while( ptrace( PTRACE_CONT, child_pid, 0, 0 ) > 0 ) { sleep( 1 ); }
 
-	for( int i = 0; i < 15; i++ ) {
-		LOGD( "main process : %d, count = %d", main_pid, i );
+	/*
+	for( int i = 0; i < 30000; i++ ) {
+		//LOGD( "main process : %d, count = %d", main_pid, i );
 		sleep( 1 );
 	}
+	*/
 
 	return NULL;
 }

@@ -1728,4 +1728,8 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_C60HI16      0x55       // high 16 bit MVKH embedded
 #define R_C60LO16      0x54       // low 16 bit MVKL embedded
 
+#define ElfW(type)	_ElfW (Elf, __ELF_NATIVE_CLASS, type)
+#define _ElfW(e,w,t)	_ElfW_1 (e, w, _##t)
+#define _ElfW_1(e,w,t)	e##w##t
+
 #endif  /* elf.h */
