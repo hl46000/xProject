@@ -3,6 +3,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -82,5 +83,21 @@ public class Util {
     
     public static void sleepMillisecond( int millisecond ) {
 		try { Thread.sleep( millisecond ); } catch (InterruptedException e) { e.printStackTrace();}
+	}
+    
+    public static int priceStringToInteger( String strPrice ) {
+		int nPrice = -1;
+		if( strPrice.indexOf(".") != -1 ) {
+			nPrice = Double.valueOf( strPrice ).intValue();
+		} else {
+			nPrice = Integer.valueOf( strPrice );
+		}
+		
+		return nPrice;
+	}
+    
+    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###,###,###,###");
+	public static String intergerToPriceString( int value ) {
+		return decimalFormat.format( value );
 	}
 }

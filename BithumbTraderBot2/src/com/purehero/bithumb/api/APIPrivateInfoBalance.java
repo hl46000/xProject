@@ -33,6 +33,9 @@ public class APIPrivateInfoBalance {
 	private boolean parser( String strJsonResult ) {
 		try {
 			JSONObject jsonData = ( JSONObject ) preParser( strJsonResult );
+			if( jsonData == null ) {
+				return false;
+			}
 			
 			total_krw 		= ((Long) jsonData.get("total_krw")).intValue();
 			available_krw 	= ((Long) jsonData.get("available_krw")).intValue();
