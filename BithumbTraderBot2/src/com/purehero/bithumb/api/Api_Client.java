@@ -15,8 +15,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.purehero.bithumb.api.HttpRequest.HttpRequestException;
-
 
 public class Api_Client {
     protected String api_url = "https://api.bithumb.com";

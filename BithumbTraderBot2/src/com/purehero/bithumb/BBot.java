@@ -1,5 +1,6 @@
 package com.purehero.bithumb;
 
+import com.purehero.bithumb.api.APIPrivateInfoBalance;
 import com.purehero.bithumb.api.BithumbAPI;
 import com.purehero.bithumb.api.BithumbApiType;
 import com.purehero.bithumb.api.Currency;
@@ -12,10 +13,11 @@ public class BBot {
 	}
 
 	private BithumbAPI bithumbAPI = new BithumbAPI();
+	private APIPrivateInfoBalance pMyBalance = new APIPrivateInfoBalance( bithumbAPI );
+	
 	private void run() {
-		String result = bithumbAPI.request( BithumbApiType.PRIVATE_INFO_BALANCE, Currency.LTC, null );
-		
-		System.out.println( result );
+		pMyBalance.update();
+		pMyBalance.print();		
 	}
 	
 	
