@@ -11,19 +11,35 @@ import org.json.simple.parser.ParseException;
 
 public class APIPublicOrderBook {
 
+	List<OrderBookData> asksOrderBook = new ArrayList<OrderBookData>();
+	List<OrderBookData> bidsOrderBook = new ArrayList<OrderBookData>();
+	
+	int asksLowestPrice 	= Integer.MAX_VALUE;
+	int asksHighestPrice 	= 0;
+	int bidsLowestPrice 	= Integer.MAX_VALUE;
+	int bidsHighestPrice 	= 0;
+	
 	private final BithumbAPI bithumbAPI;
 	private final Currency currency;
+	
 	public APIPublicOrderBook(BithumbAPI bithumbAPI, Currency currency) {
 		this.bithumbAPI 	= bithumbAPI;
 		this.currency		= currency;
 	}
 	
-	public boolean update() {
+	public List<OrderBookData> getAsksOrderBookData() { return asksOrderBook; }
+	public List<OrderBookData> getBidsOrderBookData() { return bidsOrderBook; 	}
+	public synchronized int getAsksLowestPrice() 	{ return asksLowestPrice; }			// 판매대기중 가장 낮은 금액
+	public synchronized int getAsksHighestPrice() 	{ return asksHighestPrice; }		// 판매대기중 가장 높은 금액
+	public synchronized int getBidsLowestPrice() 	{ return bidsLowestPrice; }			// 구매대기중 가장 낮은 금액
+	public synchronized int getBidsHighestPrice() 	{ return bidsHighestPrice; }		// 구매대기중 가장 높은 금액
+	
+	public synchronized boolean update() {
 		return parser( bithumbAPI.request( BithumbApiType.PUBLIC_ORDERBOOK, currency, null ));
 	}
 
 	private boolean parser(String strJsonResult ) {
-		System.out.println( strJsonResult );
+		//System.out.println( strJsonResult );
 		
 		JSONObject jsonData;
 		try {
@@ -44,7 +60,8 @@ public class APIPublicOrderBook {
 		return false;
 	}
 
-	List<OrderBookData> asksOrderBook = new ArrayList<OrderBookData>();
+	
+	
 	private void asksParser(JSONObject jsonData) {
 		JSONArray jsonArray = ( JSONArray ) jsonData.get("asks");
 		
@@ -52,18 +69,23 @@ public class APIPublicOrderBook {
 			asksOrderBook.add( new OrderBookData( 0.0d, 0, false ));
 		}
 		
+		asksLowestPrice 	= Integer.MAX_VALUE;
+		asksHighestPrice 	= 0;
+				
 		for( int i = 0; i < jsonArray.size(); i++ ) {
 			JSONObject jsonBid = ( JSONObject ) jsonArray.get(i);
 			OrderBookData orderBookData = asksOrderBook.get(i);
 			
 			orderBookData.quantity  = Double.valueOf((String) jsonBid.get( "quantity" ));
 			orderBookData.price 	= Util.priceStringToInteger( (String) jsonBid.get( "price" ));
+			
+			asksLowestPrice			= Math.min( asksLowestPrice, orderBookData.price );
+			asksHighestPrice		= Math.max( asksHighestPrice, orderBookData.price );
 		}
 		
 		Collections.sort( asksOrderBook );	
 	}
 
-	List<OrderBookData> bidsOrderBook = new ArrayList<OrderBookData>();
 	private void bidsParser(JSONObject jsonData) {
 		JSONArray jsonArray = ( JSONArray ) jsonData.get("bids");
 		
@@ -71,12 +93,19 @@ public class APIPublicOrderBook {
 			bidsOrderBook.add( new OrderBookData( 0.0d, 0, true ));
 		}
 		
+		bidsLowestPrice 	= Integer.MAX_VALUE;
+		bidsHighestPrice 	= 0;
+		
 		for( int i = 0; i < jsonArray.size(); i++ ) {
 			JSONObject jsonBid = ( JSONObject ) jsonArray.get(i);
+			
 			OrderBookData orderBookData = bidsOrderBook.get(i);
 			
 			orderBookData.quantity  = Double.valueOf((String) jsonBid.get( "quantity" ));
 			orderBookData.price 	= Util.priceStringToInteger( (String) jsonBid.get( "price" ));
+			
+			bidsLowestPrice			= Math.min( bidsLowestPrice, orderBookData.price );
+			bidsHighestPrice		= Math.max( bidsHighestPrice, orderBookData.price );
 		}
 		
 		Collections.sort( bidsOrderBook );
@@ -109,7 +138,7 @@ public class APIPublicOrderBook {
 	
 	
 	
-	class OrderBookData implements Comparable<OrderBookData> {
+	public class OrderBookData implements Comparable<OrderBookData> {
 		public double quantity;
 		public int price;
 		public boolean isBids;

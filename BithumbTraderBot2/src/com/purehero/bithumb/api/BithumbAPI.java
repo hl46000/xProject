@@ -7,7 +7,11 @@ public class BithumbAPI {
 	private static final Api_Client api_client = new Api_Client( APIKey.getAPIKey(), APIKey.getSecureKey() );
 	private long lastApiCallTime = System.currentTimeMillis();
 	
-	public String request( BithumbApiType apiType, Currency currency, Map<String,String> params ) {
+	public void setEnabledLog( boolean bEnableLog ) {
+		api_client.bEnableLog = bEnableLog;
+	}
+	
+	public synchronized String request( BithumbApiType apiType, Currency currency, Map<String,String> params ) {
 		long currentTime = System.currentTimeMillis();
 		long sleepTime 	 = 100 - ( currentTime - lastApiCallTime );
 		if( sleepTime > 0 ) {
@@ -32,6 +36,10 @@ public class BithumbAPI {
 			
 		default :
 			break;
+		}
+		
+		if( api_client.bEnableLog ) {
+			System.out.println( ret );
 		}
 		
 		lastApiCallTime = System.currentTimeMillis();

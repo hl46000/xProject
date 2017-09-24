@@ -17,6 +17,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 
 public class Api_Client {
+	public boolean bEnableLog = false;
+	
     protected String api_url = "https://api.bithumb.com";
     protected String api_key;
     protected String api_secret;
@@ -69,23 +71,31 @@ public class Api_Client {
 			request = new HttpRequest(strHost, "POST");
 			request.readTimeout(10000);
 	
-			System.out.println("POST ==> " + request.url());
+			if( bEnableLog ) {
+				System.out.println("POST ==> " + request.url());
+			}
 	
 			if (httpHeaders != null && !httpHeaders.isEmpty()) {
 			    httpHeaders.put("api-client-type", "2");
 			    request.headers(httpHeaders);
-			    System.out.println(httpHeaders.toString());
+			    if( bEnableLog ) {
+			    	System.out.println(httpHeaders.toString());
+			    }
 			}
 			if (rgParams != null && !rgParams.isEmpty()) {
 			    request.form(rgParams);
-			    System.out.println(rgParams.toString());
+			    if( bEnableLog ) {
+			    	System.out.println(rgParams.toString());
+			    }
 			}
 		    } else {
 			request = HttpRequest.get(strHost
 				+ Util.mapToQueryString(rgParams));
 			request.readTimeout(10000);
 	
-			System.out.println("Response was: " + response);
+			if( bEnableLog ) {
+				System.out.println("Response was: " + response);
+			}
 		    }
 	
 		    if (request.ok()) {
@@ -133,7 +143,9 @@ public class Api_Client {
 		strData = strData.substring(0, strData.length()-1);
 	
 	
-		System.out.println("1 : " + strData);
+		if( bEnableLog ) {
+			System.out.println("1 : " + strData);
+		}
 		
 		strData = encodeURIComponent(strData);
 		
@@ -145,8 +157,10 @@ public class Api_Client {
 		
         String encoded = asHex(hmacSha512(str, apiSecret));
 		
-		System.out.println("strData was: " + str);
-		System.out.println("apiSecret was: " + apiSecret);
+        if( bEnableLog ) {
+        	System.out.println("strData was: " + str);
+        	System.out.println("apiSecret was: " + apiSecret);
+        }
 		array.put("Api-Key", apiKey);
 		array.put("Api-Sign", encoded);
 		array.put("Api-Nonce", String.valueOf(nNonce));
@@ -208,8 +222,10 @@ public class Api_Client {
 			result = new ObjectMapper().readValue(rgResultDecode,
 				HashMap.class);
 	
-			System.out.println("==== 결과 출력 ====");
-			System.out.println(result.get("status"));
+			if( bEnableLog ) {
+				System.out.println("==== 결과 출력 ====");
+				System.out.println(result.get("status"));
+			}
 		    } catch (IOException e) {
 			e.printStackTrace();
 		    }
