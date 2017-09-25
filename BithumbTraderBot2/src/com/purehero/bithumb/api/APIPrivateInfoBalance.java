@@ -24,6 +24,7 @@ public class APIPrivateInfoBalance {
 
 	public int getTotalKrw() { return total_krw; }
 	public int getAvailableKrw() { return available_krw; }
+	public void setAvailableKrw(int krw) { available_krw = krw; }
 	public int getInUseKrw() { return in_use_krw; }
 	
 	public double getInUseBalance( Currency currency ) 	 { return in_use__balances[ currency.ordinal() ]; }
