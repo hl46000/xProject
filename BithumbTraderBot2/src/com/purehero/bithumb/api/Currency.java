@@ -9,6 +9,7 @@ public enum Currency {
 	XRP( "XRP", "리플", "Ripple"),
 	BCH( "BCH", "비트코인 캐시","Bitcoin Cash"), 
 	XMR( "XMR", "모네로","Monero"),
+	ZEC( "ZEC", "제트캐시", "Zcash" ),
 	
 	ALL( "ALL", "ALL", "ALL");
 	
