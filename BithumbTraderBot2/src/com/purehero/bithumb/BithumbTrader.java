@@ -3,11 +3,9 @@ package com.purehero.bithumb;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 import com.purehero.bithumb.api.APIPrivateInfoBalance;
 import com.purehero.bithumb.api.APIPublicOrderBook;
-import com.purehero.bithumb.api.APIPublicOrderBook.OrderBookData;
 import com.purehero.bithumb.api.BithumbAPI;
 import com.purehero.bithumb.api.Currency;
 import com.purehero.bithumb.api.Util;
@@ -116,7 +114,7 @@ public class BithumbTrader extends Thread {
 			System.out.println( String.format( "%s 구매 가격 : %s", currency.getKorName(), Util.intergerToPriceString( asksLowestPrice )));
 			System.out.println( String.format( "사용가능한 KRW : %s", Util.intergerToPriceString( pMyBalance.getAvailableKrw())));
 			
-			asksOrderUnits = pMyBalance.getAvailableKrw() / asksLowestPrice;
+			asksOrderUnits = pMyBalance.getAvailableKrw() / ( double ) asksLowestPrice;
 			System.out.println( String.format( "구매 개수 : %f", asksOrderUnits ));
 			
 			pMyBalance.setAvailableKrw( 0 );
@@ -131,6 +129,11 @@ public class BithumbTrader extends Thread {
 		return asksPriceLine != Integer.MIN_VALUE;
 	}
 	
+	/**
+	 * 현재 가격에 하향인지 상향인지를 반환한다. 
+	 * 
+	 * @return
+	 */
 	private int priceUpDownValue() {
 		int ret = 0;
 		for( Boolean upDown : priceUpDownHistory ) {

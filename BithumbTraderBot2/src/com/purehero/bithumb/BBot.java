@@ -1,8 +1,5 @@
 package com.purehero.bithumb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.purehero.bithumb.api.APIPrivateInfoBalance;
 import com.purehero.bithumb.api.APIPublicOrderBook;
 import com.purehero.bithumb.api.BithumbAPI;
