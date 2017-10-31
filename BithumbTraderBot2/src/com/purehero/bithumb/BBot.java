@@ -15,7 +15,7 @@ public class BBot {
 	private BithumbAPI bithumbAPI = new BithumbAPI();
 	private APIPrivateInfoBalance pMyBalance = new APIPrivateInfoBalance( bithumbAPI );
 	
-	private Currency tradeCurrencys [] = { Currency.BTC, Currency.ETC, Currency.ETH, Currency.XMR, Currency.DASH, Currency.LTC, Currency.XRP, Currency.ZEC }; 
+	private Currency tradeCurrencys [] = { Currency.BTC, Currency.ETC, Currency.ETH, Currency.XMR, Currency.DASH, Currency.LTC, Currency.XRP, Currency.ZEC, Currency.QTUM }; 
 	//private Currency tradeCurrencys [] = { Currency.LTC };
 	private APIPublicOrderBook orderBooks [] = new APIPublicOrderBook[ tradeCurrencys.length ]; 
 	
